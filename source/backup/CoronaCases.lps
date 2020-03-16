@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectSession>
+    <PathDelim Value="\"/>
+    <Version Value="12"/>
+    <BuildModes Active="Default"/>
+    <Units>
+      <Unit>
+        <Filename Value="CoronaCases.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <EditorIndex Value="-1"/>
+        <WindowIndex Value="-1"/>
+        <TopLine Value="-1"/>
+        <CursorPos X="-1" Y="-1"/>
+        <UsageCount Value="21"/>
+      </Unit>
+      <Unit>
+        <Filename Value="ccmain.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="MainForm"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="ccMain"/>
+        <IsVisibleTab Value="True"/>
+        <TopLine Value="134"/>
+        <CursorPos X="27" Y="146"/>
+        <UsageCount Value="21"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="C:\lazarus-trunk_fpc304\lcl\comctrls.pp"/>
+        <UnitName Value="ComCtrls"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="3616"/>
+        <CursorPos X="14" Y="3679"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="C:\lazarus-trunk_fpc304\fpc\3.0.4\rtl\objpas\sysutils\syshelp.inc"/>
+        <EditorIndex Value="4"/>
+        <TopLine Value="1236"/>
+        <CursorPos X="3" Y="1263"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="C:\lazarus-trunk_fpc304\fpc\3.0.4\rtl\objpas\sysutils\syshelph.inc"/>
+        <EditorIndex Value="5"/>
+        <TopLine Value="127"/>
+        <CursorPos X="14" Y="151"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="C:\lazarus-trunk_fpc304\fpc\3.0.4\rtl\win\sysutils.pp"/>
+        <EditorIndex Value="8"/>
+        <TopLine Value="19"/>
+        <CursorPos X="31" Y="1116"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="C:\lazarus-trunk_fpc304\fpc\3.0.4\packages\rtl-objpas\src\inc\strutils.pp"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="127"/>
+        <CursorPos X="27" Y="29"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="C:\lazarus-trunk_fpc304\fpc\3.0.4\rtl\objpas\sysutils\sysutilh.inc"/>
+        <EditorIndex Value="7"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="C:\lazarus-trunk_fpc304\fpc\3.0.4\rtl\objpas\sysutils\sysstrh.inc"/>
+        <EditorIndex Value="6"/>
+        <TopLine Value="72"/>
+        <CursorPos X="52" Y="104"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="C:\lazarus-trunk_fpc304\components\tachart\tatypes.pas"/>
+        <UnitName Value="TATypes"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="74"/>
+        <CursorPos X="3" Y="94"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+      </Unit>
+    </Units>
+    <JumpHistory HistoryIndex="29">
+      <Position>
+        <Filename Value="ccmain.pas"/>
+        <Caret Line="181" Column="75" TopLine="152"/>
+      </Position>
+      <Position>
+        <Filename Value="ccmain.pas"/>
+        <Caret Line="170" Column="55" TopLine="155"/>
+      </Position>
+      <Position>
+        <Filename Value="ccmain.pas"/>
+        <Caret Line="89" Column="61" TopLine="71"/>
+      </Position>
+      <Position>
+        <Filename Value="ccmain.pas"/>
+        <Caret Line="45" Column="20" TopLine="28"/>
+      </Position>
+      <Position>
+        <Filename Value="ccmain.pas"/>
+        <Caret Line="69" TopLine="58"/>
+      </Position>
+      <Position>
+        <Filename Value="ccmain.pas"/>
+        <Caret Line="45" Column="9" TopLine="45"/>
+      </Position>
+      <Position>
+        <Filename Value="ccmain.pas"/>
+        <Caret Line="92" Column="25" TopLine="79"/>
+      </Position>
+      <Position>
+        <Filename Value="ccmain.pas"/>
+        <Caret Line="108" Column="51" TopLine="89"/>
+      </Position>
+      <Position>
+        <Filename Value="ccmain.pas"/>
+        <Caret Line="111" Column="26" TopLine="92"/>
+      </Position>
+      <Position>
+        <Filename Value="ccmain.pas"/>
+        <Caret Line="112" Column="15" TopLine="94"/>
+      </Position>
+      <Position>
+        <Filename Value="ccmain.pas"/>
+        <Caret Line="27" Column="15" TopLine="8"/>
+      </Position>
+      <Position>
+        <Filename Value="ccmain.pas"/>
+        <Caret Line="100" Column="3" TopLine="95"/>
+      </Position>
+      <Position>
+        <Filename Value="ccmain.pas"/>
+        <Caret Line="138" Column="22" TopLine="124"/>
+      </Position>
+      <Position>
+        <Filename Value="ccmain.pas"/>
+        <Caret Line="78" Column="68" TopLine="61"/>
+      </Position>
+      <Position>
+        <Filename Value="ccmain.pas"/>
+        <Caret Line="111" Column="34" TopLine="85"/>
+      </Position>
+      <Position>
+        <Filename Value="ccmain.pas"/>
+        <Caret Line="116" Column="85" TopLine="86"/>
+      </Position>
+      <Position>
+        <Filename Value="ccmain.pas"/>
+        <Caret Line="122" Column="16" TopLine="89"/>
+      </Position>
+      <Position>
+        <Filename Value="ccmain.pas"/>
+        <Caret Line="145" Column="27" TopLine="133"/>
+      </Position>
+      <Position>
+        <Filename Value="ccmain.pas"/>
+        <Caret Line="146" Column="27" TopLine="134"/>
+      </Position>
+      <Position>
+        <Filename Value="ccmain.pas"/>
+        <Caret Line="145" Column="27" TopLine="133"/>
+      </Position>
+      <Position>
+        <Filename Value="ccmain.pas"/>
+        <Caret Line="144" Column="27" TopLine="132"/>
+      </Position>
+      <Position>
+        <Filename Value="ccmain.pas"/>
+        <Caret Line="143" Column="27" TopLine="131"/>
+      </Position>
+      <Position>
+        <Filename Value="ccmain.pas"/>
+        <Caret Line="142" Column="27" TopLine="130"/>
+      </Position>
+      <Position>
+        <Filename Value="ccmain.pas"/>
+        <Caret Line="146" Column="27" TopLine="134"/>
+      </Position>
+      <Position>
+        <Filename Value="ccmain.pas"/>
+        <Caret Line="145" Column="27" TopLine="133"/>
+      </Position>
+      <Position>
+        <Filename Value="ccmain.pas"/>
+        <Caret Line="144" Column="27" TopLine="132"/>
+      </Position>
+      <Position>
+        <Filename Value="ccmain.pas"/>
+        <Caret Line="143" Column="27" TopLine="131"/>
+      </Position>
+      <Position>
+        <Filename Value="ccmain.pas"/>
+        <Caret Line="142" Column="27" TopLine="130"/>
+      </Position>
+      <Position>
+        <Filename Value="ccmain.pas"/>
+        <Caret Line="146" Column="27" TopLine="134"/>
+      </Position>
+      <Position>
+        <Filename Value="ccmain.pas"/>
+        <Caret Line="145" Column="27" TopLine="133"/>
+      </Position>
+    </JumpHistory>
+    <RunParams>
+      <FormatVersion Value="2"/>
+      <Modes ActiveMode=""/>
+    </RunParams>
+    <HistoryLists>
+      <List Name="WorkingDirectory" Type="File" Count="1"/>
+      <List Name="LaunchingApplication" Type="File" Count="1">
+        <Item1 Value="C:\WINDOWS\system32\cmd.exe /C ${TargetCmdLine}"/>
+      </List>
+      <List Name="CommandLineParameters" Count="1"/>
+    </HistoryLists>
+  </ProjectSession>
+</CONFIG>
