@@ -7,7 +7,7 @@ Plots the data as a function of time.
 This repository contains Lazarus source files only. Please use Lazarus v2.0.6 or
 later to compile the binary.
 
-No additional packages are required to compile the application. But the OpenSSL libarary must be available. In Windows, copy the files libeay32.dll and ssleay32.dll of the correct bitness to the application directory.
+No additional packages are required to compile the application. But the OpenSSL library must be available. In Windows, copy the files libeay32.dll and ssleay32.dll of the correct bitness to the application directory.
 
 ## Data source
 https://github.com/CSSEGISandData/COVID-19
