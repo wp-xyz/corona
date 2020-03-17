@@ -19,8 +19,10 @@ type
     btnUpdate: TButton;
     btnClear: TButton;
     Chart: TChart;
-    ChartToolset1: TChartToolset;
-    MeasurementTool: TUserDefinedTool;
+    ChartToolset: TChartToolset;
+    cbCumulative: TCheckBox;
+    MeasurementTool: TDataPointDistanceTool;
+    UserdefinedTool: TUserDefinedTool;
     CrossHairTool: TDataPointCrosshairTool;
     ImageList1: TImageList;
     LeftAxisTransformations: TChartAxisTransformations;
@@ -39,6 +41,7 @@ type
     procedure btnAboutClick(Sender: TObject);
     procedure btnClearClick(Sender: TObject);
     procedure btnUpdateClick(Sender: TObject);
+    procedure cbCumulativeChange(Sender: TObject);
     procedure cbLogarithmicChange(Sender: TObject);
     procedure cgCasesItemClick(Sender: TObject; Index: integer);
     procedure ChartListboxAddSeries(ASender: TChartListbox;
@@ -46,29 +49,25 @@ type
     procedure CrossHairToolDraw(ASender: TDataPointDrawTool);
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure MeasurementToolAfterKeyUp(ATool: TChartTool; APoint: TPoint);
-    procedure MeasurementToolAfterMouseDown(ATool: TChartTool; APoint: TPoint);
-    procedure MeasurementToolAfterMouseMove(ATool: TChartTool; APoint: TPoint);
     procedure MeasurementToolAfterMouseUp(ATool: TChartTool; APoint: TPoint);
-    {
     procedure MeasurementToolGetDistanceText(ASender: TDataPointDistanceTool;
       var AText: String);
     procedure MeasurementToolMeasure(ASender: TDataPointDistanceTool);
-    }
     procedure TreeViewClick(Sender: TObject);
 
   private
     FMeasurementSeries: TFuncSeries;
-    FMeasurementStart: Double;
     FFitCoeffs: array[0..1] of Double;
-    function CalcFit(xmin, xmax: Double): Boolean;
+    function CalcFit(ASeries: TBasicChartSeries; xmin, xmax: Double): Boolean;
     procedure CalcFitHandler(const AX: Double; out AY: Double);
+    procedure Clear;
     procedure CreateMeasurementSeries;
     procedure GetDataString(ANode: TTreeNode; ADataType: TDataType; var AHeader, ACounts: String);
     function GetLocation(ANode: TTreeNode): String;
     procedure GetLocation(ANode: TTreeNode; out ACountry, AState: String);
-    function GetSeries(ANode: TTreeNode; ADataType: TDataType): TLineSeries;
+    function GetSeries(ANode: TTreeNode; ADataType: TDataType): TChartSeries;
     procedure LoadLocations;
+    procedure Logarithmic(AEnable: Boolean);
     procedure UpdateAffectedSeries;
 
   public
@@ -102,23 +101,6 @@ const
 
 var
   BaseDate: TDate;
-
-type
-  TMeasurementTool = class(TUserDefinedTool)
-  public
-    procedure Activate; override;
-    procedure Deactivate; override;
-  end;
-
-  procedure TMeasurementTool.Deactivate;
-  begin
-    inherited;
-  end;
-
-  procedure TMeasurementTool.Activate;
-  begin
-    inherited;
-  end;
 
 function BeginsWithQuote(s: String): Boolean;
 begin
@@ -168,9 +150,7 @@ end;
 
 procedure TMainForm.btnClearClick(Sender: TObject);
 begin
-  TreeView.Selected := nil;
-  Chart.ClearSeries;
-  CreateMeasurementSeries;
+  Clear;
 end;
 
 procedure TMainForm.btnUpdateClick(Sender: TObject);
@@ -205,22 +185,26 @@ begin
   end;
 end;
 
-function TMainForm.CalcFit(xmin, xmax: Double): Boolean;
+// It is assumed that xmin < xmax.
+function TMainForm.CalcFit(ASeries: TBasicChartSeries;
+  xmin, xmax: Double): Boolean;
+const
+  EPS = 1E-9;
 var
   x, y: TArbFloatArray;
-  ser: TChartSeries;
   n, i: Integer;
   xval, yval: Double;
   fitParams: TFitParamArray;
   fitRes: TFitResults;
+  ser: TChartSeries;
 begin
   Result := false;
   FFitCoeffs[0] := NaN;
   FFitCoeffs[1] := NaN;
 
-  if ChartListbox.ItemIndex = -1 then
+  if not (ASeries is TChartSeries) then
     exit;
-  ser := ChartListbox.Series[ChartListbox.ItemIndex] as TChartSeries;
+  ser := TChartSeries(ASeries);
   if ser.Count = 0 then
     exit;
 
@@ -229,9 +213,9 @@ begin
   n := 0;
   for i := 0 to ser.Count-1 do begin
     xval := ser.XValue[i];
-    if xval > xmax then
+    if not SameValue(xval, xmax, EPS) and (xval > xmax) then
       break;
-    if xval < xmin then
+    if not SameValue(xval, xmin) and (xval < xmin) then
       continue;
     yval := ser.YValue[i];
     if yval <= 0 then
@@ -272,6 +256,21 @@ begin
     AY := NaN;
 end;
 
+procedure TMainForm.cbCumulativeChange(Sender: TObject);
+begin
+  Clear;
+  cbLogarithmic.Enabled := cbCumulative.Checked;
+  if cbCumulative.Checked then
+  begin
+    Chart.LeftAxis.Title.Caption := 'Cases';
+    Logarithmic(cbLogarithmic.Checked)
+  end else
+  begin
+    Chart.LeftAxis.Title.Caption := 'New Cases';
+    Logarithmic(false);
+  end;
+end;
+
 procedure TMainForm.ChartListboxAddSeries(ASender: TChartListbox;
   ASeries: TCustomChartSeries; AItems: TChartLegendItems; var ASkip: Boolean);
 var
@@ -293,23 +292,25 @@ end;
 
 procedure TMainForm.CrossHairToolDraw(
   ASender: TDataPointDrawTool);
+const
+  NEW_: array[boolean] of string = ('new ', '');
 var
-  ser: TLineSeries;
+  ser: TChartSeries;
   x, y: Double;
   sy: String;
 begin
   if ASender.Series = nil then
     Statusbar.Panels[0].Text := ''
   else
-  if ASender.Series is TLineSeries then
+  if ASender.Series is TChartSeries then
   begin
-    ser := TLineSeries(ASender.Series);
+    ser := TChartSeries(ASender.Series);
     x := ser.GetXValue(ASender.PointIndex);
     y := ser.GetYValue(ASender.PointIndex);
     if y = 1 then
-      sy := '1 case'
+      sy := Format('1 %case', [NEW_[cbCumulative.Checked]])
     else
-      sy := Format('%.0f cases', [y]);
+      sy := Format('%.0f %scases', [y, NEW_[cbCumulative.Checked]]);
     Statusbar.Panels[0].Text := Format('%s: %s, %s', [ser.Title, DateToStr(x), sy]);
     ASender.Handled;
   end;
@@ -317,27 +318,7 @@ end;
 
 procedure TMainForm.cbLogarithmicChange(Sender: TObject);
 begin
-  if cbLogarithmic.Checked then
-  begin
-    with Chart.LeftAxis do begin
-      Transformations := LeftAxisTransformations;
-      Intervals.Options := Intervals.Options + [aipGraphCoords];
-      Intervals.MaxLength := 150;
-      Intervals.MinLength := 50;
-      Intervals.Tolerance := 100;
-    end;
-    Chart.Extent.UseYMin := true;
-  end else
-  begin
-    with Chart.LeftAxis do begin
-      Transformations := nil;
-      Intervals.Options := Intervals.Options - [aipGraphCoords];
-      Intervals.MaxLength := 50;
-      Intervals.MinLength := 10;
-      Intervals.Tolerance := 0;
-    end;
-    Chart.Extent.UseYMin := false;
-  end;
+  Logarithmic(cbLogarithmic.Checked);
 end;
 
 procedure TMainForm.cgCasesItemClick(Sender: TObject; Index: integer);
@@ -345,11 +326,18 @@ begin
   TreeViewClick(nil);
 end;
 
+procedure TMainForm.Clear;
+begin
+  TreeView.Selected := nil;
+  Chart.ClearSeries;
+  CreateMeasurementSeries;
+end;
+
 procedure TMainForm.CreateMeasurementSeries;
 begin
   FMeasurementSeries := TFuncSeries.Create(Chart);
-  FMeasurementSeries.OnCalculate := @CalcFitHandler;
   FMeasurementSeries.Active := false;
+  FMeasurementSeries.OnCalculate := @CalcFitHandler;
   FMeasurementSeries.Legend.Visible := false;
   FMeasurementSeries.AxisIndexX := 1;
   FMeasurementseries.AxisIndexY := 0;
@@ -367,7 +355,6 @@ procedure TMainForm.FormCreate(Sender: TObject);
 begin
   cgCases.Checked[0] := true;
   CreateMeasurementSeries;
-  MeasurementTool.ActiveCursor := crSizeWE;
   LoadLocations;
 end;
 
@@ -433,7 +420,7 @@ begin
     Result := country + ' / ' + state;
 end;
 
-function TMainForm.GetSeries(ANode: TTreeNode; ADataType: TDataType): TLineSeries;
+function TMainForm.GetSeries(ANode: TTreeNode; ADataType: TDataType): TChartSeries;
 var
   i: Integer;
   serTitle: String;
@@ -534,49 +521,78 @@ begin
   end;
 end;
 
-procedure TMainForm.MeasurementToolAfterKeyUp(ATool: TChartTool; APoint: TPoint);
+procedure TMainForm.Logarithmic(AEnable: Boolean);
 begin
-  TMeasurementTool(ATool).Deactivate;
-  FMeasurementSeries.Active := false;
-  Statusbar.Panels[1].Text := '';
-end;
-
-procedure TMainForm.MeasurementToolAfterMouseDown(
-  ATool: TChartTool; APoint: TPoint);
-begin
-  FMeasurementSeries.Active := true;
-  FMeasurementStart := Chart.XImageToGraph(APoint.X);
-  TMeasurementTool(ATool).Activate;
-end;
-
-procedure TMainForm.MeasurementToolAfterMouseMove(
-  ATool: TChartTool; APoint: TPoint);
-var
-  s: String;
-  min, max: Double;
-begin
-  if (ChartListbox.ItemIndex = -1) then
-    exit;
-
-  min := FMeasurementStart;
-  max := Chart.XImageToGraph(APoint.X);
-  EnsureOrder(min, max);
-
-  if CalcFit(min, max) and (FFitCoeffs[1] <> 0) then
+  if AEnable then
   begin
-    FFitCoeffs[0] := exp(FFitCoeffs[0]);
-    FMeasurementSeries.DomainExclusions.Clear;
-    FMeasurementSeries.DomainExclusions.AddRange(-Infinity, min);
-    FMeasurementSeries.DomainExclusions.AddRange(max, Infinity);
-    Statusbar.Panels[1].Text := Format('Doubles every %.1f days', [-ln(0.5) / FFitCoeffs[1]]);
+    with Chart.LeftAxis do begin
+      Transformations := LeftAxisTransformations;
+      Intervals.Options := Intervals.Options + [aipGraphCoords];
+      Intervals.MaxLength := 150;
+      Intervals.MinLength := 50;
+      Intervals.Tolerance := 100;
+    end;
+    Chart.Extent.UseYMin := true;
+  end else
+  begin
+    with Chart.LeftAxis do begin
+      Transformations := nil;
+      Intervals.Options := Intervals.Options - [aipGraphCoords];
+      Intervals.MaxLength := 50;
+      Intervals.MinLength := 10;
+      Intervals.Tolerance := 0;
+    end;
+    Chart.Extent.UseYMin := false;
   end;
 end;
 
-procedure TMainForm.MeasurementToolAfterMouseUp(ATool: TChartTool; APoint: TPoint);
+procedure TMainForm.MeasurementToolAfterMouseUp(ATool: TChartTool;
+  APoint: TPoint);
 begin
-  TMeasurementTool(ATool).Deactivate;
   FMeasurementSeries.Active := false;
   Statusbar.Panels[1].Text := '';
+//  ATool.Handled;
+end;
+
+procedure TMainForm.MeasurementToolGetDistanceText(
+  ASender: TDataPointDistanceTool; var AText: String);
+var
+  min, max: Double;
+  ok: Boolean;
+  s: String;
+begin
+  AText := '';
+
+  min := ASender.PointStart.GraphPos.X;
+  max := ASender.PointEnd.GraphPos.X;
+  if min = max then
+    exit;
+  EnsureOrder(min, max);
+
+  if not (ASender.PointStart.Series is TChartSeries) then
+    exit;
+
+  ok := false;
+  s := '';
+  if CalcFit(ASender.PointStart.Series, min, max) then
+    if (FFitCoeffs[1] <> 0) then
+    begin
+      FFitCoeffs[0] := exp(FFitCoeffs[0]);
+      FMeasurementSeries.DomainExclusions.Clear;
+      FMeasurementSeries.DomainExclusions.AddRange(-Infinity, min);
+      FMeasurementSeries.DomainExclusions.AddRange(max, Infinity);
+      s := Format('Doubles every %.1f days', [-ln(0.5) / FFitCoeffs[1]]);
+      ok := true;
+    end;
+  FMeasurementSeries.Active := ok;
+  Statusbar.Panels[1].Text := s;
+  Statusbar.Refresh;
+end;
+
+procedure TMainForm.MeasurementToolMeasure(ASender: TDataPointDistanceTool);
+begin
+  FMeasurementSeries.Active := false;
+//  Statusbar.Panels[1].Text := '';
 end;
 
 procedure TMainForm.TreeViewClick(Sender: TObject);
@@ -587,8 +603,8 @@ var
   dt: TDataType;
   saX, saY: TStringArray;
   i: Integer;
-  ser: TLineSeries;
-  Y: Double;
+  ser: TChartSeries;
+  Y, Y0: Double;
 begin
   if TreeView.Selected = nil then
     exit;
@@ -610,15 +626,23 @@ begin
       ser.ListSource.BeginUpdate;
       try
         ser.Clear;
-        for i := 4 to High(say) do
-        begin
-          Y := StrToInt(saY[i]);
-          if Y = 0 then Y := 0.1;
-          ser.AddXY(StrToDate(saX[i], fs), Y);
+        if cbCumulative.Checked then begin
+          for i := 4 to High(saY) do
+          begin
+            Y := StrToInt(saY[i]);
+            if Y = 0 then Y := 0.1;
+            ser.AddXY(StrToDate(saX[i], fs), Y);
+          end;
+        end else begin
+          Y0 := StrToInt(saY[4]);
+          for i := 5 to High(saY) do begin
+            Y := StrToInt(saY[i]);
+            ser.AddXY(StrToDate(saX[i], fs), Y - Y0);
+            Y0 := Y;
+          end;
         end;
       finally
         ser.EndUpdate;
-        ChartListbox.ItemIndex := ChartListBox.FindSeriesIndex(ser);
       end;
     end else
     begin
@@ -635,10 +659,11 @@ var
 begin
   s := '';
   for i := 0 to Chart.SeriesCount-1 do
-    if (Chart.Series[i] is TLineSeries) and Chart.Series[i].Active then
+    if (Chart.Series[i] is TChartSeries) and Chart.Series[i].Active then
       s := s + ',' + IntToStr(Chart.Series[i].Index);
-  Delete(s, 1, 2);
+  Delete(s, 1, 1);
   CrossHairTool.AffectedSeries := s;
+  MeasurementTool.AffectedSeries := s;
 end;
 
 initialization
