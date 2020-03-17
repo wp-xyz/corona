@@ -3504,6 +3504,7 @@ object MainForm: TMainForm
       Width = 170
       Chart = Chart
       OnAddSeries = ChartListboxAddSeries
+      OnCheckboxClick = ChartListboxCheckboxClick
       Anchors = [akTop, akLeft, akRight, akBottom]
       BorderSpacing.Bottom = 6
       ItemHeight = 0
@@ -3588,6 +3589,17 @@ object MainForm: TMainForm
       PointerStart.Visible = True
       OnGetDistanceText = MeasurementToolGetDistanceText
       OnMeasure = MeasurementToolMeasure
+    end
+    object ZoomDragTool: TZoomDragTool
+      Shift = [ssLeft]
+      LimitToExtent = [zdLeft, zdUp, zdRight, zdDown]
+      Brush.Style = bsClear
+      EscapeCancels = True
+    end
+    object PanDragTool: TPanDragTool
+      Shift = [ssRight]
+      LimitToExtent = [pdLeft, pdUp, pdRight, pdDown]
+      EscapeCancels = True
     end
   end
   object ImageList1: TImageList

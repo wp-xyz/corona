@@ -45,9 +45,9 @@ object AboutForm: TAboutForm
     Left = 12
     Height = 15
     Top = 124
-    Width = 114
+    Width = 42
     BorderSpacing.Top = 16
-    Caption = 'Acknowledgements:'
+    Caption = 'Credits:'
     Font.Style = [fsBold]
     ParentColor = False
     ParentFont = False
@@ -58,7 +58,7 @@ object AboutForm: TAboutForm
     AnchorSideTop.Side = asrBottom
     AnchorSideRight.Side = asrBottom
     Left = 12
-    Height = 134
+    Height = 138
     Top = 143
     Width = 303
     AutoSize = True
@@ -67,7 +67,7 @@ object AboutForm: TAboutForm
     BorderSpacing.Right = 12
     BevelOuter = bvNone
     BorderStyle = bsSingle
-    ClientHeight = 130
+    ClientHeight = 134
     ClientWidth = 299
     Color = clWindow
     ParentColor = False
@@ -114,10 +114,10 @@ object AboutForm: TAboutForm
       Left = 113
       Height = 15
       Hint = 'https://www.lazarus-ide.org/'
-      Top = 25
+      Top = 27
       Width = 39
       BorderSpacing.Left = 16
-      BorderSpacing.Top = 2
+      BorderSpacing.Top = 4
       Caption = 'Lazarus'
       Font.Color = clBlue
       ParentColor = False
@@ -132,7 +132,7 @@ object AboutForm: TAboutForm
       AnchorSideRight.Side = asrBottom
       Left = 77
       Height = 15
-      Top = 25
+      Top = 27
       Width = 20
       Anchors = [akTop, akRight]
       Caption = 'IDE:'
@@ -144,7 +144,7 @@ object AboutForm: TAboutForm
       AnchorSideRight.Side = asrBottom
       Left = 24
       Height = 15
-      Top = 42
+      Top = 46
       Width = 73
       BorderSpacing.Left = 24
       Caption = 'Toolbar icons:'
@@ -159,10 +159,10 @@ object AboutForm: TAboutForm
       Left = 113
       Height = 15
       Hint = 'www.icons8.com'
-      Top = 42
+      Top = 46
       Width = 91
       BorderSpacing.Left = 16
-      BorderSpacing.Top = 2
+      BorderSpacing.Top = 4
       Caption = 'www.icons8.com'
       Font.Color = clBlue
       ParentColor = False
@@ -177,7 +177,7 @@ object AboutForm: TAboutForm
       AnchorSideRight.Side = asrBottom
       Left = 32
       Height = 15
-      Top = 73
+      Top = 77
       Width = 65
       Anchors = [akTop, akRight]
       Caption = 'Data source:'
@@ -190,7 +190,7 @@ object AboutForm: TAboutForm
       Cursor = crHandPoint
       Left = 113
       Height = 32
-      Top = 73
+      Top = 77
       Width = 162
       AutoSize = True
       BorderSpacing.Top = 16
@@ -322,12 +322,12 @@ object AboutForm: TAboutForm
       Left = 113
       Height = 15
       Hint = 'www.icons8.com'
-      Top = 107
-      Width = 35
+      Top = 111
+      Width = 45
       BorderSpacing.Left = 16
       BorderSpacing.Top = 2
       BorderSpacing.Bottom = 8
-      Caption = 'github'
+      Caption = 'Data site'
       Font.Color = clBlue
       ParentColor = False
       ParentFont = False
@@ -343,7 +343,7 @@ object AboutForm: TAboutForm
     AnchorSideRight.Side = asrBottom
     Left = 260
     Height = 25
-    Top = 285
+    Top = 289
     Width = 55
     Anchors = [akTop, akRight]
     AutoSize = True

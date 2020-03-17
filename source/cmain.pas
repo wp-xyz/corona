@@ -21,6 +21,8 @@ type
     Chart: TChart;
     ChartToolset: TChartToolset;
     cbCumulative: TCheckBox;
+    PanDragTool: TPanDragTool;
+    ZoomDragTool: TZoomDragTool;
     MeasurementTool: TDataPointDistanceTool;
     UserdefinedTool: TUserDefinedTool;
     CrossHairTool: TDataPointCrosshairTool;
@@ -46,6 +48,7 @@ type
     procedure cgCasesItemClick(Sender: TObject; Index: integer);
     procedure ChartListboxAddSeries(ASender: TChartListbox;
       ASeries: TCustomChartSeries; AItems: TChartLegendItems; var ASkip: Boolean);
+    procedure ChartListboxCheckboxClick(ASender: TObject; AIndex: Integer);
     procedure CrossHairToolDraw(ASender: TDataPointDrawTool);
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -66,6 +69,7 @@ type
     function GetLocation(ANode: TTreeNode): String;
     procedure GetLocation(ANode: TTreeNode; out ACountry, AState: String);
     function GetSeries(ANode: TTreeNode; ADataType: TDataType): TChartSeries;
+    procedure LayoutBars;
     procedure LoadLocations;
     procedure Logarithmic(AEnable: Boolean);
     procedure UpdateAffectedSeries;
@@ -98,6 +102,8 @@ const
 
   COLORS: array[0..8] of TColor = (clRed, clBlue, clFuchsia, clLime, clTeal,
     clSkyBlue, clPurple, clBlack, clMedGray);
+
+  BARWIDTH_PERCENT = 80;
 
 var
   BaseDate: TDate;
@@ -290,6 +296,11 @@ begin
       end;
 end;
 
+procedure TMainForm.ChartListboxCheckboxClick(ASender: TObject; AIndex: Integer);
+begin
+  LayoutBars;
+end;
+
 procedure TMainForm.CrossHairToolDraw(
   ASender: TDataPointDrawTool);
 const
@@ -424,15 +435,15 @@ function TMainForm.GetSeries(ANode: TTreeNode; ADataType: TDataType): TChartSeri
 var
   i: Integer;
   serTitle: String;
-  ser: TLineSeries;
+  ser: TChartSeries;
   dt: TDataType;
 begin
   serTitle := Format('%s (%s)', [GetLocation(ANode), DATATYPE_NAMES[ADataType]]);
 
   for i:=0 to Chart.SeriesCount-1 do
-    if (Chart.Series[i] is TLineSeries) then
+    if (Chart.Series[i] is TChartSeries) then
     begin
-      Result := TLineSeries(Chart.Series[i]);
+      Result := TChartSeries(Chart.Series[i]);
       if (Result <> nil) and (pos(serTitle, Result.Title) = 1) then
       begin
         Result.Active := true;
@@ -445,29 +456,48 @@ begin
   // ADatatype and hide the others.
   serTitle := GetLocation(ANode);
   for dt in TDataType do begin
-    ser := TLineSeries.Create(Chart);
+    if cbCumulative.Checked then
+    begin
+      ser := TLineSeries.Create(Chart);
+      with TLineSeries(ser) do
+      begin
+        ShowPoints := true;
+        LinePen.Color := COLORS[((Chart.SeriesCount - 1) div 3) mod Length(COLORS)];
+        Pointer.Pen.Color := LinePen.Color;
+        case dt of
+          dtConfirmed:
+            begin
+              Pointer.Style := psCircle;
+              Pointer.Brush.Color := LinePen.Color;
+            end;
+          dtDeaths:
+            begin
+              Pointer.Style := psCross;
+            end;
+          dtRecovered:
+            begin
+              Pointer.Style := psRectangle;
+              Pointer.Brush.Color := clWhite;
+            end;
+        end;
+      end;
+    end else
+    begin
+      ser := TBarSeries.Create(Chart);
+      with TBarSeries(ser) do begin
+        BarBrush.Color := COLORS[((Chart.SeriesCount-1) div 3) mod Length(COLORS)];
+        BarBrush.Style := bsSolid;
+        BarPen.Color := BarBrush.Color;
+        case dt of
+          dtConfirmed : BarBrush.Style := bsSolid;
+          dtDeaths    : BarBrush.Color := clWhite;
+          dtRecovered : BarBrush.Style := bsDiagCross;
+        end;
+      end;
+    end;
     ser.Title := serTitle + ' (' + DATATYPE_NAMES[dt] + ')';
     ser.AxisIndexX := 1;
     ser.AxisIndexY := 0;
-    ser.ShowPoints := true;
-    ser.LinePen.Color := COLORS[((Chart.SeriesCount - 1) div 3) mod Length(COLORS)];
-    ser.Pointer.Pen.Color := ser.LinePen.Color;
-    case dt of
-      dtConfirmed:
-        begin
-          ser.Pointer.Style := psCircle;
-          ser.Pointer.Brush.Color := ser.LinePen.Color;
-        end;
-      dtDeaths:
-        begin
-          ser.Pointer.Style := psCross;
-        end;
-      dtRecovered:
-        begin
-          ser.Pointer.Style := psRectangle;
-          ser.Pointer.Brush.Color := clWhite;
-        end;
-    end;
     if dt = ADataType then
       Result := ser
     else
@@ -476,6 +506,30 @@ begin
   end;
 
   UpdateAffectedSeries;
+end;
+
+procedure TMainForm.LayoutBars;
+var
+  i, j, n: Integer;
+  ser: TBarSeries;
+begin
+  if cbCumulative.Checked then
+    exit;
+
+  n := 0;
+  for i := 0 to Chart.SeriesCount-1 do
+    if (Chart.Series[i] is TBarSeries) and Chart.Series[i].Active then
+      inc(n);
+
+  j := 0;
+  for i:=0 to Chart.SeriesCount-1 do
+    if (Chart.Series[i] is TBarSeries) and Chart.Series[i].Active then
+    begin
+      ser := TBarSeries(Chart.Series[i]);
+      ser.BarWidthPercent := round(BARWIDTH_PERCENT / n);
+      ser.BarOffsetPercent := round((j - (n-1)/2) * ser.BarWidthPercent);
+      inc(j);
+    end;
 end;
 
 procedure TMainForm.LoadLocations;
@@ -650,6 +704,7 @@ begin
       counts[dt] := '';
     end;
   end;
+  LayoutBars;
 end;
 
 procedure TMainForm.UpdateAffectedSeries;
