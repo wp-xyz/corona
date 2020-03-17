@@ -179,21 +179,21 @@ var
 begin
   stream := TMemoryStream.Create;
   try
-    Statusbar.Panels[0].Text := 'Download from ' + BASE_URL + FILENAME_CONFIRMED + '...';
+    Statusbar.Panels[1].Text := 'Download from ' + BASE_URL + FILENAME_CONFIRMED + '...';
     Statusbar.Refresh;
     DownloadFile(BASE_URL + FILENAME_CONFIRMED, stream);
     stream.Position := 0;
     stream.SaveToFile(DATA_DIR + FILENAME_CONFIRMED);
 
     stream.Position := 0;
-    Statusbar.Panels[0].Text := 'Download from ' + BASE_URL + FILENAME_DEATHS + '...';
+    Statusbar.Panels[1].Text := 'Download from ' + BASE_URL + FILENAME_DEATHS + '...';
     Statusbar.Refresh;
     DownloadFile(BASE_URL + FILENAME_DEATHS, stream);
     stream.Position := 0;
     stream.SaveToFile(DATA_DIR + FILENAME_DEATHS);
 
     stream.Position := 0;
-    Statusbar.Panels[0].Text := 'Download from ' + BASE_URL + FILENAME_RECOVERED + '...';
+    Statusbar.Panels[1].Text := 'Download from ' + BASE_URL + FILENAME_RECOVERED + '...';
     Statusbar.Refresh;
     DownloadFile(BASE_URL + FILENAME_RECOVERED, stream);
     stream.Position := 0;
@@ -527,6 +527,7 @@ begin
       TreeView.AlphaSort;
       TreeView.Items.EndUpdate;
       Statusbar.Panels[0].Text := 'Locations loaded.';
+      Statusbar.Panels[1].Text := '';
     end;
   finally
     L.Free;

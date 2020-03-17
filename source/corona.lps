@@ -23,8 +23,8 @@
         <UnitName Value="cMain"/>
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="266"/>
-        <CursorPos X="14" Y="272"/>
+        <TopLine Value="494"/>
+        <CursorPos X="38" Y="530"/>
         <UsageCount Value="59"/>
         <Bookmarks Count="1">
           <Item0 Y="227" ID="1"/>
@@ -271,14 +271,6 @@
     <JumpHistory HistoryIndex="29">
       <Position>
         <Filename Value="C:\lazarus-trunk_fpc304\components\tachart\tatools.pas"/>
-        <Caret Line="248" Column="15" TopLine="231"/>
-      </Position>
-      <Position>
-        <Filename Value="C:\lazarus-trunk_fpc304\components\tachart\tatools.pas"/>
-        <Caret Line="1430" Column="15" TopLine="1430"/>
-      </Position>
-      <Position>
-        <Filename Value="C:\lazarus-trunk_fpc304\components\tachart\tatools.pas"/>
       </Position>
       <Position>
         <Filename Value="cmain.pas"/>
@@ -357,10 +349,6 @@
       </Position>
       <Position>
         <Filename Value="cmain.pas"/>
-        <Caret Line="313" Column="25" TopLine="315"/>
-      </Position>
-      <Position>
-        <Filename Value="cmain.pas"/>
         <Caret Line="529" Column="26" TopLine="498"/>
       </Position>
       <Position>
@@ -386,6 +374,18 @@
       <Position>
         <Filename Value="cmain.pas"/>
         <Caret Line="65" Column="14" TopLine="46"/>
+      </Position>
+      <Position>
+        <Filename Value="cmain.pas"/>
+        <Caret Line="276" Column="40" TopLine="266"/>
+      </Position>
+      <Position>
+        <Filename Value="cmain.pas"/>
+        <Caret Line="41" Column="15" TopLine="26"/>
+      </Position>
+      <Position>
+        <Filename Value="cmain.pas"/>
+        <Caret Line="196" Column="23" TopLine="175"/>
       </Position>
     </JumpHistory>
     <RunParams>
