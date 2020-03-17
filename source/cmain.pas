@@ -269,11 +269,13 @@ begin
   if cbCumulative.Checked then
   begin
     Chart.LeftAxis.Title.Caption := 'Cases';
-    Logarithmic(cbLogarithmic.Checked)
+    Logarithmic(cbLogarithmic.Checked);
+    MeasurementTool.Enabled := true;
   end else
   begin
     Chart.LeftAxis.Title.Caption := 'New Cases';
     Logarithmic(false);
+    MeasurementTool.Enabled := false;
   end;
 end;
 
@@ -299,6 +301,7 @@ end;
 procedure TMainForm.ChartListboxCheckboxClick(ASender: TObject; AIndex: Integer);
 begin
   LayoutBars;
+  UpdateAffectedSeries;
 end;
 
 procedure TMainForm.CrossHairToolDraw(
@@ -319,7 +322,7 @@ begin
     x := ser.GetXValue(ASender.PointIndex);
     y := ser.GetYValue(ASender.PointIndex);
     if y = 1 then
-      sy := Format('1 %case', [NEW_[cbCumulative.Checked]])
+      sy := Format('1 %scase', [NEW_[cbCumulative.Checked]])
     else
       sy := Format('%.0f %scases', [y, NEW_[cbCumulative.Checked]]);
     Statusbar.Panels[0].Text := Format('%s: %s, %s', [ser.Title, DateToStr(x), sy]);
@@ -705,6 +708,7 @@ begin
     end;
   end;
   LayoutBars;
+  UpdateAffectedSeries;
 end;
 
 procedure TMainForm.UpdateAffectedSeries;
