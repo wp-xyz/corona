@@ -24,7 +24,7 @@ type
     cbCumulative: TCheckBox;
     Grid: TDrawGrid;
     lblTableHdr: TLabel;
-    PageControl1: TPageControl;
+    PageControl: TPageControl;
     PanDragTool: TPanDragTool;
     pgChart: TTabSheet;
     pgTable: TTabSheet;

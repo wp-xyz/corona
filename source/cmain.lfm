@@ -3431,17 +3431,17 @@ object MainForm: TMainForm
       OnClick = btnAboutClick
     end
   end
-  object PageControl1: TPageControl
+  object PageControl: TPageControl
     Left = 240
     Height = 563
     Top = 6
     Width = 870
-    ActivePage = pgTable
+    ActivePage = pgChart
     Align = alClient
     BorderSpacing.Top = 6
     BorderSpacing.Right = 6
     BorderSpacing.Bottom = 6
-    TabIndex = 1
+    TabIndex = 0
     TabOrder = 3
     object pgChart: TTabSheet
       Caption = 'Chart'
