@@ -6,9 +6,9 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, ExtCtrls,
-  StdCtrls, Buttons, TAGraph, TAIntervalSources, TASeries, TAChartListbox,
-  TALegend, TACustomSeries, TATransformations, TATools, TAFuncSeries,
-  TADataTools, Types;
+  StdCtrls, Buttons, Grids, TAGraph, TAIntervalSources, TASeries,
+  TAChartListbox, TALegend, TACustomSeries, TATransformations, TATools,
+  TAFuncSeries, TADataTools, Types;
 
 type
   TDataType = (dtConfirmed, dtDeaths, dtRecovered);
@@ -18,10 +18,17 @@ type
   TMainForm = class(TForm)
     btnUpdate: TButton;
     btnClear: TButton;
+    btnSaveToCSV: TButton;
     Chart: TChart;
     ChartToolset: TChartToolset;
     cbCumulative: TCheckBox;
+    Grid: TDrawGrid;
+    lblTableHdr: TLabel;
+    PageControl1: TPageControl;
     PanDragTool: TPanDragTool;
+    pgChart: TTabSheet;
+    pgTable: TTabSheet;
+    SaveDialog: TSaveDialog;
     ZoomDragTool: TZoomDragTool;
     MeasurementTool: TDataPointDistanceTool;
     UserdefinedTool: TUserDefinedTool;
@@ -43,6 +50,7 @@ type
     procedure btnAboutClick(Sender: TObject);
     procedure btnClearClick(Sender: TObject);
     procedure btnUpdateClick(Sender: TObject);
+    procedure btnSaveToCSVClick(Sender: TObject);
     procedure cbCumulativeChange(Sender: TObject);
     procedure cbLogarithmicChange(Sender: TObject);
     procedure cgCasesItemClick(Sender: TObject; Index: integer);
@@ -52,6 +60,10 @@ type
     procedure CrossHairToolDraw(ASender: TDataPointDrawTool);
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure GridDrawCell(Sender: TObject; aCol, aRow: Integer; aRect: TRect;
+      aState: TGridDrawState);
+    procedure GridPrepareCanvas(sender: TObject; aCol, aRow: Integer;
+      aState: TGridDrawState);
     procedure MeasurementToolAfterMouseUp(ATool: TChartTool; APoint: TPoint);
     procedure MeasurementToolGetDistanceText(ASender: TDataPointDistanceTool;
       var AText: String);
@@ -65,6 +77,7 @@ type
     procedure CalcFitHandler(const AX: Double; out AY: Double);
     procedure Clear;
     procedure CreateMeasurementSeries;
+    function GetCellText(ACol, ARow: Integer): String;
     procedure GetDataString(ANode: TTreeNode; ADataType: TDataType; var AHeader, ACounts: String);
     function GetLocation(ANode: TTreeNode): String;
     procedure GetLocation(ANode: TTreeNode; out ACountry, AState: String);
@@ -73,6 +86,7 @@ type
     procedure LoadLocations;
     procedure Logarithmic(AEnable: Boolean);
     procedure UpdateAffectedSeries;
+    procedure UpdateGrid;
 
   public
 
@@ -191,6 +205,39 @@ begin
   end;
 end;
 
+procedure TMainForm.btnSaveToCSVClick(Sender: TObject);
+var
+  r, c: Integer;
+  F: TextFile;
+  col: TGridColumn;
+  ser: TChartSeries;
+begin
+  SaveDialog.Filename := '';
+  if SaveDialog.Execute then
+  begin
+    AssignFile(F, SaveDialog.FileName);
+    Rewrite(F);
+
+    Write(F, 'Date');
+    for c := 1 to Grid.ColCount-1 do
+    begin
+      col := Grid.Columns[c-1];
+      ser := TChartSeries(col.Tag);
+      Write(F, #9, ser.Title);
+    end;
+    WriteLn(F);
+
+    for r := 1 to Grid.RowCount-1 do
+    begin
+      Write(F, GetCellText(0, r));
+      for c := 1 to Grid.ColCount-1 do
+        Write(F, #9, GetCellText(c, r));
+      WriteLn(F);
+    end;
+    CloseFile(F);
+  end;
+end;
+
 // It is assumed that xmin < xmax.
 function TMainForm.CalcFit(ASeries: TBasicChartSeries;
   xmin, xmax: Double): Boolean;
@@ -271,11 +318,13 @@ begin
     Chart.LeftAxis.Title.Caption := 'Cases';
     Logarithmic(cbLogarithmic.Checked);
     MeasurementTool.Enabled := true;
+    lblTableHdr.Caption := 'Cumulative Cases';
   end else
   begin
     Chart.LeftAxis.Title.Caption := 'New Cases';
     Logarithmic(false);
     MeasurementTool.Enabled := false;
+    lblTableHdr.Caption := 'New Cases';
   end;
 end;
 
@@ -324,7 +373,7 @@ begin
     if y = 1 then
       sy := Format('1 %scase', [NEW_[cbCumulative.Checked]])
     else
-      sy := Format('%.0f %scases', [y, NEW_[cbCumulative.Checked]]);
+      sy := Format('%.0n %scases', [y, NEW_[cbCumulative.Checked]]);
     Statusbar.Panels[0].Text := Format('%s: %s, %s', [ser.Title, DateToStr(x), sy]);
     ASender.Handled;
   end;
@@ -345,6 +394,7 @@ begin
   TreeView.Selected := nil;
   Chart.ClearSeries;
   CreateMeasurementSeries;
+  UpdateGrid;
 end;
 
 procedure TMainForm.CreateMeasurementSeries;
@@ -370,6 +420,37 @@ begin
   cgCases.Checked[0] := true;
   CreateMeasurementSeries;
   LoadLocations;
+end;
+
+function TMainForm.GetCellText(ACol, ARow: Integer): String;
+var
+  s: String;
+  col: TGridColumn;
+  ser: TChartSeries;
+  r: Integer;
+begin
+  if (ACol = 0) and (ARow = 0) then
+    Result := 'Date'
+  else
+  begin
+    Result := '';
+    if Grid.Columns.Count = 0 then
+      exit;
+    if (ACol = 0) then
+    begin
+      col := Grid.Columns[0];
+      ser := TChartSeries(col.Tag);
+      r := ser.Count - ARow;
+      Result := DateToStr(ser.XValue[r]);
+    end else
+    if ARow > 0 then
+    begin
+      col := Grid.Columns[ACol - 1];
+      ser := TChartSeries(col.Tag);
+      r := ser.Count - ARow;
+      Result := Format('%.0n', [ser.YValue[r]]);
+    end;
+  end;
 end;
 
 procedure TMainForm.GetDataString(ANode: TTreeNode; ADataType: TDataType;
@@ -511,6 +592,39 @@ begin
   UpdateAffectedSeries;
 end;
 
+procedure TMainForm.GridDrawCell(Sender: TObject; aCol, aRow: Integer;
+  aRect: TRect; aState: TGridDrawState);
+var
+  s: String;
+  R: TRect;
+begin
+  s := GetCellText(aCol, aRow);
+  if s = '' then exit;
+  R := ARect;
+  InflateRect(R, -varCellpadding, -varCellpadding);
+  Grid.Canvas.TextRect(R, R.Left, R.Top, s);
+end;
+
+procedure TMainForm.GridPrepareCanvas(sender: TObject; aCol, aRow: Integer;
+  aState: TGridDrawState);
+var
+  ts: TTextStyle;
+begin
+  ts := Grid.Canvas.TextStyle;
+  if ARow = 0 then
+  begin
+    ts.WordBreak := true;
+    ts.SingleLine := false;
+    ts.Alignment := taCenter;
+    ts.Layout := tlTop;
+  end else
+  if ACol = 0 then
+    ts.Alignment := taCenter
+  else
+    ts.Alignment := taRightJustify;
+  Grid.Canvas.TextStyle := ts;
+end;
+
 procedure TMainForm.LayoutBars;
 var
   i, j, n: Integer;
@@ -588,6 +702,7 @@ begin
       Intervals.MaxLength := 150;
       Intervals.MinLength := 50;
       Intervals.Tolerance := 100;
+      Marks.Format := '%0:.0n';
     end;
     Chart.Extent.UseYMin := true;
   end else
@@ -598,6 +713,10 @@ begin
       Intervals.MaxLength := 50;
       Intervals.MinLength := 10;
       Intervals.Tolerance := 0;
+      if cbCumulative.Checked then
+        Marks.Format := '%0:.0n'
+      else
+        Marks.Format := '%0:.9g';
     end;
     Chart.Extent.UseYMin := false;
   end;
@@ -617,6 +736,7 @@ var
   min, max: Double;
   ok: Boolean;
   s: String;
+  ser: TChartSeries;
 begin
   AText := '';
 
@@ -635,10 +755,18 @@ begin
     if (FFitCoeffs[1] <> 0) then
     begin
       FFitCoeffs[0] := exp(FFitCoeffs[0]);
+      FMeasurementSeries.Active := false;
+      (*
       FMeasurementSeries.DomainExclusions.Clear;
       FMeasurementSeries.DomainExclusions.AddRange(-Infinity, min);
       FMeasurementSeries.DomainExclusions.AddRange(max, Infinity);
-      s := Format('Doubles every %.1f days', [-ln(0.5) / FFitCoeffs[1]]);
+      *)
+      ser := TChartSeries(ASender.PointStart.Series);
+      s := Format('Doubles every %.1f days --> %.0n cases in 1 week --> %.0n cases in 2 weeks', [
+        -ln(0.5) / FFitCoeffs[1],
+        exp(FFitCoeffs[1] * 7) * ser.YValue[ser.Count-1],
+        exp(FFitCoeffs[1] * 14) * ser.YValue[ser.Count-1]
+      ]);
       ok := true;
     end;
   FMeasurementSeries.Active := ok;
@@ -709,6 +837,7 @@ begin
   end;
   LayoutBars;
   UpdateAffectedSeries;
+  UpdateGrid;
 end;
 
 procedure TMainForm.UpdateAffectedSeries;
@@ -723,6 +852,40 @@ begin
   Delete(s, 1, 1);
   CrossHairTool.AffectedSeries := s;
   MeasurementTool.AffectedSeries := s;
+end;
+
+procedure TMainForm.UpdateGrid;
+var
+  n: Integer;
+  i: Integer;
+  ser: TChartSeries;
+begin
+  Grid.BeginUpdate;
+  try
+    Grid.Columns.Clear;
+    n := 0;
+    for i:=0 to Chart.SeriesCount-1 do
+    begin
+      if (Chart.Series[i] is TChartSeries) and Chart.Series[i].Active then
+      begin
+        ser := TChartSeries(Chart.Series[i]);
+        inc(n);
+        with Grid.Columns.Add do begin
+          Title.Caption := StringReplace(ser.Title, ' ', LineEnding, []);
+          Tag := PtrInt(Chart.Series[i]);
+        end;
+      end;
+    end;
+    if n = 0 then
+    begin
+      Grid.RowCount := 2;
+      exit;
+    end;
+    Grid.RowCount := ser.Count + Grid.FixedRows;
+    Grid.RowHeights[0] := 2 * Grid.DefaultRowHeight;
+  finally
+    Grid.EndUpdate;
+  end;
 end;
 
 initialization
