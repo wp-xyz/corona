@@ -114,7 +114,12 @@ const
   FILENAME_DEATHS = 'time_series_19-covid-Deaths.csv';
   FILENAME_RECOVERED = 'time_series_19-covid-Recovered.csv';
 
+  // DATA_DIR must end with path delimiter!
+  {$IFDEF DARWIN}
+  DATA_DIR = '../../data/';
+  {$ELSE}
   DATA_DIR = 'data/';
+  {$ENDIF}
 
   COLORS: array[0..8] of TColor = (clRed, clBlue, clFuchsia, clLime, clTeal,
     clSkyBlue, clPurple, clBlack, clMedGray);
@@ -123,6 +128,7 @@ const
 
 var
   BaseDate: TDate;
+  DataDir: String;
 
 function BeginsWithQuote(s: String): Boolean;
 begin
@@ -185,21 +191,21 @@ begin
     Statusbar.Refresh;
     DownloadFile(BASE_URL + FILENAME_CONFIRMED, stream);
     stream.Position := 0;
-    stream.SaveToFile(DATA_DIR + FILENAME_CONFIRMED);
+    stream.SaveToFile(DataDir + FILENAME_CONFIRMED);
 
     stream.Position := 0;
     Statusbar.Panels[1].Text := 'Download from ' + BASE_URL + FILENAME_DEATHS + '...';
     Statusbar.Refresh;
     DownloadFile(BASE_URL + FILENAME_DEATHS, stream);
     stream.Position := 0;
-    stream.SaveToFile(DATA_DIR + FILENAME_DEATHS);
+    stream.SaveToFile(DataDir + FILENAME_DEATHS);
 
     stream.Position := 0;
     Statusbar.Panels[1].Text := 'Download from ' + BASE_URL + FILENAME_RECOVERED + '...';
     Statusbar.Refresh;
     DownloadFile(BASE_URL + FILENAME_RECOVERED, stream);
     stream.Position := 0;
-    stream.SavetoFile(DATA_DIR + FILENAME_RECOVERED);
+    stream.SavetoFile(DataDir + FILENAME_RECOVERED);
 
     LoadLocations;
   finally
@@ -436,6 +442,7 @@ end;
 
 procedure TMainForm.FormCreate(Sender: TObject);
 begin
+  DataDir := Application.Location + DATA_DIR;  // DATA_DIR ends with a path delimiter
   {$IF LCL_FullVersion > 2010000}
   ZoomDragTool.LimitToExtent := [zdDown, zdLeft, zdRight, zdUp];
   PanDragTool.LimitToExtent := [zdDown, zdLeft, zdRight, zdUp];
@@ -492,9 +499,9 @@ var
   sa: TStringArray;
 begin
   case ACaseType of
-    ctConfirmed : fn := DATA_DIR + FILENAME_CONFIRMED;
-    ctDeaths    : fn := DATA_DIR + FILENAME_DEATHS;
-    ctRecovered : fn := DATA_DIR + FILENAME_RECOVERED;
+    ctConfirmed : fn := DataDir + FILENAME_CONFIRMED;
+    ctDeaths    : fn := DataDir + FILENAME_DEATHS;
+    ctRecovered : fn := DataDir + FILENAME_RECOVERED;
   end;
   GetLocation(ANode, country, state);
 
@@ -692,7 +699,7 @@ var
   sa: TStringArray;
   node: TTreeNode;
 begin
-  fn := DATA_DIR + FILENAME_CONFIRMED;
+  fn := DataDir + FILENAME_CONFIRMED;
   if not FileExists(fn) then
     exit;
 
