@@ -60,7 +60,7 @@ object AboutForm: TAboutForm
     Left = 12
     Height = 138
     Top = 143
-    Width = 303
+    Width = 295
     AutoSize = True
     BorderSpacing.Left = 12
     BorderSpacing.Top = 4
@@ -68,7 +68,7 @@ object AboutForm: TAboutForm
     BevelOuter = bvNone
     BorderStyle = bsSingle
     ClientHeight = 134
-    ClientWidth = 299
+    ClientWidth = 291
     Color = clWindow
     ParentColor = False
     TabOrder = 0
@@ -77,7 +77,7 @@ object AboutForm: TAboutForm
       AnchorSideTop.Control = Panel1
       AnchorSideRight.Control = lblIcons
       AnchorSideRight.Side = asrBottom
-      Left = 45
+      Left = 37
       Height = 15
       Top = 8
       Width = 52
@@ -91,7 +91,7 @@ object AboutForm: TAboutForm
       AnchorSideLeft.Side = asrBottom
       AnchorSideTop.Control = lblCompiler
       Cursor = crHandPoint
-      Left = 113
+      Left = 105
       Height = 15
       Hint = 'https://www.freepascal.org/'
       Top = 8
@@ -111,7 +111,7 @@ object AboutForm: TAboutForm
       AnchorSideTop.Control = lblFPC
       AnchorSideTop.Side = asrBottom
       Cursor = crHandPoint
-      Left = 113
+      Left = 105
       Height = 15
       Hint = 'https://www.lazarus-ide.org/'
       Top = 27
@@ -130,7 +130,7 @@ object AboutForm: TAboutForm
       AnchorSideTop.Control = lblLazarus
       AnchorSideRight.Control = lblIcons
       AnchorSideRight.Side = asrBottom
-      Left = 77
+      Left = 69
       Height = 15
       Top = 27
       Width = 20
@@ -139,15 +139,16 @@ object AboutForm: TAboutForm
       ParentColor = False
     end
     object lblIcons: TLabel
-      AnchorSideLeft.Control = Panel1
       AnchorSideTop.Control = lblIcons8
+      AnchorSideRight.Control = lblDataSources
       AnchorSideRight.Side = asrBottom
-      Left = 24
+      Left = 58
       Height = 15
       Top = 46
-      Width = 73
+      Width = 31
+      Anchors = [akTop, akRight]
       BorderSpacing.Left = 24
-      Caption = 'Toolbar icons:'
+      Caption = 'Icons:'
       ParentColor = False
     end
     object lblIcons8: TLabel
@@ -156,7 +157,7 @@ object AboutForm: TAboutForm
       AnchorSideTop.Control = lblLazarus
       AnchorSideTop.Side = asrBottom
       Cursor = crHandPoint
-      Left = 113
+      Left = 105
       Height = 15
       Hint = 'www.icons8.com'
       Top = 46
@@ -172,14 +173,14 @@ object AboutForm: TAboutForm
       OnMouseLeave = LabelMouseLeave
     end
     object lblDataSources: TLabel
+      AnchorSideLeft.Control = Panel1
       AnchorSideTop.Control = imgJHU
-      AnchorSideRight.Control = lblIcons
       AnchorSideRight.Side = asrBottom
-      Left = 32
+      Left = 24
       Height = 15
       Top = 77
       Width = 65
-      Anchors = [akTop, akRight]
+      BorderSpacing.Left = 24
       Caption = 'Data source:'
       ParentColor = False
     end
@@ -188,7 +189,7 @@ object AboutForm: TAboutForm
       AnchorSideTop.Control = lblIcons8
       AnchorSideTop.Side = asrBottom
       Cursor = crHandPoint
-      Left = 113
+      Left = 105
       Height = 32
       Top = 77
       Width = 162
@@ -319,7 +320,7 @@ object AboutForm: TAboutForm
       AnchorSideTop.Control = imgJHU
       AnchorSideTop.Side = asrBottom
       Cursor = crHandPoint
-      Left = 113
+      Left = 105
       Height = 15
       Hint = 'www.icons8.com'
       Top = 111
@@ -341,7 +342,7 @@ object AboutForm: TAboutForm
     AnchorSideTop.Side = asrBottom
     AnchorSideRight.Control = Panel1
     AnchorSideRight.Side = asrBottom
-    Left = 260
+    Left = 252
     Height = 25
     Top = 289
     Width = 55

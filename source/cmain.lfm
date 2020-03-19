@@ -3690,13 +3690,11 @@ object MainForm: TMainForm
     end
     object ZoomDragTool: TZoomDragTool
       Shift = [ssLeft]
-      LimitToExtent = [zdLeft, zdUp, zdRight, zdDown]
       Brush.Style = bsClear
       EscapeCancels = True
     end
     object PanDragTool: TPanDragTool
       Shift = [ssRight]
-      LimitToExtent = [pdLeft, pdUp, pdRight, pdDown]
       EscapeCancels = True
     end
   end

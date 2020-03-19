@@ -6,9 +6,9 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, ExtCtrls,
-  StdCtrls, Buttons, Grids, TAGraph, TAIntervalSources, TASeries,
-  TAChartListbox, TALegend, TACustomSeries, TATransformations, TATools,
-  TAFuncSeries, TADataTools, Types;
+  StdCtrls, Buttons, Grids, Types, LCLVersion,
+  TAGraph, TAIntervalSources, TASeries, TAChartListbox, TALegend,
+  TACustomSeries, TATransformations, TATools, TAFuncSeries, TADataTools;
 
 type
   TCaseType = (ctConfirmed, ctDeaths, ctRecovered);
@@ -436,6 +436,10 @@ end;
 
 procedure TMainForm.FormCreate(Sender: TObject);
 begin
+  {$IF LCL_FullVersion > 2010000}
+  ZoomDragTool.LimitToExtent := [zdDown, zdLeft, zdRight, zdUp];
+  PanDragTool.LimitToExtent := [zdDown, zdLeft, zdRight, zdUp];
+  {$ENDIF}
   cgCases.Checked[0] := true;
   CreateMeasurementSeries;
   LoadLocations;
