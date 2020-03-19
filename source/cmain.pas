@@ -742,8 +742,6 @@ begin
         if BeginsWithQuote(L[i]) then
           Continue;
         sa := L[i].Split(',', '"');
-        if Length(sa) = 0 then
-          node := nil;
         if sa[0] <> '' then sa[0] := AnsiDequotedStr(sa[0], '"');
         if sa[1] <> '' then sa[1] := AnsiDequotedStr(sa[1], '"');
         node := TreeView.Items.FindTopLvlNode(sa[1]);
