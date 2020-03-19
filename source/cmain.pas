@@ -103,7 +103,7 @@ implementation
 
 uses
   FpHttpClient, OpenSSL, Math,
-  TATypes, TAMath, TAFitUtils, TACustomSource, TAFitLib,
+  TATypes, TAMath, TACustomSource, TAFitLib,
   cAbout;
 
 const
@@ -116,7 +116,7 @@ const
 
   // DATA_DIR must end with path delimiter!
   {$IFDEF DARWIN}
-  DATA_DIR = '../../data/';
+  DATA_DIR = '../../../data/';
   {$ELSE}
   DATA_DIR = 'data/';
   {$ENDIF}
@@ -205,7 +205,7 @@ begin
     Statusbar.Refresh;
     DownloadFile(BASE_URL + FILENAME_RECOVERED, stream);
     stream.Position := 0;
-    stream.SavetoFile(DataDir + FILENAME_RECOVERED);
+    stream.SaveToFile(DataDir + FILENAME_RECOVERED);
 
     LoadLocations;
   finally
