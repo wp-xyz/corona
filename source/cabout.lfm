@@ -1,13 +1,13 @@
 object AboutForm: TAboutForm
   Left = 340
-  Height = 364
+  Height = 326
   Top = 132
-  Width = 366
+  Width = 323
   AutoSize = True
   BorderStyle = bsDialog
   Caption = 'About GW'
-  ClientHeight = 364
-  ClientWidth = 366
+  ClientHeight = 326
+  ClientWidth = 323
   OnCreate = FormCreate
   Position = poScreenCenter
   ShowHint = True
@@ -350,7 +350,9 @@ object AboutForm: TAboutForm
     AutoSize = True
     BorderSpacing.Top = 8
     BorderSpacing.Bottom = 12
+    Cancel = True
     Caption = 'Close'
+    Default = True
     ModalResult = 11
     ImageIndex = 5
     TabOrder = 1

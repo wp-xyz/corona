@@ -81,7 +81,7 @@ type
     procedure Clear;
     procedure CreateMeasurementSeries;
     function GetCellText(ACol, ARow: Integer): String;
-    procedure GetDataString(ANode: TTreeNode; ACaseType: TCaseType; var AHeader, ACounts: String);
+    function GetDataString(ANode: TTreeNode; ACaseType: TCaseType; var AHeader, ACounts: String): Boolean;
     function GetLocation(ANode: TTreeNode): String;
     procedure GetLocation(ANode: TTreeNode; out ACountry, AState: String);
     function GetSeries(ANode: TTreeNode; ACaseType: TCaseType; ADataType: TDataType): TChartSeries;
@@ -495,8 +495,8 @@ begin
   end;
 end;
 
-procedure TMainForm.GetDataString(ANode: TTreeNode; ACaseType: TCaseType;
-  var AHeader, ACounts: String);
+function TMainForm.GetDataString(ANode: TTreeNode; ACaseType: TCaseType;
+  var AHeader, ACounts: String): Boolean;
 var
   L: TStrings;
   country, state: String;
@@ -504,11 +504,19 @@ var
   i: integer;
   sa: TStringArray;
 begin
+  Result := false;
+
   case ACaseType of
     ctConfirmed : fn := DataDir + FILENAME_CONFIRMED;
     ctDeaths    : fn := DataDir + FILENAME_DEATHS;
     ctRecovered : fn := DataDir + FILENAME_RECOVERED;
   end;
+  if not FileExists(fn) then
+  begin
+    MessageDlg(Format('Data file "%s" not found. Please press "Update files".', [fn]), mtError, [mbOK], 0);
+    exit;
+  end;
+
   GetLocation(ANode, country, state);
 
   L := TStringList.Create;
@@ -526,6 +534,7 @@ begin
       if (sa[1] = country) and (sa[0] = state) then
       begin
         ACounts := L[i];
+        Result := true;
         exit;
       end;
     end;
@@ -705,9 +714,19 @@ var
   sa: TStringArray;
   node: TTreeNode;
 begin
+  if not DirectoryExists(DataDir) then
+  begin
+    CreateDir(DataDir);
+    MessageDlg('Data directory created. Please click "Update files".', mtInformation, [mbOK], 0);
+    exit;
+  end;
+
   fn := DataDir + FILENAME_CONFIRMED;
   if not FileExists(fn) then
+  begin
+    MessageDlg('Data files not found. Please click "Update files".', mtError, [mbOK], 0);
     exit;
+  end;
 
   L := TStringList.Create;
   try
@@ -886,7 +905,9 @@ begin
   begin
     if cgCases.Checked[ord(ct)] then
     begin
-      GetDataString(TreeView.Selected, ct, dates[ct], counts[ct]);
+      if not GetDataString(TreeView.Selected, ct, dates[ct], counts[ct]) then
+        exit;
+
       saX := dates[ct].Split(',', '"');
       saY := counts[ct].Split(',','"');
       ser := GetSeries(TreeView.Selected, ct, dt);
@@ -975,7 +996,8 @@ begin
       begin
         ser := TChartSeries(Chart.Series[i]);
         inc(n);
-        with Grid.Columns.Add do begin
+        with Grid.Columns.Add do
+        begin
           Title.Caption := StringReplace(ser.Title, ' ', LineEnding, []);
           Tag := PtrInt(Chart.Series[i]);
         end;
