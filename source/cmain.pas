@@ -22,6 +22,7 @@ type
     btnSaveToCSV: TButton;
     Chart: TChart;
     ChartToolset: TChartToolset;
+    WheelZoomTool: TZoomMouseWheelTool;
     Grid: TDrawGrid;
     lblTableHdr: TLabel;
     PageControl: TPageControl;
@@ -187,21 +188,22 @@ var
 begin
   stream := TMemoryStream.Create;
   try
-    Statusbar.Panels[1].Text := 'Download from ' + BASE_URL + FILENAME_CONFIRMED + '...';
+    Statusbar.Panels[0].Text := 'Download from:';
+    Statusbar.Panels[1].Text := BASE_URL + FILENAME_CONFIRMED + '...';
     Statusbar.Refresh;
     DownloadFile(BASE_URL + FILENAME_CONFIRMED, stream);
     stream.Position := 0;
     stream.SaveToFile(DataDir + FILENAME_CONFIRMED);
 
     stream.Position := 0;
-    Statusbar.Panels[1].Text := 'Download from ' + BASE_URL + FILENAME_DEATHS + '...';
+    Statusbar.Panels[1].Text := BASE_URL + FILENAME_DEATHS + '...';
     Statusbar.Refresh;
     DownloadFile(BASE_URL + FILENAME_DEATHS, stream);
     stream.Position := 0;
     stream.SaveToFile(DataDir + FILENAME_DEATHS);
 
     stream.Position := 0;
-    Statusbar.Panels[1].Text := 'Download from ' + BASE_URL + FILENAME_RECOVERED + '...';
+    Statusbar.Panels[1].Text := BASE_URL + FILENAME_RECOVERED + '...';
     Statusbar.Refresh;
     DownloadFile(BASE_URL + FILENAME_RECOVERED, stream);
     stream.Position := 0;
@@ -209,6 +211,8 @@ begin
 
     LoadLocations;
   finally
+    Statusbar.Panels[0].Text := 'Locations loaded.';
+    Statusbar.Panels[1].Text := '';
     stream.Free;
   end;
 end;
@@ -443,9 +447,11 @@ end;
 procedure TMainForm.FormCreate(Sender: TObject);
 begin
   DataDir := Application.Location + DATA_DIR;  // DATA_DIR ends with a path delimiter
-  {$IF LCL_FullVersion > 2010000}
+  WheelZoomTool.ZoomFactor := 1.05;
+  WheelZoomTool.ZoomRatio := 1.0 / WheelZoomTool.ZoomFactor;
+  {$IF LCL_FullVersion >= 2010000}
   ZoomDragTool.LimitToExtent := [zdDown, zdLeft, zdRight, zdUp];
-  PanDragTool.LimitToExtent := [zdDown, zdLeft, zdRight, zdUp];
+  PanDragTool.LimitToExtent := [pdDown, pdLeft, pdRight, pdUp];
   {$ENDIF}
   cgCases.Checked[0] := true;
   CreateMeasurementSeries;
@@ -726,8 +732,6 @@ begin
     finally
       TreeView.AlphaSort;
       TreeView.Items.EndUpdate;
-      Statusbar.Panels[0].Text := 'Locations loaded.';
-      Statusbar.Panels[1].Text := '';
     end;
   finally
     L.Free;
@@ -938,6 +942,7 @@ begin
   LayoutBars;
   UpdateAffectedSeries;
   UpdateGrid;
+  Statusbar.Panels[0].Text := GetLocation(TreeView.Selected) + ' loaded.';
 end;
 
 procedure TMainForm.UpdateAffectedSeries;

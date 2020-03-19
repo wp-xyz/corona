@@ -3489,7 +3489,7 @@ object MainForm: TMainForm
       object Chart: TChart
         Left = 0
         Height = 529
-        Hint = 'Zoom: drag a rectangle from left-top to bottom-right corner with left mouse button down'#13#10'Pan: drag with the right mouse button down'#13#10'Restore view: click'#13#10'Read data value: move mouse over data point (no key pressed)'#13#10'Measure doubling time: CTRL-drag over data points of interest with left mouse button down.'
+        Hint = 'Zoom: drag a rectangle from left-top to bottom-right corner with left mouse button down'#13#10'    or: use mouse wheel (zoom center is mouse position).'#13#10'Pan: drag with the right mouse button down'#13#10'Restore view: click'#13#10'Read data value: move mouse over data point (no key pressed)'#13#10'Measure doubling time: CTRL-drag over data points of interest with left mouse button down.'
         Top = 6
         Width = 655
         AxisList = <        
@@ -3704,6 +3704,8 @@ object MainForm: TMainForm
     object PanDragTool: TPanDragTool
       Shift = [ssRight]
       EscapeCancels = True
+    end
+    object WheelZoomTool: TZoomMouseWheelTool
     end
   end
   object ImageList1: TImageList
