@@ -122,8 +122,9 @@ const
   DATA_DIR = 'data/';
   {$ENDIF}
 
-  COLORS: array[0..8] of TColor = (clRed, clBlue, clFuchsia, clLime, clTeal,
-    clSkyBlue, clPurple, clBlack, clMedGray);
+  COLORS: array[0..8] of TColor = (
+    clRed, clBlue, clFuchsia, clLime, clSkyBlue,
+    clTeal, clPurple, clBlack, clMedGray);
 
   BARWIDTH_PERCENT = 80;
 
@@ -328,16 +329,16 @@ begin
   case TDataType(rgDataType.ItemIndex) of
     dtCumulative:
       begin
-        Chart.LeftAxis.Title.Caption := 'Cases';
-        lblTableHdr.Caption := 'Cumulative Cases';
+        Chart.LeftAxis.Title.Caption := 'Cumulative cases';
+        lblTableHdr.Caption := 'Cumulative cases';
         cbLogarithmic.Enabled := true;
         Logarithmic(cbLogarithmic.Checked);
         MeasurementTool.Enabled := true;
       end;
     dtNewCases:
       begin
-        Chart.LeftAxis.Title.Caption := 'New Cases';
-        lblTableHdr.Caption := 'New Cases';
+        Chart.LeftAxis.Title.Caption := 'New cases per day';
+        lblTableHdr.Caption := 'New cases per day';
         cbLogarithmic.Enabled := false;
         Logarithmic(false);
         MeasurementTool.Enabled := false;
@@ -345,7 +346,7 @@ begin
     dtNewCaseRatio:
       begin
         Chart.LeftAxis.Title.Caption := 'Day-to-day ratio of new cases';
-        lblTableHdr.Caption := 'Ratio of new cases';
+        lblTableHdr.Caption := 'Day-to-day ratio of new cases';
         cbLogarithmic.Enabled := false;
         Logarithmic(false);
         MeasurementTool.Enabled := false;
@@ -435,7 +436,7 @@ begin
   FMeasurementSeries.AxisIndexX := 1;
   FMeasurementseries.AxisIndexY := 0;
   FMeasurementSeries.Pen.Width := 3;
-  FMeasurementSeries.Pen.Color := clLime;
+  FMeasurementSeries.Pen.Color := clGreen;
   Chart.AddSeries(FMeasurementSeries);
 end;
 
@@ -454,6 +455,7 @@ begin
   PanDragTool.LimitToExtent := [pdDown, pdLeft, pdRight, pdUp];
   {$ENDIF}
   cgCases.Checked[0] := true;
+  Grid.RowHeights[0] := 2 * Grid.DefaultRowHeight;
   CreateMeasurementSeries;
   LoadLocations;
 end;
@@ -529,8 +531,8 @@ begin
       if BeginsWithQuote(L[i]) then
         Continue;
       sa := L[i].Split(',', '"');
-      sa[0] := AnsiDequotedStr(sa[0], '"');
-      sa[1] := AnsiDequotedStr(sa[1], '"');
+      if sa[0] <> '' then sa[0] := AnsiDequotedStr(sa[0], '"');
+      if sa[1] <> '' then sa[1] := AnsiDequotedStr(sa[1], '"');
       if (sa[1] = country) and (sa[0] = state) then
       begin
         ACounts := L[i];
@@ -740,8 +742,10 @@ begin
         if BeginsWithQuote(L[i]) then
           Continue;
         sa := L[i].Split(',', '"');
-        sa[0] := AnsiDequotedStr(sa[0], '"');
-        sa[1] := AnsiDequotedStr(sa[1], '"');
+        if Length(sa) = 0 then
+          node := nil;
+        if sa[0] <> '' then sa[0] := AnsiDequotedStr(sa[0], '"');
+        if sa[1] <> '' then sa[1] := AnsiDequotedStr(sa[1], '"');
         node := TreeView.Items.FindTopLvlNode(sa[1]);
         if node = nil then
           node := TreeView.Items.AddChild(nil, sa[1]);
@@ -1009,7 +1013,6 @@ begin
       exit;
     end;
     Grid.RowCount := ser.Count + Grid.FixedRows;
-    Grid.RowHeights[0] := 2 * Grid.DefaultRowHeight;
   finally
     Grid.EndUpdate;
   end;
