@@ -11,7 +11,8 @@ uses
   TAFuncSeries, TADataTools, Types;
 
 type
-  TDataType = (dtConfirmed, dtDeaths, dtRecovered);
+  TCaseType = (ctConfirmed, ctDeaths, ctRecovered);
+  TDataType = (dtCumulative, dtNewCases, dtNewCaseRatio);
 
   { TMainForm }
 
@@ -21,13 +22,13 @@ type
     btnSaveToCSV: TButton;
     Chart: TChart;
     ChartToolset: TChartToolset;
-    cbCumulative: TCheckBox;
     Grid: TDrawGrid;
     lblTableHdr: TLabel;
     PageControl: TPageControl;
     PanDragTool: TPanDragTool;
     pgChart: TTabSheet;
     pgTable: TTabSheet;
+    rgDataType: TRadioGroup;
     SaveDialog: TSaveDialog;
     ZoomDragTool: TZoomDragTool;
     MeasurementTool: TDataPointDistanceTool;
@@ -68,6 +69,7 @@ type
     procedure MeasurementToolGetDistanceText(ASender: TDataPointDistanceTool;
       var AText: String);
     procedure MeasurementToolMeasure(ASender: TDataPointDistanceTool);
+    procedure rgDataTypeClick(Sender: TObject);
     procedure TreeViewClick(Sender: TObject);
 
   private
@@ -78,10 +80,10 @@ type
     procedure Clear;
     procedure CreateMeasurementSeries;
     function GetCellText(ACol, ARow: Integer): String;
-    procedure GetDataString(ANode: TTreeNode; ADataType: TDataType; var AHeader, ACounts: String);
+    procedure GetDataString(ANode: TTreeNode; ACaseType: TCaseType; var AHeader, ACounts: String);
     function GetLocation(ANode: TTreeNode): String;
     procedure GetLocation(ANode: TTreeNode; out ACountry, AState: String);
-    function GetSeries(ANode: TTreeNode; ADataType: TDataType): TChartSeries;
+    function GetSeries(ANode: TTreeNode; ACaseType: TCaseType; ADataType: TDataType): TChartSeries;
     procedure LayoutBars;
     procedure LoadLocations;
     procedure Logarithmic(AEnable: Boolean);
@@ -105,7 +107,7 @@ uses
   cAbout;
 
 const
-  DATATYPE_NAMES: array [TDataType] of string = ('confirmed', 'deaths', 'recovered');
+  CASETYPE_NAMES: array [TCaseType] of string = ('confirmed', 'deaths', 'recovered');
 
   BASE_URL = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/';
   FILENAME_CONFIRMED = 'time_series_19-covid-Confirmed.csv';
@@ -312,26 +314,39 @@ end;
 procedure TMainForm.cbCumulativeChange(Sender: TObject);
 begin
   Clear;
-  cbLogarithmic.Enabled := cbCumulative.Checked;
-  if cbCumulative.Checked then
-  begin
-    Chart.LeftAxis.Title.Caption := 'Cases';
-    Logarithmic(cbLogarithmic.Checked);
-    MeasurementTool.Enabled := true;
-    lblTableHdr.Caption := 'Cumulative Cases';
-  end else
-  begin
-    Chart.LeftAxis.Title.Caption := 'New Cases';
-    Logarithmic(false);
-    MeasurementTool.Enabled := false;
-    lblTableHdr.Caption := 'New Cases';
+  cbLogarithmic.Enabled := TDataType(rgDataType.ItemIndex) = dtCumulative;
+  case TDataType(rgDataType.ItemIndex) of
+    dtCumulative:
+      begin
+        Chart.LeftAxis.Title.Caption := 'Cases';
+        lblTableHdr.Caption := 'Cumulative Cases';
+        cbLogarithmic.Enabled := true;
+        Logarithmic(cbLogarithmic.Checked);
+        MeasurementTool.Enabled := true;
+      end;
+    dtNewCases:
+      begin
+        Chart.LeftAxis.Title.Caption := 'New Cases';
+        lblTableHdr.Caption := 'New Cases';
+        cbLogarithmic.Enabled := false;
+        Logarithmic(false);
+        MeasurementTool.Enabled := false;
+      end;
+    dtNewCaseRatio:
+      begin
+        Chart.LeftAxis.Title.Caption := 'Day-to-day ratio of new cases';
+        lblTableHdr.Caption := 'Ratio of new cases';
+        cbLogarithmic.Enabled := false;
+        Logarithmic(false);
+        MeasurementTool.Enabled := false;
+      end;
   end;
 end;
 
 procedure TMainForm.ChartListboxAddSeries(ASender: TChartListbox;
   ASeries: TCustomChartSeries; AItems: TChartLegendItems; var ASkip: Boolean);
 var
-  dt: TDataType;
+  ct: TCaseType;
 begin
   if ASeries is TFuncSeries then begin
     ASkip := true;
@@ -339,8 +354,8 @@ begin
   end;
 
   if (not ASeries.Active) and (TLineSeries(ASeries).Count = 0) then
-    for dt in TDataType do
-      if (pos(DATATYPE_NAMES[dt], ASeries.Title) > 0) then
+    for ct in TCaseType do
+      if (pos(CASETYPE_NAMES[ct], ASeries.Title) > 0) then
       begin
         ASkip := true;
         exit;
@@ -355,25 +370,29 @@ end;
 
 procedure TMainForm.CrossHairToolDraw(
   ASender: TDataPointDrawTool);
-const
-  NEW_: array[boolean] of string = ('new ', '');
 var
   ser: TChartSeries;
   x, y: Double;
   sy: String;
+  dt: TDataType;
 begin
   if ASender.Series = nil then
     Statusbar.Panels[0].Text := ''
   else
   if ASender.Series is TChartSeries then
   begin
+    dt := TDataType(rgDataType.ItemIndex);
     ser := TChartSeries(ASender.Series);
     x := ser.GetXValue(ASender.PointIndex);
     y := ser.GetYValue(ASender.PointIndex);
-    if y = 1 then
-      sy := Format('1 %scase', [NEW_[cbCumulative.Checked]])
-    else
-      sy := Format('%.0n %scases', [y, NEW_[cbCumulative.Checked]]);
+    case dt of
+      dtCumulative:
+        if y = 1 then sy := '1 case' else sy := Format('%.0n cases', [y]);
+      dtNewCases:
+        if y = 1 then sy := '1 new case' else sy := Format('%.0n new cases', [y]);
+      dtNewCaseRatio:
+        sy := Format('cases(%s) / cases(%s) = %.3f', [DateToStr(x), DateToStr(x-1), y])
+    end;
     Statusbar.Panels[0].Text := Format('%s: %s, %s', [ser.Title, DateToStr(x), sy]);
     ASender.Handled;
   end;
@@ -448,12 +467,18 @@ begin
       col := Grid.Columns[ACol - 1];
       ser := TChartSeries(col.Tag);
       r := ser.Count - ARow;
-      Result := Format('%.0n', [ser.YValue[r]]);
+      if not IsNan(ser.YValue[r]) then
+      begin
+        if TDataType(rgDataType.ItemIndex) = dtNewCaseRatio then
+          Result := format('%.3f', [ser.YValue[r]])
+        else
+          Result := Format('%.0n', [ser.YValue[r]]);
+      end;
     end;
   end;
 end;
 
-procedure TMainForm.GetDataString(ANode: TTreeNode; ADataType: TDataType;
+procedure TMainForm.GetDataString(ANode: TTreeNode; ACaseType: TCaseType;
   var AHeader, ACounts: String);
 var
   L: TStrings;
@@ -462,10 +487,10 @@ var
   i: integer;
   sa: TStringArray;
 begin
-  case ADataType of
-    dtConfirmed : fn := DATA_DIR + FILENAME_CONFIRMED;
-    dtDeaths    : fn := DATA_DIR + FILENAME_DEATHS;
-    dtRecovered : fn := DATA_DIR + FILENAME_RECOVERED;
+  case ACaseType of
+    ctConfirmed : fn := DATA_DIR + FILENAME_CONFIRMED;
+    ctDeaths    : fn := DATA_DIR + FILENAME_DEATHS;
+    ctRecovered : fn := DATA_DIR + FILENAME_RECOVERED;
   end;
   GetLocation(ANode, country, state);
 
@@ -515,14 +540,15 @@ begin
     Result := country + ' / ' + state;
 end;
 
-function TMainForm.GetSeries(ANode: TTreeNode; ADataType: TDataType): TChartSeries;
+function TMainForm.GetSeries(ANode: TTreeNode; ACaseType: TCaseType;
+  ADataType: TDataType): TChartSeries;
 var
   i: Integer;
   serTitle: String;
   ser: TChartSeries;
-  dt: TDataType;
+  ct: TCaseType;
 begin
-  serTitle := Format('%s (%s)', [GetLocation(ANode), DATATYPE_NAMES[ADataType]]);
+  serTitle := Format('%s (%s)', [GetLocation(ANode), CASETYPE_NAMES[ACaseType]]);
 
   for i:=0 to Chart.SeriesCount-1 do
     if (Chart.Series[i] is TChartSeries) then
@@ -539,55 +565,60 @@ begin
   // the cases "confirmed", "deaths" and "recovered". Return the one for
   // ADatatype and hide the others.
   serTitle := GetLocation(ANode);
-  for dt in TDataType do begin
-    if cbCumulative.Checked then
-    begin
-      ser := TLineSeries.Create(Chart);
-      with TLineSeries(ser) do
-      begin
-        ShowPoints := true;
-        LinePen.Color := COLORS[((Chart.SeriesCount - 1) div 3) mod Length(COLORS)];
-        Pointer.Pen.Color := LinePen.Color;
-        case dt of
-          dtConfirmed:
-            begin
-              Pointer.Style := psCircle;
-              Pointer.Brush.Color := LinePen.Color;
+  for ct in TCaseType do begin
+    case ADataType of
+      dtCumulative,
+      dtNewCaseRatio:
+        begin
+          ser := TLineSeries.Create(Chart);
+          with TLineSeries(ser) do
+          begin
+            ShowPoints := true;
+            LinePen.Color := COLORS[((Chart.SeriesCount - 1) div 3) mod Length(COLORS)];
+            Pointer.Pen.Color := LinePen.Color;
+            case ct of
+              ctConfirmed:
+                begin
+                  Pointer.Style := psCircle;
+                  Pointer.Brush.Color := LinePen.Color;
+                end;
+              ctDeaths:
+                begin
+                  Pointer.Style := psCross;
+                end;
+              ctRecovered:
+                begin
+                  Pointer.Style := psRectangle;
+                  Pointer.Brush.Color := clWhite;
+                end;
             end;
-          dtDeaths:
-            begin
-              Pointer.Style := psCross;
-            end;
-          dtRecovered:
-            begin
-              Pointer.Style := psRectangle;
-              Pointer.Brush.Color := clWhite;
-            end;
+          end;
         end;
-      end;
-    end else
-    begin
-      ser := TBarSeries.Create(Chart);
-      with TBarSeries(ser) do begin
-        BarBrush.Color := COLORS[((Chart.SeriesCount-1) div 3) mod Length(COLORS)];
-        BarBrush.Style := bsSolid;
-        BarPen.Color := BarBrush.Color;
-        case dt of
-          dtConfirmed : BarBrush.Style := bsSolid;
-          dtDeaths    : BarBrush.Color := clWhite;
-          dtRecovered : BarBrush.Style := bsDiagCross;
+      dtNewCases:
+        begin
+          ser := TBarSeries.Create(Chart);
+          with TBarSeries(ser) do
+          begin
+            BarBrush.Color := COLORS[((Chart.SeriesCount-1) div 3) mod Length(COLORS)];
+            BarBrush.Style := bsSolid;
+            BarPen.Color := BarBrush.Color;
+            case ct of
+              ctConfirmed : BarBrush.Style := bsSolid;
+              ctDeaths    : BarBrush.Color := clWhite;
+              ctRecovered : BarBrush.Style := bsDiagCross;
+            end;
+          end;
         end;
-      end;
-    end;
-    ser.Title := serTitle + ' (' + DATATYPE_NAMES[dt] + ')';
+    end;  // case
+    ser.Title := serTitle + ' (' + CASETYPE_NAMES[ct] + ')';
     ser.AxisIndexX := 1;
     ser.AxisIndexY := 0;
-    if dt = ADataType then
+    if ct = ACaseType then
       Result := ser
     else
       ser.Active := false;
     Chart.AddSeries(ser);
-  end;
+  end;  // for ct
 
   UpdateAffectedSeries;
 end;
@@ -630,7 +661,7 @@ var
   i, j, n: Integer;
   ser: TBarSeries;
 begin
-  if cbCumulative.Checked then
+  if rgDataType.ItemIndex <> ord(dtNewCases) then
     exit;
 
   n := 0;
@@ -713,10 +744,11 @@ begin
       Intervals.MaxLength := 50;
       Intervals.MinLength := 10;
       Intervals.Tolerance := 0;
-      if cbCumulative.Checked then
-        Marks.Format := '%0:.0n'
-      else
-        Marks.Format := '%0:.9g';
+      case TDataType(rgDataType.ItemIndex) of
+        dtCumulative   : Marks.Format := '%0:.0n';
+        dtNewCases     : Marks.Format := '%0:.9g';
+        dtNewCaseRatio : Marks.Format := '%0:.9g';
+      end;
     end;
     Chart.Extent.UseYMin := false;
   end;
@@ -780,16 +812,49 @@ begin
 //  Statusbar.Panels[1].Text := '';
 end;
 
+procedure TMainForm.rgDataTypeClick(Sender: TObject);
+begin
+  Clear;
+  cbLogarithmic.Enabled := TDataType(rgDataType.ItemIndex) = dtCumulative;
+  case TDataType(rgDataType.ItemIndex) of
+    dtCumulative:
+      begin
+        Chart.LeftAxis.Title.Caption := 'Cases';
+        lblTableHdr.Caption := 'Cumulative Cases';
+        cbLogarithmic.Enabled := true;
+        Logarithmic(cbLogarithmic.Checked);
+        MeasurementTool.Enabled := true;
+      end;
+    dtNewCases:
+      begin
+        Chart.LeftAxis.Title.Caption := 'New Cases';
+        lblTableHdr.Caption := 'New Cases';
+        cbLogarithmic.Enabled := false;
+        Logarithmic(false);
+        MeasurementTool.Enabled := false;
+      end;
+    dtNewCaseRatio:
+      begin
+        Chart.LeftAxis.Title.Caption := 'Day-to-day ratio of new cases';
+        lblTableHdr.Caption := 'Ratio of new cases';
+        cbLogarithmic.Enabled := false;
+        Logarithmic(false);
+        MeasurementTool.Enabled := false;
+      end;
+  end;
+end;
+
 procedure TMainForm.TreeViewClick(Sender: TObject);
 var
   fs: TFormatSettings;
-  counts: array[TDataType] of string = ('', '', '');
-  dates: array[TDataType] of string = ('', '', '');
+  counts: array[TCaseType] of string = ('', '', '');
+  dates: array[TCaseType] of string = ('', '', '');
   dt: TDataType;
+  ct: TCaseType;
   saX, saY: TStringArray;
   i: Integer;
   ser: TChartSeries;
-  Y, Y0: Double;
+  Y, Y0, dY, dY0: Double;
 begin
   if TreeView.Selected = nil then
     exit;
@@ -800,39 +865,63 @@ begin
   fs.ShortDateFormat := 'mm/dd/yyy';
   fs.DateSeparator := '/';
 
-  for dt := Low(TDataType) to High(TDataType) do
+  dt := TDataType(rgDataType.ItemIndex);
+
+  for ct := Low(TCaseType) to High(TCaseType) do
   begin
-    if cgCases.Checked[ord(dt)] then
+    if cgCases.Checked[ord(ct)] then
     begin
-      GetDataString(TreeView.Selected, dt, dates[dt], counts[dt]);
-      saX := dates[dt].Split(',', '"');
-      saY := counts[dt].Split(',','"');
-      ser := GetSeries(TreeView.Selected, dt);
+      GetDataString(TreeView.Selected, ct, dates[ct], counts[ct]);
+      saX := dates[ct].Split(',', '"');
+      saY := counts[ct].Split(',','"');
+      ser := GetSeries(TreeView.Selected, ct, dt);
       ser.ListSource.BeginUpdate;
       try
         ser.Clear;
-        if cbCumulative.Checked then begin
-          for i := 4 to High(saY) do
-          begin
-            Y := StrToInt(saY[i]);
-            if Y = 0 then Y := 0.1;
-            ser.AddXY(StrToDate(saX[i], fs), Y);
-          end;
-        end else begin
-          Y0 := StrToInt(saY[4]);
-          for i := 5 to High(saY) do begin
-            Y := StrToInt(saY[i]);
-            ser.AddXY(StrToDate(saX[i], fs), Y - Y0);
-            Y0 := Y;
-          end;
+        case dt of
+          dtCumulative:
+            begin
+              for i := 4 to High(saY) do
+              begin
+                Y := StrToInt(saY[i]);
+                if Y = 0 then Y := 0.1;
+                ser.AddXY(StrToDate(saX[i], fs), Y);
+              end;
+            end;
+          dtNewCases:
+            begin
+              Y0 := StrToInt(saY[4]);
+              for i := 5 to High(saY) do begin
+                Y := StrToInt(saY[i]);
+                ser.AddXY(StrToDate(saX[i], fs), Y - Y0);
+                Y0 := Y;
+              end;
+            end;
+          dtNewCaseRatio:
+            begin
+              Y0 := StrToInt(saY[4]);
+              Y := StrToInt(saY[5]);
+              dY0 := Y - Y0;
+              for i := 6 to High(saY) do
+              begin
+                Y := StrToInt(saY[i]);
+                dy := Y - Y0;
+                if dy0 <> 0 then
+                  ser.AddXY(StrToDate(saX[i], fs), dy / dy0)
+                else
+                  ser.AddXY(StrToDate(saX[i], fs), NaN);
+                dy0 := dy;
+                Y0 := Y;
+              end;
+            end;
         end;
       finally
         ser.EndUpdate;
       end;
     end else
     begin
-      dates[dt] := '';
-      counts[dt] := '';
+      dates[ct] := '';
+      counts[ct] := '';
     end;
   end;
   LayoutBars;
