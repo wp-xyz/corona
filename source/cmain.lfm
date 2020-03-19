@@ -3297,6 +3297,7 @@ object MainForm: TMainForm
   }
   OnActivate = FormActivate
   OnCreate = FormCreate
+  ShowHint = True
   LCLVersion = '2.1.0.0'
   object LeftSplitter: TSplitter
     Left = 261
@@ -3375,6 +3376,7 @@ object MainForm: TMainForm
       AnchorSideBottom.Side = asrBottom
       Left = 0
       Height = 429
+      Hint = 'Click on the country to display'
       Top = 134
       Width = 255
       Anchors = [akTop, akLeft, akRight, akBottom]
@@ -3393,6 +3395,7 @@ object MainForm: TMainForm
       AnchorSideBottom.Side = asrBottom
       Left = 0
       Height = 25
+      Hint = 'Update local data cash with current data from JHU'
       Top = 101
       Width = 88
       AutoSize = True
@@ -3407,6 +3410,7 @@ object MainForm: TMainForm
       AnchorSideTop.Control = btnUpdate
       Left = 96
       Height = 25
+      Hint = 'Clear the chart'
       Top = 101
       Width = 53
       AutoSize = True
@@ -3485,6 +3489,7 @@ object MainForm: TMainForm
       object Chart: TChart
         Left = 0
         Height = 529
+        Hint = 'Zoom: drag a rectangle from left-top to bottom-right corner with left mouse button down'#13#10'Pan: drag with the right mouse button down'#13#10'Restore view: click'#13#10'Read data value: move mouse over data point (no key pressed)'#13#10'Measure doubling time: CTRL-drag over data points of interest with left mouse button down.'
         Top = 6
         Width = 655
         AxisList = <        
@@ -3551,6 +3556,7 @@ object MainForm: TMainForm
           AnchorSideBottom.Control = cbLogarithmic
           Left = 0
           Height = 504
+          Hint = 'Uncheck to remove a curve temporarily.'
           Top = 0
           Width = 170
           Chart = Chart
@@ -3567,6 +3573,7 @@ object MainForm: TMainForm
           AnchorSideBottom.Side = asrBottom
           Left = 0
           Height = 19
+          Hint = 'Check to create a semi-log plot'
           Top = 510
           Width = 84
           Anchors = [akLeft, akBottom]
@@ -3588,7 +3595,7 @@ object MainForm: TMainForm
     object pgTable: TTabSheet
       Caption = 'Table'
       ClientHeight = 535
-      ClientWidth = 862
+      ClientWidth = 836
       object Grid: TDrawGrid
         AnchorSideLeft.Control = pgTable
         AnchorSideTop.Control = btnSaveToCSV
@@ -3600,7 +3607,7 @@ object MainForm: TMainForm
         Left = 6
         Height = 492
         Top = 37
-        Width = 850
+        Width = 824
         Anchors = [akTop, akLeft, akRight, akBottom]
         BorderSpacing.Around = 6
         ColCount = 2
@@ -3631,15 +3638,16 @@ object MainForm: TMainForm
         AnchorSideTop.Control = pgTable
         AnchorSideRight.Control = pgTable
         AnchorSideRight.Side = asrBottom
-        Left = 768
+        Left = 745
         Height = 25
+        Hint = 'Save the values of the table to a text file using a TAB separator.'
         Top = 6
-        Width = 88
+        Width = 85
         Anchors = [akTop, akRight]
         AutoSize = True
         BorderSpacing.Top = 6
         BorderSpacing.Right = 6
-        Caption = 'Save to CSV'
+        Caption = 'Save to File'
         OnClick = btnSaveToCSVClick
         TabOrder = 1
       end
@@ -3699,8 +3707,8 @@ object MainForm: TMainForm
     end
   end
   object ImageList1: TImageList
-    left = 450
-    top = 44
+    left = 448
+    top = 72
     Bitmap = {
       4C7A010000001000000010000000B50100000000000078DA9D536D4BC250145E
       FD8D8AFE4F84731A44FA27C2C8C8E91A944A0511447DA9848C20082211A71B65
@@ -3779,7 +3787,7 @@ object MainForm: TMainForm
   end
   object SaveDialog: TSaveDialog
     Filter = 'Comma-separated files (*.csv)|*.csv'
-    left = 1038
+    left = 1016
     top = 80
   end
 end
