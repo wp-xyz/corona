@@ -103,7 +103,8 @@ implementation
 {$R *.lfm}
 
 uses
-  FpHttpClient, OpenSSL, Math,
+  Math, FpHttpClient, OpenSSL,
+  {$IF FPC_FullVersion >= 30200} OpenSSLSockets, {$ENDIF}
   TATypes, TAMath, TACustomSource, TAFitLib,
   cAbout;
 
