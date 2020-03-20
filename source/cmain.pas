@@ -365,7 +365,7 @@ begin
     exit;
   end;
 
-  if (not ASeries.Active) and (TLineSeries(ASeries).Count = 0) then
+  if (not ASeries.Active) and (TChartSeries(ASeries).Count = 0) then
     for ct in TCaseType do
       if (pos(CASETYPE_NAMES[ct], ASeries.Title) > 0) then
       begin
