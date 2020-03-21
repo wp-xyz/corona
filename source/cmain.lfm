@@ -3310,14 +3310,7 @@ object MainForm: TMainForm
     Height = 23
     Top = 575
     Width = 1116
-    Panels = <    
-      item
-        Width = 300
-      end    
-      item
-        Width = 50
-      end>
-    SimplePanel = False
+    Panels = <>
   end
   object LeftPanel: TPanel
     Left = 6
@@ -3325,7 +3318,6 @@ object MainForm: TMainForm
     Top = 6
     Width = 255
     Align = alLeft
-    AutoSize = True
     BorderSpacing.Left = 6
     BorderSpacing.Top = 6
     BorderSpacing.Bottom = 6
@@ -3487,11 +3479,16 @@ object MainForm: TMainForm
       ClientHeight = 535
       ClientWidth = 836
       object Chart: TChart
-        Left = 0
-        Height = 529
+        AnchorSideLeft.Control = pgChart
+        AnchorSideTop.Control = pgChart
+        AnchorSideRight.Control = RightSplitter
+        AnchorSideBottom.Control = pgChart
+        AnchorSideBottom.Side = asrBottom
+        Left = 6
+        Height = 523
         Hint = 'Zoom: drag a rectangle from left-top to bottom-right corner with left mouse button down'#13#10'    or: use mouse wheel (zoom center is mouse position).'#13#10'Pan: drag with the right mouse button down'#13#10'Restore view: click'#13#10'Read data value: move mouse over data point (no key pressed)'#13#10'Measure doubling time: CTRL-drag over data points of interest with left mouse button down.'
         Top = 6
-        Width = 655
+        Width = 649
         AxisList = <        
           item
             Grid.Color = 14540253
@@ -3531,9 +3528,10 @@ object MainForm: TMainForm
           'TAChart'
         )
         Toolset = ChartToolset
-        Align = alClient
-        Anchors = [akTop, akLeft, akBottom]
+        Anchors = [akTop, akLeft, akRight, akBottom]
+        BorderSpacing.Left = 6
         BorderSpacing.Top = 6
+        BorderSpacing.Bottom = 6
         Color = clNone
       end
       object RightPanel: TPanel

@@ -77,6 +77,7 @@ type
   private
     FMeasurementSeries: TFuncSeries;
     FFitCoeffs: array[0..1] of Double;
+    FStatusText1, FStatusText2: String;
     function CalcFit(ASeries: TBasicChartSeries; xmin, xmax: Double): Boolean;
     procedure CalcFitHandler(const AX: Double; out AY: Double);
     procedure Clear;
@@ -93,6 +94,7 @@ type
     procedure Logarithmic(AEnable: Boolean);
     procedure UpdateAffectedSeries;
     procedure UpdateGrid;
+    procedure UpdateStatusBar(ASeparator: String = ' ');
 
   public
 
@@ -141,7 +143,11 @@ const
   BARWIDTH_PERCENT = 80;
 
 var
+  // The BaseDate must be subtracted from the date values for fitting on the
+  // log scale to prevent a floating point overflow.
   BaseDate: TDate;
+
+  // DataDir is the directory in which the downloaded csv files are found.
   DataDir: String;
 
 function BeginsWithQuote(s: String): Boolean;
@@ -180,12 +186,13 @@ var
 begin
   stream := TMemoryStream.Create;
   try
-    Statusbar.Panels[0].Text := 'Download from:';
-    Statusbar.Panels[1].Text := BASE_URL + FILENAME_CONFIRMED + '...';
-    Statusbar.Refresh;
+    FStatusText1 := 'Download from:';
+    FStatusText2 := BASE_URL + FILENAME_CONFIRMED + '...';
+    UpdateStatusbar;
     if not DownloadFile(BASE_URL + FILENAME_CONFIRMED, stream) then
     begin
-      Statusbar.Panels[0].Text := DOWNLOAD_ERR;
+      FStatusText1 := DOWNLOAD_ERR;
+      UpdateStatusBar;
       MessageDlg(DOWNLOAD_ERR, mtError, [mbOK], 0);
       exit;
     end;
@@ -193,11 +200,11 @@ begin
     stream.SaveToFile(DataDir + FILENAME_CONFIRMED);
 
     stream.Position := 0;
-    Statusbar.Panels[1].Text := BASE_URL + FILENAME_DEATHS + '...';
-    Statusbar.Refresh;
+    FStatusText2 := BASE_URL + FILENAME_DEATHS + '...';
+    UpdateStatusbar;
     if not DownloadFile(BASE_URL + FILENAME_DEATHS, stream) then
     begin
-      Statusbar.Panels[0].Text := DOWNLOAD_ERR;
+      FStatusText1 := DOWNLOAD_ERR;
       MessageDlg(DOWNLOAD_ERR, mtError, [mbOk], 0);
       exit;
     end;
@@ -205,11 +212,11 @@ begin
     stream.SaveToFile(DataDir + FILENAME_DEATHS);
 
     stream.Position := 0;
-    Statusbar.Panels[1].Text := BASE_URL + FILENAME_RECOVERED + '...';
-    Statusbar.Refresh;
+    FStatusText2 := BASE_URL + FILENAME_RECOVERED + '...';
+    UpdateStatusbar;
     if not DownloadFile(BASE_URL + FILENAME_RECOVERED, stream) then
     begin
-      Statusbar.Panels[0].Text := DOWNLOAD_ERR;
+      FStatusText1 := DOWNLOAD_ERR;
       MessageDlg(DOWNLOAD_ERR, mtError, [mbOk], 0);
       exit;
     end;
@@ -218,9 +225,11 @@ begin
 
     LoadLocations;
 
-    Statusbar.Panels[0].Text := 'Locations loaded.';
+    FStatusText1 := 'Locations loaded.';
   finally
-    Statusbar.Panels[1].Text := '';
+    FStatusText2 := '';
+    UpdateStatusbar;
+    //Statusbar.Panels[1].Text := '';
     stream.Free;
   end;
 end;
@@ -395,7 +404,7 @@ var
   dt: TDataType;
 begin
   if ASender.Series = nil then
-    Statusbar.Panels[0].Text := ''
+    FStatusText1 := ''
   else
   if ASender.Series is TChartSeries then
   begin
@@ -411,9 +420,10 @@ begin
       dtNewCaseRatio:
         sy := Format('cases(%s) / cases(%s) = %.3f', [DateToStr(x), DateToStr(x-1), y])
     end;
-    Statusbar.Panels[0].Text := Format('%s: %s, %s', [ser.Title, DateToStr(x), sy]);
+    FStatusText1 := Format('%s: %s, %s',  [ser.Title, DatetoStr(x), sy]);;
     ASender.Handled;
   end;
+  UpdateStatusBar;
 end;
 
 procedure TMainForm.cbLogarithmicChange(Sender: TObject);
@@ -832,8 +842,8 @@ procedure TMainForm.MeasurementToolAfterMouseUp(ATool: TChartTool;
   APoint: TPoint);
 begin
   FMeasurementSeries.Active := false;
-  Statusbar.Panels[1].Text := '';
-//  ATool.Handled;
+  FStatusText2 := '';
+  UpdateStatusbar;
 end;
 
 procedure TMainForm.MeasurementToolGetDistanceText(
@@ -876,14 +886,13 @@ begin
       ok := true;
     end;
   FMeasurementSeries.Active := ok;
-  Statusbar.Panels[1].Text := s;
-  Statusbar.Refresh;
+  FStatusText2 := s;
+  UpdateStatusbar('. ');
 end;
 
 procedure TMainForm.MeasurementToolMeasure(ASender: TDataPointDistanceTool);
 begin
   FMeasurementSeries.Active := false;
-//  Statusbar.Panels[1].Text := '';
 end;
 
 procedure TMainForm.rgDataTypeClick(Sender: TObject);
@@ -1003,7 +1012,8 @@ begin
   LayoutBars;
   UpdateAffectedSeries;
   UpdateGrid;
-  Statusbar.Panels[0].Text := GetLocation(TreeView.Selected) + ' loaded.';
+  FStatustext1 := GetLocation(TreeView.Selected) + ' loaded.';
+  UpdateStatusBar;
 end;
 
 procedure TMainForm.UpdateAffectedSeries;
@@ -1052,6 +1062,19 @@ begin
   finally
     Grid.EndUpdate;
   end;
+end;
+
+procedure TMainForm.UpdateStatusbar(ASeparator: String = ' ');
+begin
+  if (FStatusText1 <> '') and (FStatusText2 <> '') then
+    Statusbar.SimpleText := FStatusText1 + ASeparator + FStatusText2
+  else if (FStatusText1 <> '') then
+    Statusbar.SimpleText := FStatusText1
+  else if (FStatusText2 <> '') then
+    Statusbar.SimpleText := FStatusText2
+  else
+    Statusbar.SimpleText := '';
+  Statusbar.Refresh;
 end;
 
 initialization
