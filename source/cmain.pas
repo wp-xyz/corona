@@ -165,6 +165,8 @@ begin
 end;
 
 procedure TMainForm.btnUpdateClick(Sender: TObject);
+const
+  DOWNLOAD_ERR = 'Download error.';
 var
   stream: TMemoryStream;
 begin
@@ -173,27 +175,43 @@ begin
     Statusbar.Panels[0].Text := 'Download from:';
     Statusbar.Panels[1].Text := BASE_URL + FILENAME_CONFIRMED + '...';
     Statusbar.Refresh;
-    DownloadFile(BASE_URL + FILENAME_CONFIRMED, stream);
+    if not DownloadFile(BASE_URL + FILENAME_CONFIRMED, stream) then
+    begin
+      Statusbar.Panels[0].Text := DOWNLOAD_ERR;
+      MessageDlg(DOWNLOAD_ERR, mtError, [mbOK], 0);
+      exit;
+    end;
     stream.Position := 0;
     stream.SaveToFile(DataDir + FILENAME_CONFIRMED);
 
     stream.Position := 0;
     Statusbar.Panels[1].Text := BASE_URL + FILENAME_DEATHS + '...';
     Statusbar.Refresh;
-    DownloadFile(BASE_URL + FILENAME_DEATHS, stream);
+    if not DownloadFile(BASE_URL + FILENAME_DEATHS, stream) then
+    begin
+      Statusbar.Panels[0].Text := DOWNLOAD_ERR;
+      MessageDlg(DOWNLOAD_ERR, mtError, [mbOk], 0);
+      exit;
+    end;
     stream.Position := 0;
     stream.SaveToFile(DataDir + FILENAME_DEATHS);
 
     stream.Position := 0;
     Statusbar.Panels[1].Text := BASE_URL + FILENAME_RECOVERED + '...';
     Statusbar.Refresh;
-    DownloadFile(BASE_URL + FILENAME_RECOVERED, stream);
+    if not DownloadFile(BASE_URL + FILENAME_RECOVERED, stream) then
+    begin
+      Statusbar.Panels[0].Text := DOWNLOAD_ERR;
+      MessageDlg(DOWNLOAD_ERR, mtError, [mbOk], 0);
+      exit;
+    end;
     stream.Position := 0;
     stream.SaveToFile(DataDir + FILENAME_RECOVERED);
 
     LoadLocations;
-  finally
+
     Statusbar.Panels[0].Text := 'Locations loaded.';
+  finally
     Statusbar.Panels[1].Text := '';
     stream.Free;
   end;
