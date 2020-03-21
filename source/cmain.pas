@@ -7,6 +7,7 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, ExtCtrls,
   StdCtrls, Buttons, Grids, Types, LCLVersion,
+  fpopenssl, ssockets, sslsockets,
   TAGraph, TAIntervalSources, TASeries, TAChartListbox, TALegend,
   TACustomSeries, TATransformations, TATools, TAFuncSeries, TADataTools;
 
@@ -80,11 +81,13 @@ type
     procedure CalcFitHandler(const AX: Double; out AY: Double);
     procedure Clear;
     procedure CreateMeasurementSeries;
+    function DownloadFile(const Url: string; AStream: TStream): Boolean;
     function GetCellText(ACol, ARow: Integer): String;
     function GetDataString(ANode: TTreeNode; ACaseType: TCaseType; var AHeader, ACounts: String): Boolean;
     function GetLocation(ANode: TTreeNode): String;
     procedure GetLocation(ANode: TTreeNode; out ACountry, AState: String);
     function GetSeries(ANode: TTreeNode; ACaseType: TCaseType; ADataType: TDataType): TChartSeries;
+    procedure GetSocketHandler(Sender: TObject; const UseSSL: Boolean; out AHandler: TSocketHandler);
     procedure LayoutBars;
     procedure LoadLocations;
     procedure Logarithmic(AEnable: Boolean);
@@ -141,29 +144,6 @@ end;
 function EndsWithQuote(s: String): Boolean;
 begin
   Result := (s <> '') and (s[Length(s)] = '"');
-end;
-
-function DownloadFile(const Url: string; AStream: TStream): Boolean;
-var
-  http: TFpHttpClient;
-begin
-  Result := true;
-  InitSSLInterface;
-  http := TFpHttpClient.Create(nil);
-  try
-    http.AllowRedirect := true;
-    http.AddHeader('User-Agent', 'Mozilla/5.0 (compatible; fpweb)');
-    try
-      http.Get(Url, AStream);
-      Result := (http.ResponseStatusCode = 200);
-    except
-      on EInOutError do raise;
-      on EHTTPClient do Result := false;
-    end;
-    AStream.Position := 0;
-  finally
-    http.Free;
-  end;
 end;
 
 
@@ -441,6 +421,30 @@ begin
   Chart.AddSeries(FMeasurementSeries);
 end;
 
+function TMainForm.DownloadFile(const Url: string; AStream: TStream): Boolean;
+var
+  http: TFpHttpClient;
+begin
+  Result := true;
+  InitSSLInterface;
+  http := TFpHttpClient.Create(nil);
+  try
+    http.OnGetSocketHandler := @GetSocketHandler;
+    http.AllowRedirect := true;
+    http.AddHeader('User-Agent', 'Mozilla/5.0 (compatible; fpweb)');
+    try
+      http.Get(Url, AStream);
+      Result := (http.ResponseStatusCode = 200);
+    except
+      on EInOutError do raise;
+      on EHTTPClient do Result := false;
+    end;
+    AStream.Position := 0;
+  finally
+    http.Free;
+  end;
+end;
+
 procedure TMainForm.FormActivate(Sender: TObject);
 begin
   LeftPanel.Constraints.MinWidth := cgCases.Width + btnUpdate.Width + 8;
@@ -650,6 +654,13 @@ begin
   end;  // for ct
 
   UpdateAffectedSeries;
+end;
+
+procedure TMainForm.GetSocketHandler(Sender: TObject; const UseSSL: Boolean; out
+  AHandler: TSocketHandler);
+begin
+  AHandler := TSSLSocketHandler.Create;
+  TSSLSocketHandler(AHandler).SSLType := stTLSv1_2;
 end;
 
 procedure TMainForm.GridDrawCell(Sender: TObject; aCol, aRow: Integer;
