@@ -3532,7 +3532,7 @@ object MainForm: TMainForm
         BorderSpacing.Left = 6
         BorderSpacing.Top = 6
         BorderSpacing.Bottom = 6
-        Color = clNone
+        Color = clDefault
       end
       object RightPanel: TPanel
         Left = 660
