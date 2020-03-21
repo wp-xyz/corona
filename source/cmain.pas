@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, ExtCtrls,
   StdCtrls, Buttons, Grids, Types, LCLVersion,
-  fpopenssl, ssockets, sslsockets,
+  fpopenssl, ssockets, sslsockets,    // needed for SSL to work in general
   TAGraph, TAIntervalSources, TASeries, TAChartListbox, TALegend,
   TACustomSeries, TATransformations, TATools, TAFuncSeries, TADataTools;
 
@@ -106,9 +106,16 @@ implementation
 {$R *.lfm}
 
 uses
-  Math, FpHttpClient, OpenSSL,
-  {$IF FPC_FullVersion >= 30200} OpenSSLSockets, {$ENDIF}
+  Math,
+  OpenSSL,
+  {$IF FPC_FullVersion >= 30200}        // needed for SSL to work in general
+  OpenSSLSockets, FpHttpClient,
+  {$ELSE}
+  opkman_httpclient,
+  {$ENDIF}
+  // TAChart units
   TATypes, TAMath, TACustomSource, TAFitLib,
+  // project-specific units
   cAbout;
 
 const
@@ -126,9 +133,10 @@ const
   DATA_DIR = 'data/';
   {$ENDIF}
 
-  COLORS: array[0..8] of TColor = (
+  // Chart series colors
+  COLORS: array[0..9] of TColor = (
     clRed, clBlue, clFuchsia, clLime, clSkyBlue,
-    clTeal, clPurple, clBlack, clMedGray);
+    clTeal, clPurple, clBlack, clMedGray, clMoneyGreen);
 
   BARWIDTH_PERCENT = 80;
 
