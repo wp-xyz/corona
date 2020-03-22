@@ -3383,11 +3383,15 @@ object MainForm: TMainForm
     object btnClear: TButton
       AnchorSideLeft.Control = btnUpdate
       AnchorSideLeft.Side = asrBottom
+      AnchorSideTop.Control = btnUpdate
+      AnchorSideBottom.Control = btnUpdate
+      AnchorSideBottom.Side = asrBottom
       Left = 116
-      Height = 25
+      Height = 26
       Top = 101
       Width = 53
       Action = acDataClear
+      Anchors = [akTop, akLeft, akBottom]
       AutoSize = True
       BorderSpacing.Left = 8
       BorderSpacing.Right = 4
