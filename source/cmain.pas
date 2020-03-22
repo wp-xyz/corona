@@ -5,6 +5,7 @@ unit cMain;
 interface
 
 uses
+  LCLType,
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, ExtCtrls,
   StdCtrls, Buttons, Grids, Types, LCLVersion, Menus, ActnList, StdActns,
   fpopenssl, ssockets, sslsockets,    // needed for SSL to work in general
@@ -115,10 +116,12 @@ type
     procedure GetLocation(ANode: TTreeNode; out ACountry, AState: String);
     function GetSeries(ANode: TTreeNode; ACaseType: TCaseType; ADataType: TDataType): TChartSeries;
     procedure GetSocketHandler(Sender: TObject; const UseSSL: Boolean; out AHandler: TSocketHandler);
+    procedure InitShortCuts;
     procedure LayoutBars;
     procedure LoadLocations;
     procedure Logarithmic(AEnable: Boolean);
     procedure UpdateAffectedSeries;
+    procedure UpdateActionStates;
     procedure UpdateGrid;
     procedure UpdateStatusBar(ASeparator: String = ' ');
 
@@ -447,6 +450,7 @@ begin
   Chart.ClearSeries;
   CreateMeasurementSeries;
   UpdateGrid;
+  UpdateActionStates;
 end;
 
 procedure TMainForm.CreateMeasurementSeries;
@@ -488,27 +492,37 @@ end;
 
 procedure TMainForm.FormActivate(Sender: TObject);
 begin
-  LeftPanel.Constraints.MinWidth := cgCases.Width + btnUpdate.Width + 8;
+//  LeftPanel.Constraints.MinWidth := cgCases.Width + btnUpdate.Width + 8;
+//  LeftPanel.Constraints.MinWidth := LeftPanel.Width;
+//  LeftPanel.AutoSize := false;
 end;
 
 procedure TMainForm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
-  if CanClose and acConfigAuto.Checked then
+  if CanClose then
     SaveIni;
 end;
 
 procedure TMainForm.FormCreate(Sender: TObject);
 begin
   DataDir := Application.Location + DATA_DIR;  // DATA_DIR ends with a path delimiter
+
+  LeftPanel.Constraints.MinWidth := LeftPanel.Width;
+  LeftPanel.AutoSize := false;
+
   WheelZoomTool.ZoomFactor := 1.05;
   WheelZoomTool.ZoomRatio := 1.0 / WheelZoomTool.ZoomFactor;
+
   {$IF LCL_FullVersion >= 2010000}
   ZoomDragTool.LimitToExtent := [zdDown, zdLeft, zdRight, zdUp];
   PanDragTool.LimitToExtent := [pdDown, pdLeft, pdRight, pdUp];
   {$ENDIF}
+
   cgCases.Checked[0] := true;
   Grid.RowHeights[0] := 2 * Grid.DefaultRowHeight;
+
   CreateMeasurementSeries;
+  InitShortCuts;
 
   LoadIni;
 
@@ -746,6 +760,17 @@ begin
   Grid.Canvas.TextStyle := ts;
 end;
 
+procedure TMainForm.InitShortCuts;
+begin
+ {$IFDEF LINUX}
+  acFileExit.ShortCut := KeyToShortCut(VK_Q, [ssCtrl]);
+ {$ENDIF}
+ {$IFDEF WINDOWS}
+  acFileExit.ShortCut := KeyToShortCut(VK_X, [ssAlt]);
+ {$ENDIF}
+  { TODO : Implement the equivalent for MacOS }
+end;
+
 procedure TMainForm.LayoutBars;
 var
   i, j, n: Integer;
@@ -816,6 +841,7 @@ begin
       TreeView.AlphaSort;
       TreeView.Items.EndUpdate;
     end;
+    UpdateActionStates;
   finally
     L.Free;
   end;
@@ -1037,6 +1063,7 @@ begin
   UpdateGrid;
   FStatustext1 := GetLocation(TreeView.Selected) + ' loaded.';
   UpdateStatusBar;
+  UpdateActionStates;
 end;
 
 procedure TMainForm.UpdateAffectedSeries;
@@ -1051,6 +1078,11 @@ begin
   Delete(s, 1, 1);
   CrossHairTool.AffectedSeries := s;
   MeasurementTool.AffectedSeries := s;
+end;
+
+procedure TMainForm.UpdateActionStates;
+begin
+  acTableSave.Enabled := Chart.SeriesCount > 1;  // 1 series reserved for measurement
 end;
 
 procedure TMainForm.UpdateGrid;
@@ -1152,6 +1184,10 @@ var
 begin
   ini := CreateIni;
   try
+    ini.WriteBool('MainForm', 'Automatic', acConfigAuto.Checked);
+    if not acConfigAuto.Checked then
+      exit;
+
     if WindowState = wsNormal then
     begin
       ini.WriteInteger('MainForm', 'Left', Left);
@@ -1169,7 +1205,6 @@ begin
     ini.WriteBool('MainForm', 'RecoveredCases', cgCases.Checked[2]);
     ini.WriteInteger('MainForm', 'DataType', rgDataType.ItemIndex);
 
-    ini.WriteBool('MainForm', 'Automatic', acConfigAuto.Checked);
     ini.WriteBool('MainForm', 'ShowHints', acConfigHint.Checked);
 
   finally
