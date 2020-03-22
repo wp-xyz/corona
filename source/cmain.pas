@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, ExtCtrls,
-  StdCtrls, Buttons, Grids, Types, LCLVersion,
+  StdCtrls, Buttons, Grids, Types, LCLVersion, Menus, ActnList, StdActns,
   fpopenssl, ssockets, sslsockets,    // needed for SSL to work in general
   TAGraph, TAIntervalSources, TASeries, TAChartListbox, TALegend,
   TACustomSeries, TATransformations, TATools, TAFuncSeries, TADataTools;
@@ -18,11 +18,35 @@ type
   { TMainForm }
 
   TMainForm = class(TForm)
-    btnUpdate: TButton;
+    acDataUpdate: TAction;
+    acAbout: TAction;
+    acDataClear: TAction;
+    acChartLogarithmic: TAction;
+    acConfigHint: TAction;
+    acTableSave: TAction;
+    acConfigAuto: TAction;
+    ActionList: TActionList;
     btnClear: TButton;
     btnSaveToCSV: TButton;
+    btnUpdate: TBitBtn;
     Chart: TChart;
     ChartToolset: TChartToolset;
+    acFileExit: TFileExit;
+    MainMenu: TMainMenu;
+    MenuItem1: TMenuItem;
+    MenuItem4: TMenuItem;
+    mnuTable: TMenuItem;
+    MenuItem2: TMenuItem;
+    MenuItem3: TMenuItem;
+    mnuData: TMenuItem;
+    mnuHelpAbout: TMenuItem;
+    mnuHelp: TMenuItem;
+    mnuConfigHints: TMenuItem;
+    mnuConfig: TMenuItem;
+    mnuChartLogarithmic: TMenuItem;
+    mnuChart: TMenuItem;
+    mnuFileQuit: TMenuItem;
+    mnuFile: TMenuItem;
     WheelZoomTool: TZoomMouseWheelTool;
     Grid: TDrawGrid;
     lblTableHdr: TLabel;
@@ -36,7 +60,7 @@ type
     MeasurementTool: TDataPointDistanceTool;
     UserdefinedTool: TUserDefinedTool;
     CrossHairTool: TDataPointCrosshairTool;
-    ImageList1: TImageList;
+    ImageList: TImageList;
     LeftAxisTransformations: TChartAxisTransformations;
     LogAxisTransform: TLogarithmAxisTransform;
     ChartListbox: TChartListbox;
@@ -45,23 +69,24 @@ type
     cgCases: TCheckGroup;
     LeftPanel: TPanel;
     RightPanel: TPanel;
-    btnAbout: TSpeedButton;
     LeftSplitter: TSplitter;
     RightSplitter: TSplitter;
     StatusBar: TStatusBar;
     TreeView: TTreeView;
-    procedure btnAboutClick(Sender: TObject);
-    procedure btnClearClick(Sender: TObject);
-    procedure btnUpdateClick(Sender: TObject);
-    procedure btnSaveToCSVClick(Sender: TObject);
-    procedure cbCumulativeChange(Sender: TObject);
-    procedure cbLogarithmicChange(Sender: TObject);
+    procedure acAboutExecute(Sender: TObject);
+    procedure acChartLogarithmicExecute(Sender: TObject);
+    procedure acConfigAutoExecute(Sender: TObject);
+    procedure acConfigHintExecute(Sender: TObject);
+    procedure acDataClearExecute(Sender: TObject);
+    procedure acDataUpdateExecute(Sender: TObject);
+    procedure acTableSaveExecute(Sender: TObject);
     procedure cgCasesItemClick(Sender: TObject; Index: integer);
     procedure ChartListboxAddSeries(ASender: TChartListbox;
       ASeries: TCustomChartSeries; AItems: TChartLegendItems; var ASkip: Boolean);
     procedure ChartListboxCheckboxClick(ASender: TObject; AIndex: Integer);
     procedure CrossHairToolDraw(ASender: TDataPointDrawTool);
     procedure FormActivate(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormCreate(Sender: TObject);
     procedure GridDrawCell(Sender: TObject; aCol, aRow: Integer; aRect: TRect;
       aState: TGridDrawState);
@@ -71,6 +96,7 @@ type
     procedure MeasurementToolGetDistanceText(ASender: TDataPointDistanceTool;
       var AText: String);
     procedure MeasurementToolMeasure(ASender: TDataPointDistanceTool);
+    procedure PageControlChange(Sender: TObject);
     procedure rgDataTypeClick(Sender: TObject);
     procedure TreeViewClick(Sender: TObject);
 
@@ -96,6 +122,8 @@ type
     procedure UpdateGrid;
     procedure UpdateStatusBar(ASeparator: String = ' ');
 
+    procedure LoadIni;
+    procedure SaveIni;
   public
 
   end;
@@ -108,7 +136,7 @@ implementation
 {$R *.lfm}
 
 uses
-  Math,
+  Math, IniFiles,
   OpenSSL,
   {$IF FPC_FullVersion >= 30200}        // needed for SSL to work in general
   OpenSSLSockets, FpHttpClient,
@@ -163,7 +191,7 @@ end;
 
 { TMainForm }
 
-procedure TMainForm.btnAboutClick(Sender: TObject);
+procedure TMainForm.acAboutExecute(Sender: TObject);
 begin
   with TAboutForm.Create(nil) do
     try
@@ -173,12 +201,27 @@ begin
     end;
 end;
 
-procedure TMainForm.btnClearClick(Sender: TObject);
+procedure TMainForm.acChartLogarithmicExecute(Sender: TObject);
+begin
+  Logarithmic(acChartLogarithmic.Checked);
+end;
+
+procedure TMainForm.acConfigAutoExecute(Sender: TObject);
+begin
+  // Checked state is evaluated when writing ini.
+end;
+
+procedure TMainForm.acConfigHintExecute(Sender: TObject);
+begin
+  ShowHint := acConfigHint.Checked;
+end;
+
+procedure TMainForm.acDataClearExecute(Sender: TObject);
 begin
   Clear;
 end;
 
-procedure TMainForm.btnUpdateClick(Sender: TObject);
+procedure TMainForm.acDataUpdateExecute(Sender: TObject);
 const
   DOWNLOAD_ERR = 'Download error.';
 var
@@ -229,12 +272,11 @@ begin
   finally
     FStatusText2 := '';
     UpdateStatusbar;
-    //Statusbar.Panels[1].Text := '';
     stream.Free;
   end;
 end;
 
-procedure TMainForm.btnSaveToCSVClick(Sender: TObject);
+procedure TMainForm.acTableSaveExecute(Sender: TObject);
 var
   r, c: Integer;
   F: TextFile;
@@ -338,38 +380,6 @@ begin
     AY := NaN;
 end;
 
-procedure TMainForm.cbCumulativeChange(Sender: TObject);
-begin
-  Clear;
-  cbLogarithmic.Enabled := TDataType(rgDataType.ItemIndex) = dtCumulative;
-  case TDataType(rgDataType.ItemIndex) of
-    dtCumulative:
-      begin
-        Chart.LeftAxis.Title.Caption := 'Cumulative cases';
-        lblTableHdr.Caption := 'Cumulative cases';
-        cbLogarithmic.Enabled := true;
-        Logarithmic(cbLogarithmic.Checked);
-        MeasurementTool.Enabled := true;
-      end;
-    dtNewCases:
-      begin
-        Chart.LeftAxis.Title.Caption := 'New cases per day';
-        lblTableHdr.Caption := 'New cases per day';
-        cbLogarithmic.Enabled := false;
-        Logarithmic(false);
-        MeasurementTool.Enabled := false;
-      end;
-    dtNewCaseRatio:
-      begin
-        Chart.LeftAxis.Title.Caption := 'Day-to-day ratio of new cases';
-        lblTableHdr.Caption := 'Day-to-day ratio of new cases';
-        cbLogarithmic.Enabled := false;
-        Logarithmic(false);
-        MeasurementTool.Enabled := false;
-      end;
-  end;
-end;
-
 procedure TMainForm.ChartListboxAddSeries(ASender: TChartListbox;
   ASeries: TCustomChartSeries; AItems: TChartLegendItems; var ASkip: Boolean);
 var
@@ -424,11 +434,6 @@ begin
     ASender.Handled;
   end;
   UpdateStatusBar;
-end;
-
-procedure TMainForm.cbLogarithmicChange(Sender: TObject);
-begin
-  Logarithmic(cbLogarithmic.Checked);
 end;
 
 procedure TMainForm.cgCasesItemClick(Sender: TObject; Index: integer);
@@ -486,6 +491,12 @@ begin
   LeftPanel.Constraints.MinWidth := cgCases.Width + btnUpdate.Width + 8;
 end;
 
+procedure TMainForm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+begin
+  if CanClose and acConfigAuto.Checked then
+    SaveIni;
+end;
+
 procedure TMainForm.FormCreate(Sender: TObject);
 begin
   DataDir := Application.Location + DATA_DIR;  // DATA_DIR ends with a path delimiter
@@ -498,6 +509,9 @@ begin
   cgCases.Checked[0] := true;
   Grid.RowHeights[0] := 2 * Grid.DefaultRowHeight;
   CreateMeasurementSeries;
+
+  LoadIni;
+
   LoadLocations;
 end;
 
@@ -895,24 +909,33 @@ begin
   FMeasurementSeries.Active := false;
 end;
 
+procedure TMainForm.PageControlChange(Sender: TObject);
+begin
+  // FIXME: Chart menu is always hidden once Table menu was shown.
+  {
+  mnuChart.Visible := PageControl.ActivePageIndex = pgChart;
+  mnuTable.Visible := PageControl.ActivePage = pgTable;
+  }
+end;
+
 procedure TMainForm.rgDataTypeClick(Sender: TObject);
 begin
   Clear;
-  cbLogarithmic.Enabled := TDataType(rgDataType.ItemIndex) = dtCumulative;
+  acChartLogarithmic.Enabled := TDataType(rgDataType.ItemIndex) = dtCumulative;
   case TDataType(rgDataType.ItemIndex) of
     dtCumulative:
       begin
         Chart.LeftAxis.Title.Caption := 'Cases';
         lblTableHdr.Caption := 'Cumulative Cases';
-        cbLogarithmic.Enabled := true;
-        Logarithmic(cbLogarithmic.Checked);
+        acChartLogarithmic.Enabled := true;
+        Logarithmic(acChartLogarithmic.Checked);
         MeasurementTool.Enabled := true;
       end;
     dtNewCases:
       begin
         Chart.LeftAxis.Title.Caption := 'New Cases';
         lblTableHdr.Caption := 'New Cases';
-        cbLogarithmic.Enabled := false;
+        acChartLogarithmic.Enabled := false;
         Logarithmic(false);
         MeasurementTool.Enabled := false;
       end;
@@ -920,7 +943,7 @@ begin
       begin
         Chart.LeftAxis.Title.Caption := 'Day-to-day ratio of new cases';
         lblTableHdr.Caption := 'Ratio of new cases';
-        cbLogarithmic.Enabled := false;
+        acChartLogarithmic.Enabled := false;
         Logarithmic(false);
         MeasurementTool.Enabled := false;
       end;
@@ -1075,6 +1098,83 @@ begin
   else
     Statusbar.SimpleText := '';
   Statusbar.Refresh;
+end;
+
+function CreateIni: TCustomIniFile;
+begin
+  Result := TMemIniFile.Create(GetAppConfigFile(false));
+end;
+
+procedure TMainForm.LoadIni;
+var
+  ini: TCustomIniFile;
+  L, T, W, H: Integer;
+  R: TRect;
+begin
+  ini := CreateIni;
+  try
+    acConfigAuto.Checked := ini.ReadBool('MainForm', 'Automatic', acConfigAuto.Checked);
+    if not acConfigAuto.Checked then
+      exit;
+
+    L := ini.ReadInteger('MainForm', 'Left', Left);
+    T := ini.ReadInteger('MainForm', 'Top', Top);
+    W := ini.ReadInteger('MainForm', 'Width', Width);
+    H := ini.ReadInteger('MainForm', 'Height', Height);
+    R := Screen.WorkAreaRect;
+    if W > R.Width then W := R.Width;
+    if L + W > R.Right then L := R.Right - W;
+    if L < R.Left then L := R.Left;
+    if T + H > R.Bottom then T := R.Bottom - H;
+    if T < R.Top then T := R.Top;
+    SetBounds(L, T, W, H);
+
+    LeftPanel.Width := ini.ReadInteger('MainForm', 'LeftPanel', LeftPanel.Width);
+    RightPanel.Width := ini.ReadInteger('MainForm', 'RightPanel', RightPanel.Width);
+    PageControl.ActivePageIndex := ini.ReadInteger('MainForm', 'PageControl', PageControl.ActivePageIndex);
+    PageControlChange(nil);
+
+    cgCases.Checked[0] := ini.Readbool('MainForm', 'ConfirmedCases', cgCases.Checked[0]);
+    cgCases.Checked[1] := ini.ReadBool('MainForm', 'DeathCases', cgCases.Checked[1]);
+    cgCases.Checked[2] := ini.ReadBool('MainForm', 'RecoveredCases', cgCases.Checked[2]);
+    rgDataType.ItemIndex := ini.ReadInteger('MainForm', 'DataType', rgDataType.ItemIndex);
+
+    acConfigHint.Checked := ini.ReadBool('MainForm', 'ShowHints', acConfigHint.Checked);
+    acConfigHintExecute(nil);
+  finally
+    ini.Free;
+  end;
+end;
+
+procedure TMainForm.SaveIni;
+var
+  ini: TCustomIniFile;
+begin
+  ini := CreateIni;
+  try
+    if WindowState = wsNormal then
+    begin
+      ini.WriteInteger('MainForm', 'Left', Left);
+      ini.WriteInteger('MainForm', 'Top', Top);
+      ini.WriteInteger('MainForm', 'Width', Width);
+      ini.WriteInteger('MainForm', 'Height', Height);
+    end;
+
+    ini.WriteInteger('MainForm', 'LeftPanel', LeftPanel.Width);
+    ini.WriteInteger('MainForm', 'RightPanel', RightPanel.Width);
+    ini.WriteInteger('MainForm', 'PageControl', PageControl.ActivePageIndex);
+
+    ini.WriteBool('MainForm', 'ConfirmedCases', cgCases.Checked[0]);
+    ini.WriteBool('MainForm', 'DeathCases', cgCases.Checked[1]);
+    ini.WriteBool('MainForm', 'RecoveredCases', cgCases.Checked[2]);
+    ini.WriteInteger('MainForm', 'DataType', rgDataType.ItemIndex);
+
+    ini.WriteBool('MainForm', 'Automatic', acConfigAuto.Checked);
+    ini.WriteBool('MainForm', 'ShowHints', acConfigHint.Checked);
+
+  finally
+    ini.Free;
+  end;
 end;
 
 initialization

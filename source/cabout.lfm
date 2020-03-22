@@ -9,7 +9,7 @@ object AboutForm: TAboutForm
   ClientHeight = 326
   ClientWidth = 323
   OnCreate = FormCreate
-  Position = poScreenCenter
+  Position = poMainFormCenter
   ShowHint = True
   LCLVersion = '2.1.0.0'
   object AppImage: TImage
