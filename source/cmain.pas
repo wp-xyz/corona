@@ -26,16 +26,18 @@ type
     acConfigHint: TAction;
     acTableSave: TAction;
     acConfigAuto: TAction;
+    acChartLinear: TAction;
+    acChartCopyToClipboard: TAction;
     ActionList: TActionList;
-    btnClear: TButton;
-    btnSaveToCSV: TButton;
-    btnUpdate: TBitBtn;
     Chart: TChart;
     ChartToolset: TChartToolset;
     acFileExit: TFileExit;
     MainMenu: TMainMenu;
     MenuItem1: TMenuItem;
     MenuItem4: TMenuItem;
+    MenuItem5: TMenuItem;
+    MenuItem6: TMenuItem;
+    MenuItem7: TMenuItem;
     mnuTable: TMenuItem;
     MenuItem2: TMenuItem;
     MenuItem3: TMenuItem;
@@ -48,6 +50,18 @@ type
     mnuChart: TMenuItem;
     mnuFileQuit: TMenuItem;
     mnuFile: TMenuItem;
+    ToolBar: TToolBar;
+    ToolButton1: TToolButton;
+    ToolButton10: TToolButton;
+    ToolButton2: TToolButton;
+    ToolButton3: TToolButton;
+    ToolButton4: TToolButton;
+    tbAbout: TToolButton;
+    ToolButton5: TToolButton;
+    ToolButton6: TToolButton;
+    ToolButton7: TToolButton;
+    ToolButton8: TToolButton;
+    ToolButton9: TToolButton;
     WheelZoomTool: TZoomMouseWheelTool;
     Grid: TDrawGrid;
     lblTableHdr: TLabel;
@@ -65,7 +79,6 @@ type
     LeftAxisTransformations: TChartAxisTransformations;
     LogAxisTransform: TLogarithmAxisTransform;
     ChartListbox: TChartListbox;
-    cbLogarithmic: TCheckBox;
     DateTimeIntervalChartSource: TDateTimeIntervalChartSource;
     cgCases: TCheckGroup;
     LeftPanel: TPanel;
@@ -75,6 +88,8 @@ type
     StatusBar: TStatusBar;
     TreeView: TTreeView;
     procedure acAboutExecute(Sender: TObject);
+    procedure acChartCopyToClipboardExecute(Sender: TObject);
+    procedure acChartLinearExecute(Sender: TObject);
     procedure acChartLogarithmicExecute(Sender: TObject);
     procedure acConfigAutoExecute(Sender: TObject);
     procedure acConfigHintExecute(Sender: TObject);
@@ -88,6 +103,7 @@ type
     procedure CrossHairToolDraw(ASender: TDataPointDrawTool);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormCreate(Sender: TObject);
+    procedure FormShow(Sender: TObject);
     procedure GridDrawCell(Sender: TObject; aCol, aRow: Integer; aRect: TRect;
       aState: TGridDrawState);
     procedure GridPrepareCanvas(sender: TObject; aCol, aRow: Integer;
@@ -98,6 +114,7 @@ type
     procedure MeasurementToolMeasure(ASender: TDataPointDistanceTool);
     procedure PageControlChange(Sender: TObject);
     procedure rgDataTypeClick(Sender: TObject);
+    procedure ToolBarResize(Sender: TObject);
     procedure TreeViewClick(Sender: TObject);
 
   private
@@ -205,9 +222,21 @@ begin
     end;
 end;
 
+procedure TMainForm.acChartCopyToClipboardExecute(Sender: TObject);
+begin
+  Chart.Color := clWhite;
+  Chart.CopyToClipboardBitmap;
+  Chart.Color := cldefault;
+end;
+
+procedure TMainForm.acChartLinearExecute(Sender: TObject);
+begin
+  Logarithmic(false);
+end;
+
 procedure TMainForm.acChartLogarithmicExecute(Sender: TObject);
 begin
-  Logarithmic(acChartLogarithmic.Checked);
+  Logarithmic(true);
 end;
 
 procedure TMainForm.acConfigAutoExecute(Sender: TObject);
@@ -529,6 +558,12 @@ begin
 //  LoadIni;
 
   LoadLocations;
+end;
+
+procedure TMainForm.FormShow(Sender: TObject);
+begin
+  tbAbout.Align := alRight;
+  tbAbout.Left := Toolbar.Width - tbAbout.Width;
 end;
 
 function TMainForm.GetCellText(ACol, ARow: Integer): String;
@@ -949,12 +984,14 @@ procedure TMainForm.rgDataTypeClick(Sender: TObject);
 begin
   Clear;
   acChartLogarithmic.Enabled := TDataType(rgDataType.ItemIndex) = dtCumulative;
+  acChartLinear.Enabled := acChartLogarithmic.Enabled;
   case TDataType(rgDataType.ItemIndex) of
     dtCumulative:
       begin
         Chart.LeftAxis.Title.Caption := 'Cases';
         lblTableHdr.Caption := 'Cumulative Cases';
         acChartLogarithmic.Enabled := true;
+        acChartLinear.Enabled := true;
         Logarithmic(acChartLogarithmic.Checked);
         MeasurementTool.Enabled := true;
       end;
@@ -963,6 +1000,7 @@ begin
         Chart.LeftAxis.Title.Caption := 'New Cases';
         lblTableHdr.Caption := 'New Cases';
         acChartLogarithmic.Enabled := false;
+        acChartLinear.Enabled := false;
         Logarithmic(false);
         MeasurementTool.Enabled := false;
       end;
@@ -971,6 +1009,7 @@ begin
         Chart.LeftAxis.Title.Caption := 'Day-to-day ratio of new cases';
         lblTableHdr.Caption := 'Ratio of new cases';
         acChartLogarithmic.Enabled := false;
+        acChartLinear.Enabled := false;
         Logarithmic(false);
         MeasurementTool.Enabled := false;
       end;
@@ -1220,6 +1259,11 @@ begin
   finally
     ini.Free;
   end;
+end;
+
+procedure TMainForm.ToolBarResize(Sender: TObject);
+begin
+  tbAbout.Left := Toolbar.Width - tbAbout.Width;
 end;
 
 initialization
