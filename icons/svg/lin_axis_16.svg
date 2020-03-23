@@ -16,9 +16,9 @@
    version="1.1"
    inkscape:version="0.92.2 (5c3e80d, 2017-08-06)"
    sodipodi:docname="lin_axis_16.svg"
-   inkscape:export-filename="D:\Prog_Lazarus\wp-git\corona\icons\svg\lin_axis.png"
-   inkscape:export-xdpi="96"
-   inkscape:export-ydpi="96">
+   inkscape:export-filename="D:\Prog_Lazarus\wp-git\corona\icons\svg\lin_axis_200.png"
+   inkscape:export-xdpi="192"
+   inkscape:export-ydpi="192">
   <defs
      id="defs4227" />
   <sodipodi:namedview
@@ -29,7 +29,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="21.36367"
-     inkscape:cx="11.068261"
+     inkscape:cx="0.84061753"
      inkscape:cy="4.9903538"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -70,7 +70,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>

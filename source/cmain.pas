@@ -551,6 +551,7 @@ begin
 
   cgCases.Checked[0] := true;
   Grid.RowHeights[0] := 2 * Grid.DefaultRowHeight;
+  PageControl.ActivePageIndex := 0;
 
   CreateMeasurementSeries;
   InitShortCuts;
