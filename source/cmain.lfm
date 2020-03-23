@@ -3296,7 +3296,6 @@ object MainForm: TMainForm
     0000000193E6A00BDCFFC6C7DBFFE44FDBFF
   }
   Menu = MainMenu
-  OnActivate = FormActivate
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   ShowHint = True
@@ -3306,6 +3305,7 @@ object MainForm: TMainForm
     Height = 555
     Top = 0
     Width = 5
+    ResizeStyle = rsPattern
   end
   object StatusBar: TStatusBar
     Left = 0
@@ -3567,6 +3567,7 @@ object MainForm: TMainForm
         Width = 5
         Align = alRight
         ResizeAnchor = akRight
+        ResizeStyle = rsPattern
       end
     end
     object pgTable: TTabSheet

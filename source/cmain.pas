@@ -86,7 +86,6 @@ type
       ASeries: TCustomChartSeries; AItems: TChartLegendItems; var ASkip: Boolean);
     procedure ChartListboxCheckboxClick(ASender: TObject; AIndex: Integer);
     procedure CrossHairToolDraw(ASender: TDataPointDrawTool);
-    procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormCreate(Sender: TObject);
     procedure GridDrawCell(Sender: TObject; aCol, aRow: Integer; aRect: TRect;
@@ -127,7 +126,9 @@ type
 
     procedure LoadIni;
     procedure SaveIni;
+
   public
+    procedure BeforeRun;
 
   end;
 
@@ -312,6 +313,14 @@ begin
   end;
 end;
 
+procedure TMainForm.BeforeRun;
+begin
+  LeftPanel.Constraints.MinWidth := LeftPanel.Width;
+  LeftPanel.AutoSize := false;
+
+  LoadIni;
+end;
+
 // It is assumed that xmin < xmax.
 function TMainForm.CalcFit(ASeries: TBasicChartSeries;
   xmin, xmax: Double): Boolean;
@@ -490,13 +499,6 @@ begin
   end;
 end;
 
-procedure TMainForm.FormActivate(Sender: TObject);
-begin
-//  LeftPanel.Constraints.MinWidth := cgCases.Width + btnUpdate.Width + 8;
-//  LeftPanel.Constraints.MinWidth := LeftPanel.Width;
-//  LeftPanel.AutoSize := false;
-end;
-
 procedure TMainForm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
   if CanClose then
@@ -507,8 +509,8 @@ procedure TMainForm.FormCreate(Sender: TObject);
 begin
   DataDir := Application.Location + DATA_DIR;  // DATA_DIR ends with a path delimiter
 
-  LeftPanel.Constraints.MinWidth := LeftPanel.Width;
-  LeftPanel.AutoSize := false;
+  //LeftPanel.Constraints.MinWidth := LeftPanel.Width;
+  //LeftPanel.AutoSize := false;
 
   WheelZoomTool.ZoomFactor := 1.05;
   WheelZoomTool.ZoomRatio := 1.0 / WheelZoomTool.ZoomFactor;
@@ -524,14 +526,13 @@ begin
   CreateMeasurementSeries;
   InitShortCuts;
 
-  LoadIni;
+//  LoadIni;
 
   LoadLocations;
 end;
 
 function TMainForm.GetCellText(ACol, ARow: Integer): String;
 var
-  s: String;
   col: TGridColumn;
   ser: TChartSeries;
   r: Integer;
