@@ -1143,6 +1143,7 @@ var
   ini: TCustomIniFile;
   L, T, W, H: Integer;
   R: TRect;
+  ws: TWindowState;
 begin
   ini := CreateIni;
   try
@@ -1150,17 +1151,24 @@ begin
     if not acConfigAuto.Checked then
       exit;
 
-    L := ini.ReadInteger('MainForm', 'Left', Left);
-    T := ini.ReadInteger('MainForm', 'Top', Top);
-    W := ini.ReadInteger('MainForm', 'Width', Width);
-    H := ini.ReadInteger('MainForm', 'Height', Height);
-    R := Screen.WorkAreaRect;
-    if W > R.Width then W := R.Width;
-    if L + W > R.Right then L := R.Right - W;
-    if L < R.Left then L := R.Left;
-    if T + H > R.Bottom then T := R.Bottom - H;
-    if T < R.Top then T := R.Top;
-    SetBounds(L, T, W, H);
+    ws := TWindowState(ini.ReadInteger('MainForm', 'WindowState', ord(WindowState)));
+    if ws = wsMaximized then
+      WindowState := ws
+    else
+    begin
+      WindowState := wsNormal;
+      L := ini.ReadInteger('MainForm', 'Left', Left);
+      T := ini.ReadInteger('MainForm', 'Top', Top);
+      W := ini.ReadInteger('MainForm', 'Width', Width);
+      H := ini.ReadInteger('MainForm', 'Height', Height);
+      R := Screen.WorkAreaRect;
+      if W > R.Width then W := R.Width;
+      if L + W > R.Right then L := R.Right - W;
+      if L < R.Left then L := R.Left;
+      if T + H > R.Bottom then T := R.Bottom - H;
+      if T < R.Top then T := R.Top;
+      SetBounds(L, T, W, H);
+    end;
 
     LeftPanel.Width := ini.ReadInteger('MainForm', 'LeftPanel', LeftPanel.Width);
     RightPanel.Width := ini.ReadInteger('MainForm', 'RightPanel', RightPanel.Width);
@@ -1189,6 +1197,7 @@ begin
     if not acConfigAuto.Checked then
       exit;
 
+    ini.WriteInteger('MainForm', 'WindowState', ord(WindowState));
     if WindowState = wsNormal then
     begin
       ini.WriteInteger('MainForm', 'Left', Left);
