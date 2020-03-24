@@ -160,7 +160,7 @@ uses
   Math, IniFiles,
   OpenSSL,
   {$IF FPC_FullVersion >= 30200}        // needed for SSL to work in general
-  OpenSSLSockets, FpHttpClient,
+  sslbase, OpenSSLSockets, FpHttpClient,
   {$ELSE}
   opkman_httpclient,
   {$ENDIF}
@@ -762,8 +762,13 @@ end;
 procedure TMainForm.GetSocketHandler(Sender: TObject; const UseSSL: Boolean; out
   AHandler: TSocketHandler);
 begin
+  {$IF FPC_FullVersion >= 30200}        // needed for SSL to work in general
+  AHandler := TOpenSSLSocketHandler.Create;
+  TOpenSSLSocketHandler(AHandler).SSLType := stTLSv1_2;
+  {$ELSE}
   AHandler := TSSLSocketHandler.Create;
   TSSLSocketHandler(AHandler).SSLType := stTLSv1_2;
+  {$ENDIF}
 end;
 
 procedure TMainForm.GridDrawCell(Sender: TObject; aCol, aRow: Integer;
@@ -1033,10 +1038,9 @@ var
 begin
   if TreeView.Selected = nil then
     exit;
-  {
   if (TreeView.Selected.Parent = nil) and TreeView.Selected.HasChildren then
     exit;
-  }
+
   fs := FormatSettings;
   fs.ShortDateFormat := 'mm/dd/yyy';
   fs.DateSeparator := '/';
