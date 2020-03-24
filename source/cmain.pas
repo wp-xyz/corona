@@ -1033,9 +1033,10 @@ var
 begin
   if TreeView.Selected = nil then
     exit;
+  {
   if (TreeView.Selected.Parent = nil) and TreeView.Selected.HasChildren then
     exit;
-
+  }
   fs := FormatSettings;
   fs.ShortDateFormat := 'mm/dd/yyy';
   fs.DateSeparator := '/';
