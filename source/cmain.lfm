@@ -3420,12 +3420,12 @@ object MainForm: TMainForm
     Height = 499
     Top = 50
     Width = 844
-    ActivePage = pgTable
+    ActivePage = pgChart
     Align = alClient
     BorderSpacing.Top = 6
     BorderSpacing.Right = 6
     BorderSpacing.Bottom = 6
-    TabIndex = 1
+    TabIndex = 0
     TabOrder = 2
     OnChange = PageControlChange
     object pgChart: TTabSheet
@@ -3662,11 +3662,6 @@ object MainForm: TMainForm
   object ChartToolset: TChartToolset
     left = 592
     top = 248
-    object CrossHairTool: TDataPointCrosshairTool
-      GrabRadius = 32
-      OnDraw = CrossHairToolDraw
-      Size = 16
-    end
     object MeasurementTool: TDataPointDistanceTool
       Shift = [ssCtrl, ssLeft]
       OnAfterMouseUp = MeasurementToolAfterMouseUp
@@ -3688,6 +3683,11 @@ object MainForm: TMainForm
       PointerStart.Visible = True
       OnGetDistanceText = MeasurementToolGetDistanceText
       OnMeasure = MeasurementToolMeasure
+    end
+    object CrossHairTool: TDataPointCrosshairTool
+      GrabRadius = 32
+      OnDraw = CrossHairToolDraw
+      Size = 16
     end
     object ZoomDragTool: TZoomDragTool
       Shift = [ssLeft]
