@@ -173,8 +173,10 @@ const
   CASETYPE_NAMES: array [TCaseType] of string = ('confirmed', 'deaths', 'recovered');
 
   BASE_URL = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/';
-  FILENAME_CONFIRMED = 'time_series_19-covid-Confirmed.csv';
-  FILENAME_DEATHS = 'time_series_19-covid-Deaths.csv';
+//  FILENAME_CONFIRMED = 'time_series_19-covid-Confirmed.csv';
+  FILENAME_CONFIRMED = 'time_series_covid19_confirmed_global.csv';
+//  FILENAME_DEATHS = 'time_series_19-covid-Deaths.csv';
+  FILENAME_DEATHS = 'time_series_covid19_deaths_global.csv';
   FILENAME_RECOVERED = 'time_series_19-covid-Recovered.csv';
 
   // DATA_DIR must end with path delimiter!
