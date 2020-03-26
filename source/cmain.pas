@@ -1227,7 +1227,7 @@ begin
     Statusbar.SimpleText := FStatusText2
   else
     Statusbar.SimpleText := '';
-  Statusbar.Refresh;
+  Statusbar.Update;
 end;
 
 function CreateIni: TCustomIniFile;
