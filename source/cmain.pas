@@ -14,7 +14,7 @@ uses
 
 type
   TCaseType = (ctConfirmed, ctDeaths, ctRecovered);
-  TDataType = (dtCumulative, dtNewCases, dtNewCaseRatio);
+  TDataType = (dtCumulative, dtNewCases, dtNewCaseRatio, dtDoublingTime);
 
   { TMainForm }
 
@@ -159,11 +159,11 @@ implementation
 uses
   Math, IniFiles,
   OpenSSL,
-  {$IF FPC_FullVersion >= 30200}        // needed for SSL to work in general
+ {$IF FPC_FullVersion >= 30200}        // needed for SSL to work in general
   sslbase, OpenSSLSockets, FpHttpClient,
-  {$ELSE}
-  opkman_httpclient,
-  {$ENDIF}
+ {$ELSE}
+  chttpclient,
+ {$ENDIF}
   // TAChart units
   TATypes, TAMath, TACustomSource, TAFitLib,
   // project-specific units
@@ -450,7 +450,7 @@ procedure TMainForm.CrossHairToolDraw(
   ASender: TDataPointDrawTool);
 var
   ser: TChartSeries;
-  x, y: Double;
+  x, y, y0: Double;
   sy: String;
   dt: TDataType;
 begin
@@ -469,7 +469,9 @@ begin
       dtNewCases:
         if y = 1 then sy := '1 new case' else sy := Format('%.0n new cases', [y]);
       dtNewCaseRatio:
-        sy := Format('cases(%s) / cases(%s) = %.3f', [DateToStr(x), DateToStr(x-1), y])
+        sy := Format('cases(%s) / cases(%s) = %.3f', [DateToStr(x), DateToStr(x-1), y]);
+      dtDoublingTime:
+        sy := Format('Doubling time %.1f', [y]);
     end;
     FStatusText1 := Format('%s: %s, %s',  [ser.Title, DatetoStr(x), sy]);;
     ASender.Handled;
@@ -593,12 +595,14 @@ begin
       ser := TChartSeries(col.Tag);
       r := ser.Count - ARow;
       if not IsNan(ser.YValue[r]) then
-      begin
-        if TDataType(rgDataType.ItemIndex) = dtNewCaseRatio then
-          Result := format('%.3f', [ser.YValue[r]])
-        else
-          Result := Format('%.0n', [ser.YValue[r]]);
-      end;
+        case TDataType(rgDataType.ItemIndex) of
+          dtNewCaseRatio:
+            Result := Format('%.3f', [ser.YValue[r]]);
+          dtDoublingTime:
+            Result := Format('%.1f', [ser.YValue[r]]);
+          else
+            Result := Format('%.0n', [ser.YValue[r]]);
+        end;
     end;
   end;
 end;
@@ -728,7 +732,8 @@ begin
             end;
           end;
         end;
-      dtNewCases:
+      dtNewCases,
+      dtDoublingTime:
         begin
           ser := TBarSeries.Create(Chart);
           with TBarSeries(ser) do
@@ -818,7 +823,7 @@ var
   i, j, n: Integer;
   ser: TBarSeries;
 begin
-  if rgDataType.ItemIndex <> ord(dtNewCases) then
+  if not (TDataType(rgDataType.ItemIndex) in [dtNewCases, dtDoublingTime]) then
     exit;
 
   n := 0;
@@ -914,6 +919,7 @@ begin
         dtCumulative   : Marks.Format := '%0:.0n';
         dtNewCases     : Marks.Format := '%0:.9g';
         dtNewCaseRatio : Marks.Format := '%0:.9g';
+        dtDoublingTime : Marks.Format := '%0:.9g';
       end;
     end;
     Chart.Extent.UseYMin := false;
@@ -1019,6 +1025,15 @@ begin
         Logarithmic(false);
         MeasurementTool.Enabled := false;
       end;
+    dtDoublingTime:
+      begin
+        Chart.LeftAxis.Title.Caption := 'Doubling time';
+        lblTableHdr.Caption := 'Doubling time (calculated from case-ratio of two consecutive days)';
+        acChartLogarithmic.Enabled := false;
+        acChartLinear.Enabled := false;
+        Logarithmic(false);
+        MeasurementTool.Enabled := false;
+      end;
   end;
 end;
 
@@ -1033,6 +1048,7 @@ var
   i: Integer;
   ser: TChartSeries;
   Y, Y0, dY, dY0: Double;
+  t2: Double;  // Doubling time
 begin
   if TreeView.Selected = nil then
     exit;
@@ -1092,6 +1108,42 @@ begin
                 Y0 := Y;
               end;
             end;
+          dtDoublingTime:
+            begin
+              Y0 := StrToInt(saY[4]);
+              Y := StrToInt(saY[5]);
+              for i := 6 to High(saY) do
+              begin
+                Y := StrToInt(saY[i]);
+                if (Y > Y0) and (Y0 > 0) then
+                begin
+                  t2 := ln(2.0) / ln(Y / Y0);
+                  ser.AddXY(StrToDate(saX[i], fs), t2);
+                end else
+                  ser.AddXY(StrToDate(saX[i], fs), NaN);
+                Y0 := Y;
+              end;
+            end;
+          {
+          dtDoublingTime:
+            begin
+              Y0 := StrToInt(saY[4]);
+              Y := StrToInt(saY[5]);
+              dY0 := Y - Y0;
+              for i := 6 to High(saY) do
+              begin
+                Y := StrToInt(saY[i]);
+                dY := Y - Y0;
+                if (dY > dY0) and (dY0 > 0) then begin
+                  t2 := ln(2.0) / ln(dY / dY0);
+                  ser.AddXY(StrToDate(saX[i], fs), t2);
+                end else
+                  ser.AddXY(StrToDate(saX[i], fs), NaN);
+                dY0 := dY;
+                Y0 := Y;
+              end;
+            end;
+            }
         end;
       finally
         ser.EndUpdate;

@@ -12,7 +12,11 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
  **********************************************************************}
-unit opkman_httpclient;
+
+// wp: This is a copy of the file opkman_httpclient which is distributed with
+//     Lazarus. It was renamed to avoid a naming conflict.
+
+unit chttpclient;
 
 { ---------------------------------------------------------------------
   Todo:

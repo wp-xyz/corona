@@ -3302,7 +3302,7 @@ object MainForm: TMainForm
   ShowHint = True
   LCLVersion = '2.1.0.0'
   object LeftSplitter: TSplitter
-    Left = 261
+    Left = 264
     Height = 511
     Top = 44
     Width = 5
@@ -3319,7 +3319,7 @@ object MainForm: TMainForm
     Left = 6
     Height = 499
     Top = 50
-    Width = 255
+    Width = 258
     Align = alLeft
     AutoSize = True
     BorderSpacing.Left = 6
@@ -3327,7 +3327,7 @@ object MainForm: TMainForm
     BorderSpacing.Bottom = 6
     BevelOuter = bvNone
     ClientHeight = 499
-    ClientWidth = 255
+    ClientWidth = 258
     TabOrder = 0
     object cgCases: TCheckGroup
       AnchorSideLeft.Control = LeftPanel
@@ -3364,17 +3364,17 @@ object MainForm: TMainForm
     end
     object TreeView: TTreeView
       AnchorSideLeft.Control = LeftPanel
-      AnchorSideTop.Control = cgCases
+      AnchorSideTop.Control = rgDataType
       AnchorSideTop.Side = asrBottom
       AnchorSideRight.Control = LeftPanel
       AnchorSideRight.Side = asrBottom
       AnchorSideBottom.Control = LeftPanel
       AnchorSideBottom.Side = asrBottom
       Left = 0
-      Height = 398
+      Height = 377
       Hint = 'Click on the country to display'
-      Top = 101
-      Width = 255
+      Top = 122
+      Width = 258
       Anchors = [akTop, akLeft, akRight, akBottom]
       BorderSpacing.Top = 8
       ReadOnly = True
@@ -3387,9 +3387,9 @@ object MainForm: TMainForm
       AnchorSideLeft.Side = asrBottom
       AnchorSideTop.Control = LeftPanel
       Left = 113
-      Height = 93
+      Height = 114
       Top = 0
-      Width = 142
+      Width = 145
       AutoFill = True
       AutoSize = True
       BorderSpacing.Left = 8
@@ -3403,29 +3403,30 @@ object MainForm: TMainForm
       ChildSizing.ShrinkVertical = crsScaleChilds
       ChildSizing.Layout = cclLeftToRightThenTopToBottom
       ChildSizing.ControlsPerLine = 1
-      ClientHeight = 73
-      ClientWidth = 138
+      ClientHeight = 94
+      ClientWidth = 141
       ItemIndex = 0
       Items.Strings = (
-        'cumulative'
-        'new cases'
-        'ratio of new cases'
+        'Cumulative cases'
+        'New cases'
+        'Ratio of new cases'
+        'Doubling time'
       )
       OnClick = rgDataTypeClick
       TabOrder = 1
     end
   end
   object PageControl: TPageControl
-    Left = 266
+    Left = 269
     Height = 499
     Top = 50
-    Width = 844
-    ActivePage = pgChart
+    Width = 841
+    ActivePage = pgTable
     Align = alClient
     BorderSpacing.Top = 6
     BorderSpacing.Right = 6
     BorderSpacing.Bottom = 6
-    TabIndex = 0
+    TabIndex = 1
     TabOrder = 2
     OnChange = PageControlChange
     object pgChart: TTabSheet
@@ -3528,7 +3529,7 @@ object MainForm: TMainForm
     object pgTable: TTabSheet
       Caption = 'Table'
       ClientHeight = 471
-      ClientWidth = 836
+      ClientWidth = 833
       object Grid: TDrawGrid
         AnchorSideLeft.Control = pgTable
         AnchorSideTop.Side = asrBottom
@@ -3539,7 +3540,7 @@ object MainForm: TMainForm
         Left = 6
         Height = 428
         Top = 37
-        Width = 824
+        Width = 821
         Anchors = [akTop, akLeft, akRight, akBottom]
         BorderSpacing.Around = 6
         ColCount = 2
