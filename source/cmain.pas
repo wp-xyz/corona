@@ -173,11 +173,9 @@ const
   CASETYPE_NAMES: array [TCaseType] of string = ('confirmed', 'deaths', 'recovered');
 
   BASE_URL = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/';
-//  FILENAME_CONFIRMED = 'time_series_19-covid-Confirmed.csv';
   FILENAME_CONFIRMED = 'time_series_covid19_confirmed_global.csv';
-//  FILENAME_DEATHS = 'time_series_19-covid-Deaths.csv';
   FILENAME_DEATHS = 'time_series_covid19_deaths_global.csv';
-  FILENAME_RECOVERED = 'time_series_19-covid-Recovered.csv';
+  FILENAME_RECOVERED = 'time_series_covid19_recovered_global.csv';
 
   // DATA_DIR must end with path delimiter!
   {$IFDEF DARWIN}
@@ -1227,6 +1225,9 @@ begin
 
     acConfigHint.Checked := ini.ReadBool('MainForm', 'ShowHints', acConfigHint.Checked);
     acConfigHintExecute(nil);
+    acChartLogarithmic.Checked := ini.ReadBool('MainForm', 'Logarithmic', acChartLogarithmic.Checked);
+    Logarithmic(acChartLogarithmic.Checked);
+
   finally
     ini.Free;
   end;
@@ -1261,6 +1262,7 @@ begin
     ini.WriteInteger('MainForm', 'DataType', rgDataType.ItemIndex);
 
     ini.WriteBool('MainForm', 'ShowHints', acConfigHint.Checked);
+    ini.WriteBool('MainForm', 'Logarithmic', acChartLogarithmic.Checked);
 
   finally
     ini.Free;
