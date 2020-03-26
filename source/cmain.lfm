@@ -3421,32 +3421,30 @@ object MainForm: TMainForm
     Height = 499
     Top = 50
     Width = 841
-    ActivePage = pgTable
+    ActivePage = pgChart
     Align = alClient
     BorderSpacing.Top = 6
     BorderSpacing.Right = 6
     BorderSpacing.Bottom = 6
-    TabIndex = 1
+    TabIndex = 0
     TabOrder = 2
     OnChange = PageControlChange
     object pgChart: TTabSheet
       Caption = 'Chart'
       ClientHeight = 471
-      ClientWidth = 836
+      ClientWidth = 833
       object Chart: TChart
         Left = 6
         Height = 459
         Hint = 'Zoom: drag a rectangle from left-top to bottom-right corner with left mouse button down'#13#10'    or: use mouse wheel (zoom center is mouse position).'#13#10'Pan: drag with the right mouse button down'#13#10'Restore view: click'#13#10'Read data value: move mouse over data point (no key pressed)'#13#10'Measure doubling time: CTRL-drag over data points of interest with left mouse button down.'
         Top = 6
-        Width = 643
+        Width = 640
         AxisList = <        
           item
             Grid.Color = 14540253
             Grid.Style = psSolid
             AxisPen.Visible = True
-            Marks.Format = '%0:.0n'
             Marks.LabelBrush.Style = bsClear
-            Marks.Style = smsCustom
             Minors = <>
             Title.LabelFont.Orientation = 900
             Title.LabelFont.Style = [fsBold]
@@ -3486,7 +3484,7 @@ object MainForm: TMainForm
         Color = clDefault
       end
       object RightPanel: TPanel
-        Left = 660
+        Left = 657
         Height = 459
         Top = 6
         Width = 170
@@ -3517,7 +3515,7 @@ object MainForm: TMainForm
         end
       end
       object RightSplitter: TSplitter
-        Left = 649
+        Left = 646
         Height = 471
         Top = 0
         Width = 5

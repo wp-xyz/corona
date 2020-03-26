@@ -165,7 +165,7 @@ uses
   chttpclient,
  {$ENDIF}
   // TAChart units
-  TATypes, TAMath, TACustomSource, TAFitLib,
+  TATypes, TAMath, TAChartUtils, TACustomSource, TAFitLib,
   // project-specific units
   cAbout;
 
@@ -915,6 +915,7 @@ begin
       Intervals.MaxLength := 50;
       Intervals.MinLength := 10;
       Intervals.Tolerance := 0;
+      Marks.Style := smsValue;
       case TDataType(rgDataType.ItemIndex) of
         dtCumulative   : Marks.Format := '%0:.0n';
         dtNewCases     : Marks.Format := '%0:.9g';
@@ -924,6 +925,7 @@ begin
     end;
     Chart.Extent.UseYMin := false;
   end;
+  acChartLogarithmic.Checked := AEnable;
 end;
 
 procedure TMainForm.MeasurementToolAfterMouseUp(ATool: TChartTool;
@@ -1027,8 +1029,8 @@ begin
       end;
     dtDoublingTime:
       begin
-        Chart.LeftAxis.Title.Caption := 'Doubling time';
-        lblTableHdr.Caption := 'Doubling time (calculated from case-ratio of two consecutive days)';
+        Chart.LeftAxis.Title.Caption := 'Doubling time (days)';
+        lblTableHdr.Caption := 'Doubling time (days, calculated from case-ratio of two consecutive days)';
         acChartLogarithmic.Enabled := false;
         acChartLinear.Enabled := false;
         Logarithmic(false);
@@ -1275,10 +1277,14 @@ begin
     cgCases.Checked[2] := ini.ReadBool('MainForm', 'RecoveredCases', cgCases.Checked[2]);
     rgDataType.ItemIndex := ini.ReadInteger('MainForm', 'DataType', rgDataType.ItemIndex);
 
+    if TDataType(rgDataType.ItemIndex) = dtCumulative then
+    begin
+      acChartLogarithmic.Checked := ini.ReadBool('MainForm', 'Logarithmic', acChartLogarithmic.Checked);
+      Logarithmic(acChartLogarithmic.Checked);
+    end;
+
     acConfigHint.Checked := ini.ReadBool('MainForm', 'ShowHints', acConfigHint.Checked);
     acConfigHintExecute(nil);
-    acChartLogarithmic.Checked := ini.ReadBool('MainForm', 'Logarithmic', acChartLogarithmic.Checked);
-    Logarithmic(acChartLogarithmic.Checked);
 
   finally
     ini.Free;
@@ -1312,9 +1318,10 @@ begin
     ini.WriteBool('MainForm', 'DeathCases', cgCases.Checked[1]);
     ini.WriteBool('MainForm', 'RecoveredCases', cgCases.Checked[2]);
     ini.WriteInteger('MainForm', 'DataType', rgDataType.ItemIndex);
+    if TDataType(rgDataType.ItemIndex) = dtCumulative then
+      ini.WriteBool('MainForm', 'Logarithmic', acChartLogarithmic.Checked);
 
     ini.WriteBool('MainForm', 'ShowHints', acConfigHint.Checked);
-    ini.WriteBool('MainForm', 'Logarithmic', acChartLogarithmic.Checked);
 
   finally
     ini.Free;
