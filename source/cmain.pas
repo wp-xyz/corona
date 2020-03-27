@@ -28,6 +28,7 @@ type
     acConfigAuto: TAction;
     acChartLinear: TAction;
     acChartCopyToClipboard: TAction;
+    acChartOverlay: TAction;
     ActionList: TActionList;
     Chart: TChart;
     ChartToolset: TChartToolset;
@@ -38,6 +39,8 @@ type
     MenuItem5: TMenuItem;
     MenuItem6: TMenuItem;
     MenuItem7: TMenuItem;
+    MenuItem8: TMenuItem;
+    MenuItem9: TMenuItem;
     mnuTable: TMenuItem;
     MenuItem2: TMenuItem;
     MenuItem3: TMenuItem;
@@ -53,6 +56,7 @@ type
     ToolBar: TToolBar;
     ToolButton1: TToolButton;
     ToolButton10: TToolButton;
+    ToolButton11: TToolButton;
     ToolButton2: TToolButton;
     ToolButton3: TToolButton;
     ToolButton4: TToolButton;
@@ -91,6 +95,7 @@ type
     procedure acChartCopyToClipboardExecute(Sender: TObject);
     procedure acChartLinearExecute(Sender: TObject);
     procedure acChartLogarithmicExecute(Sender: TObject);
+    procedure acChartOverlayExecute(Sender: TObject);
     procedure acConfigAutoExecute(Sender: TObject);
     procedure acConfigHintExecute(Sender: TObject);
     procedure acDataClearExecute(Sender: TObject);
@@ -123,7 +128,7 @@ type
     FStatusText1, FStatusText2: String;
     function CalcFit(ASeries: TBasicChartSeries; xmin, xmax: Double): Boolean;
     procedure CalcFitHandler(const AX: Double; out AY: Double);
-    procedure Clear;
+    procedure Clear(UnselectTree: Boolean = true);
     procedure CreateMeasurementSeries;
     function DownloadFile(const Url: string; AStream: TStream): Boolean;
     function GetCellText(ACol, ARow: Integer): String;
@@ -237,6 +242,11 @@ end;
 procedure TMainForm.acChartLogarithmicExecute(Sender: TObject);
 begin
   Logarithmic(true);
+end;
+
+procedure TMainForm.acChartOverlayExecute(Sender: TObject);
+begin
+  // Checked state is evaluated when adding curves.
 end;
 
 procedure TMainForm.acConfigAutoExecute(Sender: TObject);
@@ -484,9 +494,10 @@ begin
   TreeViewClick(nil);
 end;
 
-procedure TMainForm.Clear;
+procedure TMainForm.Clear(UnselectTree: Boolean = true);
 begin
-  TreeView.Selected := nil;
+  if UnselectTree then
+    TreeView.Selected := nil;
   Chart.ClearSeries;
   CreateMeasurementSeries;
   UpdateGrid;
@@ -1055,6 +1066,9 @@ begin
   if TreeView.Selected = nil then
     exit;
 
+  if not acChartOverlay.Checked then
+    Clear(false);
+
   fs := FormatSettings;
   fs.ShortDateFormat := 'mm/dd/yyy';
   fs.DateSeparator := '/';
@@ -1277,6 +1291,7 @@ begin
     cgCases.Checked[2] := ini.ReadBool('MainForm', 'RecoveredCases', cgCases.Checked[2]);
     rgDataType.ItemIndex := ini.ReadInteger('MainForm', 'DataType', rgDataType.ItemIndex);
 
+    acChartOverlay.Checked := ini.ReadBool('MainForm', 'Overlay', acChartOverlay.Checked);
     if TDataType(rgDataType.ItemIndex) = dtCumulative then
     begin
       acChartLogarithmic.Checked := ini.ReadBool('MainForm', 'Logarithmic', acChartLogarithmic.Checked);
@@ -1318,6 +1333,8 @@ begin
     ini.WriteBool('MainForm', 'DeathCases', cgCases.Checked[1]);
     ini.WriteBool('MainForm', 'RecoveredCases', cgCases.Checked[2]);
     ini.WriteInteger('MainForm', 'DataType', rgDataType.ItemIndex);
+
+    ini.WriteBool('MainForm', 'Overlay', acChartOverlay.Checked);
     if TDataType(rgDataType.ItemIndex) = dtCumulative then
       ini.WriteBool('MainForm', 'Logarithmic', acChartLogarithmic.Checked);
 
