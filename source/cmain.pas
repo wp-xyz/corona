@@ -624,7 +624,7 @@ begin
       if IsTimeSeries() then
         dt := ser.XValue[r]
       else
-        dt := ScanDateTime('mm/dd/yyyy', ser.Source.Item[r]^.Text);
+        dt := ScanDateTime('mm"/"dd"/"yyyy', ser.Source.Item[r]^.Text);
       Result := DateToStr(dt);
     end else
     if ARow > 0 then
@@ -861,7 +861,7 @@ end;
 
 function TMainForm.IsTimeSeries: Boolean;
 begin
-   Result := TDataType(rgDataType.ItemIndex) = dtCumVsNewCases;
+   Result := TDataType(rgDataType.ItemIndex) <> dtCumVsNewCases;
 end;
 
 procedure TMainForm.LayoutBars;
@@ -1028,6 +1028,7 @@ begin
       end;
     dtCumVsNewCases:
       begin
+        lblTableHdr.Caption := 'New cases vs. cumulative cases';
         Chart.LeftAxis.Title.Caption := 'New cases';
         Chart.BottomAxis.title.Caption := 'Cumulative cases';
         UpdateAxes(true, true);
