@@ -14,7 +14,7 @@ uses
 
 type
   TCaseType = (ctConfirmed, ctDeaths, ctRecovered);
-  TDataType = (dtCumulative, dtNewCases, dtNewCaseRatio, dtDoublingTime);
+  TDataType = (dtCumulative, dtNewCases, dtDoublingTime);
 
   { TMainForm }
 
@@ -478,8 +478,6 @@ begin
         if y = 1 then sy := '1 case' else sy := Format('%.0n cases', [y]);
       dtNewCases:
         if y = 1 then sy := '1 new case' else sy := Format('%.0n new cases', [y]);
-      dtNewCaseRatio:
-        sy := Format('cases(%s) / cases(%s) = %.3f', [DateToStr(x), DateToStr(x-1), y]);
       dtDoublingTime:
         sy := Format('Doubling time %.1f', [y]);
     end;
@@ -607,8 +605,6 @@ begin
       r := ser.Count - ARow;
       if not IsNan(ser.YValue[r]) then
         case TDataType(rgDataType.ItemIndex) of
-          dtNewCaseRatio:
-            Result := Format('%.3f', [ser.YValue[r]]);
           dtDoublingTime:
             Result := Format('%.1f', [ser.YValue[r]]);
           else
@@ -716,8 +712,7 @@ begin
   serTitle := GetLocation(ANode);
   for ct in TCaseType do begin
     case ADataType of
-      dtCumulative,
-      dtNewCaseRatio:
+      dtCumulative:
         begin
           ser := TLineSeries.Create(Chart);
           with TLineSeries(ser) do
@@ -930,7 +925,6 @@ begin
       case TDataType(rgDataType.ItemIndex) of
         dtCumulative   : Marks.Format := '%0:.0n';
         dtNewCases     : Marks.Format := '%0:.9g';
-        dtNewCaseRatio : Marks.Format := '%0:.9g';
         dtDoublingTime : Marks.Format := '%0:.9g';
       end;
     end;
@@ -1029,15 +1023,6 @@ begin
         Logarithmic(false);
         MeasurementTool.Enabled := false;
       end;
-    dtNewCaseRatio:
-      begin
-        Chart.LeftAxis.Title.Caption := 'Day-to-day ratio of new cases';
-        lblTableHdr.Caption := 'Ratio of new cases';
-        acChartLogarithmic.Enabled := false;
-        acChartLinear.Enabled := false;
-        Logarithmic(false);
-        MeasurementTool.Enabled := false;
-      end;
     dtDoublingTime:
       begin
         Chart.LeftAxis.Title.Caption := 'Doubling time (days)';
@@ -1047,6 +1032,8 @@ begin
         Logarithmic(false);
         MeasurementTool.Enabled := false;
       end;
+    else
+      raise Exception.Create('Data type unsupported.');
   end;
 end;
 
@@ -1104,23 +1091,6 @@ begin
               for i := 5 to High(saY) do begin
                 Y := StrToInt(saY[i]);
                 ser.AddXY(StrToDate(saX[i], fs), Y - Y0);
-                Y0 := Y;
-              end;
-            end;
-          dtNewCaseRatio:
-            begin
-              Y0 := StrToInt(saY[4]);
-              Y := StrToInt(saY[5]);
-              dY0 := Y - Y0;
-              for i := 6 to High(saY) do
-              begin
-                Y := StrToInt(saY[i]);
-                dy := Y - Y0;
-                if dy0 <> 0 then
-                  ser.AddXY(StrToDate(saX[i], fs), dy / dy0)
-                else
-                  ser.AddXY(StrToDate(saX[i], fs), NaN);
-                dy0 := dy;
                 Y0 := Y;
               end;
             end;
@@ -1255,6 +1225,7 @@ var
   L, T, W, H: Integer;
   R: TRect;
   ws: TWindowState;
+  n: Integer;
 begin
   ini := CreateIni;
   try
@@ -1289,7 +1260,9 @@ begin
     cgCases.Checked[0] := ini.Readbool('MainForm', 'ConfirmedCases', cgCases.Checked[0]);
     cgCases.Checked[1] := ini.ReadBool('MainForm', 'DeathCases', cgCases.Checked[1]);
     cgCases.Checked[2] := ini.ReadBool('MainForm', 'RecoveredCases', cgCases.Checked[2]);
-    rgDataType.ItemIndex := ini.ReadInteger('MainForm', 'DataType', rgDataType.ItemIndex);
+    n := ini.ReadInteger('MainForm', 'DataType', rgDataType.ItemIndex);
+    if (n >= 0) and (n < ord(High(TDataType))) then
+      rgDataType.ItemIndex;
 
     acChartOverlay.Checked := ini.ReadBool('MainForm', 'Overlay', acChartOverlay.Checked);
     if TDataType(rgDataType.ItemIndex) = dtCumulative then
