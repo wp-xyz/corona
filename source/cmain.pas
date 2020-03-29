@@ -14,7 +14,7 @@ uses
 
 type
   TCaseType = (ctConfirmed, ctDeaths, ctRecovered);
-  TDataType = (dtCumulative, dtNewCases, dtDoublingTime);
+  TDataType = (dtCumulative, dtNewCases, dtDoublingTime, dtCumVsNewCases);
 
   { TMainForm }
 
@@ -31,6 +31,8 @@ type
     acChartOverlay: TAction;
     ActionList: TActionList;
     Chart: TChart;
+    BottomAxisTransformations: TChartAxisTransformations;
+    BottomAxisLogTransform: TLogarithmAxisTransform;
     ChartToolset: TChartToolset;
     acFileExit: TFileExit;
     MainMenu: TMainMenu;
@@ -81,7 +83,7 @@ type
     CrossHairTool: TDataPointCrosshairTool;
     ImageList: TImageList;
     LeftAxisTransformations: TChartAxisTransformations;
-    LogAxisTransform: TLogarithmAxisTransform;
+    LeftAxisLogTransform: TLogarithmAxisTransform;
     ChartListbox: TChartListbox;
     DateTimeIntervalChartSource: TDateTimeIntervalChartSource;
     cgCases: TCheckGroup;
@@ -461,7 +463,7 @@ procedure TMainForm.CrossHairToolDraw(
 var
   ser: TChartSeries;
   x, y, y0: Double;
-  sy: String;
+  sx, sy: String;
   dt: TDataType;
 begin
   if ASender.Series = nil then
@@ -475,13 +477,31 @@ begin
     y := ser.GetYValue(ASender.PointIndex);
     case dt of
       dtCumulative:
-        if y = 1 then sy := '1 case' else sy := Format('%.0n cases', [y]);
+        begin
+          sx := DateToStr(x);
+          if y = 1 then sy := '1 case' else sy := Format('%.0n cases', [y]);
+          FStatusText1 := Format('%s, %s', [sx, sy]);
+        end;
       dtNewCases:
-        if y = 1 then sy := '1 new case' else sy := Format('%.0n new cases', [y]);
+        begin
+          sx := DateToStr(x);
+          if y = 1 then sy := '1 new case' else sy := Format('%.0n new cases', [y]);
+          FStatusText1 := Format('%s, %s', [sx, sy]);
+        end;
       dtDoublingTime:
-        sy := Format('Doubling time %.1f', [y]);
+        begin
+          sx := DateToStr(x);
+          sy := Format('Doubling time %.1f', [y]);
+          FStatusText1 := Format('%s, %s', [sx, sy]);
+        end;
+      dtCumVsNewCases:
+        begin
+          if x = 1 then sx := '1 case' else sx := Format('%.0n cases', [x]);
+          if y = 1 then sy := '1 new case' else sy := Format('%.0n new cases', [y]);
+          FStatusText1 := Format('%s %s %s', [ser.Source.Item[ASender.PointIndex]^.Text, sx, sy]);
+        end;
     end;
-    FStatusText1 := Format('%s: %s, %s',  [ser.Title, DatetoStr(x), sy]);;
+    FStatusText1 := ser.Title + ': ' + FStatusText1;
     ASender.Handled;
   end;
   UpdateStatusBar;
@@ -596,7 +616,10 @@ begin
       col := Grid.Columns[0];
       ser := TChartSeries(col.Tag);
       r := ser.Count - ARow;
-      Result := DateToStr(ser.XValue[r]);
+      if TDataType(rgDataType.ItemIndex) = dtCumVsNewCases then
+        Result := Format('%.0f', [ser.XValue[r]])
+      else
+        Result := DateToStr(ser.XValue[r]);
     end else
     if ARow > 0 then
     begin
@@ -712,7 +735,8 @@ begin
   serTitle := GetLocation(ANode);
   for ct in TCaseType do begin
     case ADataType of
-      dtCumulative:
+      dtCumulative,
+      dtCumVsNewCases:
         begin
           ser := TLineSeries.Create(Chart);
           with TLineSeries(ser) do
@@ -904,13 +928,33 @@ procedure TMainForm.Logarithmic(AEnable: Boolean);
 begin
   if AEnable then
   begin
-    with Chart.LeftAxis do begin
+    with Chart.LeftAxis do
+    begin
       Transformations := LeftAxisTransformations;
       Intervals.Options := Intervals.Options + [aipGraphCoords];
       Intervals.MaxLength := 150;
       Intervals.MinLength := 50;
       Intervals.Tolerance := 100;
       Marks.Format := '%0:.0n';
+    end;
+    with Chart.BottomAxis do
+    begin
+      if TDataType(rgDataType.ItemIndex) = dtCumVsNewCases then
+      begin
+        Transformations := BottomAxisTransformations;
+        Intervals.Options := Intervals.Options + [aipGraphCoords];
+        Intervals.MaxLength := 150;
+        Intervals.MinLength := 50;
+        Intervals.Tolerance := 100;
+        Marks.Source := nil;
+        Marks.Format := '%0:.0n';
+        marks.Style := smsValue;
+      end else
+      begin
+        Transformations := nil;
+        Marks.Source := DateTimeIntervalChartSource;
+        Marks.Style := smsLabel;
+      end;;
     end;
     Chart.Extent.UseYMin := true;
   end else
@@ -927,6 +971,12 @@ begin
         dtNewCases     : Marks.Format := '%0:.9g';
         dtDoublingTime : Marks.Format := '%0:.9g';
       end;
+    end;
+    with Chart.BottomAxis do
+    begin
+      Transformations := Nil;
+      Marks.Source := DateTimeIntervalChartSource;
+      Marks.style := smsLabel;
     end;
     Chart.Extent.UseYMin := false;
   end;
@@ -1032,6 +1082,15 @@ begin
         Logarithmic(false);
         MeasurementTool.Enabled := false;
       end;
+    dtCumVsNewCases:
+      begin
+        Chart.LeftAxis.Title.Caption := 'New cases';
+        Chart.BottomAxis.title.Caption := 'Cumulative cases';
+        acChartLogarithmic.Enabled := false;
+        acChartLinear.Enabled := true;
+        Logarithmic(true);
+        MeasurementTool.Enabled := false;
+      end;
     else
       raise Exception.Create('Data type unsupported.');
   end;
@@ -1047,7 +1106,8 @@ var
   saX, saY: TStringArray;
   i: Integer;
   ser: TChartSeries;
-  Y, Y0, dY, dY0: Double;
+  X, Y, Y0: Double;
+  txt: String;
   t2: Double;  // Doubling time
 begin
   if TreeView.Selected = nil then
@@ -1110,26 +1170,17 @@ begin
                 Y0 := Y;
               end;
             end;
-          {
-          dtDoublingTime:
+          dtCumVsNewCases:
             begin
               Y0 := StrToInt(saY[4]);
-              Y := StrToInt(saY[5]);
-              dY0 := Y - Y0;
-              for i := 6 to High(saY) do
-              begin
+              for i := 5 to High(saY) do begin
+                X := StrToInt(saY[i]);
                 Y := StrToInt(saY[i]);
-                dY := Y - Y0;
-                if (dY > dY0) and (dY0 > 0) then begin
-                  t2 := ln(2.0) / ln(dY / dY0);
-                  ser.AddXY(StrToDate(saX[i], fs), t2);
-                end else
-                  ser.AddXY(StrToDate(saX[i], fs), NaN);
-                dY0 := dY;
+                if (Y > Y0) and (Y0 > 0) then
+                  ser.AddXY(X, Y - Y0, saX[i]);
                 Y0 := Y;
               end;
             end;
-            }
         end;
       finally
         ser.EndUpdate;
