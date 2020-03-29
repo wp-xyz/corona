@@ -140,11 +140,12 @@ type
     function GetSeries(ANode: TTreeNode; ACaseType: TCaseType; ADataType: TDataType): TChartSeries;
     procedure GetSocketHandler(Sender: TObject; const UseSSL: Boolean; out AHandler: TSocketHandler);
     procedure InitShortCuts;
+    function IsTimeSeries: Boolean;
     procedure LayoutBars;
     procedure LoadLocations;
-    procedure Logarithmic(AEnable: Boolean);
-    procedure UpdateAffectedSeries;
     procedure UpdateActionStates;
+    procedure UpdateAffectedSeries;
+    procedure UpdateAxes(LogarithmicX, LogarithmicY: Boolean);
     procedure UpdateGrid;
     procedure UpdateStatusBar(ASeparator: String = ' ');
 
@@ -164,7 +165,7 @@ implementation
 {$R *.lfm}
 
 uses
-  Math, IniFiles,
+  Math, IniFiles, DateUtils,
   OpenSSL,
  {$IF FPC_FullVersion >= 30200}        // needed for SSL to work in general
   sslbase, OpenSSLSockets, FpHttpClient,
@@ -238,12 +239,12 @@ end;
 
 procedure TMainForm.acChartLinearExecute(Sender: TObject);
 begin
-  Logarithmic(false);
+  UpdateAxes(false, false);
 end;
 
 procedure TMainForm.acChartLogarithmicExecute(Sender: TObject);
 begin
-  Logarithmic(true);
+  UpdateAxes(false, true);
 end;
 
 procedure TMainForm.acChartOverlayExecute(Sender: TObject);
@@ -462,9 +463,10 @@ procedure TMainForm.CrossHairToolDraw(
   ASender: TDataPointDrawTool);
 var
   ser: TChartSeries;
-  x, y, y0: Double;
+  x, y: Double;
   sx, sy: String;
   dt: TDataType;
+  d: TDate;
 begin
   if ASender.Series = nil then
     FStatusText1 := ''
@@ -496,9 +498,11 @@ begin
         end;
       dtCumVsNewCases:
         begin
+          sx := ser.Source.Item[ASender.PointIndex]^.Text;
+          d := ScanDateTime('mm"/"dd"/"yy', ser.Source.Item[ASender.PointIndex]^.Text);
           if x = 1 then sx := '1 case' else sx := Format('%.0n cases', [x]);
           if y = 1 then sy := '1 new case' else sy := Format('%.0n new cases', [y]);
-          FStatusText1 := Format('%s %s %s', [ser.Source.Item[ASender.PointIndex]^.Text, sx, sy]);
+          FStatusText1 := Format('%s - %s, %s', [DateToStr(d), sx, sy]);
         end;
     end;
     FStatusText1 := ser.Title + ': ' + FStatusText1;
@@ -603,6 +607,7 @@ var
   col: TGridColumn;
   ser: TChartSeries;
   r: Integer;
+  dt: TDateTime;
 begin
   if (ACol = 0) and (ARow = 0) then
     Result := 'Date'
@@ -616,10 +621,11 @@ begin
       col := Grid.Columns[0];
       ser := TChartSeries(col.Tag);
       r := ser.Count - ARow;
-      if TDataType(rgDataType.ItemIndex) = dtCumVsNewCases then
-        Result := Format('%.0f', [ser.XValue[r]])
+      if IsTimeSeries() then
+        dt := ser.XValue[r]
       else
-        Result := DateToStr(ser.XValue[r]);
+        dt := ScanDateTime('mm/dd/yyyy', ser.Source.Item[r]^.Text);
+      Result := DateToStr(dt);
     end else
     if ARow > 0 then
     begin
@@ -630,6 +636,11 @@ begin
         case TDataType(rgDataType.ItemIndex) of
           dtDoublingTime:
             Result := Format('%.1f', [ser.YValue[r]]);
+          dtCumVsNewCases:
+            if odd(ACol) then
+              Result := Format('%.0n', [ser.YValue[r]])
+            else
+              Result := Format('%.0n', [ser.XValue[r]]);
           else
             Result := Format('%.0n', [ser.YValue[r]]);
         end;
@@ -848,6 +859,11 @@ begin
   { TODO : Implement the equivalent for MacOS }
 end;
 
+function TMainForm.IsTimeSeries: Boolean;
+begin
+   Result := TDataType(rgDataType.ItemIndex) = dtCumVsNewCases;
+end;
+
 procedure TMainForm.LayoutBars;
 var
   i, j, n: Integer;
@@ -924,65 +940,6 @@ begin
   end;
 end;
 
-procedure TMainForm.Logarithmic(AEnable: Boolean);
-begin
-  if AEnable then
-  begin
-    with Chart.LeftAxis do
-    begin
-      Transformations := LeftAxisTransformations;
-      Intervals.Options := Intervals.Options + [aipGraphCoords];
-      Intervals.MaxLength := 150;
-      Intervals.MinLength := 50;
-      Intervals.Tolerance := 100;
-      Marks.Format := '%0:.0n';
-    end;
-    with Chart.BottomAxis do
-    begin
-      if TDataType(rgDataType.ItemIndex) = dtCumVsNewCases then
-      begin
-        Transformations := BottomAxisTransformations;
-        Intervals.Options := Intervals.Options + [aipGraphCoords];
-        Intervals.MaxLength := 150;
-        Intervals.MinLength := 50;
-        Intervals.Tolerance := 100;
-        Marks.Source := nil;
-        Marks.Format := '%0:.0n';
-        marks.Style := smsValue;
-      end else
-      begin
-        Transformations := nil;
-        Marks.Source := DateTimeIntervalChartSource;
-        Marks.Style := smsLabel;
-      end;;
-    end;
-    Chart.Extent.UseYMin := true;
-  end else
-  begin
-    with Chart.LeftAxis do begin
-      Transformations := nil;
-      Intervals.Options := Intervals.Options - [aipGraphCoords];
-      Intervals.MaxLength := 50;
-      Intervals.MinLength := 10;
-      Intervals.Tolerance := 0;
-      Marks.Style := smsValue;
-      case TDataType(rgDataType.ItemIndex) of
-        dtCumulative   : Marks.Format := '%0:.0n';
-        dtNewCases     : Marks.Format := '%0:.9g';
-        dtDoublingTime : Marks.Format := '%0:.9g';
-      end;
-    end;
-    with Chart.BottomAxis do
-    begin
-      Transformations := Nil;
-      Marks.Source := DateTimeIntervalChartSource;
-      Marks.style := smsLabel;
-    end;
-    Chart.Extent.UseYMin := false;
-  end;
-  acChartLogarithmic.Checked := AEnable;
-end;
-
 procedure TMainForm.MeasurementToolAfterMouseUp(ATool: TChartTool;
   APoint: TPoint);
 begin
@@ -1017,11 +974,6 @@ begin
     begin
       FFitCoeffs[0] := exp(FFitCoeffs[0]);
       FMeasurementSeries.Active := false;
-      (*
-      FMeasurementSeries.DomainExclusions.Clear;
-      FMeasurementSeries.DomainExclusions.AddRange(-Infinity, min);
-      FMeasurementSeries.DomainExclusions.AddRange(max, Infinity);
-      *)
       ser := TChartSeries(ASender.PointStart.Series);
       s := Format('Doubles every %.1f days --> %.0n cases in 1 week --> %.0n cases in 2 weeks', [
         -ln(0.5) / FFitCoeffs[1],
@@ -1052,48 +1004,39 @@ end;
 procedure TMainForm.rgDataTypeClick(Sender: TObject);
 begin
   Clear;
-  acChartLogarithmic.Enabled := TDataType(rgDataType.ItemIndex) = dtCumulative;
-  acChartLinear.Enabled := acChartLogarithmic.Enabled;
   case TDataType(rgDataType.ItemIndex) of
     dtCumulative:
       begin
         Chart.LeftAxis.Title.Caption := 'Cases';
         lblTableHdr.Caption := 'Cumulative Cases';
-        acChartLogarithmic.Enabled := true;
-        acChartLinear.Enabled := true;
-        Logarithmic(acChartLogarithmic.Checked);
+        UpdateAxes(false, acChartLogarithmic.Checked);
         MeasurementTool.Enabled := true;
       end;
     dtNewCases:
       begin
         Chart.LeftAxis.Title.Caption := 'New Cases';
         lblTableHdr.Caption := 'New Cases';
-        acChartLogarithmic.Enabled := false;
-        acChartLinear.Enabled := false;
-        Logarithmic(false);
+        UpdateAxes(false, false);
         MeasurementTool.Enabled := false;
       end;
     dtDoublingTime:
       begin
         Chart.LeftAxis.Title.Caption := 'Doubling time (days)';
         lblTableHdr.Caption := 'Doubling time (days, calculated from case-ratio of two consecutive days)';
-        acChartLogarithmic.Enabled := false;
-        acChartLinear.Enabled := false;
-        Logarithmic(false);
+        UpdateAxes(false, false);
         MeasurementTool.Enabled := false;
       end;
     dtCumVsNewCases:
       begin
         Chart.LeftAxis.Title.Caption := 'New cases';
         Chart.BottomAxis.title.Caption := 'Cumulative cases';
-        acChartLogarithmic.Enabled := false;
-        acChartLinear.Enabled := true;
-        Logarithmic(true);
+        UpdateAxes(true, true);
         MeasurementTool.Enabled := false;
       end;
     else
       raise Exception.Create('Data type unsupported.');
   end;
+  UpdateActionStates;
 end;
 
 procedure TMainForm.TreeViewClick(Sender: TObject);
@@ -1107,7 +1050,6 @@ var
   i: Integer;
   ser: TChartSeries;
   X, Y, Y0: Double;
-  txt: String;
   t2: Double;  // Doubling time
 begin
   if TreeView.Selected = nil then
@@ -1199,6 +1141,13 @@ begin
   UpdateActionStates;
 end;
 
+procedure TMainForm.UpdateActionStates;
+begin
+  acTableSave.Enabled := Chart.SeriesCount > 1;  // 1 series reserved for measurement
+  acChartLogarithmic.Enabled := TDataType(rgDataType.ItemIndex) = dtCumulative;
+  acChartLinear.Enabled := acChartLogarithmic.Enabled;
+end;
+
 procedure TMainForm.UpdateAffectedSeries;
 var
   i: Integer;
@@ -1213,9 +1162,52 @@ begin
   MeasurementTool.AffectedSeries := s;
 end;
 
-procedure TMainForm.UpdateActionStates;
+procedure TMainForm.UpdateAxes(LogarithmicX, LogarithmicY: Boolean);
 begin
-  acTableSave.Enabled := Chart.SeriesCount > 1;  // 1 series reserved for measurement
+  with Chart.BottomAxis do
+    if LogarithmicX then
+    begin
+      Transformations := BottomAxisTransformations;
+      Intervals.Options := Intervals.Options + [aipGraphCoords];
+      Intervals.MaxLength := 150;
+      Intervals.MinLength := 50;
+      Intervals.Tolerance := 100;
+      Marks.Source := nil;
+      Marks.Format := '%0:.0n';
+      Marks.Style := smsValue;
+    end else
+    begin
+      Transformations := nil;
+      Marks.Source := DateTimeIntervalChartSource;
+      Marks.Style := smsLabel;
+      // no need to reset Intervals because they are handled by DateTimeInterval source on time series.
+    end;
+
+  with Chart.LeftAxis do
+  begin
+    if LogarithmicY then
+    begin
+      Transformations := LeftAxisTransformations;
+      Intervals.Options := Intervals.Options + [aipGraphCoords];
+      Intervals.MaxLength := 150;
+      Intervals.MinLength := 50;
+      Intervals.Tolerance := 100;
+      Marks.Format := '%0:.0n';
+    end else
+    begin
+      Transformations := nil;
+      Intervals.Options := Intervals.Options - [aipGraphCoords];
+      Intervals.MaxLength := 50;
+      Intervals.MinLength := 10;
+      Intervals.Tolerance := 0;
+      Marks.Style := smsValue;
+      if TDataType(rgDataType.ItemIndex) in [dtCumulative] then
+        Marks.Format := '%0:.0n'
+      else
+        Marks.Format := '%0:.9g';
+    end;
+  end;
+  Chart.Extent.UseYMin := LogarithmicY;
 end;
 
 procedure TMainForm.UpdateGrid;
@@ -1223,6 +1215,7 @@ var
   n: Integer;
   i: Integer;
   ser: TChartSeries;
+  s: String;
 begin
   Grid.BeginUpdate;
   try
@@ -1236,9 +1229,18 @@ begin
         inc(n);
         with Grid.Columns.Add do
         begin
-          Title.Caption := StringReplace(ser.Title, ' ', LineEnding, []);
+          s := StringReplace(ser.Title, ' ', LineEnding, []);
+          if not IsTimeSeries() then
+            s := s + LineEnding + 'New';
+          Title.Caption := s;
           Tag := PtrInt(Chart.Series[i]);
         end;
+        if not IsTimeSeries() then
+          with Grid.Columns.Add do
+          begin
+            Title.Caption := StringReplace(ser.Title, ' ', LineEnding , []) + LineEnding + 'Total';
+            Tag := PtrInt(Chart.Series[i]);
+          end;
       end;
     end;
     if n = 0 then
@@ -1311,21 +1313,29 @@ begin
     cgCases.Checked[0] := ini.Readbool('MainForm', 'ConfirmedCases', cgCases.Checked[0]);
     cgCases.Checked[1] := ini.ReadBool('MainForm', 'DeathCases', cgCases.Checked[1]);
     cgCases.Checked[2] := ini.ReadBool('MainForm', 'RecoveredCases', cgCases.Checked[2]);
-    n := ini.ReadInteger('MainForm', 'DataType', rgDataType.ItemIndex);
-    if (n >= 0) and (n < ord(High(TDataType))) then
-      rgDataType.ItemIndex;
 
     acChartOverlay.Checked := ini.ReadBool('MainForm', 'Overlay', acChartOverlay.Checked);
-    if TDataType(rgDataType.ItemIndex) = dtCumulative then
-    begin
-      acChartLogarithmic.Checked := ini.ReadBool('MainForm', 'Logarithmic', acChartLogarithmic.Checked);
-      Logarithmic(acChartLogarithmic.Checked);
+
+    n := ini.ReadInteger('MainForm', 'DataType', rgDataType.ItemIndex);
+    if (n >= 0) and (n <= ord(High(TDataType))) then
+      rgDataType.ItemIndex := n;
+    case TDataType(rgDataType.ItemIndex) of
+      dtCumulative:
+        begin
+          acChartLogarithmic.Checked := ini.ReadBool('MainForm', 'Logarithmic', acChartLogarithmic.Checked);
+          UpdateAxes(false, acChartLogarithmic.Checked);
+        end;
+      dtCumVsNewCases:
+        UpdateAxes(true, true);
+      else
+        UpdateAxes(false, false);
     end;
 
     acConfigHint.Checked := ini.ReadBool('MainForm', 'ShowHints', acConfigHint.Checked);
     acConfigHintExecute(nil);
 
   finally
+    UpdateActionStates;
     ini.Free;
   end;
 end;
