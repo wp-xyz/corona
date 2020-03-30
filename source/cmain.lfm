@@ -3587,58 +3587,58 @@ object MainForm: TMainForm
       Action = acDataUpdate
     end
     object ToolButton2: TToolButton
-      Left = 56
+      Left = 61
       Top = 2
       Action = acDataClear
     end
     object ToolButton3: TToolButton
-      Left = 96
+      Left = 56
       Height = 40
       Top = 2
       Caption = 'ToolButton3'
       Style = tbsDivider
     end
     object ToolButton4: TToolButton
-      Left = 355
+      Left = 360
       Top = 2
       Action = acFileExit
     end
     object tbAbout: TToolButton
-      Left = 395
+      Left = 400
       Top = 2
       Action = acAbout
     end
     object ToolButton5: TToolButton
-      Left = 149
+      Left = 154
       Top = 2
       Action = acChartLinear
     end
     object ToolButton6: TToolButton
-      Left = 189
+      Left = 194
       Top = 2
       Action = acChartLogarithmic
     end
     object ToolButton7: TToolButton
-      Left = 269
+      Left = 274
       Height = 40
       Top = 2
       Caption = 'ToolButton7'
       Style = tbsDivider
     end
     object ToolButton8: TToolButton
-      Left = 274
+      Left = 279
       Top = 2
       Action = acTableSave
     end
     object ToolButton9: TToolButton
-      Left = 350
+      Left = 355
       Height = 40
       Top = 2
       Caption = 'ToolButton9'
       Style = tbsDivider
     end
     object ToolButton10: TToolButton
-      Left = 229
+      Left = 234
       Hint = 'Copy chart to clipboard'
       Top = 2
       Action = acChartCopyToClipboard
@@ -3649,6 +3649,13 @@ object MainForm: TMainForm
       Top = 2
       Action = acChartOverlay
       Caption = 'Overlay'
+    end
+    object ToolButton12: TToolButton
+      Left = 149
+      Height = 40
+      Top = 2
+      Caption = 'ToolButton12'
+      Style = tbsDivider
     end
   end
   object DateTimeIntervalChartSource: TDateTimeIntervalChartSource
