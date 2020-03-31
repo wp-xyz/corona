@@ -1,6 +1,7 @@
 unit cMain;
 
 {$mode objfpc}{$H+}
+{$define RKI}
 
 interface
 
@@ -168,7 +169,9 @@ uses
   // TAChart units
   TATypes, TAMath, TAChartUtils, TACustomSource, TAFitLib,
   // project-specific units
-  cDownloader, cAbout;
+  cDownloader,
+  {$IFDEF RKI}cRobertKochInstitut,{$ENDIF}
+  cAbout;
 
 const
   CASETYPE_NAMES: array [TCaseType] of string = ('confirmed', 'deaths', 'recovered');
@@ -554,7 +557,7 @@ begin
   {$ENDIF}
 
   cgCases.Checked[0] := true;
-  Grid.RowHeights[0] := 2 * Grid.DefaultRowHeight;
+  Grid.RowHeights[0] := 3 * Grid.Canvas.TextHeight('Tg') + 2* varCellPadding;
   PageControl.ActivePageIndex := 0;
 
   CreateMeasurementSeries;
@@ -888,6 +891,9 @@ begin
         if sa[0] <> '' then
           node := TreeView.Items.AddChild(node, sa[0]);
       end;
+      {$IFDEF RKI}
+      LoadRKILocations(TreeView);
+      {$ENDIF}
     finally
       TreeView.AlphaSort;
       TreeView.Items.EndUpdate;

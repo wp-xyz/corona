@@ -27,18 +27,15 @@
     <RunParams>
       <FormatVersion Value="2"/>
     </RunParams>
-    <RequiredPackages Count="3">
+    <RequiredPackages Count="2">
       <Item1>
-        <PackageName Value="LazControls"/>
+        <PackageName Value="TAChartLazarusPkg"/>
       </Item1>
       <Item2>
-        <PackageName Value="TAChartLazarusPkg"/>
-      </Item2>
-      <Item3>
         <PackageName Value="LCL"/>
-      </Item3>
+      </Item2>
     </RequiredPackages>
-    <Units Count="4">
+    <Units Count="5">
       <Unit0>
         <Filename Value="corona.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -64,6 +61,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="cDownloader"/>
       </Unit3>
+      <Unit4>
+        <Filename Value="crobertkochinstitut.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="cRobertKochInstitut"/>
+      </Unit4>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
