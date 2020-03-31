@@ -8,7 +8,6 @@ uses
   LCLType,
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, ExtCtrls,
   StdCtrls, Buttons, Grids, Types, LCLVersion, Menus, ActnList, StdActns,
-  fpopenssl, ssockets, sslsockets,    // needed for SSL to work in general
   TAGraph, TAIntervalSources, TASeries, TAChartListbox, TALegend,
   TACustomSeries, TATransformations, TATools, TAFuncSeries, TADataTools;
 
@@ -133,13 +132,11 @@ type
     procedure CalcFitHandler(const AX: Double; out AY: Double);
     procedure Clear(UnselectTree: Boolean = true);
     procedure CreateMeasurementSeries;
-    function DownloadFile(const Url: string; AStream: TStream): Boolean;
     function GetCellText(ACol, ARow: Integer): String;
     function GetDataString(ANode: TTreeNode; ACaseType: TCaseType; var AHeader, ACounts: String): Boolean;
     function GetLocation(ANode: TTreeNode): String;
     procedure GetLocation(ANode: TTreeNode; out ACountry, AState: String);
     function GetSeries(ANode: TTreeNode; ACaseType: TCaseType; ADataType: TDataType): TChartSeries;
-    procedure GetSocketHandler(Sender: TObject; const UseSSL: Boolean; out AHandler: TSocketHandler);
     procedure InitShortCuts;
     function IsTimeSeries: Boolean;
     procedure LayoutBars;
@@ -168,16 +165,10 @@ implementation
 
 uses
   Math, IniFiles, DateUtils,
-  OpenSSL,
- {$IF FPC_FullVersion >= 30200}        // needed for SSL to work in general
-  sslbase, OpenSSLSockets, FpHttpClient,
- {$ELSE}
-  chttpclient,
- {$ENDIF}
   // TAChart units
   TATypes, TAMath, TAChartUtils, TACustomSource, TAFitLib,
   // project-specific units
-  cAbout;
+  cDownloader, cAbout;
 
 const
   CASETYPE_NAMES: array [TCaseType] of string = ('confirmed', 'deaths', 'recovered');
@@ -541,30 +532,6 @@ begin
   Chart.AddSeries(FMeasurementSeries);
 end;
 
-function TMainForm.DownloadFile(const Url: string; AStream: TStream): Boolean;
-var
-  http: TFpHttpClient;
-begin
-  Result := true;
-  InitSSLInterface;
-  http := TFpHttpClient.Create(nil);
-  try
-    http.OnGetSocketHandler := @GetSocketHandler;
-    http.AllowRedirect := true;
-    http.AddHeader('User-Agent', 'Mozilla/5.0 (compatible; fpweb)');
-    try
-      http.Get(Url, AStream);
-      Result := (http.ResponseStatusCode = 200);
-    except
-      on EInOutError do raise;
-      on EHTTPClient do Result := false;
-    end;
-    AStream.Position := 0;
-  finally
-    http.Free;
-  end;
-end;
-
 procedure TMainForm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
   if CanClose then
@@ -806,18 +773,6 @@ begin
   UpdateAffectedSeries;
 end;
 
-procedure TMainForm.GetSocketHandler(Sender: TObject; const UseSSL: Boolean; out
-  AHandler: TSocketHandler);
-begin
-  {$IF FPC_FullVersion >= 30200}        // needed for SSL to work in general
-  AHandler := TOpenSSLSocketHandler.Create;
-  TOpenSSLSocketHandler(AHandler).SSLType := stTLSv1_2;
-  {$ELSE}
-  AHandler := TSSLSocketHandler.Create;
-  TSSLSocketHandler(AHandler).SSLType := stTLSv1_2;
-  {$ENDIF}
-end;
-
 procedure TMainForm.GridDrawCell(Sender: TObject; aCol, aRow: Integer;
   aRect: TRect; aState: TGridDrawState);
 var
@@ -864,7 +819,7 @@ end;
 
 function TMainForm.IsTimeSeries: Boolean;
 begin
-   Result := TDataType(rgDataType.ItemIndex) <> dtCumVsNewCases;
+  Result := TDataType(rgDataType.ItemIndex) <> dtCumVsNewCases;
 end;
 
 procedure TMainForm.LayoutBars;
@@ -1008,7 +963,6 @@ procedure TMainForm.rgDataTypeClick(Sender: TObject);
 var
   L: TFPList;
   i: Integer;
-  p: Integer;
 begin
   L := TFPList.Create;
   try
