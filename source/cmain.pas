@@ -10,11 +10,10 @@ uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, ExtCtrls,
   StdCtrls, Buttons, Grids, Types, LCLVersion, Menus, ActnList, StdActns,
   TAGraph, TAIntervalSources, TASeries, TAChartListbox, TALegend,
-  TACustomSeries, TATransformations, TATools, TAFuncSeries, TADataTools;
+  TACustomSeries, TATransformations, TATools, TAFuncSeries, TADataTools,
+  cGlobal;
 
 type
-  TCaseType = (ctConfirmed, ctDeaths, ctRecovered);
-  TDataType = (dtCumulative, dtNewCases, dtDoublingTime, dtCumVsNewCases);
 
   { TMainForm }
 
@@ -134,7 +133,7 @@ type
     procedure Clear(UnselectTree: Boolean = true);
     procedure CreateMeasurementSeries;
     function GetCellText(ACol, ARow: Integer): String;
-    function GetDataString(ANode: TTreeNode; ACaseType: TCaseType; var AHeader, ACounts: String): Boolean;
+//    function GetDataString(ANode: TTreeNode; ACaseType: TCaseType; var AHeader, ACounts: String): Boolean;
     function GetLocation(ANode: TTreeNode): String;
     procedure GetLocation(ANode: TTreeNode; out ACountry, AState: String);
     function GetSeries(ANode: TTreeNode; ACaseType: TCaseType; ADataType: TDataType): TChartSeries;
@@ -143,9 +142,11 @@ type
     procedure LayoutBars;
     procedure LoadLocations;
     procedure ShowData(ANode: TTreeNode);
+    procedure StatusbarHandler(Sender: TObject; const AMsg1, AMsg2: String);
     procedure UpdateActionStates;
     procedure UpdateAffectedSeries;
     procedure UpdateAxes(LogarithmicX, LogarithmicY: Boolean);
+    procedure UpdateData;
     procedure UpdateGrid;
     procedure UpdateStatusBar(ASeparator: String = ' ');
 
@@ -169,17 +170,12 @@ uses
   // TAChart units
   TATypes, TAMath, TAChartUtils, TACustomSource, TAFitLib,
   // project-specific units
-  cDownloader,
+  cJohnsHopkinsUniversity,
   {$IFDEF RKI}cRobertKochInstitut,{$ENDIF}
   cAbout;
 
 const
   CASETYPE_NAMES: array [TCaseType] of string = ('confirmed', 'deaths', 'recovered');
-
-  BASE_URL = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/';
-  FILENAME_CONFIRMED = 'time_series_covid19_confirmed_global.csv';
-  FILENAME_DEATHS = 'time_series_covid19_deaths_global.csv';
-  FILENAME_RECOVERED = 'time_series_covid19_recovered_global.csv';
 
   // DATA_DIR must end with path delimiter!
   {$IFDEF DARWIN}
@@ -202,16 +198,6 @@ var
 
   // DataDir is the directory in which the downloaded csv files are found.
   DataDir: String;
-
-function BeginsWithQuote(s: String): Boolean;
-begin
-  Result := (s <> '') and (s[1] = '"');
-end;
-
-function EndsWithQuote(s: String): Boolean;
-begin
-  Result := (s <> '') and (s[Length(s)] = '"');
-end;
 
 
 { TMainForm }
@@ -264,58 +250,8 @@ begin
 end;
 
 procedure TMainForm.acDataUpdateExecute(Sender: TObject);
-const
-  DOWNLOAD_ERR = 'Download error.';
-var
-  stream: TMemoryStream;
 begin
-  stream := TMemoryStream.Create;
-  try
-    FStatusText1 := 'Download from:';
-    FStatusText2 := BASE_URL + FILENAME_CONFIRMED + '...';
-    UpdateStatusbar;
-    if not DownloadFile(BASE_URL + FILENAME_CONFIRMED, stream) then
-    begin
-      FStatusText1 := DOWNLOAD_ERR;
-      UpdateStatusBar;
-      MessageDlg(DOWNLOAD_ERR, mtError, [mbOK], 0);
-      exit;
-    end;
-    stream.Position := 0;
-    stream.SaveToFile(DataDir + FILENAME_CONFIRMED);
-
-    stream.Position := 0;
-    FStatusText2 := BASE_URL + FILENAME_DEATHS + '...';
-    UpdateStatusbar;
-    if not DownloadFile(BASE_URL + FILENAME_DEATHS, stream) then
-    begin
-      FStatusText1 := DOWNLOAD_ERR;
-      MessageDlg(DOWNLOAD_ERR, mtError, [mbOk], 0);
-      exit;
-    end;
-    stream.Position := 0;
-    stream.SaveToFile(DataDir + FILENAME_DEATHS);
-
-    stream.Position := 0;
-    FStatusText2 := BASE_URL + FILENAME_RECOVERED + '...';
-    UpdateStatusbar;
-    if not DownloadFile(BASE_URL + FILENAME_RECOVERED, stream) then
-    begin
-      FStatusText1 := DOWNLOAD_ERR;
-      MessageDlg(DOWNLOAD_ERR, mtError, [mbOk], 0);
-      exit;
-    end;
-    stream.Position := 0;
-    stream.SaveToFile(DataDir + FILENAME_RECOVERED);
-
-    LoadLocations;
-
-    FStatusText1 := 'Locations loaded.';
-  finally
-    FStatusText2 := '';
-    UpdateStatusbar;
-    stream.Free;
-  end;
+  UpdateData;
 end;
 
 procedure TMainForm.acTableSaveExecute(Sender: TObject);
@@ -619,7 +555,7 @@ begin
     end;
   end;
 end;
-
+  (*
 function TMainForm.GetDataString(ANode: TTreeNode; ACaseType: TCaseType;
   var AHeader, ACounts: String): Boolean;
 var
@@ -667,7 +603,7 @@ begin
     L.Free;
   end;
 end;
-
+    *)
 procedure TMainForm.GetLocation(ANode: TTreeNode; out ACountry, AState: String);
 begin
   if ANode.Parent = nil then begin
@@ -851,11 +787,7 @@ end;
 
 procedure TMainForm.LoadLocations;
 var
-  fn: String;
-  L: TStrings;
-  i: Integer;
-  sa: TStringArray;
-  node: TTreeNode;
+  ok: Boolean;
 begin
   if not DirectoryExists(DataDir) then
   begin
@@ -864,43 +796,31 @@ begin
     exit;
   end;
 
-  fn := DataDir + FILENAME_CONFIRMED;
-  if not FileExists(fn) then
-  begin
-    MessageDlg('Data files not found. Please click "Update files".', mtError, [mbOK], 0);
-    exit;
-  end;
-
-  L := TStringList.Create;
+  Screen.Cursor := crHourglass;
+  TreeView.Items.BeginUpdate;
   try
-    L.LoadfromFile(fn);
-    TreeView.Items.BeginUpdate;
+    TreeView.Items.Clear;
+    with TJohnsHopkinsDatasource.Create(DataDir) do
     try
-      TreeView.Items.Clear;
-      for i:=1 to L.Count-1 do begin
-        if L[i] = '' then
-          Continue;
-        if BeginsWithQuote(L[i]) then
-          Continue;
-        sa := L[i].Split(',', '"');
-        if sa[0] <> '' then sa[0] := AnsiDequotedStr(sa[0], '"');
-        if sa[1] <> '' then sa[1] := AnsiDequotedStr(sa[1], '"');
-        node := TreeView.Items.FindTopLvlNode(sa[1]);
-        if node = nil then
-          node := TreeView.Items.AddChild(nil, sa[1]);
-        if sa[0] <> '' then
-          node := TreeView.Items.AddChild(node, sa[0]);
+      ok := LoadLocations(TreeView);
+      if not ok then
+      begin
+        MessageDlg('Data files not found. Please click "Update files".', mtError, [mbOk], 0);
+        exit;
       end;
-      {$IFDEF RKI}
-      LoadRKILocations(TreeView);
-      {$ENDIF}
     finally
-      TreeView.AlphaSort;
-      TreeView.Items.EndUpdate;
+      Free;
     end;
-    UpdateActionStates;
+
+    {$IFDEF RKI}
+    // Robert-Koch goes here...
+    {$ENDIF}
+
   finally
-    L.Free;
+    TreeView.AlphaSort;
+    TreeView.Items.EndUpdate;
+    UpdateActionStates;
+    Screen.Cursor := crDefault;
   end;
 end;
 
@@ -1038,6 +958,7 @@ var
   ser: TChartSeries;
   X, Y, Y0: Double;
   t2: Double;  // Doubling time
+  country, state: String;
 begin
   if ANode = nil then
     exit;
@@ -1050,13 +971,23 @@ begin
   fs.DateSeparator := '/';
 
   dt := TDataType(rgDataType.ItemIndex);
+  GetLocation(ANode, country, state);
 
   for ct := Low(TCaseType) to High(TCaseType) do
   begin
     if cgCases.Checked[ord(ct)] then
     begin
-      if not GetDataString(ANode, ct, dates[ct], counts[ct]) then
+      with TJohnsHopkinsDatasource.Create(DataDir) do
+      try
+        if not GetDataString(country, state, ct, dates[ct], counts[ct]) then
         exit;
+      finally
+        Free;
+      end;
+
+      {$IFDEF RKI}
+      // Robert-Koch goes here...: if toplevel node contains RKI...
+      {$ENDIF}
 
       saX := dates[ct].Split(',', '"');
       saY := counts[ct].Split(',','"');
@@ -1126,6 +1057,13 @@ begin
   FStatustext1 := GetLocation(ANode) + ' loaded.';
   UpdateStatusBar;
   UpdateActionStates;
+end;
+
+procedure TMainForm.StatusbarHandler(Sender: TObject; const AMsg1, AMsg2: String);
+begin
+  FStatusText1 := AMsg1;
+  FStatusText2 := AMsg2;
+  UpdateStatusbar;
 end;
 
 procedure TMainForm.UpdateActionStates;
@@ -1206,6 +1144,26 @@ begin
     end;
   end;
   Chart.Extent.UseYMin := LogarithmicY;
+end;
+
+procedure TMainForm.UpdateData;
+begin
+  with TJohnsHopkinsDataSource.Create(DataDir) do
+  try
+    DownloadToCache;
+  finally
+    Free;
+  end;
+
+  {$IFDEF RKI}
+  // Robert-Koch goes here...
+  {$ENDIF}
+
+  LoadLocations;
+
+  FStatusText1 := 'Locations loaded.';
+  FStatusText2 := '';
+  UpdateStatusbar;
 end;
 
 procedure TMainForm.UpdateGrid;

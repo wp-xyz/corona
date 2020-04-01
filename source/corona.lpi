@@ -35,7 +35,7 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="5">
+    <Units Count="8">
       <Unit0>
         <Filename Value="corona.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -66,6 +66,21 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="cRobertKochInstitut"/>
       </Unit4>
+      <Unit5>
+        <Filename Value="cdatasource.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="cDataSource"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="cjohnshopkinsuniversity.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="cJohnsHopkinsUniversity"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="cglobal.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="cGlobal"/>
+      </Unit7>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
