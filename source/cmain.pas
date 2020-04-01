@@ -142,7 +142,7 @@ type
     procedure LayoutBars;
     procedure LoadLocations;
     procedure ShowData(ANode: TTreeNode);
-    procedure StatusbarHandler(Sender: TObject; const AMsg1, AMsg2: String);
+    procedure StatusMsgHandler(Sender: TObject; const AMsg1, AMsg2: String);
     procedure UpdateActionStates;
     procedure UpdateAffectedSeries;
     procedure UpdateAxes(LogarithmicX, LogarithmicY: Boolean);
@@ -813,7 +813,12 @@ begin
     end;
 
     {$IFDEF RKI}
-    // Robert-Koch goes here...
+    with TRobertKochDatasource.Create(DataDir) do
+    try
+      LoadLocations(TreeView);
+    finally
+      Free;
+    end;
     {$ENDIF}
 
   finally
@@ -1059,7 +1064,7 @@ begin
   UpdateActionStates;
 end;
 
-procedure TMainForm.StatusbarHandler(Sender: TObject; const AMsg1, AMsg2: String);
+procedure TMainForm.StatusMsgHandler(Sender: TObject; const AMsg1, AMsg2: String);
 begin
   FStatusText1 := AMsg1;
   FStatusText2 := AMsg2;
@@ -1150,6 +1155,7 @@ procedure TMainForm.UpdateData;
 begin
   with TJohnsHopkinsDataSource.Create(DataDir) do
   try
+    OnStatusMsg := @StatusMsgHandler;
     DownloadToCache;
   finally
     Free;

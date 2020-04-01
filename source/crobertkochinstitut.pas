@@ -5,8 +5,21 @@ unit cRobertKochInstitut;
 interface
 
 uses
-  Classes, SysUtils,
-  ComCtrls;
+  Classes, SysUtils, ComCtrls,
+  cGlobal, cDataSource;
+
+type
+  TRobertKochDatasource = class(TcDataSource)
+  private
+  protected
+  public
+    procedure DownloadToCache; override;
+    function GetDataString(const ACountry, AState: String; ACaseType: TCaseType;
+      var AHeader, ACounts: String): Boolean; override;
+    function LoadLocations(ATreeView: TTreeView): Boolean; override;
+  end;
+
+implementation
 
 const
   Bundesland: array[1..16] of string = (
@@ -279,32 +292,54 @@ const
     '11002=Berlin Friedrichshain-Kreuzberg', '11007=Berlin Tempelhof-Schöneberg'
   );
 
-procedure LoadRKILocations(ATreeView: TTreeView);
 
-implementation
+{------------------------------------------------------------------------------}
+{                         TRobertKochDatasource                                }
+{------------------------------------------------------------------------------}
 
-procedure LoadRKILocations(ATreeView: TTreeView);
+procedure TRobertKochDataSource.DownloadToCache;
+begin
+end;
+
+function TRobertKochDataSource.GetDataString(const ACountry, AState: String;
+  ACaseType: TCaseType; var AHeader, ACounts: String): Boolean;
+begin
+  Result := false;
+
+  Result := true;
+end;
+
+function TRobertKochDataSource.LoadLocations(ATreeView: TTreeView): Boolean;
 var
-  topnode, landnode, kreisnode: TTreeNode;
-  i, id, previd: PtrInt;
+  topnode, landnode: TTreeNode;
+  i, id, prevID: PtrInt;
   s: String;
   p: Integer;
 begin
-  previd := -1;
+  Result := false;
+
+  prevID := -1;
   topnode := ATreeView.Items.AddChild(nil, 'Germany (RKI)');
+
   for i:=Low(Bundesland) to High(Bundesland) do
     landnode := ATreeView.Items.AddChildObject(topnode, Bundesland[i], Pointer(i));
+
   for i := Low(Landkreis) to High(Landkreis) do
   begin
     s := Copy(Landkreis[i], 1, 2);
     id := StrToInt(s);
-    if id <> previd then
+    if id <> prevID then
+    begin
       landNode := ATreeView.Items.FindNodeWithText(Bundesland[id]);
+      prevID := id;
+    end;
     s := Copy(Landkreis[i], 1, 5);
     id := StrToInt(s);
     s := Copy(Landkreis[i], 7, MaxInt);
-    kreisNode := ATreeView.Items.AddChildObject(landnode, s, pointer(id));
+    ATreeView.Items.AddChildObject(landnode, s, pointer(id));
   end;
+
+  Result := true;
 end;
 
 end.
