@@ -39,7 +39,7 @@ const
     'Schleswig-Holstein',      // 1
     'Hamburg',                 // 2
     'Niedersachsen',           // 3
-    'Bremem',                  // 4
+    'Bremen',                  // 4
     'Nordrhein-Westfalen',     // 5
     'Hessen',                  // 6
     'Rheinland-Pfalz',         // 7
@@ -89,7 +89,7 @@ const
     '03452=Aurich',                   '03453=Cloppenburg',
     '03454=Emsland',                  '03455=Friesland',
     '03456=Grafschaft Bentheim',      '03457=Leer',
-    '03458=Oldenburg',                '03459=Osnabrück',
+    '03458=Oldenburg',                '03459=Osnabrück (Landkreis)',
     '03460=Vechta',                   '03461=Wesermarsch',
     // 60..69
     '03462=Wittmund',                 '04011=Bremen',
@@ -166,12 +166,12 @@ const
     // 180..189
     '08116=Esslingen',                '08117=Göppingen',
     '08118=Ludwigsburg',              '08119=Rems-Murr-Kreis',
-    '08121=Heilbronn',                '08125=Heilbronn',
+    '08121=Heilbronn',                '08125=Heilbronn (Landkreis)',
     '08126=Hohenlohekreis',           '08127=Schwäbisch Hall',
     '08128=Main-Tauber-Kreis',        '08135=Heidenheim',
     // 190..199
     '08136=Ostalbkreis',              '08211=Baden-Baden',
-    '08212=Karlsruhe',                '08215=Karlsruhe',
+    '08212=Karlsruhe',                '08215=Karlsruhe (Landkreis)',
     '08216=Rastatt',                  '08221=Heidelberg',
     '08222=Mannheim',                 '08225=Neckar-Odenwald-Kreis',
     '08226=Rhein-Neckar-Kreis',       '08231=Pforzheim',
@@ -198,49 +198,49 @@ const
     '09178=Freising',                 '09179=Fürstenfeldbruck',
     '09180=Garmisch-Partenkirchen',   '09181=Landsberg am Lech',
     '09182=Miesbach',                 '09183=Mühldorf a. Inn',
-    '09184=München',                  '09185=Neuburg-Schrobenhausen',
+    '09184=München (Landkreis)',      '09185=Neuburg-Schrobenhausen',
     // 240..249
-    '09186=Pfaffenhofen a.d. Ilm',    '09187=Rosenheim',
+    '09186=Pfaffenhofen a.d. Ilm',    '09187=Rosenheim (Landkreis)',
     '09188=Starnberg',                '09189=Traunstein',
     '09190=Weilheim-Schongau',        '09261=Landshut',
     '09262=Passau',                   '09263=Straubing',
     '09271=Deggendorf',               '09272=Freyung-Grafenau',
     // 250..259
-    '09273=Kelheim',                  '09274=Landshut',
-    '09275=Passau',                   '09276=Regen',
+    '09273=Kelheim',                  '09274=Landshut (Landkreis)',
+    '09275=Passau (Landkreis)',       '09276=Regen',
     '09277=Rottal-Inn',               '09278=Straubing-Bogen',
     '09279=Dingolfing-Landau',        '09361=Amberg',
     '09362=Regensburg',               '09363=Weiden i.d. OPf.',
     // 260..269
     '09371=Amberg-Sulzbach',          '09372=Cham',
     '09373=Neumarkt i.d. OPf.',       '09374=Neustadt a.d. Waldnaab',
-    '09375=Regensburg',               '09376=Schwandorf',
+    '09375=Regensburg (Landkreis)',   '09376=Schwandorf',
     '09377=Tirschenreuth',            '09461=Bamberg',
     '09462=Bayreuth',                 '09463=Coburg',
     // 270..279
-    '09464=Hof',                      '09471=Bamberg',
-    '09472=Bayreuth',                 '09473=Coburg',
-    '09474=Forchheim',                '09475=Hof',
+    '09464=Hof',                      '09471=Bamberg (Landkreis)',
+    '09472=Bayreuth (Landkreis)',     '09473=Coburg (Landkreis)',
+    '09474=Forchheim',                '09475=Hof (Landkreis)',
     '09476=Kronach',                  '09477=Kulmbach',
     '09478=Lichtenfels',              '09479=Wunsiedel i. Fichtelgebirge',
     // 280..289
     '09561=Ansbach',                  '09562=Erlangen',
     '09563=Fürth',                    '09564=Nürnberg',
-    '09565=Schwabach',                '09571=Ansbach',
-    '09572=Erlangen-Höchstadt',       '09573=Fürth',
+    '09565=Schwabach',                '09571=Ansbach (Landkreis)',
+    '09572=Erlangen-Höchstadt',       '09573=Fürth (Landkreis)',
     '09574=Nürnberger Land',          '09575=Neustadt a.d. Aisch-Bad Windsheim',
     // 290..299
     '09576=Roth',                     '09577=Weißenburg-Gunzenhausen',
     '09661=Aschaffenburg',            '09662=Schweinfurt',
-    '09663=Würzburg',                 '09671=Aschaffenburg',
+    '09663=Würzburg',                 '09671=Aschaffenburg (Landkreis)',
     '09672=Bad Kissingen',            '09673=Rhön-Grabfeld',
     '09674=Haßberge',                 '09675=Kitzingen',
     // 300..309
     '09676=Miltenberg',               '09677=Main-Spessart',
-    '09678=Schweinfurt',              '09679=Würzburg',
+    '09678=Schweinfurt (Landkreis)',  '09679=Würzburg (Landkreis)',
     '09761=Augsburg',                 '09762=Kaufbeuren',
     '09763=Kempten (Allgäu)',         '09764=Memmingen',
-    '09771=Aichach-Friedberg',        '09772=Augsburg',
+    '09771=Aichach-Friedberg',        '09772=Augsburg (Landkreis)',
     // 310..319
     '09773=Dillingen a.d. Donau',     '09774=Günzburg',
     '09775=Neu-Ulm',                  '09776=Lindau (Bodensee)',
@@ -262,7 +262,7 @@ const
     // 340..349
     '12072=Teltow-Fläming',           '12073=Uckermark',
     '13003=Rostock',                  '13004=Schwerin',
-    '13071=Mecklenburgische Seenplatte', '13072=Rostock',
+    '13071=Mecklenburgische Seenplatte', '13072=Rostock (Landkreis)',
     '13073=Vorpommern-Rügen',         '13074=Nordwestmecklenburg',
     '13075=Vorpommern-Greifswald',    '13076=Ludwigslust-Parchim',
     // 350..359
@@ -272,7 +272,7 @@ const
     '14625=Bautzen',                  '14626=Görlitz',
     '14627=Meißen',                   '14628=Sächsische Schweiz-Osterzgebirge',
     // 360..369
-    '14713=Leipzig',                  '14729=Leipzig',
+    '14713=Leipzig',                  '14729=Leipzig (Landkreis)',
     '14730=Nordsachsen',              '15001=Dessau-Roßlau',
     '15002=Halle (Saale)',            '15003=Magdeburg',
     '15081=Altmarkkreis Salzwedel',   '15082=Anhalt-Bitterfeld',
@@ -472,7 +472,7 @@ begin
         ExtractData(stream, AHeader, sConfirmed, sDeaths);
         AHeader := 'state,country,lat,long' + AHeader;
         sConfirmed := AState + ',' + ACountry + ',0,0' + sConfirmed;
-        sDeaths := AState + ',' + ACountry + '0,0' + sDeaths;
+        sDeaths := AState + ',' + ACountry + ',0,0' + sDeaths;
         if L.Count = 0 then
           L.Add(AHeader);
         if ACaseType = ctConfirmed then begin
