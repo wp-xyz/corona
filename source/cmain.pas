@@ -34,6 +34,7 @@ type
     BottomAxisLogTransform: TLogarithmAxisTransform;
     ChartToolset: TChartToolset;
     acFileExit: TFileExit;
+    lblTableHint: TLabel;
     MainMenu: TMainMenu;
     MenuItem1: TMenuItem;
     MenuItem4: TMenuItem;
@@ -170,8 +171,7 @@ uses
   // TAChart units
   TATypes, TAMath, TAChartUtils, TACustomSource, TAFitLib,
   // project-specific units
-  cJohnsHopkinsUniversity,
-  {$IFDEF RKI}cRobertKochInstitut,{$ENDIF}
+  cDataSource, cJohnsHopkinsUniversity, {$IFDEF RKI}cRobertKochInstitut,{$ENDIF}
   cAbout;
 
 const
@@ -907,6 +907,7 @@ begin
         begin
           Chart.LeftAxis.Title.Caption := 'Cases';
           lblTableHdr.Caption := 'Cumulative Cases';
+          lblTableHint.Caption := '';
           UpdateAxes(false, acChartLogarithmic.Checked);
           MeasurementTool.Enabled := true;
         end;
@@ -914,6 +915,7 @@ begin
         begin
           Chart.LeftAxis.Title.Caption := 'New Cases';
           lblTableHdr.Caption := 'New Cases';
+          lblTableHint.Caption := '';
           UpdateAxes(false, false);
           MeasurementTool.Enabled := false;
         end;
@@ -921,12 +923,14 @@ begin
         begin
           Chart.LeftAxis.Title.Caption := 'Doubling time (days)';
           lblTableHdr.Caption := 'Doubling time (days, calculated from case-ratio of two consecutive days)';
+          lblTableHint.Caption := 'Note: Strictly speaking, this value required exponential growth which is no longer true in many countries.';
           UpdateAxes(false, false);
           MeasurementTool.Enabled := false;
         end;
       dtCumVsNewCases:
         begin
           lblTableHdr.Caption := 'New cases vs. cumulative cases';
+          lblTableHint.Caption := '';
           Chart.LeftAxis.Title.Caption := 'New cases';
           Chart.BottomAxis.title.Caption := 'Cumulative cases';
           UpdateAxes(true, true);
@@ -952,6 +956,8 @@ begin
 end;
 
 procedure TMainForm.ShowData(ANode: TTreeNode);
+const
+  RKI_CAPTION = 'Germany (RKI)';
 var
   fs: TFormatSettings;
   counts: array[TCaseType] of string = ('', '', '');
@@ -964,104 +970,128 @@ var
   X, Y, Y0: Double;
   t2: Double;  // Doubling time
   country, state: String;
+  dataSrcClass: TcDataSourceClass;
 begin
   if ANode = nil then
     exit;
 
-  if not acChartOverlay.Checked then
-    Clear(false);
+  Screen.Cursor := crHourglass;
+  try
+    if not acChartOverlay.Checked then
+      Clear(false);
 
-  fs := FormatSettings;
-  fs.ShortDateFormat := 'mm/dd/yyy';
-  fs.DateSeparator := '/';
+    fs := FormatSettings;
+    fs.ShortDateFormat := 'mm/dd/yyy';
+    fs.DateSeparator := '/';
 
-  dt := TDataType(rgDataType.ItemIndex);
-  GetLocation(ANode, country, state);
+    dataSrcClass := TJohnsHopkinsDataSource;
+    GetLocation(ANode, country, state);
 
-  for ct := Low(TCaseType) to High(TCaseType) do
-  begin
-    if cgCases.Checked[ord(ct)] then
-    begin
-      with TJohnsHopkinsDatasource.Create(DataDir) do
-      try
-        if not GetDataString(country, state, ct, dates[ct], counts[ct]) then
-        exit;
-      finally
-        Free;
+    {$IFDEF RKI}
+    if ((ANode.Level = 0) and (ANode.Text = RKI_CAPTION)) or
+       ((ANode.Level = 1) and (ANode.Parent.Text = RKI_CAPTION)) or
+       ((ANode.Level = 2) and (ANode.Parent.Parent.Text = RKI_CAPTION))
+    then begin
+      dataSrcClass := TRobertKochDataSource;
+      if (ANode.Level = 1) then
+      begin
+        country := IntToStr(PtrInt(ANode.Data));
+        state := '';
+      end else
+      if ANode.Level = 2 then
+      begin
+        country := IntToStr(PtrInt(ANode.Parent.Data));
+        state := FormatFloat('00000', PtrInt(ANode.Data));
       end;
-
-      {$IFDEF RKI}
-      // Robert-Koch goes here...: if toplevel node contains RKI...
-      {$ENDIF}
-
-      saX := dates[ct].Split(',', '"');
-      saY := counts[ct].Split(',','"');
-      ser := GetSeries(ANode, ct, dt);
-      ser.ListSource.BeginUpdate;
-      try
-        ser.Clear;
-        case dt of
-          dtCumulative:
-            begin
-              for i := 4 to High(saY) do
-              begin
-                Y := StrToInt(saY[i]);
-                if Y = 0 then Y := 0.1;
-                ser.AddXY(StrToDate(saX[i], fs), Y);
-              end;
-            end;
-          dtNewCases:
-            begin
-              Y0 := StrToInt(saY[4]);
-              for i := 5 to High(saY) do begin
-                Y := StrToInt(saY[i]);
-                ser.AddXY(StrToDate(saX[i], fs), Y - Y0);
-                Y0 := Y;
-              end;
-            end;
-          dtDoublingTime:
-            begin
-              Y0 := StrToInt(saY[4]);
-              Y := StrToInt(saY[5]);
-              for i := 6 to High(saY) do
-              begin
-                Y := StrToInt(saY[i]);
-                if (Y > Y0) and (Y0 > 0) then
-                begin
-                  t2 := ln(2.0) / ln(Y / Y0);
-                  ser.AddXY(StrToDate(saX[i], fs), t2);
-                end else
-                  ser.AddXY(StrToDate(saX[i], fs), NaN);
-                Y0 := Y;
-              end;
-            end;
-          dtCumVsNewCases:
-            begin
-              Y0 := StrToInt(saY[4]);
-              for i := 5 to High(saY) do begin
-                X := StrToInt(saY[i]);
-                Y := StrToInt(saY[i]);
-                if (Y > Y0) and (Y0 > 0) then
-                  ser.AddXY(X, Y - Y0, saX[i]);
-                Y0 := Y;
-              end;
-            end;
-        end;
-      finally
-        ser.EndUpdate;
-      end;
-    end else
-    begin
-      dates[ct] := '';
-      counts[ct] := '';
     end;
+    {$ENDIF}
+
+    dt := TDataType(rgDataType.ItemIndex);
+
+    for ct := Low(TCaseType) to High(TCaseType) do
+    begin
+      if cgCases.Checked[ord(ct)] then
+      begin
+        with dataSrcClass.Create(DataDir) do
+        try
+          if not GetDataString(country, state, ct, dates[ct], counts[ct]) then
+            Continue;
+        finally
+          Free;
+        end;
+
+        saX := dates[ct].Split(',', '"');
+        saY := counts[ct].Split(',','"');
+
+        ser := GetSeries(ANode, ct, dt);
+        ser.ListSource.BeginUpdate;
+        try
+          ser.Clear;
+          case dt of
+            dtCumulative:
+              begin
+                for i := 4 to High(saY) do
+                begin
+                  Y := StrToInt(saY[i]);
+                  if Y = 0 then Y := 0.1;
+                  ser.AddXY(StrToDate(saX[i], fs), Y);
+                end;
+              end;
+            dtNewCases:
+              begin
+                Y0 := StrToInt(saY[4]);
+                for i := 5 to High(saY) do begin
+                  Y := StrToInt(saY[i]);
+                  ser.AddXY(StrToDate(saX[i], fs), Y - Y0);
+                  Y0 := Y;
+                end;
+              end;
+            dtDoublingTime:
+              begin
+                Y0 := StrToInt(saY[4]);
+                Y := StrToInt(saY[5]);
+                for i := 6 to High(saY) do
+                begin
+                  Y := StrToInt(saY[i]);
+                  if (Y > Y0) and (Y0 > 0) then
+                  begin
+                    t2 := ln(2.0) / ln(Y / Y0);
+                    ser.AddXY(StrToDate(saX[i], fs), t2);
+                  end else
+                    ser.AddXY(StrToDate(saX[i], fs), NaN);
+                  Y0 := Y;
+                end;
+              end;
+            dtCumVsNewCases:
+              begin
+                Y0 := StrToInt(saY[4]);
+                for i := 5 to High(saY) do begin
+                  X := StrToInt(saY[i]);
+                  Y := StrToInt(saY[i]);
+                  if (Y > Y0) and (Y0 > 0) then
+                    ser.AddXY(X, Y - Y0, saX[i]);
+                  Y0 := Y;
+                end;
+              end;
+          end;
+        finally
+          ser.EndUpdate;
+        end;
+      end else
+      begin
+        dates[ct] := '';
+        counts[ct] := '';
+      end;
+    end;
+    LayoutBars;
+    UpdateAffectedSeries;
+    UpdateGrid;
+    FStatustext1 := GetLocation(ANode) + ' loaded.';
+    UpdateStatusBar;
+    UpdateActionStates;
+  finally
+    Screen.Cursor := crDefault;
   end;
-  LayoutBars;
-  UpdateAffectedSeries;
-  UpdateGrid;
-  FStatustext1 := GetLocation(ANode) + ' loaded.';
-  UpdateStatusBar;
-  UpdateActionStates;
 end;
 
 procedure TMainForm.StatusMsgHandler(Sender: TObject; const AMsg1, AMsg2: String);

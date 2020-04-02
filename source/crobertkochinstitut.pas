@@ -11,17 +11,30 @@ uses
 type
   TRobertKochDatasource = class(TcDataSource)
   private
+    function BuildURL(const ID: String): String;
+//    procedure ExtractData(AData: String; out AHeader, AConfirmed, ADeaths: String);
+    procedure ExtractData(AStream: TStream; out AHeader, AConfirmed, ADeaths: String);
   protected
   public
     procedure DownloadToCache; override;
     function GetDataString(const ACountry, AState: String; ACaseType: TCaseType;
-      var AHeader, ACounts: String): Boolean; override;
+      out AHeader, ACounts: String): Boolean; override;
     function LoadLocations(ATreeView: TTreeView): Boolean; override;
   end;
 
 implementation
 
+uses
+  StrUtils, DateUtils,
+  //JSONTools,
+  fpJson, JSONParser, JSONScanner,
+  cDownloader;
+
 const
+  FILENAME_CONFIRMED = 'RKI_confirmed.csv';
+  FILENAME_DEATHS = 'RKI__deaths.csv';
+//  FILENAME_RECOVERED = 'RKI_recovered.csv';
+
   Bundesland: array[1..16] of string = (
     'Schleswig-Holstein',      // 1
     'Hamburg',                 // 2
@@ -292,21 +305,221 @@ const
     '11002=Berlin Friedrichshain-Kreuzberg', '11007=Berlin Tempelhof-Schöneberg'
   );
 
+    DATE_MASK = 'yyyy-mm-dd hh:nn:ss';
+
+    DATA_URL_MASK = 'https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/Covid19_RKI_Sums/FeatureServer/0/query'+
+      '?f=json'+
+      '&where='+
+          '(Meldedatum > timestamp ''%s'') AND ' +   // Start date formatted as YYYY-MM-DD HH:NN:SS     2020-03-01 22:59:59
+          '(Meldedatum < timestamp ''%s'') AND ' +   // End date formatted as YYYY-MM-DD HH:NN:SS       2020-03-27 23:00:00:
+          '(%s)'+                                    // IdLandkreis=''%s'' with Landkreis ID, 5 digits, leading zero; or IdBundesland=''%s'' with Bundesland ID
+      '&returnGeometry=false'+
+      '&spatialRel=esriSpatialRelIntersects'+
+  //    '&outFields=ObjectId,SummeFall,SummeTodesFall,Meldedatum'+
+      '&outFields=SummeFall,SummeTodesFall,Meldedatum'+
+      '&orderByFields=Meldedatum asc'+
+      '&resultOffset=0'+
+      '&resultRecordCount=2000'+
+      '&cacheHint=true';
+
+    DATA_URL_MASK2 = 'https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/Covid19_RKI_Sums/FeatureServer/0/query'+
+      '?f=json'+
+      '&where='+
+        '(Meldedatum>timestamp ''2020-03-01 22:59:59'' AND '+
+        '(Meldedatum<timestamp ''2020-04-01 22:00:00'' OR Meldedatum > timestamp ''2020-04-02 21:A59:59'')) AND '+
+        '(Bundesland=''Bayern'')'+
+      '&returnGeometry=false'+
+      '&spatialRel=esriSpatialRelIntersects'+
+      '&outFields=ObjectId,SummeFall,Meldedatum'+
+      '&orderByFields=Meldedatum asc'+
+      '&resultOffset=2000'+
+      '&resultRecordCount=2000'+
+      '&cacheHint=true';
 
 {------------------------------------------------------------------------------}
 {                         TRobertKochDatasource                                }
 {------------------------------------------------------------------------------}
 
+function TRobertKochDataSource.BuildURL(const ID: String): String;
+var
+  startDate: TDate;
+  endDate: TDate;
+  url: String;
+  idWhere: String;
+begin
+  startDate := EncodeDate(2020, 3, 1);
+  endDate := trunc(Now);
+
+  // Bundesland
+  if Length(ID) <= 2 then begin
+    Result := '';  // not yet supported
+    exit;
+  end else
+  begin
+    idWhere := Format('IdLandkreis=''%s''', [ID]);
+    Result := Format(DATA_URL_MASK, [
+      FormatDateTime(DATE_MASK, startDate),
+      FormatDateTime(DATE_MASK, endDate),
+      idWhere
+    ]);
+  end;
+
+  Result := StringReplace(Result, ' ', '%20', [rfReplaceAll]);
+  Result := StringReplace(Result, '>', '%3E', [rfReplaceAll]);
+  Result := StringReplace(Result, '<', '%3C', [rfReplaceall]);
+  Result := StringReplace(Result, '''', '%27', [rfReplaceall]);
+end;
+
 procedure TRobertKochDataSource.DownloadToCache;
 begin
+  // Delete the cache files. Cache will be rebuilt when querying data.
+  DeleteFile(FCacheDir + FILENAME_CONFIRMED);
+  DeleteFile(FCacheDir + FILENAME_DEATHS);
+end;
+
+procedure TRobertKochDataSource.ExtractData(AStream: TStream;
+  out AHeader, AConfirmed, ADeaths: String);
+var
+  json: TJSONObject;
+  p: TJSONParser;
+  jFeatures: TJSONArray;
+  jObj: TJSONObject;
+  jData: TJSONObject;
+  i: Integer;
+  s: String;
+  d: TDateTime;
+begin
+  AHeader := '';
+  AConfirmed := '';
+  ADeaths := '';
+  AStream.Position := 0;
+  p := TJSONParser.Create(AStream, [joUTF8]);
+  try
+    json := p.Parse as TJSONObject;
+    if json = nil then
+      exit;
+    jFeatures := json.Find('features', jtArray) as TJSONArray;
+    if jFeatures = nil then
+      exit;
+    AHeader := '';
+    AConfirmed := '';
+    ADeaths := '';
+    for i := 0 to jFeatures.Count - 1 do begin
+      jObj := jFeatures.Objects[i];
+      jData := jObj.Items[0] as TJsonObject;
+      s := jData.Find('Meldedatum').AsString;
+      d := UnixToDateTime(StrToInt64(s) div 1000);
+      AHeader := AHeader + ',' + FormatDateTime('mm"/"dd"/"yy', d);
+      s := jData.Find('SummeFall').AsString;
+      AConfirmed := AConfirmed + ',' + s;
+      s := jData.Find('SummeTodesfall').AsString;
+      ADeaths := ADeaths + ',' + s;
+    end;
+  finally
+    p.Free;
+  end;
 end;
 
 function TRobertKochDataSource.GetDataString(const ACountry, AState: String;
-  ACaseType: TCaseType; var AHeader, ACounts: String): Boolean;
+  ACaseType: TCaseType; out AHeader, ACounts: String): Boolean;
+var
+  url: String;
+  stream: TStream;
+  s: String;
+  L: TStrings;
+  sa: TStringArray;
+  fn: String;
+  i: Integer;
+  sConfirmed, sDeaths: String;
 begin
   Result := false;
+  AHeader := '';
+  ACounts := '';
 
-  Result := true;
+  case ACaseType of
+    ctConfirmed: fn := FCacheDir + FILENAME_CONFIRMED;
+    ctDeaths: fn := FCacheDir + FILENAME_DEATHS;
+    ctRecovered: exit;
+  end;
+
+  L := TStringList.Create;
+  try
+    if FileExists(fn) then begin
+      L.StrictDelimiter := true;
+      L.LoadFromFile(fn);
+      for i:=1 to L.Count-1 do
+      begin
+        sa := L[i].Split(',', '"');
+        if (sa[0] = AState) and (sa[1] = ACountry) then begin
+          // Dataset exists in cache --> use it
+          AHeader := L[0];
+          ACounts := L[i];
+          Result := true;
+          exit;
+        end;
+      end;
+    end;
+
+    // Dataset does not yet exist --> Read from RKI server and add to cache
+    stream := TMemoryStream.Create;
+    try
+      if AState = '' then
+        exit;  // to do: support Bundesland query
+      url := BuildURL(AState);
+      Result := DownloadFile(url, stream);
+      if Result then
+      begin
+        ExtractData(stream, AHeader, sConfirmed, sDeaths);
+        AHeader := 'state,country,lat,long' + AHeader;
+        sConfirmed := AState + ',' + ACountry + ',0,0' + sConfirmed;
+        sDeaths := AState + ',' + ACountry + '0,0' + sDeaths;
+        if L.Count = 0 then
+          L.Add(AHeader);
+        if ACaseType = ctConfirmed then begin
+          ACounts := sConfirmed;
+          L.Add(sConfirmed);
+        end else
+        if ACaseType = ctDeaths then begin
+          ACounts := sDeaths;
+          L.Add(sDeaths);
+        end;
+        L.SaveToFile(fn);
+
+        // Cache the "other" data contained in downloaded file.
+        L.Clear;
+        case ACaseType of
+          ctConfirmed:
+            begin
+              fn := FCacheDir + FILENAME_DEATHS;
+              s := sDeaths;
+            end;
+          ctDeaths:
+            begin
+              fn := FCacheDir + FILENAME_CONFIRMED;
+              s := sConfirmed;
+            end;
+        end;
+        if FileExists(fn) then
+        begin
+          L.LoadFromFile(fn);
+          for i:=1 to L.Count-1 do
+          begin
+            sa := L[i].Split(',', '"');
+            if (sa[0] = AState) and (sa[1] = ACountry) then
+              exit;
+          end;
+        end;
+        if L.Count = 0 then
+          L.Add(AHeader);
+        L.Add(s);
+        L.SaveToFile(fn);
+      end;
+    finally
+      stream.Free;
+    end;
+  finally
+    L.Free;
+  end;
 end;
 
 function TRobertKochDataSource.LoadLocations(ATreeView: TTreeView): Boolean;

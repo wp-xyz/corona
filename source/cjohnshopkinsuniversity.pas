@@ -13,7 +13,7 @@ type
   public
     procedure DownloadToCache; override;
     function GetDataString(const ACountry, AState: String; ACaseType: TCaseType;
-      var AHeader, ACounts: String): Boolean; override;
+      out AHeader, ACounts: String): Boolean; override;
     function LoadLocations(ATreeView: TTreeView): Boolean; override;
   end;
 
@@ -88,7 +88,7 @@ begin
 end;
 
 function TJohnsHopkinsDataSource.GetDataString(const ACountry, AState: String;
-  ACaseType: TCaseType; var AHeader, ACounts: String): Boolean;
+  ACaseType: TCaseType; out AHeader, ACounts: String): Boolean;
 var
   L: TStrings;
   fn: String;

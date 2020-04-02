@@ -18,7 +18,7 @@ type
     FCacheDir: String;
     procedure DoStatusMsg(const AMsg1, AMsg2: String);
   public
-    constructor Create(ACacheDir: String);
+    constructor Create(ACacheDir: String); virtual;
 
     // Downloads the data files from the primary online site to a local cache.
     procedure DownloadToCache; virtual; abstract;
@@ -26,7 +26,7 @@ type
     { Extracts the line with the data value from the cache file associated with
       the clicked tree node }
     function GetDataString(const ACountry, AState: String; ACaseType: TCaseType;
-      var AHeader, ACounts: String): Boolean; virtual; abstract;
+      out AHeader, ACounts: String): Boolean; virtual; abstract;
 
     { Loads the locations from the specified cache directory into a treeview.
       Clearing, Begin/EndUpdate is done by the calling routine. }
@@ -35,6 +35,9 @@ type
     property OnStatusMsg: TStatusbarEvent read FOnStatusMsg write FOnStatusMsg;
 
   end;
+
+  TcDataSourceClass = class of TcDataSource;
+
 
 implementation
 

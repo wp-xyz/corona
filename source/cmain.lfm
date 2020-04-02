@@ -1,7 +1,7 @@
 object MainForm: TMainForm
-  Left = 383
+  Left = 321
   Height = 598
-  Top = 170
+  Top = 120
   Width = 1116
   Caption = 'corona'
   ClientHeight = 578
@@ -3421,12 +3421,12 @@ object MainForm: TMainForm
     Height = 499
     Top = 50
     Width = 839
-    ActivePage = pgChart
+    ActivePage = pgTable
     Align = alClient
     BorderSpacing.Top = 6
     BorderSpacing.Right = 6
     BorderSpacing.Bottom = 6
-    TabIndex = 0
+    TabIndex = 1
     TabOrder = 2
     OnChange = PageControlChange
     object pgChart: TTabSheet
@@ -3527,18 +3527,19 @@ object MainForm: TMainForm
     object pgTable: TTabSheet
       Caption = 'Table'
       ClientHeight = 471
-      ClientWidth = 833
+      ClientWidth = 831
       object Grid: TDrawGrid
         AnchorSideLeft.Control = pgTable
+        AnchorSideTop.Control = lblTableHint
         AnchorSideTop.Side = asrBottom
         AnchorSideRight.Control = pgTable
         AnchorSideRight.Side = asrBottom
         AnchorSideBottom.Control = pgTable
         AnchorSideBottom.Side = asrBottom
         Left = 6
-        Height = 428
-        Top = 37
-        Width = 821
+        Height = 413
+        Top = 52
+        Width = 819
         Anchors = [akTop, akLeft, akRight, akBottom]
         BorderSpacing.Around = 6
         ColCount = 2
@@ -3564,6 +3565,17 @@ object MainForm: TMainForm
         Font.Height = -19
         ParentColor = False
         ParentFont = False
+      end
+      object lblTableHint: TLabel
+        AnchorSideLeft.Control = lblTableHdr
+        AnchorSideTop.Control = lblTableHdr
+        AnchorSideTop.Side = asrBottom
+        Left = 6
+        Height = 15
+        Top = 31
+        Width = 63
+        Caption = 'lblTableHint'
+        ParentColor = False
       end
     end
   end
