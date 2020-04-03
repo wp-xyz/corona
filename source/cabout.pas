@@ -15,6 +15,7 @@ type
   TAboutForm = class(TForm)
     BitBtn1: TBitBtn;
     AppImage: TImage;
+    imgRKI: TImage;
     imgJHU: TImage;
     lblDataSources: TLabel;
     lblAcknowledgements: TLabel;
@@ -24,6 +25,7 @@ type
     lblIcons8: TLabel;
     lblJHUgit: TLabel;
     lblIDE: TLabel;
+    lblNPGeo: TLabel;
     lblLazarus: TLabel;
     lblTitle: TLabel;
     Panel1: TPanel;
@@ -53,6 +55,8 @@ const
   URL_Icons8 = 'http://www.icons8.com';
   URL_JHU = 'https://systems.jhu.edu/';
   URL_JHU_git = 'https://github.com/CSSEGISandData/COVID-19/';
+  URL_RKI = 'https://www.rki.de/EN/Home/homepage_node.html';
+  URL_NPGeo = 'https://npgeo-corona-npgeo-de.hub.arcgis.com/';
 
 
 { TAboutForm }
@@ -69,7 +73,9 @@ begin
   lblLazarus.Hint := URL_Lazarus;
   lblIcons8.Hint := URL_Icons8;
   imgJHU.Hint := URL_JHU;
-  lblJHUgit.Hint := URL_JHU_git
+  lblJHUgit.Hint := URL_JHU_git;
+  imgRKI.Hint := URL_RKI;
+  lblNPGeo.Hint := URL_NPGeo
 end;
 
 procedure TAboutForm.LabelClick(Sender: TObject);
@@ -83,7 +89,11 @@ begin
   else if (Sender = imgJHU) then
     OpenURL(URL_JHU)
   else if (Sender = lblJHUgit) then
-    OpenURL(URL_JHU_git);
+    OpenURL(URL_JHU_git)
+  else if (Sender = imgRKI) then
+    OpenURL(URL_RKI)
+  else if (Sender = lblNPGeo) then
+    OpenURL(URL_NPGeo);
 end;
 
 procedure TAboutForm.LabelMouseEnter(Sender: TObject);
