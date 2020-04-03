@@ -3421,12 +3421,12 @@ object MainForm: TMainForm
     Height = 499
     Top = 50
     Width = 839
-    ActivePage = pgTable
+    ActivePage = pgChart
     Align = alClient
     BorderSpacing.Top = 6
     BorderSpacing.Right = 6
     BorderSpacing.Bottom = 6
-    TabIndex = 1
+    TabIndex = 0
     TabOrder = 2
     OnChange = PageControlChange
     object pgChart: TTabSheet
@@ -4047,6 +4047,13 @@ object MainForm: TMainForm
       object MenuItem3: TMenuItem
         Action = acDataClear
       end
+      object MenuItem10: TMenuItem
+        Caption = '-'
+      end
+      object MenuItem11: TMenuItem
+        Action = acDataCommonStart
+        AutoCheck = True
+      end
     end
     object mnuChart: TMenuItem
       Caption = 'Chart'
@@ -4183,6 +4190,12 @@ object MainForm: TMainForm
       Hint = 'copy chart to clipboard'
       ImageIndex = 7
       OnExecute = acChartCopyToClipboardExecute
+    end
+    object acDataCommonStart: TAction
+      Category = 'Data'
+      AutoCheck = True
+      Caption = 'Common start'
+      OnExecute = acDataCommonStartExecute
     end
   end
   object BottomAxisTransformations: TChartAxisTransformations

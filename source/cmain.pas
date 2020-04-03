@@ -28,6 +28,7 @@ type
     acChartLinear: TAction;
     acChartCopyToClipboard: TAction;
     acChartOverlay: TAction;
+    acDataCommonStart: TAction;
     ActionList: TActionList;
     Chart: TChart;
     BottomAxisTransformations: TChartAxisTransformations;
@@ -37,6 +38,8 @@ type
     lblTableHint: TLabel;
     MainMenu: TMainMenu;
     MenuItem1: TMenuItem;
+    MenuItem10: TMenuItem;
+    MenuItem11: TMenuItem;
     MenuItem4: TMenuItem;
     MenuItem5: TMenuItem;
     MenuItem6: TMenuItem;
@@ -102,6 +105,7 @@ type
     procedure acConfigAutoExecute(Sender: TObject);
     procedure acConfigHintExecute(Sender: TObject);
     procedure acDataClearExecute(Sender: TObject);
+    procedure acDataCommonStartExecute(Sender: TObject);
     procedure acDataUpdateExecute(Sender: TObject);
     procedure acTableSaveExecute(Sender: TObject);
     procedure cgCasesItemClick(Sender: TObject; Index: integer);
@@ -191,10 +195,16 @@ const
 
   BARWIDTH_PERCENT = 80;
 
+  START_COUNT = 100;
+
 var
   // The BaseDate must be subtracted from the date values for fitting on the
   // log scale to prevent a floating point overflow.
+  // This is not used, however, when dates have a common start.
+  // DateOffset is the correct offset to be used in any case
   BaseDate: TDate;
+  DateOffset: TDate;
+
 
   // DataDir is the directory in which the downloaded csv files are found.
   DataDir: String;
@@ -247,6 +257,28 @@ end;
 procedure TMainForm.acDataClearExecute(Sender: TObject);
 begin
   Clear;
+end;
+
+procedure TMainForm.acDataCommonStartExecute(Sender: TObject);
+var
+  logX, logY: Boolean;
+  i: Integer;
+begin
+  if acDataCommonStart.Checked then
+  begin
+    DateOffset := 0;
+  end else
+  begin
+    DateOffset := BaseDate;
+  end;
+
+  logX := (TDataType(rgDataType.ItemIndex) = dtCumVsNewCases) and acChartLogarithmic.Checked;
+  logY := acChartLogarithmic.Checked;
+  UpdateAxes(logX, logY);
+
+  for i := 0 to Chart.SeriesCount-1 do
+    if Chart.Series[i] is TChartSeries then
+      ShowData(TTreeNode(TChartSeries(Chart.Series[i]).Tag));
 end;
 
 procedure TMainForm.acDataUpdateExecute(Sender: TObject);
@@ -330,7 +362,7 @@ begin
     yval := ser.YValue[i];
     if yval <= 0 then
       continue;
-    x[n] := xval - BaseDate;
+    x[n] := xval - DateOffset;
     y[n] := ln(yval);
     inc(n);
   end;
@@ -361,7 +393,7 @@ end;
 procedure TMainForm.CalcFitHandler(const AX: Double; out AY: Double);
 begin
   if not (IsNaN(FFitCoeffs[0]) or IsNaN(FFitCoeffs[1])) then
-    AY := FFitCoeffs[0] * exp(FFitCoeffs[1] * (AX - BaseDate))
+    AY := FFitCoeffs[0] * exp(FFitCoeffs[1] * (AX - DateOffset))
   else
     AY := NaN;
 end;
@@ -971,6 +1003,8 @@ var
   t2: Double;  // Doubling time
   country, state: String;
   dataSrcClass: TcDataSourceClass;
+  start_date: TDate;
+  predata_phase: Boolean = false;
 begin
   if ANode = nil then
     exit;
@@ -1023,6 +1057,8 @@ begin
         saX := dates[ct].Split(',', '"');
         saY := counts[ct].Split(',','"');
 
+        predata_phase := acDataCommonStart.Checked;
+
         ser := GetSeries(ANode, ct, dt);
         ser.ListSource.BeginUpdate;
         try
@@ -1032,17 +1068,39 @@ begin
               begin
                 for i := 4 to High(saY) do
                 begin
+                  X := StrToDate(saX[i], fs);
                   Y := StrToInt(saY[i]);
+                  if predata_phase then
+                  begin
+                    if Y < START_COUNT then
+                      Continue;
+                    predata_phase := false;
+                    start_date := X;
+                  end;
                   if Y = 0 then Y := 0.1;
-                  ser.AddXY(StrToDate(saX[i], fs), Y);
+                  if acDataCommonStart.Checked then
+                    X := X - start_date;
+                  ser.AddXY(X, Y);
                 end;
               end;
             dtNewCases:
               begin
                 Y0 := StrToInt(saY[4]);
                 for i := 5 to High(saY) do begin
+                  X := StrToDate(saX[i], fs);
                   Y := StrToInt(saY[i]);
-                  ser.AddXY(StrToDate(saX[i], fs), Y - Y0);
+                  if predata_phase then
+                  begin
+                    if Y < START_COUNT then begin
+                      Y0 := Y;
+                      Continue;
+                    end;
+                    predata_phase := false;
+                    start_date := X;
+                  end;
+                  if acDataCommonStart.Checked then
+                    X := X - start_date;
+                  ser.AddXY(X, Y - Y0);
                   Y0 := Y;
                 end;
               end;
@@ -1052,13 +1110,25 @@ begin
                 Y := StrToInt(saY[5]);
                 for i := 6 to High(saY) do
                 begin
+                  X := StrToDate(saX[i], fs);
                   Y := StrToInt(saY[i]);
-                  if (Y > Y0) and (Y0 > 0) then
+                  if predata_phase then
                   begin
-                    t2 := ln(2.0) / ln(Y / Y0);
-                    ser.AddXY(StrToDate(saX[i], fs), t2);
-                  end else
-                    ser.AddXY(StrToDate(saX[i], fs), NaN);
+                    if Y < START_COUNT then
+                    begin
+                      Y0 := Y;
+                      Continue;
+                    end;
+                    predata_phase := false;
+                    start_date := X;
+                  end;
+                  if acDataCommonStart.Checked then
+                    X := X - start_date;
+                  if (Y > Y0) and (Y0 > 0) then
+                    t2 := ln(2.0) / ln(Y / Y0)
+                  else
+                    t2 := NaN;
+                  ser.AddXY(X, t2);
                   Y0 := Y;
                 end;
               end;
@@ -1067,7 +1137,13 @@ begin
                 Y0 := StrToInt(saY[4]);
                 for i := 5 to High(saY) do begin
                   X := StrToInt(saY[i]);
-                  Y := StrToInt(saY[i]);
+                  Y := X;
+                  if predata_phase then
+                  begin
+                    if Y < START_COUNT then
+                      Continue;
+                    predata_phase := false;
+                  end;
                   if (Y > Y0) and (Y0 > 0) then
                     ser.AddXY(X, Y - Y0, saX[i]);
                   Y0 := Y;
@@ -1135,13 +1211,23 @@ begin
       Marks.Source := nil;
       Marks.Format := '%0:.0n';
       Marks.Style := smsValue;
+      Title.Caption := 'Date';
     end else
     if IsTimeSeries() then
     begin
       Transformations := nil;
-      Marks.Source := DateTimeIntervalChartSource;
-      Marks.Style := smsLabel;
-      // no need to reset Intervals because they are handled by DateTimeInterval source on time series.
+      if acDataCommonStart.Checked then
+      begin
+        Marks.Source := nil;
+        Marks.Style := smsValue;
+        Title.Caption := 'Days since ' + IntToStr(START_COUNT) + ' confirmed cases';
+      end else
+      begin
+        Marks.Source := DateTimeIntervalChartSource;
+        Marks.Style := smsLabel;
+        Title.Caption := 'Date';
+        // no need to reset Intervals here because they are handled by DateTimeInterval source on time series.
+      end;
     end else
     begin
       Transformations := nil;
