@@ -1192,7 +1192,12 @@ begin
   end;
 
   {$IFDEF RKI}
-  // Robert-Koch goes here...
+  with TRobertKochDatasource.Create(DataDir) do
+  try
+    ClearCache;
+  finally
+    Free;
+  end;
   {$ENDIF}
 
   LoadLocations;

@@ -16,6 +16,7 @@ type
     procedure ExtractData(AStream: TStream; out AHeader, AConfirmed, ADeaths: String);
   protected
   public
+    procedure ClearCache;
     procedure DownloadToCache; override;
     function GetDataString(const ACountry, AState: String; ACaseType: TCaseType;
       out AHeader, ACounts: String): Boolean; override;
@@ -370,11 +371,17 @@ begin
   Result := StringReplace(Result, '''', '%27', [rfReplaceall]);
 end;
 
-procedure TRobertKochDataSource.DownloadToCache;
+procedure TRobertKochDataSource.ClearCache;
 begin
   // Delete the cache files. Cache will be rebuilt when querying data.
   DeleteFile(FCacheDir + FILENAME_CONFIRMED);
   DeleteFile(FCacheDir + FILENAME_DEATHS);
+end;
+
+procedure TRobertKochDataSource.DownloadToCache;
+begin
+  // Delete the cache files. Cache will be rebuilt when querying data.
+  ClearCache;
 end;
 
 procedure TRobertKochDataSource.ExtractData(AStream: TStream;
