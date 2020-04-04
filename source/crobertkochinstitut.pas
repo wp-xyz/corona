@@ -308,34 +308,39 @@ const
 
     DATE_MASK = 'yyyy-mm-dd hh:nn:ss';
 
-    DATA_URL_MASK = 'https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/Covid19_RKI_Sums/FeatureServer/0/query'+
+    BASE_URL = 'https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/Covid19_RKI_Sums/FeatureServer/0/query';
+
+    // Landkreis-Abfrage
+    LK_URL_MASK =
       '?f=json'+
       '&where='+
-          '(Meldedatum > timestamp ''%s'') AND ' +   // Start date formatted as YYYY-MM-DD HH:NN:SS     2020-03-01 22:59:59
-          '(Meldedatum < timestamp ''%s'') AND ' +   // End date formatted as YYYY-MM-DD HH:NN:SS       2020-03-27 23:00:00:
-          '(%s)'+                                    // IdLandkreis=''%s'' with Landkreis ID, 5 digits, leading zero; or IdBundesland=''%s'' with Bundesland ID
+          '(Meldedatum >= timestamp ''%s'') AND ' +    // Start date formatted as YYYY-MM-DD HH:NN:SS     2020-03-01 22:59:59
+          '(Meldedatum < timestamp ''%s'') AND ' +     // End date formatted as YYYY-MM-DD HH:NN:SS       2020-03-27 23:00:00:
+          '(IdLandkreis = ''%s'')'+            // IdLandkreis=''%s'' with Landkreis ID, 5 digits, leading zero; or IdBundesland=''%s'' with Bundesland ID
       '&returnGeometry=false'+
       '&spatialRel=esriSpatialRelIntersects'+
-  //    '&outFields=ObjectId,SummeFall,SummeTodesFall,Meldedatum'+
       '&outFields=SummeFall,SummeTodesFall,Meldedatum'+
       '&orderByFields=Meldedatum asc'+
       '&resultOffset=0'+
       '&resultRecordCount=2000'+
       '&cacheHint=true';
 
-    DATA_URL_MASK2 = 'https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/Covid19_RKI_Sums/FeatureServer/0/query'+
+    // Bundesland-Abfrage
+    BL_URL_MASK =
       '?f=json'+
       '&where='+
-        '(Meldedatum>timestamp ''2020-03-01 22:59:59'' AND '+
-        '(Meldedatum<timestamp ''2020-04-01 22:00:00'' OR Meldedatum > timestamp ''2020-04-02 21:A59:59'')) AND '+
-        '(Bundesland=''Bayern'')'+
+        '(Meldedatum >= timestamp ''%s'') AND ' +
+        '(Meldedatum < timestamp  ''%s'') AND ' +
+        '(IdBundesland = ''%s'')' +
+      '&outFields=SummeFall,SummeTodesfall,Meldedatum'+
       '&returnGeometry=false'+
       '&spatialRel=esriSpatialRelIntersects'+
-      '&outFields=ObjectId,SummeFall,Meldedatum'+
       '&orderByFields=Meldedatum asc'+
-      '&resultOffset=2000'+
-      '&resultRecordCount=2000'+
-      '&cacheHint=true';
+      '&groupByFieldsForStatistics=Meldedatum'+
+      '&outStatistics=['+
+        '{"statisticType":"sum","onStatisticField":"SummeFall","outStatisticFieldName":"SummeFall"},'+
+        '{"statisticType":"sum","onStatisticField":"SummeTodesfall","outStatisticFieldName":"SummeTodesfall"}'+
+      ']';
 
 {------------------------------------------------------------------------------}
 {                         TRobertKochDatasource                                }
@@ -346,29 +351,40 @@ var
   startDate: TDate;
   endDate: TDate;
   url: String;
-  idWhere: String;
+  i: Integer;
 begin
   startDate := EncodeDate(2020, 3, 1);
   endDate := trunc(Now);
 
   // Bundesland
-  if Length(ID) <= 2 then begin
-    Result := '';  // not yet supported
-    exit;
-  end else
-  begin
-    idWhere := Format('IdLandkreis=''%s''', [ID]);
-    Result := Format(DATA_URL_MASK, [
+  if Length(ID) <= 2 then
+    url := Format(BL_URL_MASK, [
       FormatDateTime(DATE_MASK, startDate),
       FormatDateTime(DATE_MASK, endDate),
-      idWhere
+      ID
+    ])
+  else
+    url := Format(LK_URL_MASK, [
+      FormatDateTime(DATE_MASK, startDate),
+      FormatDateTime(DATE_MASK, endDate),
+      ID
     ]);
-  end;
 
-  Result := StringReplace(Result, ' ', '%20', [rfReplaceAll]);
-  Result := StringReplace(Result, '>', '%3E', [rfReplaceAll]);
-  Result := StringReplace(Result, '<', '%3C', [rfReplaceall]);
-  Result := StringReplace(Result, '''', '%27', [rfReplaceall]);
+  Result := BASE_URL;
+  for i := 1 to Length(url) do
+    case url[i] of
+      ' ' : Result := Result + '%20';
+      '"' : Result := Result + '%22';
+      '''': Result := Result + '%27';
+      ':' : Result := Result + '%3A';
+      '<' : Result := Result + '%3C';
+      '>' : Result := Result + '%3E';
+      '[' : Result := Result + '%5B';
+      ']' : Result := Result + '%5D';
+      '{' : Result := Result + '%7B';
+      '}' : Result := Result + '%7D';
+      else  Result := Result + url[i];
+    end;
 end;
 
 procedure TRobertKochDataSource.ClearCache;
@@ -470,12 +486,15 @@ begin
     // Dataset does not yet exist --> Read from RKI server and add to cache
     stream := TMemoryStream.Create;
     try
-      if AState = '' then
-        exit;  // to do: support Bundesland query
-      url := BuildURL(AState);
+      if AState <> '' then
+        url := BuildURL(AState)        // Landkreis
+      else
+        url := BuildURL(ACountry);     // Bundesland
       Result := DownloadFile(url, stream);
       if Result then
       begin
+        TMemoryStream(stream).SaveToFile('test.txt');
+
         ExtractData(stream, AHeader, sConfirmed, sDeaths);
         AHeader := 'state,country,lat,long' + AHeader;
         sConfirmed := AState + ',' + ACountry + ',0,0' + sConfirmed;

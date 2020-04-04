@@ -138,7 +138,6 @@ type
     procedure Clear(UnselectTree: Boolean = true);
     procedure CreateMeasurementSeries;
     function GetCellText(ACol, ARow: Integer): String;
-//    function GetDataString(ANode: TTreeNode; ACaseType: TCaseType; var AHeader, ACounts: String): Boolean;
     function GetLocation(ANode: TTreeNode): String;
     procedure GetLocation(ANode: TTreeNode; out ACountry, AState: String);
     function GetSeries(ANode: TTreeNode; ACaseType: TCaseType; ADataType: TDataType): TChartSeries;
@@ -584,55 +583,7 @@ begin
     end;
   end;
 end;
-  (*
-function TMainForm.GetDataString(ANode: TTreeNode; ACaseType: TCaseType;
-  var AHeader, ACounts: String): Boolean;
-var
-  L: TStrings;
-  country, state: String;
-  fn: String;
-  i: integer;
-  sa: TStringArray;
-begin
-  Result := false;
 
-  case ACaseType of
-    ctConfirmed : fn := DataDir + FILENAME_CONFIRMED;
-    ctDeaths    : fn := DataDir + FILENAME_DEATHS;
-    ctRecovered : fn := DataDir + FILENAME_RECOVERED;
-  end;
-  if not FileExists(fn) then
-  begin
-    MessageDlg(Format('Data file "%s" not found. Please press "Update files".', [fn]), mtError, [mbOK], 0);
-    exit;
-  end;
-
-  GetLocation(ANode, country, state);
-
-  L := TStringList.Create;
-  try
-    L.LoadFromFile(fn);
-    AHeader := L[0];
-    for i:=1 to L.Count-1 do begin
-      if L[i] = '' then
-        Continue;
-      if BeginsWithQuote(L[i]) then
-        Continue;
-      sa := L[i].Split(',', '"');
-      if sa[0] <> '' then sa[0] := AnsiDequotedStr(sa[0], '"');
-      if sa[1] <> '' then sa[1] := AnsiDequotedStr(sa[1], '"');
-      if (sa[1] = country) and (sa[0] = state) then
-      begin
-        ACounts := L[i];
-        Result := true;
-        exit;
-      end;
-    end;
-  finally
-    L.Free;
-  end;
-end;
-    *)
 procedure TMainForm.GetLocation(ANode: TTreeNode; out ACountry, AState: String);
 begin
   if ANode.Parent = nil then begin
