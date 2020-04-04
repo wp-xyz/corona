@@ -936,8 +936,6 @@ begin
 end;
 
 procedure TMainForm.ShowData(ANode: TTreeNode);
-const
-  RKI_CAPTION = 'Germany (RKI)';
 var
   fs: TFormatSettings;
   counts: array[TCaseType] of string = ('', '', '');

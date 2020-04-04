@@ -8,6 +8,9 @@ uses
   Classes, SysUtils, ComCtrls,
   cGlobal, cDataSource;
 
+const
+  RKI_CAPTION = 'Germany (RKI)';
+
 type
   TRobertKochDatasource = class(TcDataSource)
   private
@@ -342,6 +345,23 @@ const
         '{"statisticType":"sum","onStatisticField":"SummeTodesfall","outStatisticFieldName":"SummeTodesfall"}'+
       ']';
 
+    // Deutschland (RKI)-Abfrage
+    DE_URL_MASK =
+      '?f=json'+
+      '&where='+
+        '(Meldedatum >= timestamp ''%s'') AND ' +
+        '(Meldedatum < timestamp  ''%s'')' +
+      '&outFields=SummeFall,SummeTodesfall,Meldedatum'+
+      '&returnGeometry=false'+
+      '&spatialRel=esriSpatialRelIntersects'+
+      '&orderByFields=Meldedatum asc'+
+      '&groupByFieldsForStatistics=Meldedatum'+
+      '&outStatistics=['+
+        '{"statisticType":"sum","onStatisticField":"SummeFall","outStatisticFieldName":"SummeFall"},'+
+        '{"statisticType":"sum","onStatisticField":"SummeTodesfall","outStatisticFieldName":"SummeTodesfall"}'+
+      ']';
+
+
 {------------------------------------------------------------------------------}
 {                         TRobertKochDatasource                                }
 {------------------------------------------------------------------------------}
@@ -356,14 +376,22 @@ begin
   startDate := EncodeDate(2020, 3, 1);
   endDate := trunc(Now);
 
-  // Bundesland
+  if (ID = '') then
+    // Total for Germany
+    url := Format(DE_URL_MASK, [
+    FormatDateTime(DATE_MASK, startDate),
+    FormatDateTime(DATE_MASK, endDate)
+  ])
+  else
   if Length(ID) <= 2 then
+    // Federal state (Bundesland)
     url := Format(BL_URL_MASK, [
       FormatDateTime(DATE_MASK, startDate),
       FormatDateTime(DATE_MASK, endDate),
       ID
     ])
   else
+    // County (Landkreis)
     url := Format(LK_URL_MASK, [
       FormatDateTime(DATE_MASK, startDate),
       FormatDateTime(DATE_MASK, endDate),
@@ -486,6 +514,9 @@ begin
     // Dataset does not yet exist --> Read from RKI server and add to cache
     stream := TMemoryStream.Create;
     try
+      if (ACountry = RKI_CAPTION) then
+        url := BuildURL('')             // Total
+      else
       if AState <> '' then
         url := BuildURL(AState)        // Landkreis
       else
