@@ -512,6 +512,7 @@ end;
 procedure TMainForm.FormCreate(Sender: TObject);
 begin
   DataDir := Application.Location + DATA_DIR;  // DATA_DIR ends with a path delimiter
+  DateOffset := BaseDate;
 
   WheelZoomTool.ZoomFactor := 1.05;
   WheelZoomTool.ZoomRatio := 1.0 / WheelZoomTool.ZoomFactor;
