@@ -1348,6 +1348,7 @@ begin
   else
     Statusbar.SimpleText := '';
   Statusbar.Update;
+  Application.ProcessMessages;
 end;
 
 function CreateIni: TCustomIniFile;
