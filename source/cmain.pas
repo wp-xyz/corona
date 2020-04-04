@@ -513,9 +513,6 @@ procedure TMainForm.FormCreate(Sender: TObject);
 begin
   DataDir := Application.Location + DATA_DIR;  // DATA_DIR ends with a path delimiter
 
-  //LeftPanel.Constraints.MinWidth := LeftPanel.Width;
-  //LeftPanel.AutoSize := false;
-
   WheelZoomTool.ZoomFactor := 1.05;
   WheelZoomTool.ZoomRatio := 1.0 / WheelZoomTool.ZoomFactor;
 
@@ -526,12 +523,11 @@ begin
 
   cgCases.Checked[0] := true;
   Grid.RowHeights[0] := 3 * Grid.Canvas.TextHeight('Tg') + 2* varCellPadding;
+
   PageControl.ActivePageIndex := 0;
 
   CreateMeasurementSeries;
   InitShortCuts;
-
-//  LoadIni;
 
   LoadLocations;
 end;
