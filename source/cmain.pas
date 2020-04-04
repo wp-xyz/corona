@@ -134,7 +134,7 @@ type
     FFitCoeffs: array[0..1] of Double;
     FStatusText1, FStatusText2: String;
     function CalcFit(ASeries: TBasicChartSeries; xmin, xmax: Double): Boolean;
-    procedure CalcFitHandler(const AX: Double; out AY: Double);
+    procedure CalcFitCurveHandler(const AX: Double; out AY: Double);
     procedure Clear(UnselectTree: Boolean = true);
     procedure CreateMeasurementSeries;
     function GetCellText(ACol, ARow: Integer): String;
@@ -390,7 +390,7 @@ begin
   Result := true;
 end;
 
-procedure TMainForm.CalcFitHandler(const AX: Double; out AY: Double);
+procedure TMainForm.CalcFitCurveHandler(const AX: Double; out AY: Double);
 begin
   if not (IsNaN(FFitCoeffs[0]) or IsNaN(FFitCoeffs[1])) then
     AY := FFitCoeffs[0] * exp(FFitCoeffs[1] * (AX - DateOffset))
@@ -494,7 +494,7 @@ procedure TMainForm.CreateMeasurementSeries;
 begin
   FMeasurementSeries := TFuncSeries.Create(Chart);
   FMeasurementSeries.Active := false;
-  FMeasurementSeries.OnCalculate := @CalcFitHandler;
+  FMeasurementSeries.OnCalculate := @CalcFitCurveHandler;
   FMeasurementSeries.Legend.Visible := false;
   FMeasurementSeries.AxisIndexX := 1;
   FMeasurementseries.AxisIndexY := 0;
