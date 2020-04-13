@@ -844,10 +844,12 @@ begin
       FFitCoeffs[0] := exp(FFitCoeffs[0]);
       FMeasurementSeries.Active := false;
       ser := TChartSeries(ASender.PointStart.Series);
-      s := Format('Doubles every %.1f days --> %.0n cases in 1 week --> %.0n cases in 2 weeks', [
+      s := Format('Daily growth: %.0f %% / Doubles every %.1f days --> %.0n cases in 1 week --> %.0n cases in 2 weeks / Reproduction number R0: %.1f', [
+        (exp(FFitCoeffs[1]) - 1)*100,
         -ln(0.5) / FFitCoeffs[1],
         exp(FFitCoeffs[1] * 7) * ser.YValue[ser.Count-1],
-        exp(FFitCoeffs[1] * 14) * ser.YValue[ser.Count-1]
+        exp(FFitCoeffs[1] * 14) * ser.YValue[ser.Count-1],
+        FFitCoeffs[1] * INFECTIOUS_PERIOD + 1
       ]);
       ok := true;
     end;
