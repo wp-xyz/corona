@@ -3334,7 +3334,7 @@ object MainForm: TMainForm
       AnchorSideTop.Control = LeftPanel
       AnchorSideBottom.Side = asrBottom
       Left = 0
-      Height = 93
+      Height = 114
       Top = 0
       Width = 105
       AutoFill = True
@@ -3349,17 +3349,18 @@ object MainForm: TMainForm
       ChildSizing.ShrinkVertical = crsScaleChilds
       ChildSizing.Layout = cclLeftToRightThenTopToBottom
       ChildSizing.ControlsPerLine = 1
-      ClientHeight = 73
+      ClientHeight = 94
       ClientWidth = 101
       Items.Strings = (
         'Confirmed'
         'Deaths'
         'Recovered'
+        'Sick'
       )
       OnItemClick = cgCasesItemClick
       TabOrder = 0
       Data = {
-        03000000020202
+        0400000002020202
       }
     end
     object TreeView: TTreeView

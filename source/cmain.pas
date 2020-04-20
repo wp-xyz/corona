@@ -178,8 +178,6 @@ uses
   cAbout;
 
 const
-  CASETYPE_NAMES: array [TCaseType] of string = ('confirmed', 'deaths', 'recovered');
-
   // DATA_DIR must end with path delimiter!
   {$IFDEF DARWIN}
   DATA_DIR = '../../../data/';
@@ -203,7 +201,6 @@ var
   // DateOffset is the correct offset to be used in any case
   BaseDate: TDate;
   DateOffset: TDate;
-
 
   // DataDir is the directory in which the downloaded csv files are found.
   DataDir: String;
@@ -345,6 +342,7 @@ begin
 
   if not (ASeries is TChartSeries) then
     exit;
+
   ser := TChartSeries(ASeries);
   if ser.Count = 0 then
     exit;
@@ -614,6 +612,7 @@ var
   serTitle: String;
   ser: TChartSeries;
   ct: TCaseType;
+  clr: TColor;
 begin
   serTitle := Format('%s (%s)', [GetLocation(ANode), CASETYPE_NAMES[ACaseType]]);
 
@@ -628,6 +627,8 @@ begin
       end;
     end;
 
+  clr := COLORS[((Chart.SeriesCount - 1) div (ord(High(TCaseType))+1)) mod Length(COLORS)];
+
   // The node does not yet have associated series. Create 3 series for
   // the cases "confirmed", "deaths" and "recovered". Return the one for
   // ADatatype and hide the others.
@@ -641,8 +642,8 @@ begin
           with TLineSeries(ser) do
           begin
             ShowPoints := true;
-            LinePen.Color := COLORS[((Chart.SeriesCount - 1) div 3) mod Length(COLORS)];
-            Pointer.Pen.Color := LinePen.Color;
+            LinePen.Color := clr;
+            Pointer.Pen.Color := clr;
             case ct of
               ctConfirmed:
                 begin
@@ -658,6 +659,11 @@ begin
                   Pointer.Style := psRectangle;
                   Pointer.Brush.Color := clWhite;
                 end;
+              ctSick:
+                begin
+                  Pointer.Style := psTriangle;
+                  Pointer.Brush.Color := LinePen.Color;
+                end;
             end;
           end;
         end;
@@ -667,13 +673,14 @@ begin
           ser := TBarSeries.Create(Chart);
           with TBarSeries(ser) do
           begin
-            BarBrush.Color := COLORS[((Chart.SeriesCount-1) div 3) mod Length(COLORS)];
+            BarBrush.Color := clr;
             BarBrush.Style := bsSolid;
             BarPen.Color := BarBrush.Color;
             case ct of
               ctConfirmed : BarBrush.Style := bsSolid;
               ctDeaths    : BarBrush.Color := clWhite;
               ctRecovered : BarBrush.Style := bsDiagCross;
+              ctSick      : BarBrush.Style := bsHorizontal;
             end;
           end;
         end;
@@ -888,7 +895,7 @@ begin
       dtCumulative:
         begin
           Chart.LeftAxis.Title.Caption := 'Cases';
-          lblTableHdr.Caption := 'Cumulative Cases';
+          lblTableHdr.Caption := 'Cases'; //'Cumulative Cases';
           lblTableHint.Caption := '';
           UpdateAxes(false, acChartLogarithmic.Checked);
           MeasurementTool.Enabled := true;
@@ -940,8 +947,8 @@ end;
 procedure TMainForm.ShowData(ANode: TTreeNode);
 var
   fs: TFormatSettings;
-  counts: array[TCaseType] of string = ('', '', '');
-  dates: array[TCaseType] of string = ('', '', '');
+  counts: array[TCaseType] of string = ('', '', '', '');
+  dates: array[TCaseType] of string = ('', '', '', '');
   dt: TDataType;
   ct: TCaseType;
   saX, saY: TStringArray;
@@ -1139,8 +1146,13 @@ var
 begin
   s := '';
   for i := 0 to Chart.SeriesCount-1 do
+  begin
+    // Avoid fitting to sick cases.
+    if i mod (ord(High(TCaseType))+1) = 0 then
+      Continue;
     if (Chart.Series[i] is TChartSeries) and Chart.Series[i].Active then
       s := s + ',' + IntToStr(Chart.Series[i].Index);
+  end;
   Delete(s, 1, 1);
   CrossHairTool.AffectedSeries := s;
   MeasurementTool.AffectedSeries := s;
@@ -1345,6 +1357,7 @@ begin
     cgCases.Checked[0] := ini.Readbool('MainForm', 'ConfirmedCases', cgCases.Checked[0]);
     cgCases.Checked[1] := ini.ReadBool('MainForm', 'DeathCases', cgCases.Checked[1]);
     cgCases.Checked[2] := ini.ReadBool('MainForm', 'RecoveredCases', cgCases.Checked[2]);
+    cgCases.Checked[3] := ini.ReadBool('MainForm', 'SickCases', cgCases.Checked[3]);
 
     acChartOverlay.Checked := ini.ReadBool('MainForm', 'Overlay', acChartOverlay.Checked);
 
@@ -1402,6 +1415,7 @@ begin
     ini.WriteBool('MainForm', 'ConfirmedCases', cgCases.Checked[0]);
     ini.WriteBool('MainForm', 'DeathCases', cgCases.Checked[1]);
     ini.WriteBool('MainForm', 'RecoveredCases', cgCases.Checked[2]);
+    ini.WriteBool('MainForm', 'SickCases', cgCases.Checked[3]);
     ini.WriteInteger('MainForm', 'DataType', rgDataType.ItemIndex);
 
     ini.WriteBool('MainForm', 'Overlay', acChartOverlay.Checked);

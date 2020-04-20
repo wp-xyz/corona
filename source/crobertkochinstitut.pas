@@ -491,6 +491,7 @@ begin
     ctConfirmed: fn := FCacheDir + FILENAME_CONFIRMED;
     ctDeaths: fn := FCacheDir + FILENAME_DEATHS;
     ctRecovered: exit;
+    ctSick: exit;
   end;
 
   L := TStringList.Create;

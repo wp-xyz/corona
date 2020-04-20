@@ -10,6 +10,10 @@ uses
 
 type
   TJohnsHopkinsDataSource = class(TcDataSource)
+  private
+    function GetDataString_Sick(const ACountry, AState: String;
+      out AHeader, ACounts: String): Boolean;
+
   public
     procedure DownloadToCache; override;
     function GetDataString(const ACountry, AState: String; ACaseType: TCaseType;
@@ -95,6 +99,12 @@ var
   i: integer;
   sa: TStringArray;
 begin
+  if ACaseType = ctSick then
+  begin
+    Result := GetDataString_Sick(ACountry, AState, AHeader, ACounts);
+    exit;
+  end;
+
   Result := false;
 
   case ACaseType of
@@ -129,6 +139,33 @@ begin
     end;
   finally
     L.Free;
+  end;
+end;
+
+function TJohnsHopkinsDataSource.GetDataString_Sick(const ACountry, AState: String;
+  out AHeader, ACounts: String): Boolean;
+var
+  sConfirmed, sDeaths, sRecovered: String;
+  saConfirmed, saDeaths, saRecovered: TStringArray;
+  nConfirmed, nDeaths, nRecovered, nSick: Integer;
+  i: Integer;
+begin
+  Result := GetDataString(ACountry, AState, ctConfirmed, AHeader, sConfirmed) and
+            GetDataString(ACountry, AState, ctDeaths, AHeader, sDeaths) and
+            GetDataString(ACountry, AState, ctRecovered, AHeader, sRecovered);
+  if Result then
+  begin
+    saConfirmed := sConfirmed.Split(',', '"');
+    saDeaths := sDeaths.Split(',', '"');
+    saRecovered := sRecovered.Split(',', '"');
+    ACounts := saConfirmed[0] + ',' + saConfirmed[1] + ',' + saConfirmed[2] + ',' + saConfirmed[3];
+    for i := 4 to High(saConfirmed) do begin
+      nConfirmed := StrToInt(saConfirmed[i]);
+      nDeaths := StrToInt(saDeaths[i]);
+      nRecovered := StrToint(saRecovered[i]);
+      nSick := nConfirmed - nDeaths - nRecovered;
+      ACounts := ACounts + ',' + IntToStr(nSick);
+    end;
   end;
 end;
 
