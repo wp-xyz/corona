@@ -3365,16 +3365,16 @@ object MainForm: TMainForm
     end
     object TreeView: TTreeView
       AnchorSideLeft.Control = LeftPanel
-      AnchorSideTop.Control = rgDataType
+      AnchorSideTop.Control = cbMovingAverage
       AnchorSideTop.Side = asrBottom
       AnchorSideRight.Control = LeftPanel
       AnchorSideRight.Side = asrBottom
       AnchorSideBottom.Control = LeftPanel
       AnchorSideBottom.Side = asrBottom
       Left = 0
-      Height = 377
+      Height = 352
       Hint = 'Click on the country to display'
-      Top = 122
+      Top = 147
       Width = 260
       Anchors = [akTop, akLeft, akRight, akBottom]
       BorderSpacing.Top = 8
@@ -3415,6 +3415,20 @@ object MainForm: TMainForm
       )
       OnClick = rgDataTypeClick
       TabOrder = 1
+    end
+    object cbMovingAverage: TCheckBox
+      AnchorSideLeft.Control = LeftPanel
+      AnchorSideLeft.Side = asrCenter
+      AnchorSideTop.Control = cgCases
+      AnchorSideTop.Side = asrBottom
+      Left = 78
+      Height = 19
+      Top = 120
+      Width = 105
+      Action = acDataMovingAverage
+      BorderSpacing.Left = 8
+      BorderSpacing.Top = 6
+      TabOrder = 3
     end
   end
   object PageControl: TPageControl
@@ -4032,7 +4046,7 @@ object MainForm: TMainForm
   end
   object MainMenu: TMainMenu
     Images = ImageList
-    left = 577
+    left = 576
     top = 66
     object mnuFile: TMenuItem
       Caption = 'File'
@@ -4042,17 +4056,21 @@ object MainForm: TMainForm
     end
     object mnuData: TMenuItem
       Caption = 'Data'
-      object MenuItem2: TMenuItem
+      object mnuDataUpdate: TMenuItem
         Action = acDataUpdate
       end
-      object MenuItem3: TMenuItem
+      object mnuDataClear: TMenuItem
         Action = acDataClear
       end
       object MenuItem10: TMenuItem
         Caption = '-'
       end
-      object MenuItem11: TMenuItem
+      object mnuCommonStart: TMenuItem
         Action = acDataCommonStart
+        AutoCheck = True
+      end
+      object mnuMovingAverage: TMenuItem
+        Action = acDataMovingAverage
         AutoCheck = True
       end
     end
@@ -4197,6 +4215,12 @@ object MainForm: TMainForm
       AutoCheck = True
       Caption = 'Common start'
       OnExecute = acDataCommonStartExecute
+    end
+    object acDataMovingAverage: TAction
+      Category = 'Data'
+      AutoCheck = True
+      Caption = 'Moving average'
+      OnExecute = acDataMovingAverageExecute
     end
   end
   object BottomAxisTransformations: TChartAxisTransformations

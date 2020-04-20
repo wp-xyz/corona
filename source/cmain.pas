@@ -29,17 +29,20 @@ type
     acChartCopyToClipboard: TAction;
     acChartOverlay: TAction;
     acDataCommonStart: TAction;
+    acDataMovingAverage: TAction;
     ActionList: TActionList;
     Chart: TChart;
     BottomAxisTransformations: TChartAxisTransformations;
     BottomAxisLogTransform: TLogarithmAxisTransform;
     ChartToolset: TChartToolset;
     acFileExit: TFileExit;
+    cbMovingAverage: TCheckBox;
     lblTableHint: TLabel;
     MainMenu: TMainMenu;
     MenuItem1: TMenuItem;
     MenuItem10: TMenuItem;
-    MenuItem11: TMenuItem;
+    mnuCommonStart: TMenuItem;
+    mnuMovingAverage: TMenuItem;
     MenuItem4: TMenuItem;
     MenuItem5: TMenuItem;
     MenuItem6: TMenuItem;
@@ -47,8 +50,8 @@ type
     MenuItem8: TMenuItem;
     MenuItem9: TMenuItem;
     mnuTable: TMenuItem;
-    MenuItem2: TMenuItem;
-    MenuItem3: TMenuItem;
+    mnuDataUpdate: TMenuItem;
+    mnuDataClear: TMenuItem;
     mnuData: TMenuItem;
     mnuHelpAbout: TMenuItem;
     mnuHelp: TMenuItem;
@@ -106,6 +109,7 @@ type
     procedure acConfigHintExecute(Sender: TObject);
     procedure acDataClearExecute(Sender: TObject);
     procedure acDataCommonStartExecute(Sender: TObject);
+    procedure acDataMovingAverageExecute(Sender: TObject);
     procedure acDataUpdateExecute(Sender: TObject);
     procedure acTableSaveExecute(Sender: TObject);
     procedure cgCasesItemClick(Sender: TObject; Index: integer);
@@ -175,7 +179,7 @@ uses
   TATypes, TAMath, TAChartUtils, TACustomSource, TAFitLib,
   // project-specific units
   cDataSource, cJohnsHopkinsUniversity, {$IFDEF RKI}cRobertKochInstitut,{$ENDIF}
-  cAbout;
+  cSeries, cAbout;
 
 const
   // DATA_DIR must end with path delimiter!
@@ -275,6 +279,19 @@ begin
   for i := 0 to Chart.SeriesCount-1 do
     if Chart.Series[i] is TChartSeries then
       ShowData(TTreeNode(TChartSeries(Chart.Series[i]).Tag));
+end;
+
+procedure TMainForm.acDataMovingAverageExecute(Sender: TObject);
+var
+  i: Integer;
+begin
+  for i:=0 to Chart.SeriesCount-1 do
+    if Chart.Series[i] is TcLineSeries then
+      TcLineSeries(Chart.Series[i]).MovingAverage := acDataMovingAverage.Checked
+    else
+    if Chart.Series[i] is TcBarSeries then
+      TcBarSeries(Chart.Series[i]).MovingAverage := acDataMovingAverage.Checked;
+  UpdateGrid;
 end;
 
 procedure TMainForm.acDataUpdateExecute(Sender: TObject);
@@ -638,8 +655,8 @@ begin
       dtCumulative,
       dtCumVsNewCases:
         begin
-          ser := TLineSeries.Create(Chart);
-          with TLineSeries(ser) do
+          ser := TcLineSeries.Create(Chart);
+          with TcLineSeries(ser) do
           begin
             ShowPoints := true;
             LinePen.Color := clr;
@@ -665,13 +682,14 @@ begin
                   Pointer.Brush.Color := LinePen.Color;
                 end;
             end;
+            MovingAverage := acDataMovingAverage.Checked;
           end;
         end;
       dtNewCases,
       dtDoublingTime:
         begin
-          ser := TBarSeries.Create(Chart);
-          with TBarSeries(ser) do
+          ser := TcBarSeries.Create(Chart);
+          with TcBarSeries(ser) do
           begin
             BarBrush.Color := clr;
             BarBrush.Style := bsSolid;
@@ -682,6 +700,7 @@ begin
               ctRecovered : BarBrush.Style := bsDiagCross;
               ctSick      : BarBrush.Style := bsHorizontal;
             end;
+            MovingAverage := acDataMovingAverage.Checked;
           end;
         end;
     end;  // case
@@ -960,6 +979,7 @@ var
   dataSrcClass: TcDataSourceClass;
   start_date: TDate;
   predata_phase: Boolean = false;
+  src: TCustomChartSource;
 begin
   if ANode = nil then
     exit;
@@ -1015,6 +1035,8 @@ begin
         predata_phase := acDataCommonStart.Checked;
 
         ser := GetSeries(ANode, ct, dt);
+        src := ser.Source;
+        ser.Source := nil;
         ser.ListSource.BeginUpdate;
         try
           ser.Clear;
@@ -1107,6 +1129,7 @@ begin
           end;
         finally
           ser.EndUpdate;
+          ser.Source := src;
         end;
       end else
       begin
@@ -1359,6 +1382,8 @@ begin
     cgCases.Checked[2] := ini.ReadBool('MainForm', 'RecoveredCases', cgCases.Checked[2]);
     cgCases.Checked[3] := ini.ReadBool('MainForm', 'SickCases', cgCases.Checked[3]);
 
+    acDataMovingAverage.Checked := ini.ReadBool('MainForm', 'MovingAverage', acDataMovingAverage.Checked);
+
     acChartOverlay.Checked := ini.ReadBool('MainForm', 'Overlay', acChartOverlay.Checked);
 
     n := ini.ReadInteger('MainForm', 'DataType', rgDataType.ItemIndex);
@@ -1417,6 +1442,8 @@ begin
     ini.WriteBool('MainForm', 'RecoveredCases', cgCases.Checked[2]);
     ini.WriteBool('MainForm', 'SickCases', cgCases.Checked[3]);
     ini.WriteInteger('MainForm', 'DataType', rgDataType.ItemIndex);
+
+    ini.WriteBool('MainForm', 'MovingAverage', acDataMovingAverage.Checked);
 
     ini.WriteBool('MainForm', 'Overlay', acChartOverlay.Checked);
     if TDataType(rgDataType.ItemIndex) = dtCumulative then

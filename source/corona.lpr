@@ -8,7 +8,7 @@ uses
   {$ENDIF}
   Interfaces, // this includes the LCL widgetset
   Forms, tachartlazaruspkg, cmain, cDownloader, cRobertKochInstitut,
-  cDataSource, cJohnsHopkinsUniversity, cGlobal
+  cDataSource, cJohnsHopkinsUniversity, cGlobal, cSeries
   { you can add units after this };
 
 {$R *.res}
