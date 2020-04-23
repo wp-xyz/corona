@@ -30,6 +30,8 @@ type
     acChartOverlay: TAction;
     acDataCommonStart: TAction;
     acDataMovingAverage: TAction;
+    acInfectiousPeriod: TAction;
+    acSmoothingRange: TAction;
     ActionList: TActionList;
     Chart: TChart;
     BottomAxisTransformations: TChartAxisTransformations;
@@ -41,6 +43,9 @@ type
     MainMenu: TMainMenu;
     MenuItem1: TMenuItem;
     MenuItem10: TMenuItem;
+    MenuItem11: TMenuItem;
+    MenuItem2: TMenuItem;
+    MenuItem3: TMenuItem;
     mnuCommonStart: TMenuItem;
     mnuMovingAverage: TMenuItem;
     MenuItem4: TMenuItem;
@@ -111,6 +116,8 @@ type
     procedure acDataCommonStartExecute(Sender: TObject);
     procedure acDataMovingAverageExecute(Sender: TObject);
     procedure acDataUpdateExecute(Sender: TObject);
+    procedure acInfectiousPeriodExecute(Sender: TObject);
+    procedure acSmoothingRangeExecute(Sender: TObject);
     procedure acTableSaveExecute(Sender: TObject);
     procedure cgCasesItemClick(Sender: TObject; Index: integer);
     procedure ChartListboxAddSeries(ASender: TChartListbox;
@@ -284,19 +291,60 @@ end;
 procedure TMainForm.acDataMovingAverageExecute(Sender: TObject);
 var
   i: Integer;
+  isMovingAverage: Boolean;
 begin
+  isMovingAverage := acDataMovingAverage.Checked and (TDataType(rgDataType.ItemIndex) <> dtRValue);
   for i:=0 to Chart.SeriesCount-1 do
     if Chart.Series[i] is TcLineSeries then
-      TcLineSeries(Chart.Series[i]).MovingAverage := acDataMovingAverage.Checked
+      TcLineSeries(Chart.Series[i]).MovingAverage := isMovingAverage
     else
     if Chart.Series[i] is TcBarSeries then
-      TcBarSeries(Chart.Series[i]).MovingAverage := acDataMovingAverage.Checked;
+      TcBarSeries(Chart.Series[i]).MovingAverage := isMovingAverage;
   UpdateGrid;
 end;
 
 procedure TMainForm.acDataUpdateExecute(Sender: TObject);
 begin
   UpdateData;
+end;
+
+procedure TMainForm.acInfectiousPeriodExecute(Sender: TObject);
+var
+  n: Integer;
+  s: String;
+begin
+  s := IntToStr(InfectiousPeriod);
+  if InputQuery('Infectious period', 'Days:', s) then
+  begin
+    if TryStrToInt(s, n) and (n > 0) then
+    begin
+      InfectiousPeriod := n;
+      Clear;  // ok, could recalculate the currently loaded data here...
+    end else
+      MessageDlg('No valid number.', mtError, [mbOk], 0);
+  end;
+end;
+
+procedure TMainForm.acSmoothingRangeExecute(Sender: TObject);
+var
+  n: Integer;
+  s: String;
+begin
+  s := IntToStr(SmoothingRange);
+  if InputQuery('Smoothing range', 'Total days (including center day)', s) then
+  begin
+    if TryStrToInt(s, n) and (n > 0) then
+    begin
+      if odd(n) then
+      begin
+        SmoothingRange := n;
+        RRange := (n - 1) div 2;
+        Clear;  // ok, could recalculate the currently loaded data here...
+      end else
+        MessageDlg('Only odd number of days allowed (i.e. center day is included).', mtError, [mbOk], 0);
+    end else
+      MessageDlg('No valid number.', mtError, [mbOK], 0);
+  end;
 end;
 
 procedure TMainForm.acTableSaveExecute(Sender: TObject);
@@ -482,6 +530,12 @@ begin
           if y = 1 then sy := '1 new case' else sy := Format('%.0n new cases', [y]);
           FStatusText1 := Format('%s - %s, %s', [DateToStr(d), sx, sy]);
         end;
+      dtRValue:
+        begin
+          sx := DateToStr(x);
+          sy := Format('Reproduction number: %.1f', [y]);
+          FStatusText1 := Format('%s, %s', [sx, sy]);
+        end;
     end;
     FStatusText1 := ser.Title + ': ' + FStatusText1;
     ASender.Handled;
@@ -525,6 +579,9 @@ end;
 
 procedure TMainForm.FormCreate(Sender: TObject);
 begin
+  // Narrower input box
+  cInputQueryEditSizePercents := 0;
+
   DataDir := Application.Location + DATA_DIR;  // DATA_DIR ends with a path delimiter
   DateOffset := BaseDate;
 
@@ -592,6 +649,8 @@ begin
               Result := Format('%.0n', [ser.YValue[r]])
             else
               Result := Format('%.0n', [ser.XValue[r]]);
+          dtRValue:
+            Result := Format('%.2f', [ser.YValue[r]]);
           else
             Result := Format('%.0n', [ser.YValue[r]]);
         end;
@@ -653,7 +712,8 @@ begin
   for ct in TCaseType do begin
     case ADataType of
       dtCumulative,
-      dtCumVsNewCases:
+      dtCumVsNewCases,
+      dtRValue:
         begin
           ser := TcLineSeries.Create(Chart);
           with TcLineSeries(ser) do
@@ -682,6 +742,7 @@ begin
                   Pointer.Brush.Color := LinePen.Color;
                 end;
             end;
+            AccumulationRange := SmoothingRange;
             MovingAverage := acDataMovingAverage.Checked;
           end;
         end;
@@ -700,11 +761,15 @@ begin
               ctRecovered : BarBrush.Style := bsDiagCross;
               ctSick      : BarBrush.Style := bsHorizontal;
             end;
+            AccumulationRange := SmoothingRange;
             MovingAverage := acDataMovingAverage.Checked;
           end;
         end;
     end;  // case
-    ser.Title := serTitle + ' (' + CASETYPE_NAMES[ct] + ')';
+    if ADataType = dtRValue then
+      ser.Title := serTitle + ' (R number)'
+    else
+      ser.Title := serTitle + ' (' + CASETYPE_NAMES[ct] + ')';
     ser.AxisIndexX := 1;
     ser.AxisIndexY := 0;
     if ct = ACaseType then
@@ -875,7 +940,7 @@ begin
         -ln(0.5) / FFitCoeffs[1],
         exp(FFitCoeffs[1] * 7) * ser.YValue[ser.Count-1],
         exp(FFitCoeffs[1] * 14) * ser.YValue[ser.Count-1],
-        FFitCoeffs[1] * INFECTIOUS_PERIOD + 1
+        FFitCoeffs[1] * InfectiousPeriod + 1
       ]);
       ok := true;
     end;
@@ -914,26 +979,35 @@ begin
       dtCumulative:
         begin
           Chart.LeftAxis.Title.Caption := 'Cases';
+          Chart.BottomAxis.Title.Caption := 'Date';
           lblTableHdr.Caption := 'Cases'; //'Cumulative Cases';
           lblTableHint.Caption := '';
           UpdateAxes(false, acChartLogarithmic.Checked);
           MeasurementTool.Enabled := true;
+          acDataMovingAverage.enabled := true;
+          cgCases.Enabled := true;
         end;
       dtNewCases:
         begin
           Chart.LeftAxis.Title.Caption := 'New Cases';
+          Chart.BottomAxis.Title.Caption := 'Date';
           lblTableHdr.Caption := 'New Cases';
           lblTableHint.Caption := '';
           UpdateAxes(false, false);
           MeasurementTool.Enabled := false;
+          acDataMovingAverage.enabled := true;
+          cgCases.Enabled := true;
         end;
       dtDoublingTime:
         begin
           Chart.LeftAxis.Title.Caption := 'Doubling time (days)';
+          Chart.BottomAxis.Title.Caption := 'Date';
           lblTableHdr.Caption := 'Doubling time (days, calculated from case-ratio of two consecutive days)';
-          lblTableHint.Caption := 'Note: Strictly speaking, this value required exponential growth which is no longer true in many countries.';
+          lblTableHint.Caption := 'Note: Strictly speaking, this value requires exponential growth which is valid only in the initial phase of the outbreak.';
           UpdateAxes(false, false);
           MeasurementTool.Enabled := false;
+          acDataMovingAverage.enabled := true;
+          cgCases.Enabled := true;
         end;
       dtCumVsNewCases:
         begin
@@ -943,10 +1017,25 @@ begin
           Chart.BottomAxis.title.Caption := 'Cumulative cases';
           UpdateAxes(true, true);
           MeasurementTool.Enabled := false;
+          acDataMovingAverage.enabled := true;
+          cgCases.Enabled := true;
+        end;
+      dtRValue:
+        begin
+          Chart.LeftAxis.Title.Caption := 'Reproduction number';
+          Chart.BottomAxis.Title.Caption := 'Date';
+          lblTableHdr.Caption := 'Reproduction number';
+          lblTableHint.Caption := 'Calculated as ratio of new case count at a date and ' + IntToStr(InfectiousPeriod) + ' days earlier.';
+          UpdateAxes(false, false);
+          MeasurementTool.Enabled := false;
+          acDataMovingAverage.Enabled := false;
+          cgCases.Enabled := false;
         end;
       else
         raise Exception.Create('Data type unsupported.');
     end;
+
+    acDataMovingAverageExecute(nil);
 
     for i := 0 to L.Count-1 do
       ShowData(TTreeNode(L[i]));
@@ -971,7 +1060,7 @@ var
   dt: TDataType;
   ct: TCaseType;
   saX, saY: TStringArray;
-  i: Integer;
+  i, j, n: Integer;
   ser: TChartSeries;
   X, Y, Y0: Double;
   t2: Double;  // Doubling time
@@ -980,6 +1069,8 @@ var
   start_date: TDate;
   predata_phase: Boolean = false;
   src: TCustomChartSource;
+  smoothed: array of Double;
+  sum: Double;
 begin
   if ANode = nil then
     exit;
@@ -1019,7 +1110,7 @@ begin
 
     for ct := Low(TCaseType) to High(TCaseType) do
     begin
-      if cgCases.Checked[ord(ct)] then
+      if cgCases.Checked[ord(ct)] or ((dt = dtRValue) and (ct = ctConfirmed)) then
       begin
         with dataSrcClass.Create(DataDir) do
         try
@@ -1081,6 +1172,7 @@ begin
                   Y0 := Y;
                 end;
               end;
+
             dtDoublingTime:
               begin
                 Y0 := StrToInt(saY[4]);
@@ -1109,6 +1201,7 @@ begin
                   Y0 := Y;
                 end;
               end;
+
             dtCumVsNewCases:
               begin
                 Y0 := StrToInt(saY[4]);
@@ -1126,10 +1219,62 @@ begin
                   Y0 := Y;
                 end;
               end;
+
+            dtRValue:
+              begin
+                // Step 1: Calculate new cases
+                Y0 := StrToInt(saY[4]);
+                for i := 5 to High(saY) do begin
+                  X := StrToDate(saX[i], fs);
+                  Y := StrToInt(saY[i]);
+                  if predata_phase then
+                  begin
+                    if Y < START_COUNT then begin
+                      Y0 := Y;
+                      Continue;
+                    end;
+                    predata_phase := false;
+                    start_date := X;
+                  end;
+                  if acDataCommonStart.Checked then
+                    X := X - start_date;
+                  ser.AddXY(X, Y - Y0);
+                  Y0 := Y;
+                end;
+
+                // Moving average of new cases
+                SetLength(smoothed, ser.Count);
+                for i := 0 to ser.Count-1 do
+                begin
+                  sum := 0;
+                  n := 0;
+                  for j := i - RRange to i + RRange do
+                    if (j >= 0) and (j < ser.Count) then
+                    begin
+                      sum := sum + ser.yValue[j];
+                      inc(n);
+                    end;
+                  smoothed[i] := sum / n;
+                end;
+
+                // Calculate R as ratio of NewCases[date]/NewCates[date-InfectiousPeriod]
+                for i := High(smoothed) downto 0 do
+                begin
+                  ser.YValue[i] := NaN;
+                  if i >= InfectiousPeriod then
+                  begin
+                    Y0 := smoothed[i - InfectiousPeriod];
+                    Y := smoothed[i];
+                    if (Y0 <> 0) and (Y / Y0 <= MAX_R) then
+                      ser.YValue[i] := Y / Y0;
+                  end;
+                end;
+              end;
           end;
         finally
           ser.EndUpdate;
-          ser.Source := src;
+          if dt <> dtRValue then
+            ser.Source := src;
         end;
       end else
       begin
@@ -1408,6 +1553,10 @@ begin
     acConfigHint.Checked := ini.ReadBool('MainForm', 'ShowHints', acConfigHint.Checked);
     acConfigHintExecute(nil);
 
+    InfectiousPeriod := ini.ReadInteger('Params', 'InfectiousPeriod', InfectiousPeriod);
+    SmoothingRange := ini.ReadInteger('Params', 'SmoothingRange', SmoothingRange);
+    RRange := (SmoothingRange - 1) div 2;
+
   finally
     UpdateActionStates;
     ini.Free;
@@ -1450,6 +1599,9 @@ begin
       ini.WriteBool('MainForm', 'Logarithmic', acChartLogarithmic.Checked);
 
     ini.WriteBool('MainForm', 'ShowHints', acConfigHint.Checked);
+
+    ini.WriteInteger('Params', 'InfectiousPeriod', InfectiousPeriod);
+    ini.WriteInteger('Params', 'SmoothingRange', SmoothingRange);
 
   finally
     ini.Free;

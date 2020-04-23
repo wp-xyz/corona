@@ -9,7 +9,7 @@ uses
 
 type
   TCaseType = (ctConfirmed, ctDeaths, ctRecovered, ctSick);
-  TDataType = (dtCumulative, dtNewCases, dtDoublingTime, dtCumVsNewCases);
+  TDataType = (dtCumulative, dtNewCases, dtDoublingTime, dtCumVsNewCases, dtRValue);
 
 const
   CASETYPE_NAMES: array [TCaseType] of string = (
@@ -21,6 +21,14 @@ const
 
   // Days used for moving-average-calculation
   ACCUMULATION_RANGE = 7;
+
+  // maximum reproduction number allowed in charts
+  MAX_R = 8;
+
+var
+  InfectiousPeriod: Integer = INFECTIOUS_PERIOD;
+  SmoothingRange: Integer = ACCUMULATION_RANGE;
+  RRange: Integer = (ACCUMULATION_RANGE - 1) div 2;   // +/- from center
 
 implementation
 

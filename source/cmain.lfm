@@ -3302,7 +3302,7 @@ object MainForm: TMainForm
   ShowHint = True
   LCLVersion = '2.1.0.0'
   object LeftSplitter: TSplitter
-    Left = 266
+    Left = 284
     Height = 511
     Top = 44
     Width = 5
@@ -3319,7 +3319,7 @@ object MainForm: TMainForm
     Left = 6
     Height = 499
     Top = 50
-    Width = 260
+    Width = 278
     Align = alLeft
     AutoSize = True
     BorderSpacing.Left = 6
@@ -3327,7 +3327,7 @@ object MainForm: TMainForm
     BorderSpacing.Bottom = 6
     BevelOuter = bvNone
     ClientHeight = 499
-    ClientWidth = 260
+    ClientWidth = 278
     TabOrder = 0
     object cgCases: TCheckGroup
       AnchorSideLeft.Control = LeftPanel
@@ -3372,10 +3372,10 @@ object MainForm: TMainForm
       AnchorSideBottom.Control = LeftPanel
       AnchorSideBottom.Side = asrBottom
       Left = 0
-      Height = 352
+      Height = 331
       Hint = 'Click on the country to display'
-      Top = 147
-      Width = 260
+      Top = 168
+      Width = 278
       Anchors = [akTop, akLeft, akRight, akBottom]
       BorderSpacing.Top = 8
       ReadOnly = True
@@ -3388,9 +3388,9 @@ object MainForm: TMainForm
       AnchorSideLeft.Side = asrBottom
       AnchorSideTop.Control = LeftPanel
       Left = 113
-      Height = 114
+      Height = 135
       Top = 0
-      Width = 147
+      Width = 165
       AutoFill = True
       AutoSize = True
       BorderSpacing.Left = 8
@@ -3404,14 +3404,15 @@ object MainForm: TMainForm
       ChildSizing.ShrinkVertical = crsScaleChilds
       ChildSizing.Layout = cclLeftToRightThenTopToBottom
       ChildSizing.ControlsPerLine = 1
-      ClientHeight = 94
-      ClientWidth = 143
+      ClientHeight = 115
+      ClientWidth = 161
       ItemIndex = 0
       Items.Strings = (
         'Cumulative cases'
         'New cases'
         'Doubling time'
         'Cum vs. new cases'
+        'Reproduction number'
       )
       OnClick = rgDataTypeClick
       TabOrder = 1
@@ -3419,11 +3420,11 @@ object MainForm: TMainForm
     object cbMovingAverage: TCheckBox
       AnchorSideLeft.Control = LeftPanel
       AnchorSideLeft.Side = asrCenter
-      AnchorSideTop.Control = cgCases
+      AnchorSideTop.Control = rgDataType
       AnchorSideTop.Side = asrBottom
-      Left = 78
+      Left = 87
       Height = 19
-      Top = 120
+      Top = 141
       Width = 105
       Action = acDataMovingAverage
       BorderSpacing.Left = 8
@@ -3432,10 +3433,10 @@ object MainForm: TMainForm
     end
   end
   object PageControl: TPageControl
-    Left = 271
+    Left = 289
     Height = 499
     Top = 50
-    Width = 839
+    Width = 821
     ActivePage = pgChart
     Align = alClient
     BorderSpacing.Top = 6
@@ -3447,13 +3448,13 @@ object MainForm: TMainForm
     object pgChart: TTabSheet
       Caption = 'Chart'
       ClientHeight = 471
-      ClientWidth = 831
+      ClientWidth = 813
       object Chart: TChart
         Left = 6
         Height = 459
         Hint = 'Zoom: drag a rectangle from left-top to bottom-right corner with left mouse button down'#13#10'    or: use mouse wheel (zoom center is mouse position).'#13#10'Pan: drag with the right mouse button down'#13#10'Restore view: click'#13#10'Read data value: move mouse over data point (no key pressed)'#13#10'Measure doubling time: CTRL-drag over data points of interest with left mouse button down.'
         Top = 6
-        Width = 638
+        Width = 620
         AxisList = <        
           item
             Grid.Color = 14540253
@@ -3499,7 +3500,7 @@ object MainForm: TMainForm
         Color = clDefault
       end
       object RightPanel: TPanel
-        Left = 655
+        Left = 637
         Height = 459
         Top = 6
         Width = 170
@@ -3530,7 +3531,7 @@ object MainForm: TMainForm
         end
       end
       object RightSplitter: TSplitter
-        Left = 644
+        Left = 626
         Height = 471
         Top = 0
         Width = 5
@@ -4115,6 +4116,15 @@ object MainForm: TMainForm
         Action = acConfigHint
         AutoCheck = True
       end
+      object MenuItem2: TMenuItem
+        Caption = '-'
+      end
+      object MenuItem3: TMenuItem
+        Action = acInfectiousPeriod
+      end
+      object MenuItem11: TMenuItem
+        Action = acSmoothingRange
+      end
     end
     object mnuHelp: TMenuItem
       Caption = 'Help'
@@ -4221,6 +4231,16 @@ object MainForm: TMainForm
       AutoCheck = True
       Caption = 'Moving average'
       OnExecute = acDataMovingAverageExecute
+    end
+    object acInfectiousPeriod: TAction
+      Category = 'Config'
+      Caption = 'Infectious period...'
+      OnExecute = acInfectiousPeriodExecute
+    end
+    object acSmoothingRange: TAction
+      Category = 'Config'
+      Caption = 'Smoothing range...'
+      OnExecute = acSmoothingRangeExecute
     end
   end
   object BottomAxisTransformations: TChartAxisTransformations
