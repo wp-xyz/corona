@@ -5,11 +5,13 @@ unit cGlobal;
 interface
 
 uses
-  Classes, SysUtils;
+  Classes, SysUtils, TAChartUtils;
 
 type
   TCaseType = (ctConfirmed, ctDeaths, ctRecovered, ctSick);
   TDataType = (dtCumulative, dtNewCases, dtDoublingTime, dtCumVsNewCases, dtRValue);
+
+  TDataPointArray = array of TDoublePoint;
 
 const
   CASETYPE_NAMES: array [TCaseType] of string = (

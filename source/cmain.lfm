@@ -3378,10 +3378,11 @@ object MainForm: TMainForm
       Width = 278
       Anchors = [akTop, akLeft, akRight, akBottom]
       BorderSpacing.Top = 8
+      HideSelection = False
       ReadOnly = True
       TabOrder = 2
       OnClick = TreeViewClick
-      Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
+      Options = [tvoAutoItemHeight, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
     end
     object rgDataType: TRadioGroup
       AnchorSideLeft.Control = cgCases
