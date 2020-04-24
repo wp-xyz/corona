@@ -512,19 +512,19 @@ begin
     case dt of
       dtCumulative:
         begin
-          sx := DateToStr(x);
+          sx := FormatDateTime('dddddd', x);
           if y = 1 then sy := '1 case' else sy := Format('%.0n cases', [y]);
           FStatusText1 := Format('%s, %s', [sx, sy]);
         end;
       dtNewCases:
         begin
-          sx := DateToStr(x);
+          sx := FormatDateTime('dddddd', x);
           if y = 1 then sy := '1 new case' else sy := Format('%.0n new cases', [y]);
           FStatusText1 := Format('%s, %s', [sx, sy]);
         end;
       dtDoublingTime:
         begin
-          sx := DateToStr(x);
+          sx := FormatDateTime('dddddd', x);
           sy := Format('Doubling time %.1f', [y]);
           FStatusText1 := Format('%s, %s', [sx, sy]);
         end;
@@ -538,7 +538,7 @@ begin
         end;
       dtRValue:
         begin
-          sx := DateToStr(x);
+          sx := FormatDateTime('dddddd', x);
           sy := Format('Reproduction number: %.1f', [y]);
           FStatusText1 := Format('%s, %s', [sx, sy]);
         end;
