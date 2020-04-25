@@ -480,7 +480,7 @@ begin
   if (not ASeries.Active) and (TChartSeries(ASeries).Count = 0) then
     for ct in TCaseType do
       if (pos(CASETYPE_NAMES[ct], ASeries.Title) > 0) or
-         (pos('R number', ASeries.Title) > 0) then
+         (pos(R_NUMBER_STR, ASeries.Title) > 0) then
       begin
         ASkip := true;
         exit;
@@ -791,7 +791,7 @@ begin
     end;  // case
 
     if ADataType = dtRValue then
-      ser.Title := serTitle + ' (R number)'
+      ser.Title := serTitle + ' (' + R_NUMBER_STR + ')'
     else
       ser.Title := serTitle + ' (' + CASETYPE_NAMES[ct] + ')';
     ser.AxisIndexX := 1;
