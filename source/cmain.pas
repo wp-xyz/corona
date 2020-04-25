@@ -155,7 +155,7 @@ type
     function GetCellText(ACol, ARow: Integer): String;
     function GetLocation(ANode: TTreeNode): String;
     procedure GetLocation(ANode: TTreeNode; out ACountry, AState: String);
-    function GetSeries(ANode: TTreeNode; ACaseType: TCaseType; ADataType: TDataType): TChartSeries;
+    function GetSeries(ANode: TTreeNode; ACaseType: TCaseType; ADataType: TDataType): TBasicPointSeries;
     procedure InitShortCuts;
     function IsTimeSeries: Boolean;
     procedure LayoutBars;
@@ -702,20 +702,20 @@ begin
 end;
 
 function TMainForm.GetSeries(ANode: TTreeNode; ACaseType: TCaseType;
-  ADataType: TDataType): TChartSeries;
+  ADataType: TDataType): TBasicPointSeries;
 var
   i: Integer;
   serTitle: String;
-  ser: TChartSeries;
+  ser: TBasicPointSeries;
   ct: TCaseType;
   clr: TColor;
 begin
   serTitle := Format('%s (%s)', [GetLocation(ANode), CASETYPE_NAMES[ACaseType]]);
 
   for i:=0 to Chart.SeriesCount-1 do
-    if (Chart.Series[i] is TChartSeries) then
+    if (Chart.Series[i] is TBasicPointSeries) then
     begin
-      Result := TChartSeries(Chart.Series[i]);
+      Result := TBasicPointSeries(Chart.Series[i]);
       if (Result <> nil) and (pos(serTitle, Result.Title) = 1) then
       begin
         Result.Active := true;
@@ -1156,16 +1156,11 @@ var
   ct: TCaseType;
   saX, saY: TStringArray;
   i, j, n: Integer;
-  ser: TChartSeries;
-  X, Y, Y0: Double;
-  t2: Double;  // Doubling time
+  ser: TBasicPointSeries;
+  X, Y, Y0, dY, dY0: Double;
   country, state: String;
   dataSrcClass: TcDataSourceClass;
-  start_date: TDate;
-  predata_phase: Boolean = false;
   src: TCustomChartSource;
-  smoothed: array of Double;
-  sum: Double;
   dataArr: TDataPointArray;
 begin
   if ANode = nil then
@@ -1219,14 +1214,13 @@ begin
         saX := dates[ct].Split(',', '"');
         saY := counts[ct].Split(',','"');
 
-        predata_phase := acDataCommonStart.Checked;
-
         ser := GetSeries(ANode, ct, dt);
         src := ser.Source;
         case dt of
           dtCumulative:
             begin
               ser.Source := nil;
+              ser.ListSource.YCount := 1;
               ser.BeginUpdate;
               try
                 PopulateCumulativeSeries(saX, saY, ser);
@@ -1239,6 +1233,7 @@ begin
           dtNewCases:
             begin
               ser.Source := nil;
+              ser.ListSource.YCount := 1;
               ser.BeginUpdate;
               try
                 PopulateNewCasesSeries(saX, saY, ser);
@@ -1251,6 +1246,7 @@ begin
           dtDoublingTime:
             begin
               ser.Source := nil;
+              ser.ListSource.YCount := 1;
               ser.BeginUpdate;
               try
                 PopulateCumulativeSeries(saX, saY, ser);
@@ -1281,6 +1277,7 @@ begin
           dtCumVsNewCases:
             begin
               ser.Source := nil;
+              ser.ListSource.YCount := 1;
               ser.BeginUpdate;
               try
                 // Get cumulative cases, smooth curve, store values in temp array
@@ -1319,6 +1316,16 @@ begin
                 ser.Source := nil;  // Make source writable again
 
                 // Calculate R as ratio NewCases/NewCases(5 days earlier)
+                ser.ListSource.YCount := 2;
+                ser.ListSource.YErrorBarData.Kind := ebkChartSource;
+                ser.ListSource.YErrorBarData.IndexPlus := 1;
+                ser.ListSource.YErrorBarData.IndexMinus := -1;
+                if (ser is TLineseries) then
+                  with TLineSeries(ser) do
+                  begin
+                    YErrorBars.Visible := true;
+                    YErrorBars.Pen.Color := LinePen.Color;
+                  end;
                 for i:=ser.Count-1 downto 0 do
                 begin
                   ser.YValue[i] := NaN;
@@ -1326,8 +1333,16 @@ begin
                   begin
                     Y0 := dataArr[i - InfectiousPeriod].Y;
                     Y := dataArr[i].Y;
-                    if (Y0 <> 0) {and (Y / Y0 <= MAX_R)} and not ((Y<100) and (Y0<100)) then
-                      ser.YValue[i] := Y / Y0;
+                    dY0 := sqrt(Y0);
+                    dY := sqrt(Y);
+                    if (Y0 <> 0) and (Y <> 0) then //{and (Y / Y0 <= MAX_R)} and not ((Y<100) and (Y0<100)) then
+                    begin
+                      dY := dY0/Y0 + dY/Y;
+                      if dY < 0.5 then begin
+                        ser.YValues[i, 0] := Y / Y0;
+                        ser.YValues[i, 1] := ser.YValues[i, 0] * dY;
+                      end;
+                    end;
                   end;
                 end;
               finally
