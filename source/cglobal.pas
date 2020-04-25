@@ -32,7 +32,15 @@ var
   SmoothingRange: Integer = ACCUMULATION_RANGE;
   RRange: Integer = (ACCUMULATION_RANGE - 1) div 2;   // +/- from center
 
+  cFormatSettings: TFormatSettings;
+
 implementation
+
+initialization
+  cFormatSettings := DefaultFormatSettings;
+  cFormatSettings.DecimalSeparator := '.';
+  cFormatSettings.ShortDateFormat := 'mm/dd/yyy';
+  cformatSettings.DateSeparator := '/';
 
 end.
 

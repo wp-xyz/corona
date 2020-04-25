@@ -147,6 +147,7 @@ type
     FMeasurementSeries: TFuncSeries;
     FFitCoeffs: array[0..1] of Double;
     FStatusText1, FStatusText2: String;
+
     function CalcFit(ASeries: TBasicChartSeries; xmin, xmax: Double): Boolean;
     procedure CalcFitCurveHandler(const AX: Double; out AY: Double);
     procedure Clear(UnselectTree: Boolean = true);
@@ -478,7 +479,8 @@ begin
 
   if (not ASeries.Active) and (TChartSeries(ASeries).Count = 0) then
     for ct in TCaseType do
-      if (pos(CASETYPE_NAMES[ct], ASeries.Title) > 0) then
+      if (pos(CASETYPE_NAMES[ct], ASeries.Title) > 0) or
+         (pos('R number', ASeries.Title) > 0) then
       begin
         ASkip := true;
         exit;
@@ -787,13 +789,14 @@ begin
           end;
         end;
     end;  // case
+
     if ADataType = dtRValue then
       ser.Title := serTitle + ' (R number)'
     else
       ser.Title := serTitle + ' (' + CASETYPE_NAMES[ct] + ')';
     ser.AxisIndexX := 1;
     ser.AxisIndexY := 0;
-    if ct = ACaseType then
+    if (ct = ACaseType) or ((ct = ctConfirmed) and (ADataType = dtRvalue)) then
       Result := ser
     else
       ser.Active := false;
@@ -991,17 +994,12 @@ var
   start_date: TDate;
   i: Integer;
   X, Y: Double;
-  fs: TFormatSettings;
 begin
-  fs := FormatSettings;
-  fs.ShortDateFormat := 'mm/dd/yyy';
-  fs.DateSeparator := '/';
-
   predata_phase := acDataCommonStart.Checked;
   ASeries.Clear;
   for i := 4 to High(AValues) do
   begin
-    X := StrToDate(ADates[i], fs);
+    X := StrToDate(ADates[i], cFormatSettings);
     Y := StrToInt(AValues[i]);
     if predata_phase then
     begin
@@ -1149,19 +1147,19 @@ end;
 
 procedure TMainForm.ShowData(ANode: TTreeNode);
 var
-  fs: TFormatSettings;
   counts: array[TCaseType] of string = ('', '', '', '');
   dates: array[TCaseType] of string = ('', '', '', '');
   dt: TDataType;
-  ct: TCaseType;
+  caseType, ct: TCaseType;
   saX, saY: TStringArray;
-  i, j, n: Integer;
+  i, j: Integer;
   ser: TBasicPointSeries;
-  X, Y, Y0, dY, dY0: Double;
+  Y, Y0, dY, dY0: Double;
   country, state: String;
   dataSrcClass: TcDataSourceClass;
   src: TCustomChartSource;
   dataArr: TDataPointArray;
+  RValueDone: Boolean;
 begin
   if ANode = nil then
     exit;
@@ -1170,10 +1168,6 @@ begin
   try
     if not acChartOverlay.Checked then
       Clear(false);
-
-    fs := FormatSettings;
-    fs.ShortDateFormat := 'mm/dd/yyy';
-    fs.DateSeparator := '/';
 
     dataSrcClass := TJohnsHopkinsDataSource;
     GetLocation(ANode, country, state);
@@ -1198,164 +1192,170 @@ begin
     {$ENDIF}
 
     dt := TDataType(rgDataType.ItemIndex);
+    RValueDone := false;
 
-    for ct := Low(TCaseType) to High(TCaseType) do
+    for caseType in TCaseType do
     begin
-      if cgCases.Checked[ord(ct)] or ((dt = dtRValue) and (ct = ctConfirmed)) then
+      if (dt = dtRValue) then
       begin
-        with dataSrcClass.Create(DataDir) do
-        try
-          if not GetDataString(country, state, ct, dates[ct], counts[ct]) then
-            Continue;
-        finally
-          Free;
-        end;
+        if RValueDone then
+          Continue
+        else
+          ct := ctConfirmed
+      end else
+      if cgCases.Checked[ord(caseType)] then
+        ct := caseType;
 
-        saX := dates[ct].Split(',', '"');
-        saY := counts[ct].Split(',','"');
+      with dataSrcClass.Create(DataDir) do
+      try
+        if not GetDataString(country, state, ct, dates[ct], counts[ct]) then
+          Continue;
+      finally
+        Free;
+      end;
 
-        ser := GetSeries(ANode, ct, dt);
-        src := ser.Source;
-        case dt of
-          dtCumulative:
-            begin
-              ser.Source := nil;
-              ser.ListSource.YCount := 1;
-              ser.BeginUpdate;
-              try
-                PopulateCumulativeSeries(saX, saY, ser);
-              finally
-                ser.EndUpdate;
-                ser.Source := src;
-              end;
+      saX := dates[ct].Split(',', '"');
+      saY := counts[ct].Split(',','"');
+
+      ser := GetSeries(ANode, ct, dt);
+      src := ser.Source;
+      case dt of
+        dtCumulative:
+          begin
+            ser.Source := nil;
+            ser.ListSource.YCount := 1;
+            ser.BeginUpdate;
+            try
+              PopulateCumulativeSeries(saX, saY, ser);
+            finally
+              ser.EndUpdate;
+              ser.Source := src;
             end;
+          end;
 
-          dtNewCases:
-            begin
-              ser.Source := nil;
-              ser.ListSource.YCount := 1;
-              ser.BeginUpdate;
-              try
-                PopulateNewCasesSeries(saX, saY, ser);
-              finally
-                ser.EndUpdate;
-                ser.Source := src;
-              end;
+        dtNewCases:
+          begin
+            ser.Source := nil;
+            ser.ListSource.YCount := 1;
+            ser.BeginUpdate;
+            try
+              PopulateNewCasesSeries(saX, saY, ser);
+            finally
+              ser.EndUpdate;
+              ser.Source := src;
             end;
+          end;
 
-          dtDoublingTime:
-            begin
+        dtDoublingTime:
+          begin
+            ser.Source := nil;
+            ser.ListSource.YCount := 1;
+            ser.BeginUpdate;
+            try
+              PopulateCumulativeSeries(saX, saY, ser);
+              EnableMovingAverage(ser, true, true);
+              SeriesToArray(ser, dataArr);
+              EnableMovingAverage(ser, false, true);
+              for i := High(dataArr) downto 0 do begin
+                Y := dataArr[i].Y;
+                if Y < 100 then  // too much noise
+                  Y := NaN
+                else
+                begin
+                  Y0 := Y / 2;
+                  Y := NaN;
+                  for j := i - 1 downto 0 do
+                    if dataArr[j].Y < Y0 then begin
+                      Y := dataArr[i].X - dataArr[j].X;
+                      break;
+                    end;
+                end;
+                ser.YValue[i] := Y;
+              end;
+            finally
+              ser.EndUpdate;
+            end;
+          end;
+
+        dtCumVsNewCases:
+          begin
+            ser.Source := nil;
+            ser.ListSource.YCount := 1;
+            ser.BeginUpdate;
+            try
+              // Get cumulative cases, smooth curve, store values in temp array
+              PopulateCumulativeSeries(saX, saY, ser);
+              EnableMovingAverage(ser, true, true);
+              SeriesToArray(ser, dataArr);
+
+              // Get new cases, do not smooth yet
               ser.Source := nil;
-              ser.ListSource.YCount := 1;
-              ser.BeginUpdate;
-              try
-                PopulateCumulativeSeries(saX, saY, ser);
-                EnableMovingAverage(ser, true, true);
-                SeriesToArray(ser, dataArr);
-                EnableMovingAverage(ser, false, true);
-                for i := High(dataArr) downto 0 do begin
+              PopulateNewCasesSeries(saX, saY, ser);
+
+              // Replace x by cumulative data from temp array
+              j := High(dataArr);
+              for i := ser.Count-1 downto 0 do
+              begin
+                ser.ListSource.Item[i]^.X := dataArr[j].Y;
+                ser.ListSource.item[i]^.Text := DateToStr(dataArr[j].X, cFormatSettings);
+                dec(j);
+              end;
+            finally
+              ser.EndUpdate;
+              // Smooth new case data
+              EnableMovingAverage(ser, true, true);
+            end;
+          end;
+
+        dtRValue:
+          begin
+            ser.Source := nil;
+            ser.BeginUpdate;
+            try
+              // Get new cases, smooth, store in temp array
+              PopulateNewCasesSeries(saX, saY, ser);
+              EnableMovingAverage(ser, true, true);
+              SeriesToArray(ser, dataArr);
+              ser.Source := nil;  // Make source writable again
+
+              // Calculate R as ratio NewCases/NewCases(5 days earlier)
+              ser.ListSource.YCount := 2;
+              ser.ListSource.YErrorBarData.Kind := ebkChartSource;
+              ser.ListSource.YErrorBarData.IndexPlus := 1;
+              ser.ListSource.YErrorBarData.IndexMinus := -1;
+              if (ser is TLineseries) then
+                with TLineSeries(ser) do
+                begin
+                  YErrorBars.Visible := true;
+                  YErrorBars.Pen.Color := LinePen.Color;
+                end;
+              for i:=ser.Count-1 downto 0 do
+              begin
+                ser.YValue[i] := NaN;
+                if i >= InfectiousPeriod then
+                begin
+                  Y0 := dataArr[i - InfectiousPeriod].Y;
                   Y := dataArr[i].Y;
-                  if Y < 100 then  // too much noise
-                    Y := NaN
-                  else
+                  dY0 := sqrt(Y0);
+                  dY := sqrt(Y);
+                  if (Y0 <> 0) and (Y <> 0) then //{and (Y / Y0 <= MAX_R)} and not ((Y<100) and (Y0<100)) then
                   begin
-                    Y0 := Y / 2;
-                    Y := NaN;
-                    for j := i - 1 downto 0 do
-                      if dataArr[j].Y < Y0 then begin
-                        Y := dataArr[i].X - dataArr[j].X;
-                        break;
-                      end;
-                  end;
-                  ser.YValue[i] := Y;
-                end;
-              finally
-                ser.EndUpdate;
-              end;
-            end;
-
-          dtCumVsNewCases:
-            begin
-              ser.Source := nil;
-              ser.ListSource.YCount := 1;
-              ser.BeginUpdate;
-              try
-                // Get cumulative cases, smooth curve, store values in temp array
-                PopulateCumulativeSeries(saX, saY, ser);
-                EnableMovingAverage(ser, true, true);
-                SeriesToArray(ser, dataArr);
-
-                // Get new cases, do not smooth yet
-                ser.Source := nil;
-                PopulateNewCasesSeries(saX, saY, ser);
-
-                // Replace x by cumulative data from temp array
-                j := High(dataArr);
-                for i := ser.Count-1 downto 0 do
-                begin
-                  ser.ListSource.Item[i]^.X := dataArr[j].Y;
-                  ser.ListSource.item[i]^.Text := DateToStr(dataArr[j].X);
-                  dec(j);
-                end;
-              finally
-                ser.EndUpdate;
-                // Smooth new case data
-                EnableMovingAverage(ser, true, true);
-              end;
-            end;
-
-          dtRValue:
-            begin
-              ser.Source := nil;
-              ser.BeginUpdate;
-              try
-                // Get new cases, smooth, store in temp array
-                PopulateNewCasesSeries(saX, saY, ser);
-                EnableMovingAverage(ser, true, true);
-                SeriesToArray(ser, dataArr);
-                ser.Source := nil;  // Make source writable again
-
-                // Calculate R as ratio NewCases/NewCases(5 days earlier)
-                ser.ListSource.YCount := 2;
-                ser.ListSource.YErrorBarData.Kind := ebkChartSource;
-                ser.ListSource.YErrorBarData.IndexPlus := 1;
-                ser.ListSource.YErrorBarData.IndexMinus := -1;
-                if (ser is TLineseries) then
-                  with TLineSeries(ser) do
-                  begin
-                    YErrorBars.Visible := true;
-                    YErrorBars.Pen.Color := LinePen.Color;
-                  end;
-                for i:=ser.Count-1 downto 0 do
-                begin
-                  ser.YValue[i] := NaN;
-                  if i >= InfectiousPeriod then
-                  begin
-                    Y0 := dataArr[i - InfectiousPeriod].Y;
-                    Y := dataArr[i].Y;
-                    dY0 := sqrt(Y0);
-                    dY := sqrt(Y);
-                    if (Y0 <> 0) and (Y <> 0) then //{and (Y / Y0 <= MAX_R)} and not ((Y<100) and (Y0<100)) then
-                    begin
-                      dY := dY0/Y0 + dY/Y;
-                      if dY < 0.5 then begin
-                        ser.YValues[i, 0] := Y / Y0;
-                        ser.YValues[i, 1] := ser.YValues[i, 0] * dY;
-                      end;
+                    dY := dY0/Y0 + dY/Y;
+                    if dY < 0.5 then begin
+                      ser.YValues[i, 0] := Y / Y0;
+                      ser.YValues[i, 1] := ser.YValues[i, 0] * dY;
                     end;
                   end;
                 end;
-              finally
-                ser.EndUpdate;
               end;
+              RValueDone := true;
+            finally
+              ser.EndUpdate;
             end;
-        end;
-      end else
-      begin
-        dates[ct] := '';
-        counts[ct] := '';
+          end;
       end;
     end;
+
     LayoutBars;
     UpdateAffectedSeries;
     UpdateGrid;
