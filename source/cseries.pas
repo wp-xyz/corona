@@ -5,13 +5,14 @@ unit cSeries;
 interface
 
 uses
-  Classes, SysUtils,
+  Classes, SysUtils, ComCtrls,
   TASources, TASeries;
 
 type
   TcLineSeries = class(TLineSeries)
   private
     FCalculatedSource: TCalculatedChartSource;
+    FNode: TTreeNode;
     function GetAccRange: Integer;
     function GetMovingAverage: Boolean;
     procedure SetAccRange(AValue: Integer);
@@ -20,11 +21,13 @@ type
     constructor Create(AOwner: TComponent); override;
     property AccumulationRange: Integer read GetAccRange write SetAccRange;
     property MovingAverage: Boolean read GetMovingAverage write SetMovingAverage;
+    property Node: TTreeNode read FNode write FNode;
   end;
 
   TcBarSeries = class(TBarSeries)
   private
     FCalculatedSource: TCalculatedChartSource;
+    FNode: TTreeNode;
     function GetAccRange: Integer;
     function GetMovingAverage: Boolean;
     procedure SetAccRange(AValue: Integer);
@@ -33,6 +36,7 @@ type
     constructor Create(AOwner: TComponent); override;
     property AccumulationRange: Integer read GetAccRange write SetAccRange;
     property MovingAverage: Boolean read GetMovingAverage write SetMovingAverage;
+    property Node: TTreeNode read FNode write FNode;
   end;
 
 

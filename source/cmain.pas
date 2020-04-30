@@ -163,9 +163,11 @@ type
     procedure LoadLocations;
     procedure PopulateCumulativeSeries(const ADates, AValues: TStringArray; ASeries: TChartSeries);
     procedure PopulateNewCasesSeries(const ADates, AValues: TStringArray; ASeries: TChartSeries);
+    procedure RestoreSeriesNodesFromList(AList: TFPList);
     procedure SeriesToArray(ASeries: TChartSeries; out AData: TDataPointArray);
     procedure ShowData(ANode: TTreeNode);
     procedure StatusMsgHandler(Sender: TObject; const AMsg1, AMsg2: String);
+    function StoreSeriesNodesInList: TFPList;
     procedure UpdateActionStates;
     procedure UpdateAffectedSeries;
     procedure UpdateAxes(LogarithmicX, LogarithmicY: Boolean);
@@ -292,8 +294,10 @@ begin
   UpdateAxes(logX, logY);
 
   for i := 0 to Chart.SeriesCount-1 do
-    if Chart.Series[i] is TChartSeries then
-      ShowData(TTreeNode(TChartSeries(Chart.Series[i]).Tag));
+    if Chart.Series[i] is TcLineSeries then
+      ShowData(TcLineSeries(Chart.Series[i]).Node)
+    else if Chart.Series[i] is TcBarSeries then
+      ShowData(TcBarSeries(Chart.Series[i]).Node);
 end;
 
 procedure TMainForm.acDataMovingAverageExecute(Sender: TObject);
@@ -302,7 +306,7 @@ var
   isMovingAverage: Boolean;
 begin
   isMovingAverage := acDataMovingAverage.Checked and
-    (TDataType(rgDataType.ItemIndex) in [dtCumulative, dtNewCases] );
+    ( TDataType(rgDataType.ItemIndex) in [dtCumulative, dtNewCases] );
 
   for i:=0 to Chart.SeriesCount-1 do
     if Chart.Series[i] is TChartSeries then
@@ -319,6 +323,7 @@ procedure TMainForm.acInfectiousPeriodExecute(Sender: TObject);
 var
   n: Integer;
   s: String;
+  L: TFPList;
 begin
   s := IntToStr(InfectiousPeriod);
   if InputQuery('Infectious period', 'Days:', s) then
@@ -326,7 +331,14 @@ begin
     if TryStrToInt(s, n) and (n > 0) then
     begin
       InfectiousPeriod := n;
-      Clear;  // ok, could recalculate the currently loaded data here...
+
+      // Recalculate the currently loaded data
+      L := StoreSeriesNodesInList();
+      try
+        RestoreSeriesNodesFromList(L);
+      finally
+        L.Free;
+      end;
     end else
       MessageDlg('No valid number.', mtError, [mbOk], 0);
   end;
@@ -336,6 +348,7 @@ procedure TMainForm.acSmoothingRangeExecute(Sender: TObject);
 var
   n: Integer;
   s: String;
+  L: TFPList;
 begin
   s := IntToStr(SmoothingRange);
   if InputQuery('Smoothing range', 'Total days (including center day)', s) then
@@ -346,7 +359,14 @@ begin
       begin
         SmoothingRange := n;
         RRange := (n - 1) div 2;
-        Clear;  // ok, could recalculate the currently loaded data here...
+
+        // Recalculate the currently loaded data
+        L := StoreSeriesNodesInList();
+        try
+          RestoreSeriesNodesFromList(L);
+        finally
+          L.Free;
+        end;
       end else
         MessageDlg('Only odd number of days allowed (i.e. center day is included).', mtError, [mbOk], 0);
     end else
@@ -552,8 +572,16 @@ begin
 end;
 
 procedure TMainForm.cgCasesItemClick(Sender: TObject; Index: integer);
+var
+  L: TFPList;
 begin
-  TreeViewClick(nil);
+  L := StoreSeriesNodesInList();
+  try
+    TreeViewClick(nil);
+    RestoreSeriesNodesFromlist(L);
+  finally
+    L.Free;
+  end;
 end;
 
 procedure TMainForm.Clear(UnselectTree: Boolean = true);
@@ -767,6 +795,7 @@ begin
             end;
             AccumulationRange := SmoothingRange;
             MovingAverage := acDataMovingAverage.Checked;
+            Node := ANode;
           end;
         end;
       dtNewCases:
@@ -786,6 +815,7 @@ begin
             end;
             AccumulationRange := SmoothingRange;
             MovingAverage := acDataMovingAverage.Checked;
+            Node := ANode;
           end;
         end;
     end;  // case
@@ -800,7 +830,6 @@ begin
       Result := ser
     else
       ser.Active := false;
-    ser.Tag := PtrUInt(ANode);
     Chart.AddSeries(ser);
   end;  // for ct
 
@@ -1051,17 +1080,22 @@ begin
   end;
 end;
 
+procedure TMainForm.RestoreSeriesNodesFromList(AList: TFPList);
+var
+  i: Integer;
+begin
+  for i := 0 to AList.Count-1 do
+    ShowData(TTreeNode(AList[i]));
+end;
+
 procedure TMainForm.rgDataTypeClick(Sender: TObject);
 var
   L: TFPList;
   i: Integer;
 begin
-  L := TFPList.Create;
+  // Store currently available series in a list
+  L := StoreSeriesNodesInList();
   try
-    // Store currently available series in
-    for i:=0 to ChartListbox.SeriesCount-1 do
-      L.Add(Pointer(ChartListbox.Series[i].Tag));
-
     Clear;
     case TDataType(rgDataType.ItemIndex) of
       dtCumulative:
@@ -1125,10 +1159,7 @@ begin
     end;
 
     acDataMovingAverageExecute(nil);
-
-    for i := 0 to L.Count-1 do
-      ShowData(TTreeNode(L[i]));
-
+    RestoreSeriesNodesFromlist(L);
     UpdateActionStates;
 
   finally
@@ -1372,6 +1403,21 @@ begin
   FStatusText1 := AMsg1;
   FStatusText2 := AMsg2;
   UpdateStatusbar;
+end;
+
+// Store nodes belonging to currently available series in a list
+// Can be restored by calling RestoreSeriesNodesFromList.
+function TMainForm.StoreSeriesNodesInList: TFPList;
+var
+  i: Integer;
+begin
+  Result := TFPList.Create;
+
+  for i:=0 to ChartListbox.SeriesCount-1 do
+    if ChartListbox.Series[i] is TcLineSeries then
+      Result.Add(TcLineSeries(ChartListbox.Series[i]).Node)
+    else if ChartListbox.Series[i] is TcBarSeries then
+      Result.Add(TcBarSeries(ChartListbox.Series[i]).Node);
 end;
 
 procedure TMainForm.TreeViewClick(Sender: TObject);
