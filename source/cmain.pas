@@ -367,6 +367,7 @@ begin
         finally
           L.Free;
         end;
+
       end else
         MessageDlg('Only odd number of days allowed (i.e. center day is included).', mtError, [mbOk], 0);
     end else
@@ -799,7 +800,6 @@ begin
           end;
         end;
       dtNewCases:
-//      dtDoublingTime:
         begin
           ser := TcBarSeries.Create(Chart);
           with TcBarSeries(ser) do
@@ -1235,7 +1235,9 @@ begin
           ct := ctConfirmed
       end else
       if cgCases.Checked[ord(caseType)] then
-        ct := caseType;
+        ct := caseType
+      else
+        Continue;
 
       with dataSrcClass.Create(DataDir) do
       try
