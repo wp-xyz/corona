@@ -3302,7 +3302,7 @@ object MainForm: TMainForm
   ShowHint = True
   LCLVersion = '2.1.0.0'
   object LeftSplitter: TSplitter
-    Left = 284
+    Left = 311
     Height = 511
     Top = 44
     Width = 5
@@ -3319,7 +3319,7 @@ object MainForm: TMainForm
     Left = 6
     Height = 499
     Top = 50
-    Width = 278
+    Width = 305
     Align = alLeft
     AutoSize = True
     BorderSpacing.Left = 6
@@ -3327,7 +3327,7 @@ object MainForm: TMainForm
     BorderSpacing.Bottom = 6
     BevelOuter = bvNone
     ClientHeight = 499
-    ClientWidth = 278
+    ClientWidth = 305
     TabOrder = 0
     object cgCases: TCheckGroup
       AnchorSideLeft.Control = LeftPanel
@@ -3375,7 +3375,7 @@ object MainForm: TMainForm
       Height = 331
       Hint = 'Click on the country to display'
       Top = 168
-      Width = 278
+      Width = 305
       Anchors = [akTop, akLeft, akRight, akBottom]
       BorderSpacing.Top = 8
       HideSelection = False
@@ -3391,7 +3391,7 @@ object MainForm: TMainForm
       Left = 113
       Height = 135
       Top = 0
-      Width = 165
+      Width = 192
       AutoFill = True
       AutoSize = True
       BorderSpacing.Left = 8
@@ -3406,14 +3406,14 @@ object MainForm: TMainForm
       ChildSizing.Layout = cclLeftToRightThenTopToBottom
       ChildSizing.ControlsPerLine = 1
       ClientHeight = 115
-      ClientWidth = 161
+      ClientWidth = 188
       ItemIndex = 0
       Items.Strings = (
         'Cumulative cases'
         'New cases'
         'Doubling time'
         'Cum vs. new cases'
-        'Reproduction number'
+        'Reproduction number (5 d)'
       )
       OnClick = rgDataTypeClick
       TabOrder = 1
@@ -3423,21 +3423,22 @@ object MainForm: TMainForm
       AnchorSideLeft.Side = asrCenter
       AnchorSideTop.Control = rgDataType
       AnchorSideTop.Side = asrBottom
-      Left = 87
+      Left = 78
       Height = 19
       Top = 141
-      Width = 105
+      Width = 149
       Action = acDataMovingAverage
       BorderSpacing.Left = 8
       BorderSpacing.Top = 6
+      Caption = 'Moving average (7 days)'
       TabOrder = 3
     end
   end
   object PageControl: TPageControl
-    Left = 289
+    Left = 316
     Height = 499
     Top = 50
-    Width = 821
+    Width = 794
     ActivePage = pgChart
     Align = alClient
     BorderSpacing.Top = 6
@@ -3449,13 +3450,13 @@ object MainForm: TMainForm
     object pgChart: TTabSheet
       Caption = 'Chart'
       ClientHeight = 471
-      ClientWidth = 813
+      ClientWidth = 786
       object Chart: TChart
         Left = 6
         Height = 459
         Hint = 'Zoom: drag a rectangle from left-top to bottom-right corner with left mouse button down'#13#10'    or: use mouse wheel (zoom center is mouse position).'#13#10'Pan: drag with the right mouse button down'#13#10'Restore view: click'#13#10'Read data value: move mouse over data point (no key pressed)'#13#10'Measure doubling time: CTRL-drag over data points of interest with left mouse button down.'
         Top = 6
-        Width = 620
+        Width = 593
         AxisList = <        
           item
             Grid.Color = 14540253
@@ -3501,7 +3502,7 @@ object MainForm: TMainForm
         Color = clDefault
       end
       object RightPanel: TPanel
-        Left = 637
+        Left = 610
         Height = 459
         Top = 6
         Width = 170
@@ -3532,7 +3533,7 @@ object MainForm: TMainForm
         end
       end
       object RightSplitter: TSplitter
-        Left = 626
+        Left = 599
         Height = 471
         Top = 0
         Width = 5

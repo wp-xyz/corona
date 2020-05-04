@@ -311,6 +311,8 @@ begin
   for i:=0 to Chart.SeriesCount-1 do
     if Chart.Series[i] is TChartSeries then
       EnableMovingAverage(TChartSeries(Chart.Series[i]), isMovingAverage, false);
+
+  cbMovingAverage.Caption := Format('Moving average (%d days)', [SmoothingRange]);
   UpdateGrid;
 end;
 
@@ -331,6 +333,7 @@ begin
     if TryStrToInt(s, n) and (n > 0) then
     begin
       InfectiousPeriod := n;
+      rgDataType.Items[4] := Format('Reproduction number (%d d)', [InfectiousPeriod]);
 
       // Recalculate the currently loaded data
       L := StoreSeriesNodesInList();
@@ -1369,14 +1372,14 @@ begin
                 begin
                   Y0 := dataArr[i - InfectiousPeriod].Y;
                   Y := dataArr[i].Y;
-                  dY0 := sqrt(Y0);
-                  dY := sqrt(Y);
-                  if (Y0 <> 0) and (Y <> 0) then //{and (Y / Y0 <= MAX_R)} and not ((Y<100) and (Y0<100)) then
+                  if (Y0 > 0) and (Y > 0) then //{and (Y / Y0 <= MAX_R)} and not ((Y<100) and (Y0<100)) then
                   begin
+                    dY0 := sqrt(Y0);
+                    dY := sqrt(Y);
                     dY := dY0/Y0 + dY/Y;
                     if dY < 0.5 then begin
-                      ser.YValues[i, 0] := Y / Y0;
-                      ser.YValues[i, 1] := ser.YValues[i, 0] * dY;
+                      ser.YValues[i, 0] := Y / Y0;                     // R value
+                      ser.YValues[i, 1] := ser.YValues[i, 0] * dY;     // error of R
                     end;
                   end;
                 end;
@@ -1655,7 +1658,6 @@ begin
     cgCases.Checked[3] := ini.ReadBool('MainForm', 'SickCases', cgCases.Checked[3]);
 
     acDataMovingAverage.Checked := ini.ReadBool('MainForm', 'MovingAverage', acDataMovingAverage.Checked);
-
     acChartOverlay.Checked := ini.ReadBool('MainForm', 'Overlay', acChartOverlay.Checked);
 
     n := ini.ReadInteger('MainForm', 'DataType', rgDataType.ItemIndex);
@@ -1683,6 +1685,9 @@ begin
     InfectiousPeriod := ini.ReadInteger('Params', 'InfectiousPeriod', InfectiousPeriod);
     SmoothingRange := ini.ReadInteger('Params', 'SmoothingRange', SmoothingRange);
     RRange := (SmoothingRange - 1) div 2;
+
+    rgDataType.Items[4] := Format('Reproduction number (%d d)', [InfectiousPeriod]);
+    cbMovingAverage.Caption := Format('Moving average (%d days)', [SmoothingRange]);
 
   finally
     UpdateActionStates;
