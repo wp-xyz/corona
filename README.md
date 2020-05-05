@@ -15,5 +15,5 @@ For Windows the OpenSSL dlls can be downloaded from
 - 64 bit: https://packages.lazarus-ide.org/openssl-1.0.2j-x64_86-win64.zip
 
 ## Data source
-https://github.com/CSSEGISandData/COVID-19
-https://npgeo-corona-npgeo-de.hub.arcgis.com/
+- https://github.com/CSSEGISandData/COVID-19
+- https://npgeo-corona-npgeo-de.hub.arcgis.com/
