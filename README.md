@@ -1,8 +1,9 @@
 # corona
 Downloads daily accumulated case counts of the corona virus disease from the 2019 Novel Coronavirus COVID-19 (2019-nCoV) data repository by Johns Hopkins University CSSE, and from Robert-Koch-Institut, Germany.
 
-- Plots the data as a function of time: confirmed cases, deaths, recovered, sick counts. Cumulative cases, new cases.
-- Estimates characteristic pandemic numbers: doubling time, reproduction mumber.
+- Plots the data as a function of time: confirmed, death, recovered, sick counts. Cumulative cases, new cases per day.
+- Plots the universal curve new cases vs cumulative cases.
+- Estimates characteristic pandemic numbers: doubling time, reproduction number. (Disclaimer: due to various calculation methods, these numbers may differ from official data).
 
 ## Installation
 This repository contains Lazarus source files only. Please use Lazarus v2.0.6 or
