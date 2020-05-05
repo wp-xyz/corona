@@ -1,7 +1,8 @@
 # corona
-Downloads daily accumulated case counts of the corona virus disease from the 2019 Novel Coronavirus COVID-19 (2019-nCoV) data repository by Johns Hopkins University CSSE
+Downloads daily accumulated case counts of the corona virus disease from the 2019 Novel Coronavirus COVID-19 (2019-nCoV) data repository by Johns Hopkins University CSSE, and from Robert-Koch-Institut, Germany.
 
-Plots the data as a function of time.
+- Plots the data as a function of time: confirmed cases, deaths, recovered, sick counts. Cumulative cases, new cases.
+- Estimates characteristic pandemic numbers: doubling time, reproduction mumber.
 
 ## Installation
 This repository contains Lazarus source files only. Please use Lazarus v2.0.6 or
@@ -15,3 +16,4 @@ For Windows the OpenSSL dlls can be downloaded from
 
 ## Data source
 https://github.com/CSSEGISandData/COVID-19
+https://npgeo-corona-npgeo-de.hub.arcgis.com/
