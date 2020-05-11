@@ -1094,7 +1094,6 @@ end;
 procedure TMainForm.rgDataTypeClick(Sender: TObject);
 var
   L: TFPList;
-  i: Integer;
 begin
   // Store currently available series in a list
   L := StoreSeriesNodesInList();
@@ -1214,13 +1213,13 @@ begin
       dataSrcClass := TRobertKochDataSource;
       if (ANode.Level = 1) then
       begin
-        country := IntToStr(PtrInt(ANode.Data));
+        country := IntToStr({%H-}PtrUInt(ANode.Data));
         state := '';
       end else
       if ANode.Level = 2 then
       begin
-        country := IntToStr(PtrInt(ANode.Parent.Data));
-        state := FormatFloat('00000', PtrInt(ANode.Data));
+        country := IntToStr({%H-}PtrUInt(ANode.Parent.Data));
+        state := FormatFloat('00000', {%H-}PtrUInt(ANode.Data));
       end;
     end;
     {$ENDIF}

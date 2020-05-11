@@ -33,8 +33,6 @@ type
 
 
 function DownloadFile(const URL: String; AStream: TStream): Boolean;
-var
-  D: TDownloader;
 begin
   with TDownloader.Create do
     try

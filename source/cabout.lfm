@@ -1,13 +1,13 @@
 object AboutForm: TAboutForm
   Left = 477
-  Height = 387
+  Height = 442
   Top = 207
-  Width = 323
+  Width = 390
   AutoSize = True
   BorderStyle = bsDialog
   Caption = 'About GW'
-  ClientHeight = 387
-  ClientWidth = 323
+  ClientHeight = 442
+  ClientWidth = 390
   OnCreate = FormCreate
   Position = poMainFormCenter
   ShowHint = True
@@ -16,17 +16,18 @@ object AboutForm: TAboutForm
     AnchorSideLeft.Control = Owner
     AnchorSideTop.Control = Owner
     Left = 12
-    Height = 96
+    Height = 128
     Top = 12
-    Width = 96
+    Width = 128
     BorderSpacing.Left = 12
     BorderSpacing.Top = 12
+    Proportional = True
   end
   object lblTitle: TLabel
     AnchorSideLeft.Control = AppImage
     AnchorSideLeft.Side = asrBottom
     AnchorSideTop.Control = AppImage
-    Left = 124
+    Left = 156
     Height = 45
     Top = 12
     Width = 109
@@ -44,7 +45,7 @@ object AboutForm: TAboutForm
     AnchorSideTop.Side = asrBottom
     Left = 12
     Height = 15
-    Top = 124
+    Top = 156
     Width = 42
     BorderSpacing.Top = 16
     Caption = 'Credits:'
@@ -58,17 +59,18 @@ object AboutForm: TAboutForm
     AnchorSideTop.Side = asrBottom
     AnchorSideRight.Side = asrBottom
     Left = 12
-    Height = 214
-    Top = 143
-    Width = 300
+    Height = 193
+    Top = 175
+    Width = 363
+    Anchors = [akTop, akLeft, akRight]
     AutoSize = True
     BorderSpacing.Left = 12
     BorderSpacing.Top = 4
     BorderSpacing.Right = 12
     BevelOuter = bvNone
     BorderStyle = bsSingle
-    ClientHeight = 210
-    ClientWidth = 296
+    ClientHeight = 189
+    ClientWidth = 359
     Color = clWindow
     ParentColor = False
     TabOrder = 0
@@ -87,16 +89,14 @@ object AboutForm: TAboutForm
       ParentColor = False
     end
     object lblFPC: TLabel
-      AnchorSideLeft.Control = lblCompiler
-      AnchorSideLeft.Side = asrBottom
+      AnchorSideLeft.Control = lblRolandHahn
       AnchorSideTop.Control = lblCompiler
       Cursor = crHandPoint
-      Left = 110
+      Left = 122
       Height = 15
       Hint = 'https://www.freepascal.org/'
       Top = 8
       Width = 110
-      BorderSpacing.Left = 16
       Caption = 'Free Pascal Compiler'
       Font.Color = clBlue
       ParentColor = False
@@ -106,17 +106,15 @@ object AboutForm: TAboutForm
       OnMouseLeave = LabelMouseLeave
     end
     object lblLazarus: TLabel
-      AnchorSideLeft.Control = lblIDE
-      AnchorSideLeft.Side = asrBottom
+      AnchorSideLeft.Control = lblRolandHahn
       AnchorSideTop.Control = lblFPC
       AnchorSideTop.Side = asrBottom
       Cursor = crHandPoint
-      Left = 110
+      Left = 122
       Height = 15
       Hint = 'https://www.lazarus-ide.org/'
       Top = 27
       Width = 39
-      BorderSpacing.Left = 16
       BorderSpacing.Top = 4
       Caption = 'Lazarus'
       Font.Color = clBlue
@@ -142,27 +140,25 @@ object AboutForm: TAboutForm
       AnchorSideTop.Control = lblIcons8
       AnchorSideRight.Control = lblDataSources
       AnchorSideRight.Side = asrBottom
-      Left = 63
+      Left = 21
       Height = 15
       Top = 46
-      Width = 31
+      Width = 73
       Anchors = [akTop, akRight]
       BorderSpacing.Left = 24
-      Caption = 'Icons:'
+      Caption = 'Toolbar icons:'
       ParentColor = False
     end
     object lblIcons8: TLabel
-      AnchorSideLeft.Control = lblIcons
-      AnchorSideLeft.Side = asrBottom
+      AnchorSideLeft.Control = lblRolandHahn
       AnchorSideTop.Control = lblLazarus
       AnchorSideTop.Side = asrBottom
       Cursor = crHandPoint
-      Left = 110
+      Left = 122
       Height = 15
       Hint = 'www.icons8.com'
       Top = 46
       Width = 91
-      BorderSpacing.Left = 16
       BorderSpacing.Top = 4
       Caption = 'www.icons8.com'
       Font.Color = clBlue
@@ -178,7 +174,7 @@ object AboutForm: TAboutForm
       AnchorSideRight.Side = asrBottom
       Left = 24
       Height = 15
-      Top = 77
+      Top = 96
       Width = 70
       BorderSpacing.Left = 24
       Caption = 'Data sources:'
@@ -186,16 +182,16 @@ object AboutForm: TAboutForm
     end
     object imgJHU: TImage
       AnchorSideLeft.Control = lblFPC
-      AnchorSideTop.Control = lblIcons8
+      AnchorSideTop.Control = lblRolandHahn
       AnchorSideTop.Side = asrBottom
       Cursor = crHandPoint
-      Left = 110
+      Left = 122
       Height = 32
-      Top = 77
+      Top = 96
       Width = 162
       AutoSize = True
       BorderSpacing.Top = 16
-      BorderSpacing.Right = 24
+      BorderSpacing.Right = 16
       BorderSpacing.Bottom = 2
       OnClick = LabelClick
       Picture.Data = {
@@ -315,18 +311,17 @@ object AboutForm: TAboutForm
       }
     end
     object lblJHUgit: TLabel
-      AnchorSideLeft.Control = lblIcons
+      AnchorSideLeft.Control = imgJHU
       AnchorSideLeft.Side = asrBottom
       AnchorSideTop.Control = imgJHU
-      AnchorSideTop.Side = asrBottom
       Cursor = crHandPoint
-      Left = 110
+      Left = 300
       Height = 15
       Hint = 'www.icons8.com'
-      Top = 111
+      Top = 98
       Width = 45
-      BorderSpacing.Left = 16
       BorderSpacing.Top = 2
+      BorderSpacing.Right = 24
       BorderSpacing.Bottom = 8
       Caption = 'Data site'
       Font.Color = clBlue
@@ -338,13 +333,14 @@ object AboutForm: TAboutForm
     end
     object imgRKI: TImage
       AnchorSideLeft.Control = imgJHU
-      AnchorSideTop.Control = lblJHUgit
+      AnchorSideTop.Control = imgJHU
       AnchorSideTop.Side = asrBottom
-      Left = 110
+      Left = 122
       Height = 45
-      Top = 134
+      Top = 136
       Width = 150
       AutoSize = True
+      BorderSpacing.Top = 8
       BorderSpacing.Right = 24
       BorderSpacing.Bottom = 8
       OnClick = LabelClick
@@ -422,18 +418,15 @@ object AboutForm: TAboutForm
       }
     end
     object lblNPGeo: TLabel
-      AnchorSideLeft.Control = lblIcons
-      AnchorSideLeft.Side = asrBottom
+      AnchorSideLeft.Control = lblJHUgit
       AnchorSideTop.Control = imgRKI
-      AnchorSideTop.Side = asrBottom
       Cursor = crHandPoint
-      Left = 110
+      Left = 300
       Height = 15
       Hint = 'www.icons8.com'
-      Top = 187
+      Top = 136
       Width = 45
-      BorderSpacing.Left = 16
-      BorderSpacing.Top = 2
+      BorderSpacing.Right = 24
       BorderSpacing.Bottom = 8
       Caption = 'Data site'
       Font.Color = clBlue
@@ -443,15 +436,44 @@ object AboutForm: TAboutForm
       OnMouseEnter = LabelMouseEnter
       OnMouseLeave = LabelMouseLeave
     end
+    object lblAppIcon: TLabel
+      AnchorSideLeft.Control = Panel1
+      AnchorSideTop.Control = lblRolandHahn
+      AnchorSideRight.Side = asrBottom
+      Left = 16
+      Height = 15
+      Top = 65
+      Width = 90
+      BorderSpacing.Left = 16
+      Caption = 'Application icon:'
+      ParentColor = False
+    end
+    object lblRolandHahn: TLabel
+      AnchorSideLeft.Control = lblAppIcon
+      AnchorSideLeft.Side = asrBottom
+      AnchorSideTop.Control = lblIcons
+      AnchorSideTop.Side = asrBottom
+      Left = 122
+      Height = 15
+      Hint = 'www.icons8.com'
+      Top = 65
+      Width = 69
+      BorderSpacing.Left = 16
+      BorderSpacing.Top = 4
+      Caption = 'Roland Hahn'
+      ParentColor = False
+      ParentFont = False
+      OnClick = LabelClick
+    end
   end
   object BitBtn1: TBitBtn
     AnchorSideTop.Control = Panel1
     AnchorSideTop.Side = asrBottom
     AnchorSideRight.Control = Panel1
     AnchorSideRight.Side = asrBottom
-    Left = 257
+    Left = 320
     Height = 25
-    Top = 365
+    Top = 376
     Width = 55
     Anchors = [akTop, akRight]
     AutoSize = True

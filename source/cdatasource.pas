@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, ComCtrls,
-  cGlobal, cDownloader;
+  cGlobal;
 
 type
   TStatusbarEvent = procedure (Sender: TObject; const AMsg1, AMsg2: String) of object;

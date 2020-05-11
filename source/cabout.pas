@@ -22,7 +22,9 @@ type
     lblCompiler: TLabel;
     lblFPC: TLabel;
     lblIcons: TLabel;
+    lblAppIcon: TLabel;
     lblIcons8: TLabel;
+    lblRolandHahn: TLabel;
     lblJHUgit: TLabel;
     lblIDE: TLabel;
     lblNPGeo: TLabel;
@@ -66,7 +68,7 @@ begin
   with AppImage do
   begin
     Picture.Assign(Application.Icon);
-    Picture.Icon.Current := Picture.Icon.GetBestIndexForSize(Size(Width, Height));
+    Picture.Icon.Current := Picture.Icon.GetBestIndexForSize(Size(256, 256));
   end;
 
   lblFPC.Hint := URL_FPC;

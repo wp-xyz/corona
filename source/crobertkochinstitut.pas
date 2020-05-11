@@ -29,8 +29,7 @@ type
 implementation
 
 uses
-  StrUtils, DateUtils,
-  //JSONTools,
+  DateUtils,
   fpJson, JSONParser, JSONScanner,
   cDownloader;
 
@@ -585,7 +584,6 @@ var
   topnode, landnode: TTreeNode;
   i, id, prevID: PtrInt;
   s: String;
-  p: Integer;
 begin
   Result := false;
 
@@ -593,7 +591,7 @@ begin
   topnode := ATreeView.Items.AddChild(nil, 'Germany (RKI)');
 
   for i:=Low(Bundesland) to High(Bundesland) do
-    landnode := ATreeView.Items.AddChildObject(topnode, Bundesland[i], Pointer(i));
+    landnode := ATreeView.Items.AddChildObject(topnode, Bundesland[i], {%H-}Pointer(i));
 
   for i := Low(Landkreis) to High(Landkreis) do
   begin
@@ -607,7 +605,7 @@ begin
     s := Copy(Landkreis[i], 1, 5);
     id := StrToInt(s);
     s := Copy(Landkreis[i], 7, MaxInt);
-    ATreeView.Items.AddChildObject(landnode, s, pointer(id));
+    ATreeView.Items.AddChildObject(landnode, s, {%H-}pointer(id));
   end;
 
   Result := true;

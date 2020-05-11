@@ -59,7 +59,7 @@ end;
 
 function TcLineSeries.GetAccRange: Integer;
 begin
-  Result := FCalculatedSource.AccumulationRange * 2 - 1;
+  Result := Integer(FCalculatedSource.AccumulationRange) * 2 - 1;
 end;
 
 function TcLineSeries.GetMovingAverage: Boolean;
@@ -99,7 +99,7 @@ end;
 
 function TcBarSeries.GetAccRange: Integer;
 begin
-  Result := FCalculatedSource.AccumulationRange * 2 - 1;
+  Result := Integer(FCalculatedSource.AccumulationRange) * 2 - 1;
 end;
 
 function TcBarSeries.GetMovingAverage: Boolean;
