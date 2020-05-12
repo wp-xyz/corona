@@ -335,6 +335,7 @@ object AboutForm: TAboutForm
       AnchorSideLeft.Control = imgJHU
       AnchorSideTop.Control = imgJHU
       AnchorSideTop.Side = asrBottom
+      Cursor = crHandPoint
       Left = 122
       Height = 45
       Top = 136

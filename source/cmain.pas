@@ -3,13 +3,16 @@ unit cMain;
 {$mode objfpc}{$H+}
 {$define RKI}
 
+// Es gibt noch ein Define DEBUG_LOCATIONPARAMS in den Projekt-Optionen.
+
+
 interface
 
 uses
   LCLType,
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, ExtCtrls,
   StdCtrls, Buttons, Grids, Types, LCLVersion, Menus, ActnList, StdActns,
-  TAGraph, TAIntervalSources, TASeries, TAChartListbox, TALegend,
+  TAGraph, TAIntervalSources, TASeries, TAChartListbox, TALegend, TASources,
   TACustomSeries, TATransformations, TATools, TAFuncSeries, TADataTools,
   cGlobal;
 
@@ -35,6 +38,7 @@ type
     acDataMovingAverage: TAction;
     acInfectiousPeriod: TAction;
     acSmoothingRange: TAction;
+    acDataShowPopulation: TAction;
     ActionList: TActionList;
     Chart: TChart;
     BottomAxisTransformations: TChartAxisTransformations;
@@ -47,6 +51,7 @@ type
     MenuItem1: TMenuItem;
     MenuItem10: TMenuItem;
     MenuItem11: TMenuItem;
+    mnuShowPopulation: TMenuItem;
     MenuItem2: TMenuItem;
     MenuItem3: TMenuItem;
     mnuCommonStart: TMenuItem;
@@ -118,8 +123,10 @@ type
     procedure acDataClearExecute(Sender: TObject);
     procedure acDataCommonStartExecute(Sender: TObject);
     procedure acDataMovingAverageExecute(Sender: TObject);
+    procedure acDataShowPopulationExecute(Sender: TObject);
     procedure acDataUpdateExecute(Sender: TObject);
     procedure acInfectiousPeriodExecute(Sender: TObject);
+    procedure acNormalizeToPopulationExecute(Sender: TObject);
     procedure acSmoothingRangeExecute(Sender: TObject);
     procedure acTableSaveExecute(Sender: TObject);
     procedure cgCasesItemClick(Sender: TObject; Index: integer);
@@ -142,6 +149,7 @@ type
     procedure rgDataTypeClick(Sender: TObject);
     procedure ToolBarResize(Sender: TObject);
     procedure TreeViewClick(Sender: TObject);
+    procedure TreeViewDeletion(Sender: TObject; Node: TTreeNode);
 
   private
     FMeasurementSeries: TFuncSeries;
@@ -155,12 +163,13 @@ type
     procedure EnableMovingAverage(ASeries: TChartSeries; AEnabled, AStrict: Boolean);
     function GetCellText(ACol, ARow: Integer): String;
     function GetLocation(ANode: TTreeNode): String;
-    procedure GetLocation(ANode: TTreeNode; out ACountry, AState: String);
+    procedure GetLocation(ANode: TTreeNode; out ACountry, AState: String; out APopulation: Integer);
     function GetSeries(ANode: TTreeNode; ACaseType: TCaseType; ADataType: TDataType): TBasicPointSeries;
     procedure InitShortCuts;
     function IsTimeSeries: Boolean;
     procedure LayoutBars;
     procedure LoadLocations;
+    procedure NormalizeToPopulation(ASource: TListChartSource; APopulation: Integer; PerWeek: Boolean);
     procedure PopulateCumulativeSeries(const ADates, AValues: TStringArray; ASeries: TChartSeries);
     procedure PopulateNewCasesSeries(const ADates, AValues: TStringArray; ASeries: TChartSeries);
     procedure RestoreSeriesNodesFromList(AList: TFPList);
@@ -306,7 +315,7 @@ var
   isMovingAverage: Boolean;
 begin
   isMovingAverage := acDataMovingAverage.Checked and
-    ( TDataType(rgDataType.ItemIndex) in [dtCumulative, dtNewCases] );
+    ( TDataType(rgDataType.ItemIndex) in [dtCumulative, dtNormalizedCumulative, dtNormalizedNewCases, dtNewCases] );
 
   for i:=0 to Chart.SeriesCount-1 do
     if Chart.Series[i] is TChartSeries then
@@ -314,6 +323,12 @@ begin
 
   cbMovingAverage.Caption := Format('Moving average (%d days)', [SmoothingRange]);
   UpdateGrid;
+end;
+
+procedure TMainForm.acDataShowPopulationExecute(Sender: TObject);
+begin
+  ShowPopulation := acDataShowPopulation.Checked;
+  LoadLocations;
 end;
 
 procedure TMainForm.acDataUpdateExecute(Sender: TObject);
@@ -333,7 +348,7 @@ begin
     if TryStrToInt(s, n) and (n > 0) then
     begin
       InfectiousPeriod := n;
-      rgDataType.Items[4] := Format('Reproduction number (%d d)', [InfectiousPeriod]);
+      rgDataType.Items[ord(dtRValue)] := Format('Reproduction number (%d d)', [InfectiousPeriod]);
 
       // Recalculate the currently loaded data
       L := StoreSeriesNodesInList();
@@ -344,6 +359,18 @@ begin
       end;
     end else
       MessageDlg('No valid number.', mtError, [mbOk], 0);
+  end;
+end;
+
+procedure TMainForm.acNormalizeToPopulationExecute(Sender: TObject);
+var
+  L: TFPList;
+begin
+  L := StoreSeriesNodesInList();
+  try
+    RestoreSeriesNodesFromList(L);
+  finally
+    L.Free;
   end;
 end;
 
@@ -712,7 +739,10 @@ begin
   end;
 end;
 
-procedure TMainForm.GetLocation(ANode: TTreeNode; out ACountry, AState: String);
+procedure TMainForm.GetLocation(ANode: TTreeNode; out ACountry, AState: String;
+  out APopulation: Integer);
+var
+  loc: PLocationParams;
 begin
   if ANode.Parent = nil then begin
     ACountry := ANode.Text;
@@ -722,13 +752,17 @@ begin
     ACountry := ANode.Parent.Text;
     AState := ANode.Text;
   end;
+  loc := PLocationParams(ANode.Data);
+  if loc <> nil then
+    APopulation := loc^.Population;
 end;
 
 function TMainForm.GetLocation(ANode: TTreeNode): String;
 var
   country, state: String;
+  population: Integer;
 begin
-  GetLocation(ANode, country, state);
+  GetLocation(ANode, country, state, population);
   if state = '' then
     Result := country
   else
@@ -766,6 +800,7 @@ begin
   for ct in TCaseType do begin
     case ADataType of
       dtCumulative,
+      dtNormalizedCumulative,
       dtDoublingTime,
       dtCumVsNewCases,
       dtRValue:
@@ -802,7 +837,8 @@ begin
             Node := ANode;
           end;
         end;
-      dtNewCases:
+      dtNewCases,
+      dtNormalizedNewCases:
         begin
           ser := TcBarSeries.Create(Chart);
           with TcBarSeries(ser) do
@@ -893,7 +929,7 @@ var
   i, j, n: Integer;
   ser: TBarSeries;
 begin
-  if not (TDataType(rgDataType.ItemIndex) in [dtNewCases, dtDoublingTime]) then
+  if not (TDataType(rgDataType.ItemIndex) in [dtNewCases, dtNormalizedNewCases, dtDoublingTime]) then
     exit;
 
   n := 0;
@@ -912,6 +948,7 @@ begin
     end;
 end;
 
+// Populates the treeview with the locations.
 procedure TMainForm.LoadLocations;
 var
   ok: Boolean;
@@ -927,6 +964,7 @@ begin
   TreeView.Items.BeginUpdate;
   try
     TreeView.Items.Clear;
+
     with TJohnsHopkinsDatasource.Create(DataDir) do
     try
       ok := LoadLocations(TreeView);
@@ -1008,6 +1046,29 @@ end;
 procedure TMainForm.MeasurementToolMeasure(ASender: TDataPointDistanceTool);
 begin
   FMeasurementSeries.Active := false;
+end;
+
+procedure TMainForm.NormalizeToPopulation(ASource: TListChartSource;
+  APopulation: Integer; PerWeek: Boolean);
+var
+  i, j: Integer;
+  sum: Double;
+begin
+  if APopulation <= 0 then
+    exit;
+
+  if PerWeek then
+    for i := ASource.Count-1 downto 0 do begin
+      // Calculate 1 week sum
+      sum := ASource.Item[i]^.Y;
+      for j := 1 to 6 do   // 1 week
+        if i - j >= 0 then
+          sum := sum + ASource.Item[i-j]^.Y;
+      ASource.Item[i]^.Y := sum / APopulation * PopulationRef;
+    end
+  else
+    for i := ASource.Count-1 downto 0 do
+      ASource.Item[i]^.Y := ASource.Item[i]^.Y / APopulation * PopulationRef;
 end;
 
 procedure TMainForm.PageControlChange(Sender: TObject);
@@ -1094,29 +1155,38 @@ end;
 procedure TMainForm.rgDataTypeClick(Sender: TObject);
 var
   L: TFPList;
+  dt: TDataType;
 begin
   // Store currently available series in a list
   L := StoreSeriesNodesInList();
   try
     Clear;
-    case TDataType(rgDataType.ItemIndex) of
-      dtCumulative:
+    dt := TDataType(rgDataType.ItemIndex);
+
+    case dt of
+      dtCumulative, dtNormalizedCumulative:
         begin
-          Chart.LeftAxis.Title.Caption := 'Cases';
-          Chart.BottomAxis.Title.Caption := 'Date';
-          lblTableHdr.Caption := 'Cases'; //'Cumulative Cases';
+          if dt = dtNormalizedCumulative then
+            lblTableHdr.Caption := Format('Cumulative cases per %.0n persons', [1.0 * PopulationRef])
+          else
+            lblTableHdr.Caption := 'Cumulative cases';
           lblTableHint.Caption := '';
+          Chart.LeftAxis.Title.Caption := lblTableHdr.Caption;
+          Chart.BottomAxis.Title.Caption := 'Date';
           UpdateAxes(false, acChartLogarithmic.Checked);
           MeasurementTool.Enabled := true;
           acDataMovingAverage.enabled := true;
           cgCases.Enabled := true;
         end;
-      dtNewCases:
+      dtNewCases, dtNormalizedNewCases:
         begin
-          Chart.LeftAxis.Title.Caption := 'New Cases';
-          Chart.BottomAxis.Title.Caption := 'Date';
-          lblTableHdr.Caption := 'New Cases';
+          if dt = dtNormalizedNewCases then
+            lblTableHdr.Caption := Format('New cases per %.0n persons and week', [1.0 * PopulationRef])
+          else
+            lblTableHdr.Caption := 'New cases per day';
           lblTableHint.Caption := '';
+          Chart.LeftAxis.Title.Caption := lblTableHdr.Caption;
+          Chart.BottomAxis.Title.Caption := 'Date';
           UpdateAxes(false, false);
           MeasurementTool.Enabled := false;
           acDataMovingAverage.enabled := true;
@@ -1189,10 +1259,12 @@ var
   ser: TBasicPointSeries;
   Y, Y0, dY, dY0: Double;
   country, state: String;
+  population: Integer;
   dataSrcClass: TcDataSourceClass;
   src: TCustomChartSource;
   dataArr: TDataPointArray;
   RValueDone: Boolean;
+  loc: PLocationParams;
 begin
   if ANode = nil then
     exit;
@@ -1203,7 +1275,7 @@ begin
       Clear(false);
 
     dataSrcClass := TJohnsHopkinsDataSource;
-    GetLocation(ANode, country, state);
+    GetLocation(ANode, country, state, population);
 
     {$IFDEF RKI}
     if ((ANode.Level = 0) and (ANode.Text = RKI_CAPTION)) or
@@ -1211,15 +1283,20 @@ begin
        ((ANode.Level = 2) and (ANode.Parent.Parent.Text = RKI_CAPTION))
     then begin
       dataSrcClass := TRobertKochDataSource;
+      loc := PLocationParams(ANode.Data);
+      if loc = nil then
+        raise Exception.Create('Location cannot be nil.');
+
       if (ANode.Level = 1) then
       begin
-        country := IntToStr({%H-}PtrUInt(ANode.Data));
+        country := IntToStr(loc^.ID);
         state := '';
       end else
       if ANode.Level = 2 then
       begin
-        country := IntToStr({%H-}PtrUInt(ANode.Parent.Data));
-        state := FormatFloat('00000', {%H-}PtrUInt(ANode.Data));
+        state := FormatFloat('00000', loc^.ID);
+        loc := PLocationParams(ANode.Parent.Data);
+        country := IntToStr(loc^.ID);
       end;
     end;
     {$ENDIF}
@@ -1255,26 +1332,30 @@ begin
       ser := GetSeries(ANode, ct, dt);
       src := ser.Source;
       case dt of
-        dtCumulative:
+        dtCumulative, dtNormalizedCumulative:
           begin
             ser.Source := nil;
             ser.ListSource.YCount := 1;
             ser.BeginUpdate;
             try
               PopulateCumulativeSeries(saX, saY, ser);
+              if dt = dtNormalizedCumulative then
+                NormalizeToPopulation(ser.ListSource, population, false);
             finally
               ser.EndUpdate;
               ser.Source := src;
             end;
           end;
 
-        dtNewCases:
+        dtNewCases, dtNormalizedNewCases:
           begin
             ser.Source := nil;
             ser.ListSource.YCount := 1;
             ser.BeginUpdate;
             try
               PopulateNewCasesSeries(saX, saY, ser);
+              if dt = dtNormalizedNewCases then
+                NormalizeToPopulation(ser.ListSource, population, true);
             finally
               ser.EndUpdate;
               ser.Source := src;
@@ -1429,10 +1510,22 @@ begin
   ShowData(TreeView.Selected);
 end;
 
+procedure TMainForm.TreeViewDeletion(Sender: TObject; Node: TTreeNode);
+var
+  loc: PLocationParams;
+begin
+  if (Node <> nil) and (Node.Data <> nil) then
+  begin
+    loc := PLocationParams(Node.Data);
+    Dispose(loc);
+    Node.Data := nil;
+  end;
+end;
+
 procedure TMainForm.UpdateActionStates;
 begin
   acTableSave.Enabled := Chart.SeriesCount > 1;  // 1 series reserved for measurement
-  acChartLogarithmic.Enabled := TDataType(rgDataType.ItemIndex) in [dtCumulative, dtCumVsNewCases];
+  acChartLogarithmic.Enabled := TDataType(rgDataType.ItemIndex) in [dtCumulative, dtNormalizedCumulative, dtCumVsNewCases];
   acChartLinear.Enabled := acChartLogarithmic.Enabled;
 end;
 
@@ -1658,13 +1751,15 @@ begin
 
     acDataMovingAverage.Checked := ini.ReadBool('MainForm', 'MovingAverage', acDataMovingAverage.Checked);
     acChartOverlay.Checked := ini.ReadBool('MainForm', 'Overlay', acChartOverlay.Checked);
+    acDataShowPopulation.Checked := ini.ReadBool('MainForm', 'ShowPopulation', acDataShowPopulation.Checked);
+    acDataShowPopulationExecute(nil);
 
     n := ini.ReadInteger('MainForm', 'DataType', rgDataType.ItemIndex);
     if (n >= 0) and (n <= ord(High(TDataType))) then
       rgDataType.ItemIndex := n;
     isLog := ini.ReadBool('MainForm', 'Logarithmic', acChartLogarithmic.Checked);
     case TDataType(rgDataType.ItemIndex) of
-      dtCumulative:
+      dtCumulative, dtNormalizedCumulative:
         begin
           acChartLogarithmic.Checked  := isLog;
           UpdateAxes(false, isLog);
@@ -1685,7 +1780,7 @@ begin
     SmoothingRange := ini.ReadInteger('Params', 'SmoothingRange', SmoothingRange);
     RRange := (SmoothingRange - 1) div 2;
 
-    rgDataType.Items[4] := Format('Reproduction number (%d d)', [InfectiousPeriod]);
+    rgDataType.Items[ord(dtRValue)] := Format('Reproduction number (%d d)', [InfectiousPeriod]);
     cbMovingAverage.Caption := Format('Moving average (%d days)', [SmoothingRange]);
 
   finally
@@ -1724,9 +1819,9 @@ begin
     ini.WriteInteger('MainForm', 'DataType', rgDataType.ItemIndex);
 
     ini.WriteBool('MainForm', 'MovingAverage', acDataMovingAverage.Checked);
-
     ini.WriteBool('MainForm', 'Overlay', acChartOverlay.Checked);
-    if TDataType(rgDataType.ItemIndex) = dtCumulative then
+    ini.WriteBool('MainForm', 'Show population', acDataShowPopulation.Checked);
+    if TDataType(rgDataType.ItemIndex) in [dtCumulative, dtNormalizedCumulative] then
       ini.WriteBool('MainForm', 'Logarithmic', acChartLogarithmic.Checked);
 
     ini.WriteBool('MainForm', 'ShowHints', acConfigHint.Checked);

@@ -9,9 +9,23 @@ uses
 
 type
   TCaseType = (ctConfirmed, ctDeaths, ctRecovered, ctSick);
-  TDataType = (dtCumulative, dtNewCases, dtDoublingTime, dtCumVsNewCases, dtRValue);
+
+  TDataType = (
+    dtCumulative, dtNewCases,
+    dtNormalizedCumulative, dtNormalizedNewcases,
+    dtDoublingTime, dtCumVsNewCases, dtRValue
+  );
 
   TDataPointArray = array of TDoublePoint;
+
+  TLocationParams = record
+   {$IFDEF DEBUG_LOCATIONPARAMS}
+    Name: String[16];
+   {$ENDIF}
+    ID: Integer;
+    Population: Integer;
+  end;
+  PLocationParams = ^TLocationParams;
 
 const
   CASETYPE_NAMES: array [TCaseType] of string = (
@@ -33,6 +47,8 @@ var
   InfectiousPeriod: Integer = INFECTIOUS_PERIOD;
   SmoothingRange: Integer = ACCUMULATION_RANGE;
   RRange: Integer = (ACCUMULATION_RANGE - 1) div 2;   // +/- from center
+  PopulationRef: Integer = 100000;
+  ShowPopulation: Boolean = false;
 
   cFormatSettings: TFormatSettings;
 

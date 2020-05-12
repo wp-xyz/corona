@@ -1671,7 +1671,7 @@ object MainForm: TMainForm
   ShowHint = True
   LCLVersion = '2.1.0.0'
   object LeftSplitter: TSplitter
-    Left = 311
+    Left = 339
     Height = 511
     Top = 44
     Width = 5
@@ -1688,26 +1688,30 @@ object MainForm: TMainForm
     Left = 6
     Height = 499
     Top = 50
-    Width = 305
+    Width = 333
     Align = alLeft
-    AutoSize = True
     BorderSpacing.Left = 6
     BorderSpacing.Top = 6
     BorderSpacing.Bottom = 6
     BevelOuter = bvNone
     ClientHeight = 499
-    ClientWidth = 305
+    ClientWidth = 333
     TabOrder = 0
     object cgCases: TCheckGroup
       AnchorSideLeft.Control = LeftPanel
-      AnchorSideTop.Control = LeftPanel
+      AnchorSideTop.Control = rgDataType
+      AnchorSideTop.Side = asrBottom
+      AnchorSideRight.Control = rgDataType
+      AnchorSideRight.Side = asrBottom
       AnchorSideBottom.Side = asrBottom
       Left = 0
-      Height = 114
-      Top = 0
-      Width = 105
+      Height = 51
+      Top = 120
+      Width = 333
+      Anchors = [akTop, akLeft, akRight]
       AutoFill = True
       AutoSize = True
+      BorderSpacing.Top = 6
       Caption = 'Cases'
       ChildSizing.LeftRightSpacing = 12
       ChildSizing.TopBottomSpacing = 6
@@ -1717,9 +1721,10 @@ object MainForm: TMainForm
       ChildSizing.ShrinkHorizontal = crsScaleChilds
       ChildSizing.ShrinkVertical = crsScaleChilds
       ChildSizing.Layout = cclLeftToRightThenTopToBottom
-      ChildSizing.ControlsPerLine = 1
-      ClientHeight = 94
-      ClientWidth = 101
+      ChildSizing.ControlsPerLine = 4
+      ClientHeight = 31
+      ClientWidth = 329
+      Columns = 4
       Items.Strings = (
         'Confirmed'
         'Deaths'
@@ -1741,29 +1746,31 @@ object MainForm: TMainForm
       AnchorSideBottom.Control = LeftPanel
       AnchorSideBottom.Side = asrBottom
       Left = 0
-      Height = 331
+      Height = 295
       Hint = 'Click on the country to display'
-      Top = 168
-      Width = 305
+      Top = 204
+      Width = 333
       Anchors = [akTop, akLeft, akRight, akBottom]
       BorderSpacing.Top = 8
       HideSelection = False
       ReadOnly = True
       TabOrder = 2
       OnClick = TreeViewClick
+      OnDeletion = TreeViewDeletion
       Options = [tvoAutoItemHeight, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
     end
     object rgDataType: TRadioGroup
-      AnchorSideLeft.Control = cgCases
-      AnchorSideLeft.Side = asrBottom
+      AnchorSideLeft.Control = LeftPanel
       AnchorSideTop.Control = LeftPanel
-      Left = 113
-      Height = 135
+      AnchorSideRight.Control = LeftPanel
+      AnchorSideRight.Side = asrBottom
+      Left = 0
+      Height = 114
       Top = 0
-      Width = 192
+      Width = 333
+      Anchors = [akTop, akLeft, akRight]
       AutoFill = True
       AutoSize = True
-      BorderSpacing.Left = 8
       Caption = 'Data'
       ChildSizing.LeftRightSpacing = 12
       ChildSizing.TopBottomSpacing = 6
@@ -1773,13 +1780,16 @@ object MainForm: TMainForm
       ChildSizing.ShrinkHorizontal = crsScaleChilds
       ChildSizing.ShrinkVertical = crsScaleChilds
       ChildSizing.Layout = cclLeftToRightThenTopToBottom
-      ChildSizing.ControlsPerLine = 1
-      ClientHeight = 115
-      ClientWidth = 188
+      ChildSizing.ControlsPerLine = 2
+      ClientHeight = 94
+      ClientWidth = 329
+      Columns = 2
       ItemIndex = 0
       Items.Strings = (
         'Cumulative cases'
         'New cases'
+        'Normalized cumulative'
+        'Normalized new cases'
         'Doubling time'
         'Cum vs. new cases'
         'Reproduction number (5 d)'
@@ -1790,11 +1800,11 @@ object MainForm: TMainForm
     object cbMovingAverage: TCheckBox
       AnchorSideLeft.Control = LeftPanel
       AnchorSideLeft.Side = asrCenter
-      AnchorSideTop.Control = rgDataType
+      AnchorSideTop.Control = cgCases
       AnchorSideTop.Side = asrBottom
-      Left = 78
+      Left = 92
       Height = 19
-      Top = 141
+      Top = 177
       Width = 149
       Action = acDataMovingAverage
       BorderSpacing.Left = 8
@@ -1804,10 +1814,10 @@ object MainForm: TMainForm
     end
   end
   object PageControl: TPageControl
-    Left = 316
+    Left = 344
     Height = 499
     Top = 50
-    Width = 794
+    Width = 766
     ActivePage = pgChart
     Align = alClient
     BorderSpacing.Top = 6
@@ -1819,13 +1829,13 @@ object MainForm: TMainForm
     object pgChart: TTabSheet
       Caption = 'Chart'
       ClientHeight = 471
-      ClientWidth = 786
+      ClientWidth = 758
       object Chart: TChart
         Left = 6
         Height = 459
         Hint = 'Zoom: drag a rectangle from left-top to bottom-right corner with left mouse button down'#13#10'    or: use mouse wheel (zoom center is mouse position).'#13#10'Pan: drag with the right mouse button down'#13#10'Restore view: click'#13#10'Read data value: move mouse over data point (no key pressed)'#13#10'Measure doubling time: CTRL-drag over data points of interest with left mouse button down.'
         Top = 6
-        Width = 593
+        Width = 565
         AxisList = <        
           item
             Grid.Color = 14540253
@@ -1871,7 +1881,7 @@ object MainForm: TMainForm
         Color = clDefault
       end
       object RightPanel: TPanel
-        Left = 610
+        Left = 582
         Height = 459
         Top = 6
         Width = 170
@@ -1902,7 +1912,7 @@ object MainForm: TMainForm
         end
       end
       object RightSplitter: TSplitter
-        Left = 599
+        Left = 571
         Height = 471
         Top = 0
         Width = 5
@@ -2445,6 +2455,10 @@ object MainForm: TMainForm
         Action = acDataMovingAverage
         AutoCheck = True
       end
+      object mnuShowPopulation: TMenuItem
+        Action = acDataShowPopulation
+        AutoCheck = True
+      end
     end
     object mnuChart: TMenuItem
       Caption = 'Chart'
@@ -2612,6 +2626,11 @@ object MainForm: TMainForm
       Category = 'Config'
       Caption = 'Smoothing range...'
       OnExecute = acSmoothingRangeExecute
+    end
+    object acDataShowPopulation: TAction
+      AutoCheck = True
+      Caption = 'Show population'
+      OnExecute = acDataShowPopulationExecute
     end
   end
   object BottomAxisTransformations: TChartAxisTransformations

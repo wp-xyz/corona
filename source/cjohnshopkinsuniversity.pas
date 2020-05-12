@@ -28,10 +28,12 @@ uses
   cDownloader;
 
 const
-  BASE_URL = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/';
+  BASE_URL = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/';
+  TIMESERIES_URL = BASE_URL + 'csse_covid_19_time_series/';
   FILENAME_CONFIRMED = 'time_series_covid19_confirmed_global.csv';
   FILENAME_DEATHS = 'time_series_covid19_deaths_global.csv';
   FILENAME_RECOVERED = 'time_series_covid19_recovered_global.csv';
+  FILENAME_POPULATION = 'UID_ISO_FIPS_LookUp_Table.csv';
 
 function BeginsWithQuote(s: String): Boolean;
 begin
@@ -54,8 +56,8 @@ var
 begin
   stream := TMemoryStream.Create;
   try
-    DoStatusMsg(DOWNLOAD_FROM, BASE_URL + FILENAME_CONFIRMED + '...');
-    if not DownloadFile(BASE_URL + FILENAME_CONFIRMED, stream) then
+    DoStatusMsg(DOWNLOAD_FROM, TIMESERIES_URL + FILENAME_CONFIRMED + '...');
+    if not DownloadFile(TIMESERIES_URL + FILENAME_CONFIRMED, stream) then
     begin
       DoStatusMsg(DOWNLOAD_ERR, '');
       MessageDlg(DOWNLOAD_ERR, mtError, [mbOK], 0);
@@ -65,8 +67,8 @@ begin
     stream.SaveToFile(FCacheDir + FILENAME_CONFIRMED);
 
     stream.Position := 0;
-    DoStatusMsg(DOWNLOAD_FROM, BASE_URL + FILENAME_DEATHS + '...');
-    if not DownloadFile(BASE_URL + FILENAME_DEATHS, stream) then
+    DoStatusMsg(DOWNLOAD_FROM, TIMESERIES_URL + FILENAME_DEATHS + '...');
+    if not DownloadFile(TIMESERIES_URL + FILENAME_DEATHS, stream) then
     begin
       DoStatusMsg(DOWNLOAD_ERR, '');
       MessageDlg(DOWNLOAD_ERR, mtError, [mbOk], 0);
@@ -76,8 +78,8 @@ begin
     stream.SaveToFile(FCacheDir + FILENAME_DEATHS);
 
     stream.Position := 0;
-    DoStatusMsg(DOWNLOAD_FROM, BASE_URL + FILENAME_RECOVERED + '...');
-    if not DownloadFile(BASE_URL + FILENAME_RECOVERED, stream) then
+    DoStatusMsg(DOWNLOAD_FROM, TIMESERIES_URL + FILENAME_RECOVERED + '...');
+    if not DownloadFile(TIMESERIES_URL + FILENAME_RECOVERED, stream) then
     begin
       DoStatusMsg(DOWNLOAD_ERR, '');
       MessageDlg(DOWNLOAD_ERR, mtError, [mbOk], 0);
@@ -85,6 +87,18 @@ begin
     end;
     stream.Position := 0;
     stream.SaveToFile(FCacheDir + FILENAME_RECOVERED);
+
+    stream.Position := 0;
+    DoStatusmsg(DOWNLOAD_ERR, '');
+    if not DownloadFile(BASE_URL + FILENAME_POPULATION, stream) then
+    begin
+      DoStatusMsg(DOWNLOAD_ERR, '');
+      MessageDlg(DOWNLOAD_ERR, mtError, [mbOK], 0);
+      exit;
+    end;
+    stream.Position := 0;
+    stream.SaveToFile(FCacheDir + FILENAME_POPULATION);
+
 
   finally
     stream.Free;
@@ -176,29 +190,61 @@ var
   node: TTreeNode;
   sa: TStringArray;
   i: Integer;
+  population: Integer;
+  country, state: String;
+  loc: PLocationParams;
 begin
   Result := false;
 
-  fn := FCacheDir + FILENAME_CONFIRMED;
+  // all locations (countries, states) are listed also in the measurement files
+  // but the FILENAME_POPULATION contains also meta data, such as population.
+  fn := FCacheDir + FILENAME_POPULATION;
   if not FileExists(fn) then
     exit;
 
   L := TStringList.Create;
   try
-    L.LoadfromFile(fn);
+    L.LoadFromFile(fn);
     for i:=1 to L.Count-1 do begin
       if L[i] = '' then
         Continue;
-      if BeginsWithQuote(L[i]) then
-        Continue;
+
       sa := L[i].Split(',', '"');
-      if sa[0] <> '' then sa[0] := AnsiDequotedStr(sa[0], '"');
-      if sa[1] <> '' then sa[1] := AnsiDequotedStr(sa[1], '"');
-      node := ATreeView.Items.FindTopLvlNode(sa[1]);
+      if Length(sa) <> 12 then
+        Continue;
+
+      country := sa[7];
+      state := sa[6];
+      population := StrToInt(sa[11]);
+
+      // The 'US' data are contained in separate files not read by this program
+      if (country = 'US') and (state <> '') then
+        Continue;
+
+      // No data provided for Spanish provinces
+      if (country = 'Spain') and (state <> '') then
+        Continue;
+
+      New(loc);
+      loc^.ID := -1;  // not used by JHU
+      loc^.Population := population;
+
+      node := ATreeView.Items.FindTopLvlNode(country);
       if node = nil then
-        node := ATreeView.Items.AddChild(nil, sa[1]);
-      if sa[0] <> '' then
-        node := ATreeView.Items.AddChild(node, sa[0]);
+      begin
+        {$IFDEF DEBUG_LOCATIONPARAMS}
+        loc^.Name := country;
+        {$ENDIF}
+        node := ATreeView.Items.AddChildObject(nil, country, loc)
+      end
+      else
+      if state <> '' then
+      begin
+        {$IFDEF DEBUG_LOCATIONPARAMS}
+        loc^.Name := state;
+        {$ENDIF}
+        node := ATreeView.Items.AddChildObject(node, state, loc);
+      end;
     end;
   finally
     L.Free;
