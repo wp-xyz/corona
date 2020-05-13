@@ -38,7 +38,6 @@ type
     acDataMovingAverage: TAction;
     acInfectiousPeriod: TAction;
     acSmoothingRange: TAction;
-    acDataShowPopulation: TAction;
     ActionList: TActionList;
     Chart: TChart;
     BottomAxisTransformations: TChartAxisTransformations;
@@ -51,7 +50,6 @@ type
     MenuItem1: TMenuItem;
     MenuItem10: TMenuItem;
     MenuItem11: TMenuItem;
-    mnuShowPopulation: TMenuItem;
     MenuItem2: TMenuItem;
     MenuItem3: TMenuItem;
     mnuCommonStart: TMenuItem;
@@ -123,7 +121,6 @@ type
     procedure acDataClearExecute(Sender: TObject);
     procedure acDataCommonStartExecute(Sender: TObject);
     procedure acDataMovingAverageExecute(Sender: TObject);
-    procedure acDataShowPopulationExecute(Sender: TObject);
     procedure acDataUpdateExecute(Sender: TObject);
     procedure acInfectiousPeriodExecute(Sender: TObject);
     procedure acNormalizeToPopulationExecute(Sender: TObject);
@@ -323,12 +320,6 @@ begin
 
   cbMovingAverage.Caption := Format('Moving average (%d days)', [SmoothingRange]);
   UpdateGrid;
-end;
-
-procedure TMainForm.acDataShowPopulationExecute(Sender: TObject);
-begin
-  ShowPopulation := acDataShowPopulation.Checked;
-  LoadLocations;
 end;
 
 procedure TMainForm.acDataUpdateExecute(Sender: TObject);
@@ -1452,7 +1443,7 @@ begin
                 begin
                   Y0 := dataArr[i - InfectiousPeriod].Y;
                   Y := dataArr[i].Y;
-                  if (Y0 > 0) and (Y > 0) then //{and (Y / Y0 <= MAX_R)} and not ((Y<100) and (Y0<100)) then
+                  if (Y0 > 0) and (Y > 0) then
                   begin
                     dY0 := sqrt(Y0);
                     dY := sqrt(Y);
@@ -1475,7 +1466,10 @@ begin
     LayoutBars;
     UpdateAffectedSeries;
     UpdateGrid;
-    FStatustext1 := GetLocation(ANode) + ' loaded.';
+    if population > 0 then
+      FStatusText1 := Format('%s loaded (population %.0n)', [GetLocation(ANode), 1.0*population])
+    else
+      FStatusText1 := Format('%s loaded.', [GetLocation(ANode)]);
     UpdateStatusBar;
     UpdateActionStates;
   finally
@@ -1751,8 +1745,6 @@ begin
 
     acDataMovingAverage.Checked := ini.ReadBool('MainForm', 'MovingAverage', acDataMovingAverage.Checked);
     acChartOverlay.Checked := ini.ReadBool('MainForm', 'Overlay', acChartOverlay.Checked);
-    acDataShowPopulation.Checked := ini.ReadBool('MainForm', 'ShowPopulation', acDataShowPopulation.Checked);
-    acDataShowPopulationExecute(nil);
 
     n := ini.ReadInteger('MainForm', 'DataType', rgDataType.ItemIndex);
     if (n >= 0) and (n <= ord(High(TDataType))) then
@@ -1820,7 +1812,6 @@ begin
 
     ini.WriteBool('MainForm', 'MovingAverage', acDataMovingAverage.Checked);
     ini.WriteBool('MainForm', 'Overlay', acChartOverlay.Checked);
-    ini.WriteBool('MainForm', 'Show population', acDataShowPopulation.Checked);
     if TDataType(rgDataType.ItemIndex) in [dtCumulative, dtNormalizedCumulative] then
       ini.WriteBool('MainForm', 'Logarithmic', acChartLogarithmic.Checked);
 

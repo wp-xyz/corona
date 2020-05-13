@@ -40,15 +40,11 @@ const
   // Days used for moving-average-calculation
   ACCUMULATION_RANGE = 7;
 
-  // maximum reproduction number allowed in charts
-  MAX_R = 8;
-
 var
   InfectiousPeriod: Integer = INFECTIOUS_PERIOD;
   SmoothingRange: Integer = ACCUMULATION_RANGE;
-  RRange: Integer = (ACCUMULATION_RANGE - 1) div 2;   // +/- from center
-  PopulationRef: Integer = 100000;
-  ShowPopulation: Boolean = false;
+  RRange: Integer = (ACCUMULATION_RANGE - 1) div 2;           // +/- from center
+  PopulationRef: Integer = 100000;         // population count for normalization
 
   cFormatSettings: TFormatSettings;
 

@@ -2455,10 +2455,6 @@ object MainForm: TMainForm
         Action = acDataMovingAverage
         AutoCheck = True
       end
-      object mnuShowPopulation: TMenuItem
-        Action = acDataShowPopulation
-        AutoCheck = True
-      end
     end
     object mnuChart: TMenuItem
       Caption = 'Chart'
@@ -2626,11 +2622,6 @@ object MainForm: TMainForm
       Category = 'Config'
       Caption = 'Smoothing range...'
       OnExecute = acSmoothingRangeExecute
-    end
-    object acDataShowPopulation: TAction
-      AutoCheck = True
-      Caption = 'Show population'
-      OnExecute = acDataShowPopulationExecute
     end
   end
   object BottomAxisTransformations: TChartAxisTransformations
