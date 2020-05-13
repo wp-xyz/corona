@@ -1671,7 +1671,7 @@ object MainForm: TMainForm
   ShowHint = True
   LCLVersion = '2.1.0.0'
   object LeftSplitter: TSplitter
-    Left = 339
+    Left = 219
     Height = 511
     Top = 44
     Width = 5
@@ -1688,102 +1688,75 @@ object MainForm: TMainForm
     Left = 6
     Height = 499
     Top = 50
-    Width = 333
+    Width = 213
     Align = alLeft
+    AutoSize = True
     BorderSpacing.Left = 6
     BorderSpacing.Top = 6
     BorderSpacing.Bottom = 6
     BevelOuter = bvNone
     ClientHeight = 499
-    ClientWidth = 333
+    ClientWidth = 213
     TabOrder = 0
-    object cgCases: TCheckGroup
-      AnchorSideLeft.Control = LeftPanel
-      AnchorSideTop.Control = rgDataType
-      AnchorSideTop.Side = asrBottom
-      AnchorSideRight.Control = rgDataType
-      AnchorSideRight.Side = asrBottom
-      AnchorSideBottom.Side = asrBottom
-      Left = 0
-      Height = 51
-      Top = 120
-      Width = 333
-      Anchors = [akTop, akLeft, akRight]
-      AutoFill = True
-      AutoSize = True
-      BorderSpacing.Top = 6
-      Caption = 'Cases'
-      ChildSizing.LeftRightSpacing = 12
-      ChildSizing.TopBottomSpacing = 6
-      ChildSizing.VerticalSpacing = 2
-      ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
-      ChildSizing.EnlargeVertical = crsHomogenousChildResize
-      ChildSizing.ShrinkHorizontal = crsScaleChilds
-      ChildSizing.ShrinkVertical = crsScaleChilds
-      ChildSizing.Layout = cclLeftToRightThenTopToBottom
-      ChildSizing.ControlsPerLine = 4
-      ClientHeight = 31
-      ClientWidth = 329
-      Columns = 4
-      Items.Strings = (
-        'Confirmed'
-        'Deaths'
-        'Recovered'
-        'Sick'
-      )
-      OnItemClick = cgCasesItemClick
-      TabOrder = 0
-      Data = {
-        0400000002020202
-      }
-    end
     object TreeView: TTreeView
       AnchorSideLeft.Control = LeftPanel
-      AnchorSideTop.Control = cbMovingAverage
+      AnchorSideTop.Control = clbCases
       AnchorSideTop.Side = asrBottom
       AnchorSideRight.Control = LeftPanel
       AnchorSideRight.Side = asrBottom
       AnchorSideBottom.Control = LeftPanel
       AnchorSideBottom.Side = asrBottom
       Left = 0
-      Height = 295
+      Height = 403
       Hint = 'Click on the country to display'
-      Top = 204
-      Width = 333
+      Top = 96
+      Width = 213
       Anchors = [akTop, akLeft, akRight, akBottom]
-      BorderSpacing.Top = 8
+      BorderSpacing.Top = 6
       HideSelection = False
       ReadOnly = True
-      TabOrder = 2
+      TabOrder = 0
       OnClick = TreeViewClick
       OnDeletion = TreeViewDeletion
       Options = [tvoAutoItemHeight, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
     end
-    object rgDataType: TRadioGroup
+    object cbMovingAverage: TCheckBox
+      AnchorSideLeft.Control = LeftPanel
+      AnchorSideTop.Control = cmbDataType
+      AnchorSideTop.Side = asrBottom
+      Left = 0
+      Height = 19
+      Top = 44
+      Width = 149
+      Action = acDataMovingAverage
+      BorderSpacing.Top = 6
+      Caption = 'Moving average (7 days)'
+      TabOrder = 1
+    end
+    object lblDataType: TLabel
       AnchorSideLeft.Control = LeftPanel
       AnchorSideTop.Control = LeftPanel
-      AnchorSideRight.Control = LeftPanel
-      AnchorSideRight.Side = asrBottom
       Left = 0
-      Height = 114
+      Height = 15
       Top = 0
-      Width = 333
+      Width = 27
+      Caption = 'Data:'
+      FocusControl = cmbDataType
+      ParentColor = False
+    end
+    object cmbDataType: TComboBox
+      AnchorSideLeft.Control = LeftPanel
+      AnchorSideTop.Control = lblDataType
+      AnchorSideTop.Side = asrBottom
+      AnchorSideRight.Control = clbCases
+      Left = 0
+      Height = 21
+      Top = 17
+      Width = 100
       Anchors = [akTop, akLeft, akRight]
-      AutoFill = True
-      AutoSize = True
-      Caption = 'Data'
-      ChildSizing.LeftRightSpacing = 12
-      ChildSizing.TopBottomSpacing = 6
-      ChildSizing.VerticalSpacing = 2
-      ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
-      ChildSizing.EnlargeVertical = crsHomogenousChildResize
-      ChildSizing.ShrinkHorizontal = crsScaleChilds
-      ChildSizing.ShrinkVertical = crsScaleChilds
-      ChildSizing.Layout = cclLeftToRightThenTopToBottom
-      ChildSizing.ControlsPerLine = 2
-      ClientHeight = 94
-      ClientWidth = 329
-      Columns = 2
+      BorderSpacing.Top = 2
+      BorderSpacing.Right = 8
+      ItemHeight = 15
       ItemIndex = 0
       Items.Strings = (
         'Cumulative cases'
@@ -1791,33 +1764,54 @@ object MainForm: TMainForm
         'Normalized cumulative'
         'Normalized new cases'
         'Doubling time'
-        'Cum vs. new cases'
-        'Reproduction number (5 d)'
+        'Cumulative vs. new cases'
+        'Reproduction number'
       )
-      OnClick = rgDataTypeClick
-      TabOrder = 1
+      OnChange = cmbDataTypeChange
+      Style = csOwnerDrawFixed
+      TabOrder = 2
+      Text = 'Cumulative cases'
     end
-    object cbMovingAverage: TCheckBox
-      AnchorSideLeft.Control = LeftPanel
-      AnchorSideLeft.Side = asrCenter
-      AnchorSideTop.Control = cgCases
+    object clbCases: TCheckListBox
+      AnchorSideLeft.Control = cmbDataType
+      AnchorSideTop.Control = lblCases
       AnchorSideTop.Side = asrBottom
-      Left = 92
-      Height = 19
-      Top = 177
-      Width = 149
-      Action = acDataMovingAverage
-      BorderSpacing.Left = 8
-      BorderSpacing.Top = 6
-      Caption = 'Moving average (7 days)'
+      AnchorSideRight.Side = asrBottom
+      Left = 108
+      Height = 73
+      Top = 17
+      Width = 105
+      Anchors = [akTop, akRight]
+      BorderSpacing.Top = 2
+      Items.Strings = (
+        'Confirmed'
+        'Deaths'
+        'Recovered'
+        'Sick'
+      )
+      ItemHeight = 17
+      OnClickCheck = clbCasesClickCheck
       TabOrder = 3
+      Data = {
+        0400000000000000
+      }
+    end
+    object lblCases: TLabel
+      AnchorSideLeft.Control = clbCases
+      AnchorSideTop.Control = LeftPanel
+      Left = 108
+      Height = 15
+      Top = 0
+      Width = 33
+      Caption = 'Cases:'
+      ParentColor = False
     end
   end
   object PageControl: TPageControl
-    Left = 344
+    Left = 224
     Height = 499
     Top = 50
-    Width = 766
+    Width = 886
     ActivePage = pgChart
     Align = alClient
     BorderSpacing.Top = 6
@@ -1829,13 +1823,13 @@ object MainForm: TMainForm
     object pgChart: TTabSheet
       Caption = 'Chart'
       ClientHeight = 471
-      ClientWidth = 758
+      ClientWidth = 878
       object Chart: TChart
         Left = 6
         Height = 459
         Hint = 'Zoom: drag a rectangle from left-top to bottom-right corner with left mouse button down'#13#10'    or: use mouse wheel (zoom center is mouse position).'#13#10'Pan: drag with the right mouse button down'#13#10'Restore view: click'#13#10'Read data value: move mouse over data point (no key pressed)'#13#10'Measure doubling time: CTRL-drag over data points of interest with left mouse button down.'
         Top = 6
-        Width = 565
+        Width = 685
         AxisList = <        
           item
             Grid.Color = 14540253
@@ -1881,7 +1875,7 @@ object MainForm: TMainForm
         Color = clDefault
       end
       object RightPanel: TPanel
-        Left = 582
+        Left = 702
         Height = 459
         Top = 6
         Width = 170
@@ -1912,7 +1906,7 @@ object MainForm: TMainForm
         end
       end
       object RightSplitter: TSplitter
-        Left = 571
+        Left = 691
         Height = 471
         Top = 0
         Width = 5

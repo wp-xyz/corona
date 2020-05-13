@@ -9,12 +9,11 @@ unit cMain;
 interface
 
 uses
-  LCLType,
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, ExtCtrls,
-  StdCtrls, Buttons, Grids, Types, LCLVersion, Menus, ActnList, StdActns,
-  TAGraph, TAIntervalSources, TASeries, TAChartListbox, TALegend, TASources,
-  TACustomSeries, TATransformations, TATools, TAFuncSeries, TADataTools,
-  cGlobal;
+  LCLType, Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls,
+  ExtCtrls, StdCtrls, Buttons, Grids, Types, LCLVersion, Menus, ActnList,
+  StdActns, CheckLst, TAGraph, TAIntervalSources, TASeries, TAChartListbox,
+  TALegend, TASources, TACustomSeries, TATransformations, TATools, TAFuncSeries,
+  TADataTools, cGlobal;
 
 type
 
@@ -45,6 +44,10 @@ type
     ChartToolset: TChartToolset;
     acFileExit: TFileExit;
     cbMovingAverage: TCheckBox;
+    clbCases: TCheckListBox;
+    cmbDataType: TComboBox;
+    lblCases: TLabel;
+    lblDataType: TLabel;
     lblTableHint: TLabel;
     MainMenu: TMainMenu;
     MenuItem1: TMenuItem;
@@ -93,7 +96,6 @@ type
     PanDragTool: TPanDragTool;
     pgChart: TTabSheet;
     pgTable: TTabSheet;
-    rgDataType: TRadioGroup;
     SaveDialog: TSaveDialog;
     ZoomDragTool: TZoomDragTool;
     MeasurementTool: TDataPointDistanceTool;
@@ -104,7 +106,6 @@ type
     LeftAxisLogTransform: TLogarithmAxisTransform;
     ChartListbox: TChartListbox;
     DateTimeIntervalChartSource: TDateTimeIntervalChartSource;
-    cgCases: TCheckGroup;
     LeftPanel: TPanel;
     RightPanel: TPanel;
     LeftSplitter: TSplitter;
@@ -126,10 +127,11 @@ type
     procedure acNormalizeToPopulationExecute(Sender: TObject);
     procedure acSmoothingRangeExecute(Sender: TObject);
     procedure acTableSaveExecute(Sender: TObject);
-    procedure cgCasesItemClick(Sender: TObject; Index: integer);
     procedure ChartListboxAddSeries(ASender: TChartListbox;
       ASeries: TCustomChartSeries; AItems: TChartLegendItems; var ASkip: Boolean);
     procedure ChartListboxCheckboxClick(ASender: TObject; AIndex: Integer);
+    procedure clbCasesClickCheck(Sender: TObject);
+    procedure cmbDataTypeChange(Sender: TObject);
     procedure CrossHairToolDraw(ASender: TDataPointDrawTool);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormCreate(Sender: TObject);
@@ -143,7 +145,6 @@ type
       var AText: String);
     procedure MeasurementToolMeasure(ASender: TDataPointDistanceTool);
     procedure PageControlChange(Sender: TObject);
-    procedure rgDataTypeClick(Sender: TObject);
     procedure ToolBarResize(Sender: TObject);
     procedure TreeViewClick(Sender: TObject);
     procedure TreeViewDeletion(Sender: TObject; Node: TTreeNode);
@@ -159,6 +160,7 @@ type
     procedure CreateMeasurementSeries;
     procedure EnableMovingAverage(ASeries: TChartSeries; AEnabled, AStrict: Boolean);
     function GetCellText(ACol, ARow: Integer): String;
+    function GetDataType: TDataType;
     function GetLocation(ANode: TTreeNode): String;
     procedure GetLocation(ANode: TTreeNode; out ACountry, AState: String; out APopulation: Integer);
     function GetSeries(ANode: TTreeNode; ACaseType: TCaseType; ADataType: TDataType): TBasicPointSeries;
@@ -197,7 +199,7 @@ implementation
 {$R *.lfm}
 
 uses
-  Math, IniFiles, DateUtils,
+  LCLIntf, Math, IniFiles, DateUtils,
   // TAChart units
   TATypes, TAMath, TAChartUtils, TACustomSource, TAFitLib,
   // project-specific units
@@ -295,7 +297,7 @@ begin
     DateOffset := BaseDate;
   end;
 
-  logX := (TDataType(rgDataType.ItemIndex) = dtCumVsNewCases) and acChartLogarithmic.Checked;
+  logX := (GetDataType = dtCumVsNewCases) and acChartLogarithmic.Checked;
   logY := acChartLogarithmic.Checked;
   UpdateAxes(logX, logY);
 
@@ -312,7 +314,7 @@ var
   isMovingAverage: Boolean;
 begin
   isMovingAverage := acDataMovingAverage.Checked and
-    ( TDataType(rgDataType.ItemIndex) in [dtCumulative, dtNormalizedCumulative, dtNormalizedNewCases, dtNewCases] );
+    ( GetDataType in [dtCumulative, dtNormalizedCumulative, dtNormalizedNewCases, dtNewCases] );
 
   for i:=0 to Chart.SeriesCount-1 do
     if Chart.Series[i] is TChartSeries then
@@ -339,7 +341,7 @@ begin
     if TryStrToInt(s, n) and (n > 0) then
     begin
       InfectiousPeriod := n;
-      rgDataType.Items[ord(dtRValue)] := Format('Reproduction number (%d d)', [InfectiousPeriod]);
+      cmbDataType.Items[ord(dtRValue)] := Format('Reproduction number (%d d)', [InfectiousPeriod]);
 
       // Recalculate the currently loaded data
       L := StoreSeriesNodesInList();
@@ -380,6 +382,8 @@ begin
       begin
         SmoothingRange := n;
         RRange := (n - 1) div 2;
+
+        cbMovingAverage.Caption := Format('Moving average (%d days)', [SmoothingRange]);
 
         // Recalculate the currently loaded data
         L := StoreSeriesNodesInList();
@@ -535,6 +539,19 @@ begin
   UpdateAffectedSeries;
 end;
 
+procedure TMainForm.clbCasesClickCheck(Sender: TObject);
+var
+  L: TFPList;
+begin
+  L := StoreSeriesNodesInList();
+  try
+    TreeViewClick(nil);
+    RestoreSeriesNodesFromlist(L);
+  finally
+    L.Free;
+  end;
+end;
+
 procedure TMainForm.CrossHairToolDraw(
   ASender: TDataPointDrawTool);
 var
@@ -549,7 +566,7 @@ begin
   else
   if ASender.Series is TChartSeries then
   begin
-    dt := TDataType(rgDataType.ItemIndex);
+    dt := GetDataType();
     ser := TChartSeries(ASender.Series);
     x := ser.GetXValue(ASender.PointIndex);
     y := ser.GetYValue(ASender.PointIndex);
@@ -593,19 +610,6 @@ begin
   UpdateStatusBar;
 end;
 
-procedure TMainForm.cgCasesItemClick(Sender: TObject; Index: integer);
-var
-  L: TFPList;
-begin
-  L := StoreSeriesNodesInList();
-  try
-    TreeViewClick(nil);
-    RestoreSeriesNodesFromlist(L);
-  finally
-    L.Free;
-  end;
-end;
-
 procedure TMainForm.Clear(UnselectTree: Boolean = true);
 begin
   if UnselectTree then
@@ -614,6 +618,92 @@ begin
   CreateMeasurementSeries;
   UpdateGrid;
   UpdateActionStates;
+end;
+
+procedure TMainForm.cmbDataTypeChange(Sender: TObject);
+var
+  L: TFPList;
+  dt: TDataType;
+begin
+  // Store currently available series in a list
+  L := StoreSeriesNodesInList();
+  try
+    Clear;
+    dt := GetDataType();
+    case dt of
+      dtCumulative, dtNormalizedCumulative:
+        begin
+          if dt = dtNormalizedCumulative then
+            lblTableHdr.Caption := Format('Cumulative cases per %.0n persons', [1.0 * PopulationRef])
+          else
+            lblTableHdr.Caption := 'Cumulative cases';
+          lblTableHint.Caption := '';
+          Chart.LeftAxis.Title.Caption := lblTableHdr.Caption;
+          Chart.BottomAxis.Title.Caption := 'Date';
+          UpdateAxes(false, acChartLogarithmic.Checked);
+          MeasurementTool.Enabled := true;
+          acDataMovingAverage.Enabled := true;
+          clbCases.Enabled := true;
+        end;
+      dtNewCases, dtNormalizedNewCases:
+        begin
+          if dt = dtNormalizedNewCases then
+            lblTableHdr.Caption := Format('New cases per %.0n persons and week', [1.0 * PopulationRef])
+          else
+            lblTableHdr.Caption := 'New cases per day';
+          lblTableHint.Caption := '';
+          Chart.LeftAxis.Title.Caption := lblTableHdr.Caption;
+          Chart.BottomAxis.Title.Caption := 'Date';
+          UpdateAxes(false, false);
+          MeasurementTool.Enabled := false;
+          acDataMovingAverage.Enabled := true;
+          clbCases.Enabled := true;
+        end;
+      dtDoublingTime:
+        begin
+          Chart.LeftAxis.Title.Caption := 'Doubling time (days)';
+          Chart.BottomAxis.Title.Caption := 'Date';
+          lblTableHdr.Caption := 'Doubling time (days, calculated by lookup from previous days)';
+          lblTableHint.Caption := ''; //Note: Strictly speaking, this value requires exponential growth which is valid only during the initial phase of the outbreak.';
+          UpdateAxes(false, false);
+          MeasurementTool.Enabled := false;
+          acDataMovingAverage.Enabled := false;
+          clbCases.Enabled := true;
+        end;
+      dtCumVsNewCases:
+        begin
+          lblTableHdr.Caption := 'New cases vs. cumulative cases';
+          lblTableHint.Caption := '';
+          Chart.LeftAxis.Title.Caption := 'New cases';
+          Chart.BottomAxis.title.Caption := 'Cumulative cases';
+          acChartLogarithmic.Checked := true;
+          UpdateAxes(true, true);
+          MeasurementTool.Enabled := false;
+          acDataMovingAverage.Enabled := false;
+          clbCases.Enabled := true;
+        end;
+      dtRValue:
+        begin
+          Chart.LeftAxis.Title.Caption := 'Reproduction number';
+          Chart.BottomAxis.Title.Caption := 'Date';
+          lblTableHdr.Caption := 'Reproduction number';
+          lblTableHint.Caption := 'Calculated as ratio of new case count at a date and ' + IntToStr(InfectiousPeriod) + ' days earlier.';
+          UpdateAxes(false, false);
+          MeasurementTool.Enabled := false;
+          acDataMovingAverage.Enabled := false;
+          clbCases.Enabled := false;
+        end;
+      else
+        raise Exception.Create('Data type unsupported.');
+    end;
+
+    acDataMovingAverageExecute(nil);
+    RestoreSeriesNodesFromlist(L);
+    UpdateActionStates;
+
+  finally
+    L.Free;
+  end;
 end;
 
 procedure TMainForm.CreateMeasurementSeries;
@@ -665,7 +755,7 @@ begin
   PanDragTool.LimitToExtent := [pdDown, pdLeft, pdRight, pdUp];
   {$ENDIF}
 
-  cgCases.Checked[0] := true;
+  clbCases.Checked[0] := true;
   Grid.RowHeights[0] := 3 * Grid.Canvas.TextHeight('Tg') + 2* varCellPadding;
 
   PageControl.ActivePageIndex := 0;
@@ -677,9 +767,19 @@ begin
 end;
 
 procedure TMainForm.FormShow(Sender: TObject);
+var
+  s: String;
+  w: Integer;
 begin
   tbAbout.Align := alRight;
   tbAbout.Left := Toolbar.Width - tbAbout.Width;
+
+  w := 0;
+  for s in clbCases.Items do
+    w := Max(w, clbCases.Canvas.TextWidth(s));
+  clbCases.Width := w + GetSystemMetrics(SM_CXVSCROLL) + 24;
+
+  LeftPanel.Constraints.MinWidth := cbMovingAverage.Width + clbCases.Width + 24;
 end;
 
 function TMainForm.GetCellText(ACol, ARow: Integer): String;
@@ -713,7 +813,7 @@ begin
       ser := TChartSeries(col.Tag);
       r := ser.Count - ARow;
       if not IsNan(ser.YValue[r]) then
-        case TDataType(rgDataType.ItemIndex) of
+        case GetDataType() of
           dtDoublingTime:
             Result := Format('%.1f', [ser.YValue[r]]);
           dtCumVsNewCases:
@@ -728,6 +828,11 @@ begin
         end;
     end;
   end;
+end;
+
+function TMainForm.GetDataType: TDataType;
+begin
+  Result := TDataType(cmbDataType.ItemIndex);
 end;
 
 procedure TMainForm.GetLocation(ANode: TTreeNode; out ACountry, AState: String;
@@ -912,7 +1017,7 @@ end;
 
 function TMainForm.IsTimeSeries: Boolean;
 begin
-  Result := TDataType(rgDataType.ItemIndex) <> dtCumVsNewCases;
+  Result := GetDataType() <> dtCumVsNewCases;
 end;
 
 procedure TMainForm.LayoutBars;
@@ -920,7 +1025,7 @@ var
   i, j, n: Integer;
   ser: TBarSeries;
 begin
-  if not (TDataType(rgDataType.ItemIndex) in [dtNewCases, dtNormalizedNewCases, dtDoublingTime]) then
+  if not (GetDataType() in [dtNewCases, dtNormalizedNewCases, dtDoublingTime]) then
     exit;
 
   n := 0;
@@ -1143,93 +1248,6 @@ begin
     ShowData(TTreeNode(AList[i]));
 end;
 
-procedure TMainForm.rgDataTypeClick(Sender: TObject);
-var
-  L: TFPList;
-  dt: TDataType;
-begin
-  // Store currently available series in a list
-  L := StoreSeriesNodesInList();
-  try
-    Clear;
-    dt := TDataType(rgDataType.ItemIndex);
-
-    case dt of
-      dtCumulative, dtNormalizedCumulative:
-        begin
-          if dt = dtNormalizedCumulative then
-            lblTableHdr.Caption := Format('Cumulative cases per %.0n persons', [1.0 * PopulationRef])
-          else
-            lblTableHdr.Caption := 'Cumulative cases';
-          lblTableHint.Caption := '';
-          Chart.LeftAxis.Title.Caption := lblTableHdr.Caption;
-          Chart.BottomAxis.Title.Caption := 'Date';
-          UpdateAxes(false, acChartLogarithmic.Checked);
-          MeasurementTool.Enabled := true;
-          acDataMovingAverage.enabled := true;
-          cgCases.Enabled := true;
-        end;
-      dtNewCases, dtNormalizedNewCases:
-        begin
-          if dt = dtNormalizedNewCases then
-            lblTableHdr.Caption := Format('New cases per %.0n persons and week', [1.0 * PopulationRef])
-          else
-            lblTableHdr.Caption := 'New cases per day';
-          lblTableHint.Caption := '';
-          Chart.LeftAxis.Title.Caption := lblTableHdr.Caption;
-          Chart.BottomAxis.Title.Caption := 'Date';
-          UpdateAxes(false, false);
-          MeasurementTool.Enabled := false;
-          acDataMovingAverage.enabled := true;
-          cgCases.Enabled := true;
-        end;
-      dtDoublingTime:
-        begin
-          Chart.LeftAxis.Title.Caption := 'Doubling time (days)';
-          Chart.BottomAxis.Title.Caption := 'Date';
-          lblTableHdr.Caption := 'Doubling time (days, calculated by lookup from previous days)';
-          lblTableHint.Caption := ''; //Note: Strictly speaking, this value requires exponential growth which is valid only during the initial phase of the outbreak.';
-          UpdateAxes(false, false);
-          MeasurementTool.Enabled := false;
-          acDataMovingAverage.enabled := false;
-          cgCases.Enabled := true;
-        end;
-      dtCumVsNewCases:
-        begin
-          lblTableHdr.Caption := 'New cases vs. cumulative cases';
-          lblTableHint.Caption := '';
-          Chart.LeftAxis.Title.Caption := 'New cases';
-          Chart.BottomAxis.title.Caption := 'Cumulative cases';
-          acChartLogarithmic.Checked := true;
-          UpdateAxes(true, true);
-          MeasurementTool.Enabled := false;
-          acDataMovingAverage.enabled := false;
-          cgCases.Enabled := true;
-        end;
-      dtRValue:
-        begin
-          Chart.LeftAxis.Title.Caption := 'Reproduction number';
-          Chart.BottomAxis.Title.Caption := 'Date';
-          lblTableHdr.Caption := 'Reproduction number';
-          lblTableHint.Caption := 'Calculated as ratio of new case count at a date and ' + IntToStr(InfectiousPeriod) + ' days earlier.';
-          UpdateAxes(false, false);
-          MeasurementTool.Enabled := false;
-          acDataMovingAverage.Enabled := false;
-          cgCases.Enabled := false;
-        end;
-      else
-        raise Exception.Create('Data type unsupported.');
-    end;
-
-    acDataMovingAverageExecute(nil);
-    RestoreSeriesNodesFromlist(L);
-    UpdateActionStates;
-
-  finally
-    L.Free;
-  end;
-end;
-
 procedure TMainForm.SeriesToArray(ASeries: TChartSeries; out AData: TDataPointArray);
 var
   i: Integer;
@@ -1292,7 +1310,7 @@ begin
     end;
     {$ENDIF}
 
-    dt := TDataType(rgDataType.ItemIndex);
+    dt := GetDataType();
     RValueDone := false;
 
     for caseType in TCaseType do
@@ -1304,7 +1322,7 @@ begin
         else
           ct := ctConfirmed
       end else
-      if cgCases.Checked[ord(caseType)] then
+      if clbCases.Checked[ord(caseType)] then
         ct := caseType
       else
         Continue;
@@ -1519,7 +1537,7 @@ end;
 procedure TMainForm.UpdateActionStates;
 begin
   acTableSave.Enabled := Chart.SeriesCount > 1;  // 1 series reserved for measurement
-  acChartLogarithmic.Enabled := TDataType(rgDataType.ItemIndex) in [dtCumulative, dtNormalizedCumulative, dtCumVsNewCases];
+  acChartLogarithmic.Enabled := GetDataType() in [dtCumulative, dtNormalizedCumulative, dtCumVsNewCases];
   acChartLinear.Enabled := acChartLogarithmic.Enabled;
 end;
 
@@ -1602,7 +1620,7 @@ begin
       Intervals.MinLength := 10;
       Intervals.Tolerance := 0;
       Marks.Style := smsValue;
-      if TDataType(rgDataType.ItemIndex) in [dtCumulative, dtCumVsNewCases] then
+      if GetDataType() in [dtCumulative, dtCumVsNewCases] then
         Marks.Format := '%0:.0n'
       else
         Marks.Format := '%0:.9g';
@@ -1738,19 +1756,19 @@ begin
     PageControl.ActivePageIndex := ini.ReadInteger('MainForm', 'PageControl', PageControl.ActivePageIndex);
     PageControlChange(nil);
 
-    cgCases.Checked[0] := ini.Readbool('MainForm', 'ConfirmedCases', cgCases.Checked[0]);
-    cgCases.Checked[1] := ini.ReadBool('MainForm', 'DeathCases', cgCases.Checked[1]);
-    cgCases.Checked[2] := ini.ReadBool('MainForm', 'RecoveredCases', cgCases.Checked[2]);
-    cgCases.Checked[3] := ini.ReadBool('MainForm', 'SickCases', cgCases.Checked[3]);
+    clbCases.Checked[0] := ini.Readbool('MainForm', 'ConfirmedCases', clbCases.Checked[0]);
+    clbCases.Checked[1] := ini.ReadBool('MainForm', 'DeathCases', clbCases.Checked[1]);
+    clbCases.Checked[2] := ini.ReadBool('MainForm', 'RecoveredCases', clbCases.Checked[2]);
+    clbCases.Checked[3] := ini.ReadBool('MainForm', 'SickCases', clbCases.Checked[3]);
 
     acDataMovingAverage.Checked := ini.ReadBool('MainForm', 'MovingAverage', acDataMovingAverage.Checked);
     acChartOverlay.Checked := ini.ReadBool('MainForm', 'Overlay', acChartOverlay.Checked);
 
-    n := ini.ReadInteger('MainForm', 'DataType', rgDataType.ItemIndex);
+    n := ini.ReadInteger('MainForm', 'DataType', cmbDataType.ItemIndex);
     if (n >= 0) and (n <= ord(High(TDataType))) then
-      rgDataType.ItemIndex := n;
+      cmbDataType.ItemIndex := n;
     isLog := ini.ReadBool('MainForm', 'Logarithmic', acChartLogarithmic.Checked);
-    case TDataType(rgDataType.ItemIndex) of
+    case GetDataType() of
       dtCumulative, dtNormalizedCumulative:
         begin
           acChartLogarithmic.Checked  := isLog;
@@ -1772,7 +1790,7 @@ begin
     SmoothingRange := ini.ReadInteger('Params', 'SmoothingRange', SmoothingRange);
     RRange := (SmoothingRange - 1) div 2;
 
-    rgDataType.Items[ord(dtRValue)] := Format('Reproduction number (%d d)', [InfectiousPeriod]);
+    cmbDataType.Items[ord(dtRValue)] := Format('Reproduction number (%d d)', [InfectiousPeriod]);
     cbMovingAverage.Caption := Format('Moving average (%d days)', [SmoothingRange]);
 
   finally
@@ -1804,15 +1822,15 @@ begin
     ini.WriteInteger('MainForm', 'RightPanel', RightPanel.Width);
     ini.WriteInteger('MainForm', 'PageControl', PageControl.ActivePageIndex);
 
-    ini.WriteBool('MainForm', 'ConfirmedCases', cgCases.Checked[0]);
-    ini.WriteBool('MainForm', 'DeathCases', cgCases.Checked[1]);
-    ini.WriteBool('MainForm', 'RecoveredCases', cgCases.Checked[2]);
-    ini.WriteBool('MainForm', 'SickCases', cgCases.Checked[3]);
-    ini.WriteInteger('MainForm', 'DataType', rgDataType.ItemIndex);
+    ini.WriteBool('MainForm', 'ConfirmedCases', clbCases.Checked[0]);
+    ini.WriteBool('MainForm', 'DeathCases', clbCases.Checked[1]);
+    ini.WriteBool('MainForm', 'RecoveredCases', clbCases.Checked[2]);
+    ini.WriteBool('MainForm', 'SickCases', clbCases.Checked[3]);
+    ini.WriteInteger('MainForm', 'DataType', cmbDataType.ItemIndex);
 
     ini.WriteBool('MainForm', 'MovingAverage', acDataMovingAverage.Checked);
     ini.WriteBool('MainForm', 'Overlay', acChartOverlay.Checked);
-    if TDataType(rgDataType.ItemIndex) in [dtCumulative, dtNormalizedCumulative] then
+    if GetDataType() in [dtCumulative, dtNormalizedCumulative] then
       ini.WriteBool('MainForm', 'Logarithmic', acChartLogarithmic.Checked);
 
     ini.WriteBool('MainForm', 'ShowHints', acConfigHint.Checked);
