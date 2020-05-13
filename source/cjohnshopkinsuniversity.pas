@@ -217,13 +217,16 @@ begin
       state := sa[6];
       population := StrToInt(sa[11]);
 
-      // The 'US' data are contained in separate files not read by this program
-      if (country = 'US') and (state <> '') then
-        Continue;
-
-      // No data provided for Spanish provinces
-      if (country = 'Spain') and (state <> '') then
-        Continue;
+      // avoid too many empty nodes in the tree vieew
+      if (state <> '') then
+      begin
+        // The 'US' data are contained in separate files not read by this program
+        if (country = 'US') then
+          Continue;
+        // No data provided for Spanish and German provinces
+        if (country = 'Spain') or (country = 'Germany') then
+          Continue;
+      end;
 
       New(loc);
       loc^.ID := -1;  // not used by JHU

@@ -81,94 +81,94 @@ const
     '03241=Region Hannover|1157624',          '03251=Diepholz|216886',
     '03252=Hameln-Pyrmont|148559',            '03254=Hildesheim|276594',
     // 30..39
-    '03255=Holzminden',               '03256=Nienburg (Weser)',
-    '03257=Schaumburg',               '03351=Celle',
-    '03352=Cuxhaven',                 '03353=Harburg',
-    '03354=Lüchow-Dannenberg',        '03355=Lüneburg',
-    '03356=Osterholz',                '03357=Rotenburg (Wümme)',
+    '03255=Holzminden|70975',                '03256=Nienburg (Weser)|121386',
+    '03257=Schaumburg|157781',               '03351=Celle|178936',
+    '03352=Cuxhaven|198213',                 '03353=Harburg|252776',
+    '03354=Lüchow-Dannenberg|48424',         '03355=Lüneburg|183372',
+    '03356=Osterholz|113517',                '03357=Rotenburg (Wümme)|163455',
     // 40..49
-    '03358=Heidekreis',               '03359=Stade',
-    '03360=Uelzen',                   '03361=Verden',
-    '03401=Delmenhorst',              '03402=Emden',
-    '03403=Oldenburg (Oldb)',         '03404=Osnabrück',
-    '03405=Wilhelmshaven',            '03451=Ammerland',
+    '03358=Heidekreis|139755',               '03359=Stade|203102',
+    '03360=Uelzen|92572',                    '03361=Verden|136792',
+    '03401=Delmenhorst|77607',               '03402=Emden|50195',
+    '03403=Oldenburg (Oldb)|168210',         '03404=Osnabrück|164748',
+    '03405=Wilhelmshaven|76278',             '03451=Ammerland|124071',
     // 50..59
-    '03452=Aurich',                   '03453=Cloppenburg',
-    '03454=Emsland',                  '03455=Friesland',
-    '03456=Grafschaft Bentheim',      '03457=Leer',
-    '03458=Oldenburg',                '03459=Osnabrück (Landkreis)',
-    '03460=Vechta',                   '03461=Wesermarsch',
+    '03452=Aurich|189848',                   '03453=Cloppenburg|169348',
+    '03454=Emsland|325657',                  '03455=Friesland|98460',
+    '03456=Grafschaft Bentheim|136511',      '03457=Leer|169809',
+    '03458=Oldenburg|130144',                '03459=Osnabrück (Landkreis)|357343',
+    '03460=Vechta|141598',                   '03461=Wesermarsch|88624',
     // 60..69
-    '03462=Wittmund',                 '04011=Bremen',
-    '04012=Bremerhaven',              '05111=Düsseldorf',
-    '05112=Duisburg',                 '05113=Essen',
-    '05114=Krefeld',                  '05116=Mönchengladbach',
-    '05117=Mülheim an der Ruhr',      '05119=Oberhausen',
+    '03462=Wittmund|56882',                  '04011=Bremen|569352',
+    '04012=Bremerhaven|113634',              '05111=Düsseldorf|619294',
+    '05112=Duisburg|498590',                 '05113=Essen|583109',
+    '05114=Krefeld|227020',                  '05116=Mönchengladbach|261454',
+    '05117=Mülheim an der Ruhr|170880',      '05119=Oberhausen|210829',
     // 70..79
-    '05120=Remscheid',                '05122=Solingen',
-    '05124=Wuppertal',                '05154=Kleve',
-    '05158=Mettmann',                 '05162=Rhein-Kreis Neuss',
-    '05166=Viersen',                  '05170=Wesel',
-    '05314=Bonn',                     '05315=Köln',
+    '05120=Remscheid|110994',                '05122=Solingen|159360',
+    '05124=Wuppertal|354382',                '05154=Kleve|310974',
+    '05158=Mettmann|485684',                 '05162=Rhein-Kreis Neuss|451007',
+    '05166=Viersen|298935',                  '05170=Wesel|459809',
+    '05314=Bonn|327258',                     '05315=Köln|1085664',
     // 80..89
-    '05316=Leverkusen',               '05334=Städteregion Aachen',
-    '05358=Düren',                    '05362=Rhein-Erft-Kreis',
-    '05366=Euskirchen',               '05370=Heinsberg',
-    '05374=Oberbergischer Kreis',     '05378=Rheinisch-Bergischer Kreis',
-    '05382=Rhein-Sieg-Kreis',         '05512=Bottrop',
+    '05316=Leverkusen|163838',               '05334=Städteregion Aachen|555465',
+    '05358=Düren|263722',                    '05362=Rhein-Erft-Kreis|470089',
+    '05366=Euskirchen|192840',               '05370=Heinsberg|254322',
+    '05374=Oberbergischer Kreis|272471',     '05378=Rheinisch-Bergischer Kreis|283455',
+    '05382=Rhein-Sieg-Kreis|599780',         '05512=Bottrop|117383',
     // 90..99
-    '05513=Gelsenkirchen',            '05515=Münster',
-    '05554=Borken',                   '05558=Coesfeld',
-    '05562=Recklinghausen',           '05566=Steinfurt',
-    '05570=Warendorf',                '05711=Bielefeld',
-    '05754=Gütersloh',                '05758=Herford',
+    '05513=Gelsenkirchen|260654',            '05515=Münster|314319',
+    '05554=Borken|370676',                   '05558=Coesfeld|219929',
+    '05562=Recklinghausen|615261',           '05566=Steinfurt|447614',
+    '05570=Warendorf|277783',                '05711=Bielefeld|333786',
+    '05754=Gütersloh|364083',                '05758=Herford|250783',
     // 100..109
-    '05762=Höxter',                   '05766=Lippe',
-    '05770=Minden-Lübbecke',          '05774=Paderborn',
-    '05911=Bochum',                   '05913=Dortmund',
-    '05914=Hagen',                    '05915=Hamm',
-    '05916=Herne',                    '05954=Ennepe-Ruhr-Kreis',
+    '05762=Höxter|140667',                   '05766=Lippe|348391',
+    '05770=Minden-Lübbecke|310710',          '05774=Paderborn|306890',
+    '05911=Bochum|364628',                   '05913=Dortmund|587010',
+    '05914=Hagen|188814',                    '05915=Hamm|179111',
+    '05916=Herne|156374',                    '05954=Ennepe-Ruhr-Kreis|324296',
     // 110..119
-    '05958=Hochsauerlandkreis',       '05962=Märkischer Kreis',
-    '05966=Olpe',                     '05970=Siegen-Wittgenstein',
-    '05974=Soest',                    '05978=Unna',
-    '06411=Darmstadt',                '06412=Frankfurt am Main',
-    '06413=Offenbach am Main',        '06414=Wiesbaden',
+    '05958=Hochsauerlandkreis|260475',       '05962=Märkischer Kreis|412120',
+    '05966=Olpe|134775',                     '05970=Siegen-Wittgenstein|278210',
+    '05974=Soest|301902',                    '05978=Unna|394782',
+    '06411=Darmstadt|159207',                '06412=Frankfurt am Main|753056',
+    '06413=Offenbach am Main|128744',        '06414=Wiesbaden|278342',
     // 120..129
-    '06431=Bergstraße',               '06432=Darmstadt-Dieburg',
-    '06433=Groß-Gerau',               '06434=Hochtaunuskreis',
-    '06435=Main-Kinzig-Kreis',        '06436=Main-Taunus-Kreis',
-    '06437=Odenwaldkreis',            '06438=Offenbach',
-    '06439=Rheingau-Taunus-Kreis',    '06440=Wetteraukreis',
+    '06431=Bergstraße|269694',               '06432=Darmstadt-Dieburg|297399',
+    '06433=Groß-Gerau|274526',               '06434=Hochtaunuskreis|236564',
+    '06435=Main-Kinzig-Kreis|418950',        '06436=Main-Taunus-Kreis|237735',
+    '06437=Odenwaldkreis|96798',            '06438=Offenbach|354092',
+    '06439=Rheingau-Taunus-Kreis|187157',    '06440=Wetteraukreis|306460',
     // 130..139
-    '06531=Gießen',                   '06532=Lahn-Dill-Kreis',
-    '06533=Limburg-Weilburg',         '06534=Marburg-Biedenkopf',
-    '06535=Vogelsbergkreis',          '06611=Kassel',
-    '06631=Fulda',                    '06632=Hersfeld-Rotenburg',
-    '06633=Kassel',                   '06634=Schwalm-Eder-Kreis',
+    '06531=Gießen|268876',                   '06532=Lahn-Dill-Kreis|253777',
+    '06533=Limburg-Weilburg|172083',         '06534=Marburg-Biedenkopf|246648',
+    '06535=Vogelsbergkreis|105878',          '06611=Kassel|201585',
+    '06631=Fulda|222584',                    '06632=Hersfeld-Rotenburg|120829',
+    '06633=Kassel (Landkreis)|236633',       '06634=Schwalm-Eder-Kreis|180222',
     // 140..149
-    '06635=Waldeck-Frankenberg',      '06636=Werra-Meißner-Kreis',
-    '07111=Koblenz',                  '07131=Ahrweiler',
-    '07132=Altenkirchen (Westerwald)','07133=Bad Kreuznach',
-    '07134=Birkenfeld',               '07135=Cochem-Zell',
-    '07137=Mayen-Koblenz',            '07138=Neuwied',
+    '06635=Waldeck-Frankenberg|156953',      '06636=Werra-Meißner-Kreis|101017',
+    '07111=Koblenz|114024',                  '07131=Ahrweiler|129727',
+    '07132=Altenkirchen (Westerwald)|128705', '07133=Bad Kreuznach|158080',
+    '07134=Birkenfeld|80720',                '07135=Cochem-Zell|61587',
+    '07137=Mayen-Koblenz|214259',            '07138=Neuwied|181941',
     // 150..159
-    '07140=Rhein-Hunsrück-Kreis',     '07141=Rhein-Lahn-Kreis',
-    '07143=Westerwaldkreis',          '07211=Trier',
-    '07231=Bernkastel-Wittlich',      '07232=Eifelkreis Bitburg-Prüm',
-    '07233=Vulkaneifel',              '07235=Trier-Saarburg',
-    '07311=Frankenthal (Pfalz)',      '07312=Kaiserslautern',
+    '07140=Rhein-Hunsrück-Kreis|102937',     '07141=Rhein-Lahn-Kreis|122308',
+    '07143=Westerwaldkreis|201597',          '07211=Trier|110636',
+    '07231=Bernkastel-Wittlich|112262',      '07232=Eifelkreis Bitburg-Prüm|98561',
+    '07233=Vulkaneifel|60603',               '07235=Trier-Saarburg|148945',
+    '07311=Frankenthal (Pfalz)|48561',       '07312=Kaiserslautern|99845',
     // 160..169
-    '07313=Landau in der Pfalz',      '07314=Ludwigshafen am Rhein',
-    '07315=Mainz',                    '07316=Neustadt an der Weinstraße',
-    '07317=Pirmasens',                '07318=Speyer',
-    '07319=Worms',                    '07320=Zweibrücken',
-    '07331=Alzey-Worms',              '07332=Bad Dürkheim',
+    '07313=Landau in der Pfalz|46677',       '07314=Ludwigshafen am Rhein|171061',
+    '07315=Mainz|217118',                    '07316=Neustadt an der Weinstraße|53148',
+    '07317=Pirmasens|40403',                 '07318=Speyer|50378',
+    '07319=Worms|83330',                     '07320=Zweibrücken|34209',
+    '07331=Alzey-Worms|129244',              '07332=Bad Dürkheim|132660',
     // 170..179
-    '07333=Donnersbergkreis',         '07334=Germersheim',
-    '07335=Kaiserslautern',           '07336=Kusel',
-    '07337=Südliche Weinstraße',      '07338=Rhein-Pfalz-Kreis',
-    '07339=Mainz-Bingen',             '07340=Südwestpfalz',
+    '07333=Donnersbergkreis|75101',          '07334=Germersheim|129075',
+    '07335=Kaiserslautern (Landkreis)|106057', '07336=Kusel|70526',
+    '07337=Südliche Weinstraße|110356',      '07338=Rhein-Pfalz-Kreis|154201',
+    '07339=Mainz-Bingen|210889',             '07340=Südwestpfalz|95113',
     '08111=Stuttgart|634830',                '08115=Böblingen|391640',
     // 180..189
     '08116=Esslingen|533859',                '08117=Göppingen|257253',
@@ -189,7 +189,7 @@ const
     '08317=Ortenaukreis|429479',             '08325=Rottweil|139455',
     '08326=Schwarzwald-Baar-Kreis|212381',   '08327=Tuttlingen|140152',
     // 210..219
-    '08335=Konstan|285325',                  '08336=Lörrach|228639',
+    '08335=Konstanz|285325',                  '08336=Lörrach|228639',
     '08337=Waldshut|170619',                 '08415=Reutlingen|286748',
     '08416=Tübingen|227331',                 '08417=Zollernalbkreis|188935',
     '08421=Ulm|126329',                      '08425=Alb-Donau-Kreis|196047',
@@ -582,17 +582,6 @@ begin
     L.Free;
   end;
 end;
-                                     (*
-class function TRobertKochDataSource.GetBundesLandPopulation(AIndex: Integer): Integer;
-var
-  p: Integer;
-begin
-  p := pos('|', Bundesland[AIndex]);
-  if p > 0 then
-    Result := StrToInt(Copy(Bundesland[AIndex], p+1, MaxInt))
-  else
-    Result := 0;
-end;                                   *)
 
 class function TRobertKochDataSource.GetDisplayString(const AText: String): String;
 var
@@ -609,29 +598,6 @@ begin
   if p > 0 then
     Result := Copy(Result, 1, p-1)
 end;
-                                               (*
-class function TRobertKochDataSource.GetLandkreisPopulation(AState: String): Integer;
-var
-  i: Integer;
-  s: String;
-  p: Integer;
-begin
-  for i := Low(Landkreis) to High(Landkreis) do
-  begin
-    s := Copy(LandKreis[i], 1, 5);
-    if s = AState then
-    begin
-      p := pos('|', Landkreis[i]);
-      if p > 0 then
-      begin
-        s := copy(Landkreis[i], p+1, MaxInt);
-        Result := StrToInt(s);
-      end
-      else
-        Result := 0;
-    end;
-  end;
-end;             *)
 
 class function TRobertKochDataSource.GetPopulation(const AText: String): Integer;
 var
