@@ -213,8 +213,8 @@ begin
       if Length(sa) <> 12 then
         Continue;
 
-      country := sa[7];
-      state := sa[6];
+      country := AnsiDequotedStr(sa[7], '"');
+      state := AnsiDequotedStr(sa[6], '"');
       population := StrToInt(sa[11]);
 
       // avoid too many empty nodes in the tree vieew
