@@ -223,8 +223,8 @@ begin
         // The 'US' data are contained in separate files not read by this program
         if (country = 'US') then
           Continue;
-        // No data provided for Spanish and German provinces
-        if (country = 'Spain') or (country = 'Germany') then
+        // No data provided for the provinces of these countries
+        if (country = 'Spain') or (country = 'Italy') or (country = 'Germany') then
           Continue;
       end;
 

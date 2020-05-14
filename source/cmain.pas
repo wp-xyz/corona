@@ -1573,7 +1573,7 @@ begin
       Marks.Source := nil;
       Marks.Format := '%0:.0n';
       Marks.Style := smsValue;
-      Title.Caption := 'Date';
+      //Title.Caption := 'Date';
     end else
     if IsTimeSeries() then
     begin
@@ -1791,6 +1791,7 @@ begin
     RRange := (SmoothingRange - 1) div 2;
 
     cmbDataType.Items[ord(dtRValue)] := Format('Reproduction number (%d d)', [InfectiousPeriod]);
+    cmbDataTypeChange(nil);
     cbMovingAverage.Caption := Format('Moving average (%d days)', [SmoothingRange]);
 
   finally
