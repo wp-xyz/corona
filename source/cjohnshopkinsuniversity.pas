@@ -25,7 +25,7 @@ implementation
 
 uses
   Dialogs,
-  cDownloader;
+  cDownloader, cUtils;
 
 const
   BASE_URL = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/';
@@ -142,8 +142,8 @@ begin
       if BeginsWithQuote(L[i]) then
         Continue;
       sa := L[i].Split(',', '"');
-      if sa[0] <> '' then sa[0] := AnsiDequotedStr(sa[0], '"');
-      if sa[1] <> '' then sa[1] := AnsiDequotedStr(sa[1], '"');
+      if sa[0] <> '' then sa[0] := UnQuote(sa[0]);
+      if sa[1] <> '' then sa[1] := Unquote(sa[1]);
       if (sa[1] = ACountry) and (sa[0] = AState) then
       begin
         ACounts := L[i];
@@ -213,8 +213,8 @@ begin
       if Length(sa) <> 12 then
         Continue;
 
-      country := AnsiDequotedStr(sa[7], '"');
-      state := AnsiDequotedStr(sa[6], '"');
+      country := Unquote(sa[7]);
+      state := Unquote(sa[6]);
       population := StrToIntDef(sa[11], 0);
 
       // avoid too many empty nodes in the tree vieew

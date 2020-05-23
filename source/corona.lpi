@@ -35,7 +35,7 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="9">
+    <Units Count="10">
       <Unit0>
         <Filename Value="corona.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -86,6 +86,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="cSeries"/>
       </Unit8>
+      <Unit9>
+        <Filename Value="cutils.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="cUtils"/>
+      </Unit9>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

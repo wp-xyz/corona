@@ -6,12 +6,7 @@ uses
   {$IFDEF UNIX}
   cthreads,
   {$ENDIF}
-  Interfaces, // this includes the LCL widgetset
-  Forms, //tachartlazaruspkg,
-  cmain
-  {, cDownloader, cRobertKochInstitut,
-  cDataSource, cJohnsHopkinsUniversity, cGlobal, cSeries}
-  { you can add units after this };
+  Interfaces, Forms, cmain;
 
 {$R *.res}
 
