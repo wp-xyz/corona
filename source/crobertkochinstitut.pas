@@ -605,7 +605,7 @@ var
 begin
   p := pos('|', AText);
   if p > 0 then
-    Result := StrToInt(Copy(AText, p+1, MaxInt))
+    Result := StrToIntDef(Copy(AText, p+1, MaxInt), 0)
   else
     Result := 0;
 end;
@@ -643,7 +643,9 @@ begin
   for i := Low(Landkreis) to High(Landkreis) do
   begin
     s := Copy(Landkreis[i], 1, 2);
-    id := StrToInt(s);
+    id := StrToIntDef(s, -1);
+    if id = -1 then
+      Continue;
     New(loc);
     {$IFDEF DEBUG_LOCATIONPARAMS}
     loc^.Name := s;

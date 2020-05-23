@@ -174,9 +174,9 @@ begin
     saRecovered := sRecovered.Split(',', '"');
     ACounts := saConfirmed[0] + ',' + saConfirmed[1] + ',' + saConfirmed[2] + ',' + saConfirmed[3];
     for i := 4 to High(saConfirmed) do begin
-      nConfirmed := StrToInt(saConfirmed[i]);
-      nDeaths := StrToInt(saDeaths[i]);
-      nRecovered := StrToint(saRecovered[i]);
+      nConfirmed := StrToIntDef(saConfirmed[i], 0);
+      nDeaths := StrToIntDef(saDeaths[i], 0);
+      nRecovered := StrTointDef(saRecovered[i], 0);
       nSick := nConfirmed - nDeaths - nRecovered;
       ACounts := ACounts + ',' + IntToStr(nSick);
     end;
@@ -215,7 +215,7 @@ begin
 
       country := AnsiDequotedStr(sa[7], '"');
       state := AnsiDequotedStr(sa[6], '"');
-      population := StrToInt(sa[11]);
+      population := StrToIntDef(sa[11], 0);
 
       // avoid too many empty nodes in the tree vieew
       if (state <> '') then
@@ -223,8 +223,10 @@ begin
         // The 'US' data are contained in separate files not read by this program
         if (country = 'US') then
           Continue;
-        // No data provided for the provinces of these countries
-        if (country = 'Spain') or (country = 'Italy') or (country = 'Germany') then
+        // No data provided in the standard files for the provinces of these countries
+        if (country = 'Spain') or (country = 'Italy') or (country = 'Germany') or
+           (country = 'Brazil') or (country = 'Chile') or (country = 'Japanm') or
+           (country = 'Mexico') then
           Continue;
       end;
 
