@@ -1626,7 +1626,7 @@ begin
         Marks.Format := '%0:.9g';
     end;
   end;
-  Chart.Extent.UseYMin := LogarithmicY;
+  Chart.Extent.UseYMin := LogarithmicY or (GetDataType = dtRValue);
 end;
 
 procedure TMainForm.UpdateData;

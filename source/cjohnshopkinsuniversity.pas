@@ -221,13 +221,20 @@ begin
       if (state <> '') then
       begin
         // The 'US' data are contained in separate files not read by this program
-        if (country = 'US') then
-          Continue;
         // No data provided in the standard files for the provinces of these countries
-        if (country = 'Spain') or (country = 'Italy') or (country = 'Germany') or
-           (country = 'Brazil') or (country = 'Chile') or (country = 'Japanm') or
-           (country = 'Mexico') then
-          Continue;
+        case country[1] of
+          'B': if country = 'Brazil' then continue;
+          'C': if (country = 'Chile') or (country = 'Colombia') then continue;
+          'G': if country = 'Germany' then continue;
+          'I': if country = 'Italy' then continue;
+          'J': if country = 'Japan' then continue;
+          'M': if country = 'Mexico' then continue;
+          'P': if country = 'Peru' then continue;
+          'R': if country = 'Russia' then continue;
+          'S': if country = 'Spain' then continue;
+          'U': if (country = 'US') or (country = 'Ukraine') then continue;
+          else ;
+        end;
       end;
 
       New(loc);
