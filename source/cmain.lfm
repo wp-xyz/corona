@@ -1990,71 +1990,71 @@ object MainForm: TMainForm
       Action = acDataUpdate
     end
     object ToolButton2: TToolButton
-      Left = 61
+      Left = 52
       Top = 2
       Action = acDataClear
     end
     object ToolButton3: TToolButton
-      Left = 56
+      Left = 47
       Height = 40
       Top = 2
       Caption = 'ToolButton3'
       Style = tbsDivider
     end
     object ToolButton4: TToolButton
-      Left = 360
+      Left = 351
       Top = 2
       Action = acFileExit
     end
     object tbAbout: TToolButton
-      Left = 400
+      Left = 391
       Top = 2
       Action = acAbout
     end
     object ToolButton5: TToolButton
-      Left = 154
+      Left = 145
       Top = 2
       Action = acChartLinear
     end
     object ToolButton6: TToolButton
-      Left = 194
+      Left = 185
       Top = 2
       Action = acChartLogarithmic
     end
     object ToolButton7: TToolButton
-      Left = 274
+      Left = 265
       Height = 40
       Top = 2
       Caption = 'ToolButton7'
       Style = tbsDivider
     end
     object ToolButton8: TToolButton
-      Left = 279
+      Left = 270
       Top = 2
       Action = acTableSave
     end
     object ToolButton9: TToolButton
-      Left = 355
+      Left = 346
       Height = 40
       Top = 2
       Caption = 'ToolButton9'
       Style = tbsDivider
     end
     object ToolButton10: TToolButton
-      Left = 234
+      Left = 225
       Hint = 'Copy chart to clipboard'
       Top = 2
       Action = acChartCopyToClipboard
       Caption = 'Copy'
     end
     object ToolButton11: TToolButton
-      Left = 101
+      Left = 92
       Top = 2
       Action = acChartOverlay
       Caption = 'Overlay'
     end
     object ToolButton12: TToolButton
-      Left = 149
+      Left = 140
       Height = 40
       Top = 2
       Caption = 'ToolButton12'
@@ -2521,7 +2521,7 @@ object MainForm: TMainForm
     end
     object acDataUpdate: TAction
       Category = 'Data'
-      Caption = 'Update...'
+      Caption = 'Update'
       Hint = 'Download current data files from server'
       ImageIndex = 2
       OnExecute = acDataUpdateExecute
