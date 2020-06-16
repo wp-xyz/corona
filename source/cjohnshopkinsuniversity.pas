@@ -226,7 +226,7 @@ begin
           'B': if (country = 'Brazil') then continue;
           'C': if (country = 'Chile') or (country = 'Colombia') then continue;
           'G': if (country = 'Germany') then continue;
-          'I': if (country = 'Italy') then continue;
+          'I': if (country = 'Italy') or (country = 'India') then continue;
           'J': if (country = 'Japan') then continue;
           'M': if (country = 'Mexico') then continue;
           'P': if (country = 'Peru') then continue;

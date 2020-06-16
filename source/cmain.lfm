@@ -1837,6 +1837,7 @@ object MainForm: TMainForm
             AxisPen.Visible = True
             Marks.LabelBrush.Style = bsClear
             Minors = <>
+            Title.LabelFont.Height = -16
             Title.LabelFont.Orientation = 900
             Title.LabelFont.Style = [fsBold]
             Title.Visible = True
@@ -1853,6 +1854,7 @@ object MainForm: TMainForm
             Marks.Source = DateTimeIntervalChartSource
             Marks.Style = smsLabel
             Minors = <>
+            Title.LabelFont.Height = -16
             Title.LabelFont.Style = [fsBold]
             Title.Visible = True
             Title.Caption = 'Date'
