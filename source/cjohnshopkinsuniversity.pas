@@ -5,19 +5,19 @@ unit cJohnsHopkinsUniversity;
 interface
 
 uses
-  Classes, SysUtils, ComCtrls,
+  Classes, SysUtils, ComCtrls, StrUtils,
   cGlobal, cDataSource;
 
 type
   TJohnsHopkinsDataSource = class(TcDataSource)
   private
-    function GetDataString_Sick(const ACountry, AState: String;
+    function Download(AURL, AFileName: String): Boolean;
+    function GetDataString_Sick(const ACountry, AState, ACity: String;
       out AHeader, ACounts: String): Boolean;
-
   public
     procedure DownloadToCache; override;
-    function GetDataString(const ACountry, AState: String; ACaseType: TCaseType;
-      out AHeader, ACounts: String): Boolean; override;
+    function GetDataString(const ACountry, AState, ACity: String;
+      ACaseType: TCaseType; out AHeader, ACounts: String): Boolean; override;
     function LoadLocations(ATreeView: TTreeView): Boolean; override;
   end;
 
@@ -35,6 +35,9 @@ const
   FILENAME_RECOVERED = 'time_series_covid19_recovered_global.csv';
   FILENAME_POPULATION = 'UID_ISO_FIPS_LookUp_Table.csv';
 
+  FILENAME_CONFIRMED_US = 'time_series_covid19_confirmed_US.csv';
+  FILENAME_DEATHS_US = 'time_series_covid19_deaths_US.csv';
+
 function BeginsWithQuote(s: String): Boolean;
 begin
   Result := (s <> '') and (s[1] = '"');
@@ -47,7 +50,7 @@ end;
 
 { -----------------------------------------------------------------------------}
 
-procedure TJohnsHopkinsDatasource.DownloadToCache;
+function TJohnsHopkinsDatasource.Download(AURL, AFileName: String): Boolean;
 const
   DOWNLOAD_ERR = 'Download error.';
   DOWNLOAD_FROM = 'Download from: ';
@@ -56,107 +59,135 @@ var
 begin
   stream := TMemoryStream.Create;
   try
-    DoStatusMsg(DOWNLOAD_FROM, TIMESERIES_URL + FILENAME_CONFIRMED + '...');
-    if not DownloadFile(TIMESERIES_URL + FILENAME_CONFIRMED, stream) then
-    begin
-      DoStatusMsg(DOWNLOAD_ERR, '');
-      MessageDlg(DOWNLOAD_ERR, mtError, [mbOK], 0);
-      exit;
-    end;
     stream.Position := 0;
-    stream.SaveToFile(FCacheDir + FILENAME_CONFIRMED);
-
-    stream.Position := 0;
-    DoStatusMsg(DOWNLOAD_FROM, TIMESERIES_URL + FILENAME_DEATHS + '...');
-    if not DownloadFile(TIMESERIES_URL + FILENAME_DEATHS, stream) then
+    DoStatusMsg(DOWNLOAD_FROM, AURL + '...');
+    if not DownloadFile(AURL, stream) then
     begin
       DoStatusMsg(DOWNLOAD_ERR, '');
       MessageDlg(DOWNLOAD_ERR, mtError, [mbOk], 0);
       exit;
     end;
     stream.Position := 0;
-    stream.SaveToFile(FCacheDir + FILENAME_DEATHS);
-
-    stream.Position := 0;
-    DoStatusMsg(DOWNLOAD_FROM, TIMESERIES_URL + FILENAME_RECOVERED + '...');
-    if not DownloadFile(TIMESERIES_URL + FILENAME_RECOVERED, stream) then
-    begin
-      DoStatusMsg(DOWNLOAD_ERR, '');
-      MessageDlg(DOWNLOAD_ERR, mtError, [mbOk], 0);
-      exit;
-    end;
-    stream.Position := 0;
-    stream.SaveToFile(FCacheDir + FILENAME_RECOVERED);
-
-    stream.Position := 0;
-    DoStatusmsg(DOWNLOAD_ERR, '');
-    if not DownloadFile(BASE_URL + FILENAME_POPULATION, stream) then
-    begin
-      DoStatusMsg(DOWNLOAD_ERR, '');
-      MessageDlg(DOWNLOAD_ERR, mtError, [mbOK], 0);
-      exit;
-    end;
-    stream.Position := 0;
-    stream.SaveToFile(FCacheDir + FILENAME_POPULATION);
-
-
+    stream.SaveToFile(AFIleName);
+    Result := true;
   finally
     stream.Free;
   end;
 end;
 
-function TJohnsHopkinsDataSource.GetDataString(const ACountry, AState: String;
+procedure TJohnsHopkinsDatasource.DownloadToCache;
+begin
+  // confirmed global
+  if not Download(TIMESERIES_URL + FILENAME_CONFIRMED, FCacheDir + FILENAME_CONFIRMED) then exit;
+
+  // deaths global
+  if not Download(TIMESERIES_URL + FILENAME_DEATHS, FCacheDir + FILENAME_DEATHS) then exit;
+
+  // recovered global
+  if not Download(TIMESERIES_URL + FILENAME_RECOVERED, FCacheDir + FILENAME_RECOVERED) then exit;
+
+  // confirmed U.S.A.
+  if not Download(TIMESERIES_URL + FILENAME_CONFIRMED_US, FCacheDir + FILENAME_CONFIRMED_US) then exit;
+
+  // deaths U.S.A.
+  if not Download(TIMESERIES_URL + FILENAME_DEATHS_US, FCacheDir + FILENAME_DEATHS_US) then exit;
+
+  // locations, populations
+  if not Download(BASE_URL + FILENAME_POPULATION, FCacheDir + FILENAME_POPULATION) then exit;
+end;
+
+function TJohnsHopkinsDataSource.GetDataString(const ACountry, AState, ACity: String;
   ACaseType: TCaseType; out AHeader, ACounts: String): Boolean;
 var
-  L: TStrings;
+  lines: TStrings;
+  fields: TStrings;
   fn: String;
-  i: integer;
-  sa: TStringArray;
+  i, j: integer;
+  isUSAFile: Boolean;
+  combinedKey: String;
 begin
+  Result := false;
+
   if ACaseType = ctSick then
   begin
-    Result := GetDataString_Sick(ACountry, AState, AHeader, ACounts);
+    Result := GetDataString_Sick(ACountry, AState, ACity, AHeader, ACounts);
     exit;
   end;
 
-  Result := false;
+  isUSAFile := (ACountry = 'US') and (ACity <> '');
+  if isUSAFile then
+  begin
+    case ACaseType of
+      ctConfirmed : fn := FCacheDir + FILENAME_CONFIRMED_US;
+      ctDeaths    : fn := FCacheDir + FILENAME_DEATHS_US;
+      ctRecovered : exit;
+    end;
+    combinedKey := Format('"%s, %s, US"', [ACity, AState]);
+  end else
+    case ACaseType of
+      ctConfirmed : fn := FCacheDir + FILENAME_CONFIRMED;
+      ctDeaths    : fn := FCacheDir + FILENAME_DEATHS;
+      ctRecovered : fn := FCacheDir + FILENAME_RECOVERED;
+    end;
 
-  case ACaseType of
-    ctConfirmed : fn := FCacheDir + FILENAME_CONFIRMED;
-    ctDeaths    : fn := FCacheDir + FILENAME_DEATHS;
-    ctRecovered : fn := FCacheDir + FILENAME_RECOVERED;
-  end;
   if not FileExists(fn) then
   begin
     MessageDlg(Format('Data file "%s" not found. Please press "Update files".', [fn]), mtError, [mbOK], 0);
     exit;
   end;
 
-  L := TStringList.Create;
+  lines := TStringList.Create;
+  fields := TStringList.Create;
   try
-    L.LoadFromFile(fn);
-    AHeader := L[0];
-    for i:=1 to L.Count-1 do begin
-      if L[i] = '' then
+    fields.StrictDelimiter := true;
+    lines.LoadFromFile(fn);
+
+    AHeader := lines[0];
+    if isUSAFile then begin
+      Split(AHeader, fields);
+      if ACaseType = ctDeaths then
+        fields.Delete(11);
+      fields.Delete(10);
+      for j := 0 to 5 do
+        fields.Delete(0);
+      AHeader := fields.CommaText;
+    end;
+
+    for i:=1 to lines.Count-1 do begin
+      if lines[i] = '' then
         Continue;
-      if BeginsWithQuote(L[i]) then
+      if BeginsWithQuote(lines[i]) then
         Continue;
-      sa := L[i].Split(',', '"');
-      if sa[0] <> '' then sa[0] := UnQuote(sa[0]);
-      if sa[1] <> '' then sa[1] := Unquote(sa[1]);
-      if (sa[1] = ACountry) and (sa[0] = AState) then
+      Split(lines[i], fields);
+      if isUSAFile then begin
+        if fields[10] = combinedKey then
+        begin
+          if ACaseType = ctDeaths then
+            fields.Delete(11);
+          fields.Delete(10);
+          for j := 0 to 5 do
+            fields.Delete(0);
+          ACounts := fields.CommaText;
+          Result := true;
+          exit;
+        end;
+      end else
       begin
-        ACounts := L[i];
-        Result := true;
-        exit;
+        if (fields[1] = ACountry) and (fields[0] = AState) then
+        begin
+          ACounts := lines[i];
+          Result := true;
+          exit;
+        end;
       end;
     end;
   finally
-    L.Free;
+    fields.Free;
+    lines.Free;
   end;
 end;
 
-function TJohnsHopkinsDataSource.GetDataString_Sick(const ACountry, AState: String;
+function TJohnsHopkinsDataSource.GetDataString_Sick(const ACountry, AState, ACity: String;
   out AHeader, ACounts: String): Boolean;
 var
   sConfirmed, sDeaths, sRecovered: String;
@@ -164,9 +195,9 @@ var
   nConfirmed, nDeaths, nRecovered, nSick: Integer;
   i: Integer;
 begin
-  Result := GetDataString(ACountry, AState, ctConfirmed, AHeader, sConfirmed) and
-            GetDataString(ACountry, AState, ctDeaths, AHeader, sDeaths) and
-            GetDataString(ACountry, AState, ctRecovered, AHeader, sRecovered);
+  Result := GetDataString(ACountry, AState, ACity, ctConfirmed, AHeader, sConfirmed) and
+            GetDataString(ACountry, AState, ACity, ctDeaths, AHeader, sDeaths) and
+            GetDataString(ACountry, AState, ACity, ctRecovered, AHeader, sRecovered);
   if Result then
   begin
     saConfirmed := sConfirmed.Split(',', '"');
@@ -187,11 +218,11 @@ function TJohnsHopkinsDataSource.LoadLocations(ATreeView: TTreeView): Boolean;
 var
   fn: String;
   L: TStrings;
-  node: TTreeNode;
+  countryNode, stateNode, cityNode, node: TTreeNode;
   sa: TStringArray;
   i: Integer;
   population: Integer;
-  country, state: String;
+  country, state, city: String;
   loc: PLocationParams;
 begin
   Result := false;
@@ -215,6 +246,7 @@ begin
 
       country := Unquote(sa[7]);
       state := Unquote(sa[6]);
+      city := Unquote(sa[5]);
       population := StrToIntDef(sa[11], 0);
 
       // avoid too many empty nodes in the tree vieew
@@ -229,10 +261,10 @@ begin
           'I': if (country = 'Italy') or (country = 'India') then continue;
           'J': if (country = 'Japan') then continue;
           'M': if (country = 'Mexico') then continue;
-          'P': if (country = 'Peru') then continue;
+          'P': if (country = 'Pakistan') or (country = 'Peru') then continue;
           'R': if (country = 'Russia') then continue;
           'S': if (country = 'Spain') or (country = 'Sweden') then continue;
-          'U': if (country = 'US') or (country = 'Ukraine') then continue;
+          'U': if (country = 'Ukraine') then continue;
           else ;
         end;
       end;
@@ -241,21 +273,41 @@ begin
       loc^.ID := -1;  // not used by JHU
       loc^.Population := population;
 
-      node := ATreeView.Items.FindTopLvlNode(country);
-      if node = nil then
+      countryNode := ATreeView.Items.FindTopLvlNode(country);
+      if countryNode = nil then
       begin
         {$IFDEF DEBUG_LOCATIONPARAMS}
         loc^.Name := country;
         {$ENDIF}
-        node := ATreeView.Items.AddChildObject(nil, country, loc)
-      end
-      else
+        countryNode := ATreeView.Items.AddChildObject(nil, country, loc)
+      end;
+
       if state <> '' then
       begin
         {$IFDEF DEBUG_LOCATIONPARAMS}
         loc^.Name := state;
         {$ENDIF}
-        node := ATreeView.Items.AddChildObject(node, state, loc);
+        stateNode := nil;
+        cityNode := nil;
+        node := countryNode.GetFirstChild;
+        while (node <> nil) do begin
+          if node.Text = state then
+          begin
+            stateNode := node;
+            break;
+          end;
+          node := node.GetNextSibling;
+        end;
+        if stateNode = nil then
+          stateNode := ATreeView.Items.AddChildObject(countryNode, state, loc);
+
+        if (city <> '') then
+        begin
+          {$IFDEF DEBUG_LOCATIONPARAMS}
+          loc^.Name = city;
+          {$ENDIF}
+          citynode := ATreeView.Items.AddChildObject(stateNode, city, loc);
+        end;
       end;
     end;
   finally

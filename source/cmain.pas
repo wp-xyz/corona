@@ -162,7 +162,7 @@ type
     function GetCellText(ACol, ARow: Integer): String;
     function GetDataType: TDataType;
     function GetLocation(ANode: TTreeNode): String;
-    procedure GetLocation(ANode: TTreeNode; out ACountry, AState: String; out APopulation: Integer);
+    procedure GetLocation(ANode: TTreeNode; out ACountry, AState, ACity: String; out APopulation: Integer);
     function GetSeries(ANode: TTreeNode; ACaseType: TCaseType; ADataType: TDataType): TBasicPointSeries;
     procedure InitShortCuts;
     function IsTimeSeries: Boolean;
@@ -835,19 +835,39 @@ begin
   Result := TDataType(cmbDataType.ItemIndex);
 end;
 
-procedure TMainForm.GetLocation(ANode: TTreeNode; out ACountry, AState: String;
-  out APopulation: Integer);
+procedure TMainForm.GetLocation(ANode: TTreeNode;
+  out ACountry, AState, ACity: String; out APopulation: Integer);
 var
   loc: PLocationParams;
 begin
+  ACountry := '';
+  AState := '';
+  ACity := '';
+
+  case ANode.Level of
+    0: ACountry := ANode.Text;
+    1: begin
+         AState := ANode.Text;
+         ACountry := ANode.Parent.Text;
+       end;
+    2: begin
+         ACity := ANode.Text;
+         AState := ANode.Parent.Text;
+         ACountry := ANode.Parent.Parent.Text;
+       end;
+  end;
+  {
   if ANode.Parent = nil then begin
     ACountry := ANode.Text;
     AState := '';
+    ACity := '';
   end else
   begin
     ACountry := ANode.Parent.Text;
     AState := ANode.Text;
+
   end;
+  }
   loc := PLocationParams(ANode.Data);
   if loc <> nil then
     APopulation := loc^.Population;
@@ -855,14 +875,16 @@ end;
 
 function TMainForm.GetLocation(ANode: TTreeNode): String;
 var
-  country, state: String;
+  country, state, city: String;
   population: Integer;
 begin
-  GetLocation(ANode, country, state, population);
-  if state = '' then
-    Result := country
-  else
-    Result := country + ' / ' + state;
+  GetLocation(ANode, country, state, city, population);
+  Result := country;
+  if state <> '' then begin
+    Result := Result + '/' + state;
+    if city <> '' then
+      Result := Result + ' / ' + city;
+  end;
 end;
 
 function TMainForm.GetSeries(ANode: TTreeNode; ACaseType: TCaseType;
@@ -1267,7 +1289,7 @@ var
   i, j: Integer;
   ser: TBasicPointSeries;
   Y, Y0, dY, dY0: Double;
-  country, state: String;
+  country, state, city: String;
   population: Integer;
   dataSrcClass: TcDataSourceClass;
   src: TCustomChartSource;
@@ -1284,7 +1306,7 @@ begin
       Clear(false);
 
     dataSrcClass := TJohnsHopkinsDataSource;
-    GetLocation(ANode, country, state, population);
+    GetLocation(ANode, country, state, city, population);
 
     {$IFDEF RKI}
     if ((ANode.Level = 0) and (ANode.Text = RKI_CAPTION)) or
@@ -1329,7 +1351,7 @@ begin
 
       with dataSrcClass.Create(DataDir) do
       try
-        if not GetDataString(country, state, ct, dates[ct], counts[ct]) then
+        if not GetDataString(country, state, city, ct, dates[ct], counts[ct]) then
           Continue;
       finally
         Free;

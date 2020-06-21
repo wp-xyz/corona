@@ -21,7 +21,7 @@ type
   public
     procedure ClearCache;
     procedure DownloadToCache; override;
-    function GetDataString(const ACountry, AState: String; ACaseType: TCaseType;
+    function GetDataString(const ACountry, AState, ACity: String; ACaseType: TCaseType;
       out AHeader, ACounts: String): Boolean; override;
     class function GetDisplayString(const AText: String): String;
     class function GetPopulation(const AText: String): Integer;
@@ -474,7 +474,7 @@ begin
   end;
 end;
 
-function TRobertKochDataSource.GetDataString(const ACountry, AState: String;
+function TRobertKochDataSource.GetDataString(const ACountry, AState, ACity: String;
   ACaseType: TCaseType; out AHeader, ACounts: String): Boolean;
 var
   url: String;

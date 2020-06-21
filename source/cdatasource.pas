@@ -25,7 +25,7 @@ type
 
     { Extracts the line with the data value from the cache file associated with
       the clicked tree node }
-    function GetDataString(const ACountry, AState: String; ACaseType: TCaseType;
+    function GetDataString(const ACountry, AState, ACity: String; ACaseType: TCaseType;
       out AHeader, ACounts: String): Boolean; virtual; abstract;
 
     { Loads the locations from the specified cache directory into a treeview.
