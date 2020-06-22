@@ -173,7 +173,7 @@ begin
         end;
       end else
       begin
-        if (fields[1] = ACountry) and (fields[0] = AState) then
+        if (Unquote(fields[1]) = ACountry) and (Unquote(fields[0]) = AState) then  // Unquote needed for quoted "Korea, South"
         begin
           ACounts := lines[i];
           Result := true;
