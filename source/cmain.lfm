@@ -2066,19 +2066,19 @@ object MainForm: TMainForm
   object DateTimeIntervalChartSource: TDateTimeIntervalChartSource
     Params.MaxLength = 120
     Params.MinLength = 30
-    left = 592
-    top = 440
+    Left = 592
+    Top = 440
   end
   object LeftAxisTransformations: TChartAxisTransformations
-    left = 592
-    top = 184
+    Left = 592
+    Top = 184
     object LeftAxisLogTransform: TLogarithmAxisTransform
       Base = 10
     end
   end
   object ChartToolset: TChartToolset
-    left = 592
-    top = 248
+    Left = 592
+    Top = 248
     object MeasurementTool: TDataPointDistanceTool
       Shift = [ssCtrl, ssLeft]
       OnAfterMouseUp = MeasurementToolAfterMouseUp
@@ -2120,8 +2120,8 @@ object MainForm: TMainForm
   end
   object ImageList: TImageList
     Scaled = True
-    left = 448
-    top = 72
+    Left = 448
+    Top = 72
     Bitmap = {
       4C7A0900000010000000100000006B0600000000000078DAED59FB531357140E
       F5CF683B9DA9E33FC2EB87FA8004B12D01223E5A71D02236813C08EB082AD231
@@ -2419,13 +2419,13 @@ object MainForm: TMainForm
   end
   object SaveDialog: TSaveDialog
     Filter = 'Comma-separated files (*.csv)|*.csv'
-    left = 1024
-    top = 136
+    Left = 1024
+    Top = 136
   end
   object MainMenu: TMainMenu
     Images = ImageList
-    left = 576
-    top = 66
+    Left = 576
+    Top = 66
     object mnuFile: TMenuItem
       Caption = 'File'
       object mnuFileQuit: TMenuItem
@@ -2512,8 +2512,8 @@ object MainForm: TMainForm
   end
   object ActionList: TActionList
     Images = ImageList
-    left = 448
-    top = 184
+    Left = 448
+    Top = 184
     object acFileExit: TFileExit
       Category = 'File'
       Caption = 'Quit'
@@ -2621,8 +2621,8 @@ object MainForm: TMainForm
     end
   end
   object BottomAxisTransformations: TChartAxisTransformations
-    left = 768
-    top = 440
+    Left = 768
+    Top = 440
     object BottomAxisLogTransform: TLogarithmAxisTransform
       Base = 10
     end

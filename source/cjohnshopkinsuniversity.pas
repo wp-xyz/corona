@@ -269,13 +269,12 @@ begin
         end;
       end;
 
-      New(loc);
-      loc^.ID := -1;  // not used by JHU
-      loc^.Population := population;
-
       countryNode := ATreeView.Items.FindTopLvlNode(country);
       if countryNode = nil then
       begin
+        New(loc);
+        loc^.ID := -1;  // not used by JHU
+        loc^.Population := population;
         {$IFDEF DEBUG_LOCATIONPARAMS}
         loc^.Name := country;
         {$ENDIF}
@@ -284,9 +283,6 @@ begin
 
       if state <> '' then
       begin
-        {$IFDEF DEBUG_LOCATIONPARAMS}
-        loc^.Name := state;
-        {$ENDIF}
         stateNode := nil;
         cityNode := nil;
         node := countryNode.GetFirstChild;
@@ -299,10 +295,21 @@ begin
           node := node.GetNextSibling;
         end;
         if stateNode = nil then
+        begin
+          New(loc);
+          loc^.ID := -1;  // not used by JHU
+          loc^.Population := population;
+          {$IFDEF DEBUG_LOCATIONPARAMS}
+          loc^.Name := state;
+          {$ENDIF}
           stateNode := ATreeView.Items.AddChildObject(countryNode, state, loc);
+        end;
 
         if (city <> '') then
         begin
+          New(loc);
+          loc^.ID := -1;  // not used by JHU
+          loc^.Population := population;
           {$IFDEF DEBUG_LOCATIONPARAMS}
           loc^.Name = city;
           {$ENDIF}

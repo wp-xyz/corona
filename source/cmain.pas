@@ -1548,10 +1548,11 @@ procedure TMainForm.TreeViewDeletion(Sender: TObject; Node: TTreeNode);
 var
   loc: PLocationParams;
 begin
-  if (Node <> nil) and (Node.Data <> nil) then
+  if (Node <> nil) then
   begin
     loc := PLocationParams(Node.Data);
-    Dispose(loc);
+    if loc <> nil then
+      Dispose(loc);
     Node.Data := nil;
   end;
 end;
