@@ -32,6 +32,7 @@ type
     lblTitle: TLabel;
     Panel1: TPanel;
     procedure FormCreate(Sender: TObject);
+    procedure FormShow(Sender: TObject);
     procedure LabelClick(Sender: TObject);
     procedure LabelMouseEnter(Sender: TObject);
     procedure LabelMouseLeave(Sender: TObject);
@@ -49,7 +50,7 @@ implementation
 {$R *.lfm}
 
 uses
-  LCLIntf, Types;
+  LCLIntf, Types, IntfGraphics, LazCanvas, FPCanvas;
 
 const
   URL_FPC = 'https://www.freepascal.org/';
@@ -60,6 +61,28 @@ const
   URL_RKI = 'https://www.rki.de/EN/Home/homepage_node.html';
   URL_NPGeo = 'https://npgeo-corona-npgeo-de.hub.arcgis.com/';
 
+procedure ScaleBitmap(BM: TBitmap; W, H: Integer);
+var
+  Source, Dest: TLazIntfImage;
+  DestCanvas: TLazCanvas;
+begin
+  try
+    Source := TLazIntfImage.Create(0, 0);
+    Source.LoadFromBitmap(BM.Handle, 0);
+    Dest := TLazIntfImage.Create(0, 0);
+    Dest.LoadFromBitmap(BM.Handle, 0);
+    DestCanvas := TLazCanvas.Create(Dest);
+    DestCanvas.Interpolation := TFPBaseInterpolation.Create;
+    DestCanvas.StretchDraw(0, 0, W, H, Source);
+    BM.LoadFromIntfImage(Dest);
+    BM.SetSize(W, H);
+  finally
+    DestCanvas.Interpolation.Free;
+    DestCanvas.Free;
+    Dest.Free;
+    Source.Free;
+  end;
+end;
 
 { TAboutForm }
 
@@ -78,6 +101,13 @@ begin
   lblJHUgit.Hint := URL_JHU_git;
   imgRKI.Hint := URL_RKI;
   lblNPGeo.Hint := URL_NPGeo
+end;
+
+procedure TAboutForm.FormShow(Sender: TObject);
+begin
+  ScaleBitmap(AppImage.Picture.Bitmap, AppImage.Width, AppImage.Height);
+  ScaleBitmap(imgJHU.Picture.Bitmap, imgJHU.Width, imgJHU.Height);
+  ScaleBitmap(imgRKI.Picture.Bitmap, imgRKI.Width, imgRKI.Height);
 end;
 
 procedure TAboutForm.LabelClick(Sender: TObject);
