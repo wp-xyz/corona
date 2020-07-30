@@ -1869,6 +1869,7 @@ object MainForm: TMainForm
           'TAChart'
         )
         Toolset = ChartToolset
+        OnBeforeCustomDrawBackWall = ChartBeforeCustomDrawBackWall
         Align = alClient
         Anchors = [akLeft]
         BorderSpacing.Left = 6
@@ -2425,7 +2426,7 @@ object MainForm: TMainForm
   object MainMenu: TMainMenu
     Images = ImageList
     Left = 576
-    Top = 66
+    Top = 72
     object mnuFile: TMenuItem
       Caption = 'File'
       object mnuFileQuit: TMenuItem
@@ -2458,7 +2459,11 @@ object MainForm: TMainForm
         Action = acChartOverlay
         AutoCheck = True
       end
-      object MenuItem9: TMenuItem
+      object mnuChartHighlightWeekends: TMenuItem
+        Action = acChartHighlightWeekends
+        AutoCheck = True
+      end
+      object MenuItem13: TMenuItem
         Caption = '-'
       end
       object MenuItem5: TMenuItem
@@ -2618,6 +2623,12 @@ object MainForm: TMainForm
       Category = 'Config'
       Caption = 'Smoothing range...'
       OnExecute = acSmoothingRangeExecute
+    end
+    object acChartHighlightWeekends: TAction
+      Category = 'Chart'
+      AutoCheck = True
+      Caption = 'Highlight weekends'
+      OnExecute = acChartHighlightWeekendsExecute
     end
   end
   object BottomAxisTransformations: TChartAxisTransformations
