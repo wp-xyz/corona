@@ -60,7 +60,7 @@ object AboutForm: TAboutForm
     AnchorSideTop.Side = asrBottom
     AnchorSideRight.Side = asrBottom
     Left = 12
-    Height = 197
+    Height = 187
     Top = 175
     Width = 368
     Anchors = [akTop, akLeft, akRight]
@@ -70,7 +70,7 @@ object AboutForm: TAboutForm
     BorderSpacing.Right = 12
     BevelOuter = bvNone
     BorderStyle = bsSingle
-    ClientHeight = 193
+    ClientHeight = 183
     ClientWidth = 364
     Color = clWindow
     ParentColor = False
@@ -187,7 +187,7 @@ object AboutForm: TAboutForm
       AnchorSideTop.Side = asrBottom
       Cursor = crHandPoint
       Left = 122
-      Height = 32
+      Height = 31
       Top = 96
       Width = 162
       BorderSpacing.Top = 16
@@ -486,8 +486,8 @@ object AboutForm: TAboutForm
       AnchorSideTop.Side = asrBottom
       Cursor = crHandPoint
       Left = 122
-      Height = 49
-      Top = 136
+      Height = 40
+      Top = 135
       Width = 162
       BorderSpacing.Top = 8
       BorderSpacing.Right = 24
@@ -853,7 +853,7 @@ object AboutForm: TAboutForm
       Left = 300
       Height = 15
       Hint = 'www.icons8.com'
-      Top = 136
+      Top = 135
       Width = 45
       BorderSpacing.Right = 24
       BorderSpacing.Bottom = 8
@@ -902,7 +902,7 @@ object AboutForm: TAboutForm
     AnchorSideRight.Side = asrBottom
     Left = 325
     Height = 25
-    Top = 380
+    Top = 370
     Width = 55
     Anchors = [akTop, akRight]
     AutoSize = True
