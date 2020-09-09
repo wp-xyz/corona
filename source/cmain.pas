@@ -2,6 +2,7 @@ unit cMain;
 
 {$mode objfpc}{$H+}
 {$define RKI}
+{$define USE_BARSERIES}
 
 // Es gibt noch ein Define DEBUG_LOCATIONPARAMS in den Projekt-Optionen.
 
@@ -958,6 +959,7 @@ begin
   // ADatatype and hide the others.
   serTitle := GetLocation(ANode);
   for ct in TCaseType do begin
+    {$IFNDEF USE_BARSERIES}
     case ADataType of
       dtCumulative,
       dtNormalizedCumulative,
@@ -965,6 +967,7 @@ begin
       dtCumVsNewCases,
       dtRValue:
         begin
+    {$ENDIF}
           ser := TcLineSeries.Create(Chart);
           with TcLineSeries(ser) do
           begin
@@ -996,6 +999,7 @@ begin
             MovingAverage := acDataMovingAverage.Checked;
             Node := ANode;
           end;
+    {$IFNDEF USE_BARSERIES}
         end;
       dtNewCases,
       dtNormalizedNewCases:
@@ -1018,6 +1022,7 @@ begin
           end;
         end;
     end;  // case
+    {$ENDIF}
 
     if ADataType = dtRValue then
       ser.Title := serTitle + ' (' + R_NUMBER_STR + ')'
