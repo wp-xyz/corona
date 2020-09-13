@@ -597,6 +597,8 @@ end;
 
 procedure TMainForm.CrossHairToolDraw(
   ASender: TDataPointDrawTool);
+const
+  DECS: array[boolean] of Integer = (0, 1);
 var
   ser: TChartSeries;
   x, y: Double;
@@ -614,16 +616,25 @@ begin
     x := ser.GetXValue(ASender.PointIndex);
     y := ser.GetYValue(ASender.PointIndex);
     case dt of
-      dtCumulative:
+      dtCumulative, dtNormalizedCumulative:
         begin
           sx := FormatDateTime('dddddd', x);
-          if y = 1 then sy := '1 case' else sy := Format('%.0n cases', [y]);
+          if y < 0.5 then sy := '0 cases'
+            else if y < 1.5 then sy := '1 case'
+            else sy := Format('%.*n cases', [DECS[(y < 100) and (dt = dtNormalizedCumulative)], y]);
+          if dt = dtNormalizedCumulative then
+            sy := sy + ' per 100 000 inhabitants and per week';
           FStatusText1 := Format('%s, %s', [sx, sy]);
         end;
-      dtNewCases:
+      dtNewCases, dtNormalizedNewCases:
         begin
           sx := FormatDateTime('dddddd', x);
-          if y = 1 then sy := '1 new case' else sy := Format('%.0n new cases', [y]);
+          if y = 1.0 then
+            sy := '1 new case'
+          else
+            sy := Format('%.*n new cases', [DECS[(y < 100) and (dt = dtNormalizedNewCases)], y]);
+          if dt = dtNormalizedNewCases then
+            sy := sy + ' per 100 000 inhabitants and per week';
           FStatusText1 := Format('%s, %s', [sx, sy]);
         end;
       dtDoublingTime:
@@ -954,9 +965,9 @@ begin
 
   clr := COLORS[((Chart.SeriesCount - 1) div (ord(High(TCaseType))+1)) mod Length(COLORS)];
 
-  // The node does not yet have associated series. Create 3 series for
-  // the cases "confirmed", "deaths" and "recovered". Return the one for
-  // ADatatype and hide the others.
+  // The node does not yet have associated series. Create 4 series for
+  // the cases "confirmed", "deaths", "recovered" and "sick".
+  // Return the one for ADatatype and hide the others.
   serTitle := GetLocation(ANode);
   for ct in TCaseType do begin
     {$IFNDEF USE_BARSERIES}
