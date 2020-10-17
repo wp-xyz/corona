@@ -685,31 +685,26 @@ begin
     Clear;
     dt := GetDataType();
     case dt of
-      dtCumulative, dtNormalizedCumulative:
+      dtCumulative, dtNormalizedCumulative,
+      dtNewCases, dtNormalizedNewCases:
         begin
-          if dt = dtNormalizedCumulative then
-            lblTableHdr.Caption := Format('Cumulative cases per %.0n persons', [1.0 * PopulationRef])
-          else
-            lblTableHdr.Caption := 'Cumulative cases';
+          case dt of
+            dtCumulative:
+              lblTableHdr.Caption := 'Cumulative cases';
+            dtNormalizedCumulative:
+              lblTableHdr.Caption := Format('Cumulative cases per %.0n persons', [1.0 * PopulationRef]);
+            dtNewCases:
+              lblTableHdr.Caption := 'New cases per day';
+            dtNormalizedNewCases:
+              lblTableHdr.Caption := Format('New cases per %.0n persons and week', [1.0 * PopulationRef])
+            else
+              raise Exception.Create('Data type not handled by cmbDataTypeChange');
+          end;
           lblTableHint.Caption := '';
           Chart.LeftAxis.Title.Caption := lblTableHdr.Caption;
           Chart.BottomAxis.Title.Caption := 'Date';
           UpdateAxes(false, acChartLogarithmic.Checked);
           MeasurementTool.Enabled := true;
-          acDataMovingAverage.Enabled := true;
-          clbCases.Enabled := true;
-        end;
-      dtNewCases, dtNormalizedNewCases:
-        begin
-          if dt = dtNormalizedNewCases then
-            lblTableHdr.Caption := Format('New cases per %.0n persons and week', [1.0 * PopulationRef])
-          else
-            lblTableHdr.Caption := 'New cases per day';
-          lblTableHint.Caption := '';
-          Chart.LeftAxis.Title.Caption := lblTableHdr.Caption;
-          Chart.BottomAxis.Title.Caption := 'Date';
-          UpdateAxes(false, false);
-          MeasurementTool.Enabled := false;
           acDataMovingAverage.Enabled := true;
           clbCases.Enabled := true;
         end;
@@ -1618,7 +1613,8 @@ end;
 procedure TMainForm.UpdateActionStates;
 begin
   acTableSave.Enabled := Chart.SeriesCount > 1;  // 1 series reserved for measurement
-  acChartLogarithmic.Enabled := GetDataType() in [dtCumulative, dtNormalizedCumulative, dtCumVsNewCases];
+  acChartLogarithmic.Enabled := GetDataType() in [dtCumulative, dtNormalizedCumulative,
+    dtNewCases, dtNormalizedNewCases, dtCumVsNewCases];
   acChartLinear.Enabled := acChartLogarithmic.Enabled;
 end;
 
