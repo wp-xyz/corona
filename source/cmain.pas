@@ -1264,7 +1264,7 @@ begin
   for i := 4 to High(AValues) do
   begin
     X := StrToDate(ADates[i], cFormatSettings);
-    Y := StrToInt(AValues[i]);
+    Y := StrToFloat(AValues[i], cFormatSettings);
     if predata_phase then
     begin
       if Y < START_COUNT then
@@ -1282,23 +1282,18 @@ end;
 procedure TMainForm.PopulateNewCasesSeries(const ADates, AValues: TStringArray;
   ASeries: TChartSeries);
 var
-  fs: TFormatSettings;
   predata_phase: Boolean;
   start_date: TDate;
   X, Y, Y0: Double;
   i: Integer;
 begin
-  fs := FormatSettings;
-  fs.ShortDateFormat := 'mm/dd/yyy';
-  fs.DateSeparator := '/';
-
   predata_phase := acDataCommonStart.Checked;
   ASeries.Clear;
 
-  Y0 := StrToInt(AValues[4]);
+  Y0 := StrToFloat(AValues[4], cFormatSettings);
   for i := 5 to High(AValues) do begin
-    X := StrToDate(ADates[i], fs);
-    Y := StrToInt(AValues[i]);
+    X := StrToDate(ADates[i], cFormatSettings);
+    Y := StrToFloat(AValues[i], cFormatSettings);
     if predata_phase then
     begin
       if Y < START_COUNT then begin

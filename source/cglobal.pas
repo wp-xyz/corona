@@ -53,7 +53,7 @@ implementation
 initialization
   cFormatSettings := DefaultFormatSettings;
   cFormatSettings.DecimalSeparator := '.';
-  cFormatSettings.ShortDateFormat := 'mm/dd/yyy';
+  cFormatSettings.ShortDateFormat := 'mm/dd/yyyy';
   cformatSettings.DateSeparator := '/';
 
 end.
