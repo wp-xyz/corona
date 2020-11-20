@@ -1340,9 +1340,10 @@ var
   saX, saY: TStringArray;
   i, j: Integer;
   ser: TBasicPointSeries;
-  Y, Y0, dY, dY0: Double;
+  Y, Y0, Yhalf, dY, dY0: Double;
   country, state, city: String;
   population: Integer;
+  nDesc: Integer;
   dataSrcClass: TcDataSourceClass;
   src: TCustomChartSource;
   dataArr: TDataPointArray;
@@ -1459,19 +1460,39 @@ begin
               EnableMovingAverage(ser, true, true);
               SeriesToArray(ser, dataArr);
               EnableMovingAverage(ser, false, true);
-              for i := High(dataArr) downto 0 do begin
+
+              for i := High(dataArr) downto 0 do
+              begin
                 Y := dataArr[i].Y;
-                if Y < 100 then  // too much noise --> skip this point
+                Y0 := Y;
+                if Y < 100 then
                   Y := NaN
                 else
                 begin
-                  Y0 := Y / 2;
+                  Yhalf := Y0 * 0.5;
                   Y := NaN;
-                  for j := i - 1 downto 0 do
-                    if dataArr[j].Y < Y0 then begin
-                      Y := dataArr[i].X - dataArr[j].X;
+                  nDesc := 0;  // Data points found on descending part
+                  for j := i-1 downto 0 do
+                  begin
+                    if (dataArr[j].Y <= Y0) then      // use ascending part only
+                    begin
+                      if (dataArr[j].Y <= Yhalf) then  // half value found
+                      begin
+                        Y := dataArr[i].X - dataArr[j].X;
+                        break;
+                      end
+                      else
+                        nDesc := 0;
+                    end else
+                      // Count values on descending part.
+                      inc(nDesc);
+                    // If there is a certaining number of points on descending part --> ignore point
+                    if nDesc > 10 then
+                    begin
+                      Y := NaN;
                       break;
                     end;
+                  end;
                 end;
                 ser.YValue[i] := Y;
               end;
