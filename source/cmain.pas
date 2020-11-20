@@ -172,7 +172,7 @@ type
     function GetSeries(ANode: TTreeNode; ACaseType: TCaseType; ADataType: TDataType): TBasicPointSeries;
     procedure InitShortCuts;
     function IsTimeSeries: Boolean;
-    procedure LayoutBars;
+//    procedure LayoutBars;
     procedure LoadLocations;
     procedure NormalizeToPopulation(ASource: TListChartSource; APopulation: Integer; PerWeek: Boolean);
     procedure PopulateCumulativeSeries(const ADates, AValues: TStringArray; ASeries: TChartSeries);
@@ -578,7 +578,7 @@ end;
 
 procedure TMainForm.ChartListboxCheckboxClick(ASender: TObject; AIndex: Integer);
 begin
-  LayoutBars;
+//  LayoutBars;
   UpdateAffectedSeries;
 end;
 
@@ -637,7 +637,7 @@ begin
             sy := sy + ' per 100 000 inhabitants and per week';
           FStatusText1 := Format('%s, %s', [sx, sy]);
         end;
-      dtDoublingTime:
+      dtCumulativeCasesDoublingTime, dtNewCasesDoublingTime:
         begin
           sx := FormatDateTime('dddddd', x);
           sy := Format('Doubling time %.1f', [y]);
@@ -708,7 +708,8 @@ begin
           acDataMovingAverage.Enabled := true;
           clbCases.Enabled := true;
         end;
-      dtDoublingTime:
+      dtCumulativeCasesDoublingTime,
+      dtNewCasesDoublingTime:
         begin
           Chart.LeftAxis.Title.Caption := 'Doubling time (days)';
           Chart.BottomAxis.Title.Caption := 'Date';
@@ -863,7 +864,8 @@ begin
       r := ser.Count - ARow;
       if not IsNan(ser.YValue[r]) then
         case GetDataType() of
-          dtDoublingTime:
+          dtCumulativeCasesDoublingTime,
+          dtNewCasesDoublingTime:
             Result := Format('%.1f', [ser.YValue[r]]);
           dtCumVsNewCases:
             if odd(ACol) then
@@ -1095,6 +1097,7 @@ begin
   Result := GetDataType() <> dtCumVsNewCases;
 end;
 
+{
 procedure TMainForm.LayoutBars;
 var
   i, j, n: Integer;
@@ -1118,6 +1121,7 @@ begin
       inc(j);
     end;
 end;
+}
 
 // Populates the treeview with the locations.
 procedure TMainForm.LoadLocations;
@@ -1441,19 +1445,23 @@ begin
             end;
           end;
 
-        dtDoublingTime:
+        dtCumulativeCasesDoublingTime,
+        dtNewCasesDoublingTime:
           begin
             ser.Source := nil;
             ser.ListSource.YCount := 1;
             ser.BeginUpdate;
             try
-              PopulateCumulativeSeries(saX, saY, ser);
+              if dt = dtCumulativeCasesDoublingTime then
+                PopulateCumulativeSeries(saX, saY, ser)
+              else
+                PopulateNewCasesSeries(saX, saY, ser);
               EnableMovingAverage(ser, true, true);
               SeriesToArray(ser, dataArr);
               EnableMovingAverage(ser, false, true);
               for i := High(dataArr) downto 0 do begin
                 Y := dataArr[i].Y;
-                if Y < 100 then  // too much noise
+                if Y < 100 then  // too much noise --> skip this point
                   Y := NaN
                 else
                 begin
@@ -1551,7 +1559,7 @@ begin
       end;
     end;
 
-    LayoutBars;
+    //LayoutBars;
     UpdateAffectedSeries;
     UpdateGrid;
     if population > 0 then

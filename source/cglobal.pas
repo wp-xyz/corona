@@ -13,7 +13,8 @@ type
   TDataType = (
     dtCumulative, dtNewCases,
     dtNormalizedCumulative, dtNormalizedNewcases,
-    dtDoublingTime, dtCumVsNewCases, dtRValue
+    dtCumulativeCasesDoublingTime, dtNewCasesDoublingTime,
+    dtCumVsNewCases, dtRValue
   );
 
   TDataPointArray = array of TDoublePoint;
