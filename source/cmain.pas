@@ -78,6 +78,7 @@ type
     mnuChart: TMenuItem;
     mnuFileQuit: TMenuItem;
     mnuFile: TMenuItem;
+    ProgressBar: TProgressBar;
     ToolBar: TToolBar;
     ToolButton1: TToolButton;
     ToolButton10: TToolButton;
@@ -159,11 +160,13 @@ type
     FMeasurementSeries: TFuncSeries;
     FFitCoeffs: array[0..1] of Double;
     FStatusText1, FStatusText2: String;
+    FMaxDownloadCounter: Integer;
 
     function CalcFit(ASeries: TBasicChartSeries; xmin, xmax: Double): Boolean;
     procedure CalcFitCurveHandler(const AX: Double; out AY: Double);
     procedure Clear(UnselectTree: Boolean = true);
     procedure CreateMeasurementSeries;
+    procedure DownloadMsgHandler(Sender: TObject; const AMsg1, AMsg2: String; APercentage: Integer);
     procedure EnableMovingAverage(ASeries: TChartSeries; AEnabled, AStrict: Boolean);
     function GetCellText(ACol, ARow: Integer): String;
     function GetDataType: TDataType;
@@ -337,7 +340,9 @@ end;
 
 procedure TMainForm.acDataUpdateExecute(Sender: TObject);
 begin
+  Progressbar.Show;
   UpdateData;
+  Progressbar.Hide;
 end;
 
 procedure TMainForm.acInfectiousPeriodExecute(Sender: TObject);
@@ -769,6 +774,17 @@ begin
   Chart.AddSeries(FMeasurementSeries);
 end;
 
+procedure TMainForm.DownloadMsgHandler(Sender: TObject; const AMsg1, AMsg2: String;
+  APercentage: Integer);
+begin
+  Progressbar.Position := APercentage;
+  Progressbar.Update;
+
+  FStatusText1 := AMsg1;
+  FStatusText2 := AMsg2;
+  UpdateStatusbar;
+end;
+
 procedure TMainForm.EnableMovingAverage(ASeries: TChartSeries;
   AEnabled, AStrict: Boolean);
 begin
@@ -809,6 +825,8 @@ begin
   Grid.RowHeights[0] := 3 * Grid.Canvas.TextHeight('Tg') + 2* varCellPadding;
 
   PageControl.ActivePageIndex := 0;
+  Progressbar.Parent := Statusbar;
+  Progressbar.Align := alRight;
 
   CreateMeasurementSeries;
   InitShortCuts;
@@ -1734,7 +1752,8 @@ procedure TMainForm.UpdateData;
 begin
   with TJohnsHopkinsDataSource.Create(DataDir) do
   try
-    OnStatusMsg := @StatusMsgHandler;
+    OnDownloadMsg := @DownloadMsgHandler;
+//    OnStatusMsg := @StatusMsgHandler;
     DownloadToCache;
   finally
     Free;

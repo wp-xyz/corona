@@ -10,12 +10,15 @@ uses
 
 type
   TStatusbarEvent = procedure (Sender: TObject; const AMsg1, AMsg2: String) of object;
+  TDownloadEvent = procedure (Sender: TObject; const AMsg1, AMsg2: string; APercentage: Integer) of object;
 
   TcDataSource = class
   private
+    FOnDownloadMsg: TDownloadEvent;
     FOnStatusMsg: TStatusbarEvent;
   protected
     FCacheDir: String;
+    procedure DoDownloadMsg(const AMsg1, AMsg2: String; APercentage: Integer);
     procedure DoStatusMsg(const AMsg1, AMsg2: String);
   public
     constructor Create(ACacheDir: String); virtual;
@@ -32,6 +35,7 @@ type
       Clearing, Begin/EndUpdate is done by the calling routine. }
     function LoadLocations(ATreeView: TTreeView): Boolean; virtual; abstract;
 
+    property OnDownloadMsg: TDownloadEvent read FOnDownloadMsg write FOnDownloadMsg;
     property OnStatusMsg: TStatusbarEvent read FOnStatusMsg write FOnStatusMsg;
 
   end;
@@ -47,6 +51,13 @@ uses
 constructor TcDataSource.Create(ACacheDir: String);
 begin
   FCacheDir := AppendPathDelim(ACacheDir);
+end;
+
+procedure TcDataSource.DoDownloadMsg(const AMsg1, AMsg2: String;
+  APercentage: Integer);
+begin
+  if Assigned(FOnDownloadMsg) then
+    FOnDownloadMsg(Self, AMsg1, AMsg2, APercentage);
 end;
 
 procedure TcDataSource.DoStatusMsg(const AMsg1, AMsg2: String);

@@ -11,6 +11,8 @@ uses
 type
   TJohnsHopkinsDataSource = class(TcDataSource)
   private
+    FDownloadCounter: Integer;
+    FMaxDownloadCounter: Integer;
     function Download(AURL, AFileName: String): Boolean;
     function GetDataString_Sick(const ACountry, AState, ACity: String;
       out AHeader, ACounts: String): Boolean;
@@ -60,7 +62,8 @@ begin
   stream := TMemoryStream.Create;
   try
     stream.Position := 0;
-    DoStatusMsg(DOWNLOAD_FROM, AURL + '...');
+    inc(FDownloadCounter);
+    DoDownloadMsg(DOWNLOAD_FROM, AURL + '...', round(100.0*FDownloadCounter/FMaxDownloadCounter));
     if not DownloadFile(AURL, stream) then
     begin
       DoStatusMsg(DOWNLOAD_ERR, '');
@@ -77,6 +80,12 @@ end;
 
 procedure TJohnsHopkinsDatasource.DownloadToCache;
 begin
+  FDownloadCounter := 0;
+  FMaxDownloadcounter := 6;
+
+  // locations, populations
+  if not Download(BASE_URL + FILENAME_POPULATION, FCacheDir + FILENAME_POPULATION) then exit;
+
   // confirmed global
   if not Download(TIMESERIES_URL + FILENAME_CONFIRMED, FCacheDir + FILENAME_CONFIRMED) then exit;
 
@@ -91,9 +100,6 @@ begin
 
   // deaths U.S.A.
   if not Download(TIMESERIES_URL + FILENAME_DEATHS_US, FCacheDir + FILENAME_DEATHS_US) then exit;
-
-  // locations, populations
-  if not Download(BASE_URL + FILENAME_POPULATION, FCacheDir + FILENAME_POPULATION) then exit;
 end;
 
 function TJohnsHopkinsDataSource.GetDataString(const ACountry, AState, ACity: String;
