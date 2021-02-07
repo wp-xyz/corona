@@ -779,6 +779,9 @@ procedure TMainForm.DownloadMsgHandler(Sender: TObject; const AMsg1, AMsg2: Stri
 begin
   Progressbar.Position := APercentage;
   Progressbar.Update;
+{$IFDEF LINUX}
+  Application.ProcessMessages;
+{$ENDIF}
 
   FStatusText1 := AMsg1;
   FStatusText2 := AMsg2;
@@ -1830,6 +1833,9 @@ begin
   else
     Statusbar.SimpleText := '';
   Statusbar.Update;
+{$IFDEF LINUX}
+  Application.ProcessMessages;
+{$ENDIF}
 end;
 
 function CreateIni: TCustomIniFile;
