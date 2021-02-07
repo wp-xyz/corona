@@ -9,6 +9,7 @@
 *.lpk  text
 *.lpi  text
 *.lps  text
+*.lfm  text
 *.lpr  text
 *.def  text
 *.css  text
