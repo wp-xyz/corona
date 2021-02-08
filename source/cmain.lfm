@@ -1707,9 +1707,9 @@ object MainForm: TMainForm
       AnchorSideBottom.Control = LeftPanel
       AnchorSideBottom.Side = asrBottom
       Left = 0
-      Height = 406
+      Height = 405
       Hint = 'Click on the country to display'
-      Top = 96
+      Top = 97
       Width = 213
       Anchors = [akTop, akLeft, akRight, akBottom]
       BorderSpacing.Top = 6
@@ -1774,12 +1774,12 @@ object MainForm: TMainForm
       Text = 'Cumulative cases'
     end
     object clbCases: TCheckListBox
-      AnchorSideLeft.Control = cmbDataType
       AnchorSideTop.Control = lblCases
       AnchorSideTop.Side = asrBottom
+      AnchorSideRight.Control = LeftPanel
       AnchorSideRight.Side = asrBottom
       Left = 108
-      Height = 73
+      Height = 74
       Top = 17
       Width = 105
       Anchors = [akTop, akRight]

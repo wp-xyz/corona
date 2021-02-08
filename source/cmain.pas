@@ -838,16 +838,22 @@ procedure TMainForm.FormShow(Sender: TObject);
 var
   s: String;
   w: Integer;
+  p3, p24: Integer;
 begin
+  p3 := Scale96ToFont(3);
+  p24 := Scale96ToFont(24);
+
   tbAbout.Align := alRight;
   tbAbout.Left := Toolbar.Width - tbAbout.Width;
 
   w := 0;
   for s in clbCases.Items do
     w := Max(w, clbCases.Canvas.TextWidth(s));
-  clbCases.Width := w + GetSystemMetrics(SM_CXVSCROLL) + 24;
+  clbCases.Width := w + GetSystemMetrics(SM_CXVSCROLL) + p24;
 
-  LeftPanel.Constraints.MinWidth := cbMovingAverage.Width + clbCases.Width + 24;
+  clbCases.Height := clbCases.Items.Count * clbCases.ItemHeight + 2*p3;
+
+  LeftPanel.Constraints.MinWidth := cbMovingAverage.Width + clbCases.Width + p24;
 end;
 
 function TMainForm.GetCellText(ACol, ARow: Integer): String;
