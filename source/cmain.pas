@@ -340,9 +340,23 @@ end;
 
 procedure TMainForm.acDataUpdateExecute(Sender: TObject);
 begin
-  Progressbar.Show;
-  UpdateData;
-  Progressbar.Hide;
+  // When having a long operation you don't want user
+  // to click again midway the operation.
+  acDataUpdate.Enabled:= False;
+  try
+    Progressbar.Show;
+{$IFDEF LINUX}
+    ProgressBar.BringToFront;
+    Application.ProcessMessages;
+{$ENDIF}
+    UpdateData;
+  finally
+{$IFDEF LINUX}
+    ProgressBar.SendToBack;
+{$ENDIF}
+    Progressbar.Hide;
+    acDataUpdate.Enabled:= True;
+  end;
 end;
 
 procedure TMainForm.acInfectiousPeriodExecute(Sender: TObject);
