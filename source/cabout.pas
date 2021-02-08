@@ -17,6 +17,7 @@ type
     AppImage: TImage;
     imgRKI: TImage;
     imgJHU: TImage;
+    lblGeneralInfo: TLabel;
     lblDataSources: TLabel;
     lblAcknowledgements: TLabel;
     lblCompiler: TLabel;
@@ -50,7 +51,7 @@ implementation
 {$R *.lfm}
 
 uses
-  LCLIntf, Types, IntfGraphics, LazCanvas, FPCanvas;
+  LCLIntf, Types, IntfGraphics, LazCanvas, FPCanvas, InterfaceBase;
 
 const
   URL_FPC = 'https://www.freepascal.org/';
@@ -93,6 +94,13 @@ begin
     Picture.Assign(Application.Icon);
     Picture.Icon.Current := Picture.Icon.GetBestIndexForSize(Size(256, 256));
   end;
+
+  lblGeneralInfo.Caption := Format(
+    'Operating system: %s' + LineEnding +
+    'Widgetset: %s', [
+    {$I %FPCTARGETOS%},
+    GetLCLWidgetTypeName
+  ]);
 
   lblFPC.Hint := URL_FPC;
   lblLazarus.Hint := URL_Lazarus;
