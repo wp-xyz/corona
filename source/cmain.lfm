@@ -1665,6 +1665,7 @@ object MainForm: TMainForm
     C663EDFFFC3FE6FFFC3FDFFF
   }
   Menu = MainMenu
+  OnActivate = FormActivate
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnShow = FormShow
@@ -1707,9 +1708,9 @@ object MainForm: TMainForm
       AnchorSideBottom.Control = LeftPanel
       AnchorSideBottom.Side = asrBottom
       Left = 0
-      Height = 405
+      Height = 384
       Hint = 'Click on the country to display'
-      Top = 97
+      Top = 118
       Width = 213
       Anchors = [akTop, akLeft, akRight, akBottom]
       BorderSpacing.Top = 6
@@ -1722,13 +1723,13 @@ object MainForm: TMainForm
     end
     object Panel1: TPanel
       Left = 0
-      Height = 91
+      Height = 112
       Top = 0
       Width = 213
       Align = alTop
       AutoSize = True
       BevelOuter = bvNone
-      ClientHeight = 91
+      ClientHeight = 112
       ClientWidth = 213
       TabOrder = 1
       object cbMovingAverage: TCheckBox
@@ -1790,7 +1791,7 @@ object MainForm: TMainForm
         AnchorSideRight.Control = Panel1
         AnchorSideRight.Side = asrBottom
         Left = 108
-        Height = 74
+        Height = 95
         Top = 17
         Width = 105
         Anchors = [akTop, akRight]

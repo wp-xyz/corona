@@ -141,6 +141,7 @@ type
     procedure clbCasesClickCheck(Sender: TObject);
     procedure cmbDataTypeChange(Sender: TObject);
     procedure CrossHairToolDraw(ASender: TDataPointDrawTool);
+    procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -209,7 +210,7 @@ implementation
 {$R *.lfm}
 
 uses
-  LCLIntf, Math, IniFiles, DateUtils,
+  LCLIntf, Math, IniFiles, DateUtils, InterfaceBase, LCLPlatformDef,
   // TAChart units
   TATypes, TAMath, TAChartUtils, TACustomSource, TAFitLib,
   // project-specific units
@@ -800,6 +801,18 @@ begin
     raise Exception.Create('Only modified series types allowed.');
 end;
 
+procedure TMainForm.FormActivate(Sender: TObject);
+var
+  p3: Integer;
+begin
+  // Workaround for gtk2 issue: Listbox.ItemHeight is 0 only after FormShow.
+  if GetDefaultLCLWidgetType = lpGtk2 then
+  begin
+    p3 := Scale96ToForm(3);
+    clbCases.Height := clbCases.Items.Count * clbCases.ItemHeight + 2*p3;
+  end;
+end;
+
 procedure TMainForm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
   if CanClose then
@@ -839,7 +852,8 @@ procedure TMainForm.FormShow(Sender: TObject);
 var
   s: String;
   w: Integer;
-  p3, p24: Integer;
+  p3: Integer;
+  p24: Integer;
 begin
   p3 := Scale96ToFont(3);
   p24 := Scale96ToFont(24);
@@ -851,8 +865,8 @@ begin
   for s in clbCases.Items do
     w := Max(w, clbCases.Canvas.TextWidth(s));
   clbCases.Width := w + GetSystemMetrics(SM_CXVSCROLL) + p24;
-
-  Panel1.Constraints.MinHeight := clbCases.Top + clbCases.Items.Count * clbCases.ItemHeight + 2*p3;
+  if clbCases.ItemHeight > 0 then
+    clbCases.Height := clbCases.Items.Count * clbCases.ItemHeight + 2*p3;
 
   LeftPanel.Constraints.MinWidth := cbMovingAverage.Width + clbCases.Width + p24;
 end;
