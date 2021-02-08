@@ -78,6 +78,7 @@ type
     mnuChart: TMenuItem;
     mnuFileQuit: TMenuItem;
     mnuFile: TMenuItem;
+    Panel1: TPanel;
     ProgressBar: TProgressBar;
     ToolBar: TToolBar;
     ToolButton1: TToolButton;
@@ -851,7 +852,7 @@ begin
     w := Max(w, clbCases.Canvas.TextWidth(s));
   clbCases.Width := w + GetSystemMetrics(SM_CXVSCROLL) + p24;
 
-  clbCases.Height := clbCases.Items.Count * clbCases.ItemHeight + 2*p3;
+  Panel1.Constraints.MinHeight := clbCases.Top + clbCases.Items.Count * clbCases.ItemHeight + 2*p3;
 
   LeftPanel.Constraints.MinWidth := cbMovingAverage.Width + clbCases.Width + p24;
 end;

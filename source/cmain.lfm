@@ -1700,7 +1700,7 @@ object MainForm: TMainForm
     TabOrder = 0
     object TreeView: TTreeView
       AnchorSideLeft.Control = LeftPanel
-      AnchorSideTop.Control = clbCases
+      AnchorSideTop.Control = Panel1
       AnchorSideTop.Side = asrBottom
       AnchorSideRight.Control = LeftPanel
       AnchorSideRight.Side = asrBottom
@@ -1720,92 +1720,104 @@ object MainForm: TMainForm
       OnDeletion = TreeViewDeletion
       Options = [tvoAutoItemHeight, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
     end
-    object cbMovingAverage: TCheckBox
-      AnchorSideLeft.Control = LeftPanel
-      AnchorSideTop.Control = cmbDataType
-      AnchorSideTop.Side = asrBottom
+    object Panel1: TPanel
       Left = 0
-      Height = 19
-      Top = 44
-      Width = 149
-      Action = acDataMovingAverage
-      BorderSpacing.Top = 6
-      Caption = 'Moving average (7 days)'
+      Height = 91
+      Top = 0
+      Width = 213
+      Align = alTop
+      AutoSize = True
+      BevelOuter = bvNone
+      ClientHeight = 91
+      ClientWidth = 213
       TabOrder = 1
-    end
-    object lblDataType: TLabel
-      AnchorSideLeft.Control = LeftPanel
-      AnchorSideTop.Control = LeftPanel
-      Left = 0
-      Height = 15
-      Top = 0
-      Width = 27
-      Caption = 'Data:'
-      FocusControl = cmbDataType
-      ParentColor = False
-    end
-    object cmbDataType: TComboBox
-      AnchorSideLeft.Control = LeftPanel
-      AnchorSideTop.Control = lblDataType
-      AnchorSideTop.Side = asrBottom
-      AnchorSideRight.Control = clbCases
-      Left = 0
-      Height = 21
-      Top = 17
-      Width = 100
-      Anchors = [akTop, akLeft, akRight]
-      BorderSpacing.Top = 2
-      BorderSpacing.Right = 8
-      ItemHeight = 15
-      ItemIndex = 0
-      Items.Strings = (
-        'Cumulative cases'
-        'New cases'
-        'Normalized cumulative'
-        'Normalized new cases'
-        'Doubling time of cumulative cases'
-        'Doubling time of new cases'
-        'Cumulative vs. new cases'
-        'Reproduction number'
-      )
-      OnChange = cmbDataTypeChange
-      Style = csOwnerDrawFixed
-      TabOrder = 2
-      Text = 'Cumulative cases'
-    end
-    object clbCases: TCheckListBox
-      AnchorSideTop.Control = lblCases
-      AnchorSideTop.Side = asrBottom
-      AnchorSideRight.Control = LeftPanel
-      AnchorSideRight.Side = asrBottom
-      Left = 108
-      Height = 74
-      Top = 17
-      Width = 105
-      Anchors = [akTop, akRight]
-      BorderSpacing.Top = 2
-      Items.Strings = (
-        'Confirmed'
-        'Deaths'
-        'Recovered'
-        'Sick'
-      )
-      ItemHeight = 17
-      OnClickCheck = clbCasesClickCheck
-      TabOrder = 3
-      Data = {
-        0400000000000000
-      }
-    end
-    object lblCases: TLabel
-      AnchorSideLeft.Control = clbCases
-      AnchorSideTop.Control = LeftPanel
-      Left = 108
-      Height = 15
-      Top = 0
-      Width = 33
-      Caption = 'Cases:'
-      ParentColor = False
+      object cbMovingAverage: TCheckBox
+        AnchorSideLeft.Control = Panel1
+        AnchorSideTop.Control = cmbDataType
+        AnchorSideTop.Side = asrBottom
+        Left = 0
+        Height = 19
+        Top = 44
+        Width = 149
+        Action = acDataMovingAverage
+        BorderSpacing.Top = 6
+        Caption = 'Moving average (7 days)'
+        TabOrder = 0
+      end
+      object cmbDataType: TComboBox
+        AnchorSideLeft.Control = Panel1
+        AnchorSideTop.Control = lblDataType
+        AnchorSideTop.Side = asrBottom
+        AnchorSideRight.Control = clbCases
+        Left = 0
+        Height = 21
+        Top = 17
+        Width = 100
+        Anchors = [akTop, akLeft, akRight]
+        BorderSpacing.Top = 2
+        BorderSpacing.Right = 8
+        ItemHeight = 15
+        ItemIndex = 0
+        Items.Strings = (
+          'Cumulative cases'
+          'New cases'
+          'Normalized cumulative'
+          'Normalized new cases'
+          'Doubling time of cumulative cases'
+          'Doubling time of new cases'
+          'Cumulative vs. new cases'
+          'Reproduction number'
+        )
+        OnChange = cmbDataTypeChange
+        Style = csOwnerDrawFixed
+        TabOrder = 1
+        Text = 'Cumulative cases'
+      end
+      object lblDataType: TLabel
+        AnchorSideLeft.Control = Panel1
+        AnchorSideTop.Control = Panel1
+        Left = 0
+        Height = 15
+        Top = 0
+        Width = 27
+        Caption = 'Data:'
+        FocusControl = cmbDataType
+        ParentColor = False
+      end
+      object clbCases: TCheckListBox
+        AnchorSideTop.Control = lblCases
+        AnchorSideTop.Side = asrBottom
+        AnchorSideRight.Control = Panel1
+        AnchorSideRight.Side = asrBottom
+        Left = 108
+        Height = 74
+        Top = 17
+        Width = 105
+        Anchors = [akTop, akRight]
+        BorderSpacing.Top = 2
+        Items.Strings = (
+          'Confirmed'
+          'Deaths'
+          'Recovered'
+          'Sick'
+        )
+        ItemHeight = 17
+        OnClickCheck = clbCasesClickCheck
+        TabOrder = 2
+        Data = {
+          0400000000000000
+        }
+      end
+      object lblCases: TLabel
+        AnchorSideLeft.Control = clbCases
+        AnchorSideTop.Control = Panel1
+        Left = 108
+        Height = 15
+        Top = 0
+        Width = 33
+        Caption = 'Cases:'
+        ParentColor = False
+      end
     end
   end
   object PageControl: TPageControl
