@@ -13,7 +13,6 @@ type
   private
     FDownloadCounter: Integer;
     FMaxDownloadCounter: Integer;
-    function Download(AURL, AFileName: String): Boolean;
     function GetDataString_Sick(const ACountry, AState, ACity: String;
       out AHeader, ACounts: String): Boolean;
   public
@@ -27,7 +26,7 @@ implementation
 
 uses
   Dialogs,
-  cDownloader, cUtils;
+  cUtils, cDownloadManager;
 
 const
   BASE_URL = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/';
@@ -52,54 +51,29 @@ end;
 
 { -----------------------------------------------------------------------------}
 
-function TJohnsHopkinsDatasource.Download(AURL, AFileName: String): Boolean;
-const
-  DOWNLOAD_ERR = 'Download error.';
-  DOWNLOAD_FROM = 'Download from: ';
-var
-  stream: TMemoryStream;
-begin
-  stream := TMemoryStream.Create;
-  try
-    stream.Position := 0;
-    inc(FDownloadCounter);
-    DoDownloadMsg(DOWNLOAD_FROM, AURL + '...', round(100.0*FDownloadCounter/FMaxDownloadCounter));
-    if not DownloadFile(AURL, stream) then
-    begin
-      DoStatusMsg(DOWNLOAD_ERR, '');
-      MessageDlg(DOWNLOAD_ERR, mtError, [mbOk], 0);
-      exit;
-    end;
-    stream.Position := 0;
-    stream.SaveToFile(AFIleName);
-    Result := true;
-  finally
-    stream.Free;
-  end;
-end;
-
 procedure TJohnsHopkinsDatasource.DownloadToCache;
+var
+  F: TDownloadForm;
 begin
-  FDownloadCounter := 0;
-  FMaxDownloadcounter := 6;
+  F := TDownloadForm.Create(nil);
+  try
+    // locations, populations
+    F.AddDownload(BASE_URL + FILENAME_POPULATION, FCacheDir + FILENAME_POPULATION);
+    // confirmed global
+    F.AddDownload(TIMESERIES_URL + FILENAME_CONFIRMED, FCacheDir + FILENAME_CONFIRMED);
+    // deaths global
+    F.AddDownload(TIMESERIES_URL + FILENAME_DEATHS, FCacheDir + FILENAME_DEATHS);
+    // recovered global
+    F.AddDownload(TIMESERIES_URL + FILENAME_RECOVERED, FCacheDir + FILENAME_RECOVERED);
+    // confirmed U.S.A.
+    F.AddDownload(TIMESERIES_URL + FILENAME_CONFIRMED_US, FCacheDir + FILENAME_CONFIRMED_US);
+    // deaths U.S.A
+    F.AddDownload(TIMESERIES_URL + FILENAME_DEATHS_US, FCacheDir + FILENAME_DEATHS_US);
 
-  // locations, populations
-  if not Download(BASE_URL + FILENAME_POPULATION, FCacheDir + FILENAME_POPULATION) then exit;
-
-  // confirmed global
-  if not Download(TIMESERIES_URL + FILENAME_CONFIRMED, FCacheDir + FILENAME_CONFIRMED) then exit;
-
-  // deaths global
-  if not Download(TIMESERIES_URL + FILENAME_DEATHS, FCacheDir + FILENAME_DEATHS) then exit;
-
-  // recovered global
-  if not Download(TIMESERIES_URL + FILENAME_RECOVERED, FCacheDir + FILENAME_RECOVERED) then exit;
-
-  // confirmed U.S.A.
-  if not Download(TIMESERIES_URL + FILENAME_CONFIRMED_US, FCacheDir + FILENAME_CONFIRMED_US) then exit;
-
-  // deaths U.S.A.
-  if not Download(TIMESERIES_URL + FILENAME_DEATHS_US, FCacheDir + FILENAME_DEATHS_US) then exit;
+    F.ShowModal;
+  finally
+    F.Free;
+  end;
 end;
 
 function TJohnsHopkinsDataSource.GetDataString(const ACountry, AState, ACity: String;

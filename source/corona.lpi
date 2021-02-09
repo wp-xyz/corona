@@ -35,7 +35,7 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="10">
+    <Units Count="11">
       <Unit0>
         <Filename Value="corona.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -91,6 +91,14 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="cUtils"/>
       </Unit9>
+      <Unit10>
+        <Filename Value="cdownloadmanager.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="DownloadForm"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="cDownloadManager"/>
+      </Unit10>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
