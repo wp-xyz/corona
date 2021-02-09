@@ -1850,7 +1850,7 @@ begin
     Statusbar.SimpleText := FStatusText2
   else
     Statusbar.SimpleText := '';
-  Application.ProcessMessages;
+  Statusbar.Update;
 end;
 
 function CreateIni: TCustomIniFile;
