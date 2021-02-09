@@ -4,7 +4,7 @@ object MainForm: TMainForm
   Top = 120
   Width = 1111
   Caption = 'corona'
-  ClientHeight = 581
+  ClientHeight = 601
   ClientWidth = 1111
   Icon.Data = {
     E8CE000000000100070000000000010020001269000076000000303000000100
@@ -1670,10 +1670,9 @@ object MainForm: TMainForm
   OnCreate = FormCreate
   OnShow = FormShow
   ShowHint = True
-  LCLVersion = '2.1.0.0'
   object LeftSplitter: TSplitter
     Left = 219
-    Height = 514
+    Height = 534
     Top = 44
     Width = 5
     ResizeStyle = rsPattern
@@ -1681,13 +1680,13 @@ object MainForm: TMainForm
   object StatusBar: TStatusBar
     Left = 0
     Height = 23
-    Top = 558
+    Top = 578
     Width = 1111
     Panels = <>
   end
   object LeftPanel: TPanel
     Left = 6
-    Height = 502
+    Height = 522
     Top = 50
     Width = 213
     Align = alLeft
@@ -1696,7 +1695,7 @@ object MainForm: TMainForm
     BorderSpacing.Top = 6
     BorderSpacing.Bottom = 6
     BevelOuter = bvNone
-    ClientHeight = 502
+    ClientHeight = 522
     ClientWidth = 213
     TabOrder = 0
     object TreeView: TTreeView
@@ -1708,7 +1707,7 @@ object MainForm: TMainForm
       AnchorSideBottom.Control = LeftPanel
       AnchorSideBottom.Side = asrBottom
       Left = 0
-      Height = 384
+      Height = 404
       Hint = 'Click on the country to display'
       Top = 118
       Width = 213
@@ -1823,7 +1822,7 @@ object MainForm: TMainForm
   end
   object PageControl: TPageControl
     Left = 224
-    Height = 502
+    Height = 522
     Top = 50
     Width = 881
     ActivePage = pgChart
@@ -1836,11 +1835,11 @@ object MainForm: TMainForm
     OnChange = PageControlChange
     object pgChart: TTabSheet
       Caption = 'Chart'
-      ClientHeight = 474
+      ClientHeight = 494
       ClientWidth = 873
       object Chart: TChart
         Left = 6
-        Height = 462
+        Height = 482
         Hint = 'Zoom: drag a rectangle from left-top to bottom-right corner with left mouse button down'#13#10'    or: use mouse wheel (zoom center is mouse position).'#13#10'Pan: drag with the right mouse button down'#13#10'Restore view: click'#13#10'Read data value: move mouse over data point (no key pressed)'#13#10'Measure doubling time: CTRL-drag over data points of interest with left mouse button down.'
         Top = 6
         Width = 680
@@ -1893,13 +1892,13 @@ object MainForm: TMainForm
       end
       object RightPanel: TPanel
         Left = 697
-        Height = 462
+        Height = 482
         Top = 6
         Width = 170
         Align = alRight
         BorderSpacing.Around = 6
         BevelOuter = bvNone
-        ClientHeight = 462
+        ClientHeight = 482
         ClientWidth = 170
         TabOrder = 2
         object ChartListbox: TChartListbox
@@ -1910,7 +1909,7 @@ object MainForm: TMainForm
           AnchorSideBottom.Control = RightPanel
           AnchorSideBottom.Side = asrBottom
           Left = 0
-          Height = 462
+          Height = 482
           Hint = 'Uncheck to remove a curve temporarily.'
           Top = 0
           Width = 170
@@ -1924,7 +1923,7 @@ object MainForm: TMainForm
       end
       object RightSplitter: TSplitter
         Left = 686
-        Height = 474
+        Height = 494
         Top = 0
         Width = 5
         Align = alRight
@@ -2013,7 +2012,7 @@ object MainForm: TMainForm
     end
     object ToolButton3: TToolButton
       Left = 47
-      Height = 5
+      Height = 40
       Top = 2
       Caption = 'ToolButton3'
       Style = tbsDivider
@@ -2040,7 +2039,7 @@ object MainForm: TMainForm
     end
     object ToolButton7: TToolButton
       Left = 265
-      Height = 5
+      Height = 40
       Top = 2
       Caption = 'ToolButton7'
       Style = tbsDivider
@@ -2052,7 +2051,7 @@ object MainForm: TMainForm
     end
     object ToolButton9: TToolButton
       Left = 346
-      Height = 5
+      Height = 40
       Top = 2
       Caption = 'ToolButton9'
       Style = tbsDivider
@@ -2072,7 +2071,7 @@ object MainForm: TMainForm
     end
     object ToolButton12: TToolButton
       Left = 140
-      Height = 5
+      Height = 40
       Top = 2
       Caption = 'ToolButton12'
       Style = tbsDivider

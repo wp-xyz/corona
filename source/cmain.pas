@@ -162,7 +162,6 @@ type
     FMeasurementSeries: TFuncSeries;
     FFitCoeffs: array[0..1] of Double;
     FStatusText1, FStatusText2: String;
-    FMaxDownloadCounter: Integer;
 
     function CalcFit(ASeries: TBasicChartSeries; xmin, xmax: Double): Boolean;
     procedure CalcFitCurveHandler(const AX: Double; out AY: Double);
@@ -785,6 +784,9 @@ begin
   FStatusText1 := AMsg1;
   FStatusText2 := AMsg2;
   UpdateStatusbar;
+
+  // Make sure that status msg is painted in Linux
+  Application.ProcessMessages;
 end;
 
 procedure TMainForm.EnableMovingAverage(ASeries: TChartSeries;
