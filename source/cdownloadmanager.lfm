@@ -1,0 +1,114 @@
+object DownloadForm: TDownloadForm
+  Left = 258
+  Height = 177
+  Top = 129
+  Width = 416
+  BorderIcons = []
+  BorderStyle = bsSizeToolWin
+  Caption = 'Download in progress...'
+  ClientHeight = 177
+  ClientWidth = 416
+  OnActivate = FormActivate
+  OnClose = FormClose
+  OnCloseQuery = FormCloseQuery
+  OnCreate = FormCreate
+  Position = poScreenCenter
+  object lblFileName: TLabel
+    AnchorSideLeft.Control = Owner
+    AnchorSideTop.Control = lblURL
+    AnchorSideTop.Side = asrBottom
+    AnchorSideRight.Control = Owner
+    AnchorSideRight.Side = asrBottom
+    Left = 8
+    Height = 15
+    Top = 27
+    Width = 400
+    Anchors = [akTop, akLeft, akRight]
+    BorderSpacing.Left = 8
+    BorderSpacing.Top = 4
+    BorderSpacing.Right = 8
+    Caption = 'File:'
+    ParentColor = False
+  end
+  object lblDownloads: TLabel
+    AnchorSideLeft.Control = Owner
+    AnchorSideTop.Control = lblFileName
+    AnchorSideTop.Side = asrBottom
+    Left = 8
+    Height = 15
+    Top = 50
+    Width = 29
+    BorderSpacing.Left = 8
+    BorderSpacing.Top = 8
+    Caption = '0 of 0'
+    ParentColor = False
+  end
+  object pbDownloads: TProgressBar
+    AnchorSideLeft.Control = Owner
+    AnchorSideTop.Control = lblDownloads
+    AnchorSideTop.Side = asrBottom
+    AnchorSideRight.Control = Owner
+    AnchorSideRight.Side = asrBottom
+    Left = 8
+    Height = 20
+    Top = 73
+    Width = 400
+    Anchors = [akTop, akLeft, akRight]
+    BorderSpacing.Left = 8
+    BorderSpacing.Top = 8
+    BorderSpacing.Right = 8
+    Smooth = True
+    TabOrder = 0
+  end
+  object lblBytes: TLabel
+    AnchorSideLeft.Control = Owner
+    AnchorSideTop.Control = pbDownloads
+    AnchorSideTop.Side = asrBottom
+    AnchorSideRight.Control = Owner
+    AnchorSideRight.Side = asrBottom
+    Left = 8
+    Height = 15
+    Top = 117
+    Width = 400
+    Anchors = [akTop, akLeft, akRight]
+    BorderSpacing.Left = 8
+    BorderSpacing.Top = 24
+    BorderSpacing.Right = 8
+    Caption = '0B of 0B'
+    ParentColor = False
+  end
+  object pbBytes: TProgressBar
+    AnchorSideLeft.Control = Owner
+    AnchorSideTop.Control = lblBytes
+    AnchorSideTop.Side = asrBottom
+    AnchorSideRight.Control = Owner
+    AnchorSideRight.Side = asrBottom
+    Left = 8
+    Height = 20
+    Top = 140
+    Width = 400
+    Anchors = [akTop, akLeft, akRight]
+    BorderSpacing.Left = 8
+    BorderSpacing.Top = 8
+    BorderSpacing.Right = 8
+    BorderSpacing.Bottom = 24
+    Smooth = True
+    TabOrder = 1
+  end
+  object lblURL: TLabel
+    AnchorSideLeft.Control = Owner
+    AnchorSideTop.Control = Owner
+    AnchorSideRight.Control = Owner
+    AnchorSideRight.Side = asrBottom
+    Left = 8
+    Height = 15
+    Top = 8
+    Width = 400
+    Anchors = [akTop, akLeft, akRight]
+    BorderSpacing.Left = 8
+    BorderSpacing.Top = 8
+    BorderSpacing.Right = 8
+    Caption = 'URL:'
+    ParentColor = False
+  end
+end
