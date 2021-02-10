@@ -13,6 +13,7 @@ object DownloadForm: TDownloadForm
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   Position = poScreenCenter
+  LCLVersion = '2.1.0.0'
   object lblFileName: TLabel
     AnchorSideLeft.Control = Owner
     AnchorSideTop.Control = lblURL
