@@ -100,6 +100,9 @@ type
     function GetDataString(const ACountry, AState, ACity: String; ACaseType: TCaseType;
       out AHeader, ACounts: String): Boolean; virtual; abstract;
 
+    { Loads the case count data for each location in the tree view from the data file }
+    function LoadData(ATreeView: TTreeView): Boolean; virtual; abstract;
+
     { Loads the locations from the specified cache directory into a treeview.
       Clearing, Begin/EndUpdate is done by the calling routine. }
     function LoadLocations(ATreeView: TTreeView): Boolean; virtual; abstract;
@@ -291,17 +294,20 @@ begin
     pctConfirmed:
       begin
         SetLength(FConfirmed, Length(ACases));
-        Move(ACases[0], FConfirmed[0], Length(FConfirmed) * SizeOf(TCaseCount));
+        if Length(FConfirmed) > 0 then
+          Move(ACases[0], FConfirmed[0], Length(FConfirmed) * SizeOf(TCaseCount));
       end;
     pctDeaths:
       begin
         SetLength(FDeaths, Length(ACases));
-        Move(ACases[0], FDeaths[0], Length(FDeaths) * SizeOf(TCaseCount));
+        if Length(FDeaths) > 0 then
+          Move(ACases[0], FDeaths[0], Length(FDeaths) * SizeOf(TCaseCount));
       end;
     pctRecovered:
       begin
         SetLength(FRecovered, Length(ACases));
-        Move(ACases[0], FRecovered[0], Length(FRecovered) * Sizeof(TCaseCount));
+        if Length(FRecovered) > 0 then
+          Move(ACases[0], FRecovered[0], Length(FRecovered) * Sizeof(TCaseCount));
       end;
   end;
 end;

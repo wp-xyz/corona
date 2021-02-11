@@ -1193,10 +1193,10 @@ begin
 
     with TJohnsHopkinsDatasource.Create(DataDir) do
     try
-      ok := LoadLocations(TreeView);
+      ok := LoadLocations(TreeView) and LoadData(TreeView);
       if not ok then
       begin
-        MessageDlg('Data files not found. Please click "Update files".', mtError, [mbOk], 0);
+        MessageDlg('Local data files not found. Please click "Update files".', mtError, [mbOk], 0);
         exit;
       end;
     finally

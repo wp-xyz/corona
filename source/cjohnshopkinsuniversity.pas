@@ -5,20 +5,22 @@ unit cJohnsHopkinsUniversity;
 interface
 
 uses
-  Classes, SysUtils, ComCtrls, StrUtils,
+  Classes, SysUtils, ComCtrls,
   cGlobal, cDataSource;
 
 type
   TJohnsHopkinsDataSource = class(TcDataSource)
   private
-    FDownloadCounter: Integer;
-    FMaxDownloadCounter: Integer;
+    procedure CalcParentCases(ANode: TTreeNode);
     function GetDataString_Sick(const ACountry, AState, ACity: String;
       out AHeader, ACounts: String): Boolean;
+    function InternalLoadData(ATreeView: TTreeView; ACaseType: TPrimaryCaseType;
+      IsUSAFile: Boolean): Boolean;
   public
     procedure DownloadToCache; override;
     function GetDataString(const ACountry, AState, ACity: String;
       ACaseType: TCaseType; out AHeader, ACounts: String): Boolean; override;
+    function LoadData(ATreeView: TTreeView): Boolean; override;
     function LoadLocations(ATreeView: TTreeView): Boolean; override;
   end;
 
@@ -49,7 +51,55 @@ begin
   Result := (s <> '') and (s[Length(s)] = '"');
 end;
 
+
 { -----------------------------------------------------------------------------}
+{  TJohnsHopkinsDatasource                                                     }
+{------------------------------------------------------------------------------}
+
+procedure TJohnsHopkinsDatasource.CalcParentCases(ANode: TTreeNode);
+var
+  child: TTreeNode;
+  data, childData: TcDataItem;
+  cases: TCaseArray = nil;
+  firstDate: TDate = -1;
+  i: Integer;
+  ct: TPrimaryCaseType;
+begin
+  if (ANode = nil) and not ANode.HasChildren then
+    exit;
+
+  data := TcDataItem(ANode.Data);
+
+  for ct in TPrimaryCaseType do
+  begin
+    cases := nil;
+    firstDate := -1;
+    child := ANode.GetFirstChild;
+    while (child <> nil) do begin
+      childData := TcDataItem(child.Data);
+      if cases = nil then
+      begin
+        SetLength(cases, childData.Count[ct]);
+        for i := 0 to High(cases) do cases[i] := 0;
+      end;
+      if firstDate = -1 then
+        firstDate := childData.FirstDate;
+      case ct of
+        pctConfirmed:
+          for i := 0 to childData.Count[ct] - 1 do
+            cases[i] := cases[i] + childData.CumulativeConfirmed[i];
+        pctDeaths:
+          for i := 0 to childData.Count[ct]-1 do
+            cases[i] := cases[i] + childData.CumulativeDeaths[i];
+        pctRecovered:
+          for i := 0 to childData.Count[ct]-1 do
+            cases[i] := cases[i] + childData.CumulativeRecovered[i];
+      end;
+      child := child.GetNextSibling;
+    end;
+    data.SetCases(firstDate, cases, ct);
+  end;
+end;
 
 procedure TJohnsHopkinsDatasource.DownloadToCache;
 var
@@ -190,6 +240,147 @@ begin
       nRecovered := StrTointDef(saRecovered[i], 0);
       nSick := nConfirmed - nDeaths - nRecovered;
       ACounts := ACounts + ',' + IntToStr(nSick);
+    end;
+  end;
+end;
+
+function TJohnsHopkinsDataSource.InternalLoadData(ATreeView: TTreeView;
+  ACaseType: TPrimaryCaseType; IsUSAFile: Boolean): Boolean;
+var
+  lines: TStrings;
+  fields: TStrings;
+  fn: String;
+  firstDate: TDate;
+  country, state, district: String;
+  i, j: integer;
+  fs: TFormatSettings;
+  countryNode, stateNode, districtNode: TTreeNode;
+  data: TcDataItem;
+  cases: TCaseArray = nil;
+  firstDataIndex: Integer;
+begin
+  Result := false;
+
+  fs := FormatSettings;
+  fs.DateSeparator := '/';
+  fs.ShortDateformat := 'm/d/yy';
+
+  if IsUSAFile then
+    case ACaseType of
+      pctConfirmed: fn := FCacheDir + FILENAME_CONFIRMED_US;
+      pctDeaths   : fn := FCacheDir + FILENAME_DEATHS_US;
+      pctRecovered: exit;
+    end
+  else
+    case ACaseType of
+      pctConfirmed: fn := FCacheDir + FILENAME_CONFIRMED;
+      pctDeaths   : fn := FCacheDir + FILENAME_DEATHS;
+      pctRecovered: fn := FCacheDir + FILENAME_RECOVERED;
+    end;
+
+  lines := TStringList.Create;
+  try
+    lines.LoadFromFile(fn);
+
+    fields := TStringList.Create;
+    try
+      fields.StrictDelimiter := true;
+      Split(lines[0], fields);
+
+      if IsUSAfile then
+      begin
+        if ACaseType = pctConfirmed
+          then firstDataIndex := 11
+          else firstDataIndex := 12;
+        firstDate := StrToDate(fields[firstDataIndex], fs);
+        for i := 1 to lines.Count-1 do begin
+          Split(lines[i], fields);
+          district := fields[5];
+          state := fields[6];
+          country := fields[7];
+          countryNode := ATreeView.Items.FindNodeWithText(country);
+          stateNode := countryNode.FindNode(state);
+          districtNode := stateNode.FindNode(district);
+          if districtNode <> nil then
+            data := TcDataItem(districtNode.Data)
+          else
+            continue;
+
+          // extract case count
+          SetLength(cases, fields.Count-firstDataIndex);
+          for j := firstDataIndex to fields.Count-1 do
+            cases[j-firstDataIndex] := StrToInt64(fields[j]);
+
+          data.SetCases(firstDate, cases, ACaseType);
+        end;
+      end else
+      begin
+        firstDate := StrToDate(fields[4], fs);
+        for i := 1 to lines.Count-1 do begin
+          Split(lines[i], fields);
+          state := fields[0];
+          country := fields[1];
+          countryNode := ATreeView.Items.FindNodeWithText(country);
+          if state <> '' then
+          begin
+            stateNode := countryNode.FindNode(state);
+            if stateNode <> nil then
+              data := TcDataItem(stateNode.Data)
+            else
+              continue;
+          end else
+          begin
+            if countryNode <> nil then
+              data := TcDataItem(countryNode.Data)
+            else
+              continue;
+          end;
+
+          // extract case count
+          SetLength(cases, fields.Count - 4);
+          for j := 4 to fields.Count-1 do
+            cases[j-4] := StrToInt64(fields[j]);
+
+          data.SetCases(firstDate, cases, ACaseType);
+        end;
+      end;
+
+      Result := true;
+    finally
+      fields.Free;
+    end;
+  finally
+    lines.Free;
+  end;
+end;
+
+function TJohnsHopkinsDataSource.LoadData(ATreeView: TTreeView): Boolean;
+var
+  node: TTreeNode;
+begin
+  Result :=
+    // World data
+    InternalLoadData(ATreeView, pctConfirmed, false) and
+    InternalLoadData(ATreeView, pctDeaths, false) and
+    InternalLoadData(ATreeView, pctRecovered, false) and
+    // US data
+    InternalLoadData(ATreeView, pctConfirmed, true) and
+    InternalLoadData(ATreeView, pctDeaths, true);  // no "recovered" for US
+
+  // Some JHU nodes belong to parents which are missing any case counts -->
+  // Calculate cases for "empty" parents from the sums of the children.
+  if Result then
+  begin
+    CalcParentCases(ATreeView.Items.FindNodeWithText('Australia'));
+    CalcParentCases(ATreeView.Items.FindNodeWithText('Canada'));
+    CalcParentCases(ATreeView.Items.FindNodewithText('China'));
+
+    // Calculate the US federal states
+    node := ATreeView.Items.FindNodeWithText('US').GetFirstChild;
+    while (node <> nil) do
+    begin
+      CalcParentCases(node);
+      node := node.GetNextSibling;
     end;
   end;
 end;
