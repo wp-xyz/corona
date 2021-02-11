@@ -8,6 +8,8 @@ uses
   Classes, SysUtils, TAChartUtils;
 
 type
+  TPrimaryCaseType = (pctConfirmed, pctDeaths, pctRecovered);
+
   TCaseType = (ctConfirmed, ctDeaths, ctRecovered, ctSick);
 
   TDataType = (
