@@ -1,7 +1,7 @@
 unit cMain;
 
 {$mode objfpc}{$H+}
-{$define RKI}
+{.$define RKI}
 {$define USE_BARSERIES}
 
 // Es gibt noch ein Define DEBUG_LOCATIONPARAMS in den Projekt-Optionen.
@@ -930,6 +930,7 @@ end;
 procedure TMainForm.GetLocation(ANode: TTreeNode;
   out ACountry, AState, ACity: String; out APopulation: Integer);
 var
+  item: TcDataItem;
   loc: PLocationParams;
 begin
   ACountry := '';
@@ -960,9 +961,18 @@ begin
 
   end;
   }
-  loc := PLocationParams(ANode.Data);
-  if loc <> nil then
-    APopulation := loc^.Population;
+  if TObject(ANode.Data) is TcDataItem then
+  begin
+    item := TcDataitem(ANode.Data);
+    if item <> nil then
+      APopulation := item.Population;
+  end else
+  begin
+    // !!!!!!!!! to be removed when TcDataItem is fully established
+    loc := PLocationParams(ANode.Data);
+    if loc <> nil then
+      APopulation := loc^.Population;
+  end;
 end;
 
 function TMainForm.GetLocation(ANode: TTreeNode): String;
@@ -1664,10 +1674,16 @@ end;
 
 procedure TMainForm.TreeViewDeletion(Sender: TObject; Node: TTreeNode);
 var
+  data: TcDataItem;
   loc: PLocationParams;
 begin
-  if (Node <> nil) then
+  if TObject(Node.Data) is TcDataItem then
   begin
+    data := TcDataItem(Node.Data);
+    data.Free;
+  end else
+  begin
+    // !!!!!!!!!! to be removed once TcDataItem is fully established
     loc := PLocationParams(Node.Data);
     if loc <> nil then
       Dispose(loc);

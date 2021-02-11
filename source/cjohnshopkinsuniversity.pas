@@ -201,6 +201,124 @@ var
   countryNode, stateNode, cityNode, node: TTreeNode;
   sa: TStringArray;
   i: Integer;
+  population: Int64;
+  country, state, city: String;
+  lon, lat: Double;
+  data: TcDataItem;
+begin
+  Result := false;
+
+  // All locations (countries, states) are listed also in the measurement files
+  // but the FILENAME_POPULATION contains also meta data, such as population.
+  fn := FCacheDir + FILENAME_POPULATION;
+  if not FileExists(fn) then
+    exit;
+
+  L := TStringList.Create;
+  try
+    L.LoadFromFile(fn);
+    for i:=1 to L.Count-1 do begin    // skip header --> i=1
+      if L[i] = '' then
+        Continue;
+
+      sa := L[i].Split(',', '"');
+      if Length(sa) <> 12 then
+        Continue;
+
+      country := Unquote(sa[7]);
+      state := Unquote(sa[6]);
+      city := Unquote(sa[5]);
+      if not TryStrToInt64(sa[11], population) then population := -1;
+      if not TryStrToFloat(sa[9], lon, cFormatSettings) then lon := 0;
+      if not TryStrToFloat(sa[8], lat, cFormatSettings) then lat := 0;
+
+      // avoid too many empty nodes in the tree vieew
+      if (state <> '') then
+      begin
+        // The 'US' data are contained in separate files not read by this program
+        // No data provided in the standard files for the provinces of these countries
+        case country[1] of
+          'B': if (country = 'Brazil') or (country = 'Belgium') then continue;
+          'C': if (country = 'Chile') or (country = 'Colombia') then continue;
+          'G': if (country = 'Germany') then continue;
+          'I': if (country = 'Italy') or (country = 'India') then continue;
+          'J': if (country = 'Japan') then continue;
+          'M': if (country = 'Mexico') then continue;
+          'N': if (country = 'Nigeria') then continue;
+          'P': if (country = 'Pakistan') or (country = 'Peru') then continue;
+          'R': if (country = 'Russia') then continue;
+          'S': if (country = 'Spain') or (country = 'Sweden') then continue;
+          'U': if (country = 'Ukraine') then continue;
+          else ;
+        end;
+      end;
+
+      countryNode := ATreeView.Items.FindTopLvlNode(country);
+      if countryNode = nil then
+      begin
+        data := TcDataItem.Create;
+        data.Name := country;
+        data.ParentName := '';
+        data.ID := -1;  // not used by JHU
+        data.Population := population;
+        data.Longitude := lon;
+        data.Latitude := lat;
+        countryNode := ATreeView.Items.AddChildObject(nil, country, data)
+      end;
+
+      if state <> '' then
+      begin
+        stateNode := nil;
+        cityNode := nil;
+        node := countryNode.GetFirstChild;
+        while (node <> nil) do begin
+          if node.Text = state then
+          begin
+            stateNode := node;
+            break;
+          end;
+          node := node.GetNextSibling;
+        end;
+        if stateNode = nil then
+        begin
+          data := TcDataitem.Create;
+          data.Name := state;
+          data.ParentName := country;
+          data.ID := -1;  // not used by JHU
+          data.Population := population;
+          data.Longitude := lon;
+          data.Latitude := lat;
+          stateNode := ATreeView.Items.AddChildObject(countryNode, state, data);
+        end;
+
+        if (city <> '') then
+        begin
+          data := TcDataItem.Create;
+          data.Name := city;
+          data.ParentName := state;
+          data.ID := -1;  // not used by JHU
+          data.Population := population;
+          data.Longitude := lon;
+          data.Latitude := lat;
+          citynode := ATreeView.Items.AddChildObject(stateNode, city, data);
+        end;
+      end;
+    end;
+  finally
+    L.Free;
+  end;
+
+  Result := true;
+end;
+
+(*
+function TJohnsHopkinsDataSource.LoadLocations(ATreeView: TTreeView): Boolean;
+var
+  fn: String;
+  L: TStrings;
+  countryNode, stateNode, cityNode, node: TTreeNode;
+  sa: TStringArray;
+  i: Integer;
   population: Integer;
   country, state, city: String;
   loc: PLocationParams;
@@ -303,7 +421,7 @@ begin
 
   Result := true;
 end;
-
+  *)
 
 end.
 
