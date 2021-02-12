@@ -1,4 +1,6 @@
 # corona
+[![Build Status](https://github.com/wp-xyz/corona/workflows/build-test/badge.svg?branch=master)](https://github.com/wp-xyz/corona/actions)
+
 Downloads daily accumulated case counts of the corona virus disease from the 2019 Novel Coronavirus COVID-19 (2019-nCoV) data repository by Johns Hopkins University CSSE, and from Robert-Koch-Institut, Germany.
 
 - Plots the data as a function of time: confirmed, death, recovered, sick counts. Cumulative cases, new cases per day.
