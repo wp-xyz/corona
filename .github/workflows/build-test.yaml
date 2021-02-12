@@ -24,8 +24,9 @@ jobs:
       with:
         lazarus-version: ${{ matrix.lazarus-versions }}
     - name: Build the Main App
-      run: lazbuild --bm=Release "source/corona.lpi"
+      run: lazbuild -B "source/corona.lpi"
+#      run: lazbuild -B --bm=Release "source/corona.lpi"
 #    - name: Build the Test App
-#      run: lazbuild --bm=Release "tests/testlazJSONViewer.lpi"
+#      run: lazbuild -B --bm=Release "tests/testcorona.lpi"
 #    - name: Run the Test App
 #      run: bin/testlazJSONViewer "--all" "--format=plain"
