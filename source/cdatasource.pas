@@ -34,7 +34,6 @@ type
     function GetCumulativeRecovered(AIndex: Integer): TCaseCount;
     function GetCumulativeSick(AIndex: Integer): TCaseCount;
 
-    function GetDataArray(ACaseType: TCaseType; ADataType: TDataType): TValueArray;
     function GetDate(AIndex: Integer): TDate;
 
     function GetNewConfirmed(AIndex: Integer): TCaseCount;
@@ -47,9 +46,12 @@ type
     function GetNormalizedNewRecovered(AIndex: Integer): Double;
 
   public
+    function GetDateIndex(ADate: TDate): Integer;
     function GetFirstDate: TDate;
     function GetLastDate: TDate;
     function HasData(ACaseType: TPrimaryCaseType): Boolean;
+
+    function GetDataArray(ACaseType: TCaseType; ADataType: TDataType): TValueArray;
 
     procedure SetCases(AFirstDate: TDate; const ACases: TCaseArray;
       ACaseType: TPrimaryCaseType);
@@ -194,14 +196,16 @@ function TcDataItem.GetDataArray(ACaseType: TCaseType;
     for i := High(AValues) downto High(AValues)-6 do
       if i > -1 then
         sum := sum + AValues[i];
+    v := AValues[High(AValues)];
     AValues[High(AValues)] := sum;
     for i := High(AValues)-1 downto 0 do
     begin
       j := i - 6;  // 7 days earlier
       if j < 0 then
-        sum := sum - AValues[i+1]
+        sum := sum - v
       else
-        sum := sum - AValues[i+1] + AValues[j];
+        sum := sum - v + AValues[j];
+      v := AValues[i];
       AValues[i] := sum;
     end;
   end;
@@ -212,12 +216,15 @@ var
   i: Integer;
 begin
   if ACaseType <> ctSick then
-    pct := TPrimaryCaseType(ACaseType)
-  else
-    raise Exception.Create('Fix me: case type sick!');
-
+    pct := TPrimaryCaseType(ACaseType);
   case ADataType of
     dtCumulative:
+      if ACaseType = ctSick then
+      begin
+        SetLength(Result, Length(FRawData[pctConfirmed]));
+        for i := 0 to High(Result) do
+          Result[i] := FRawData[pctConfirmed, i] - FRawData[pctDeaths, i] - FRawData[pctRecovered, i];
+      end else
       begin
         SetLength(Result, Length(FRawData[pct]));
         for i := 0 to High(Result) do
@@ -225,15 +232,13 @@ begin
       end;
     dtNewCases:
       begin
-        SetLength(Result, Length(FRawData[pct]));
-        Result[0] := 0;
-        for i := 1 to High(Result) do
-          Result[i] := FRawData[pct, i] - FRawData[pct, i-1];
+        Result := GetDataArray(ACaseType, dtCumulative);
+        for i := High(Result) downto 1 do
+          Result[i] := Result[i] - Result[i-1];
       end;
     dtNormalizedCumulative:
       begin
         Result := GetDataArray(ACaseType, dtCumulative);
-        WeeklySum(Result);
         factor := REF_POPULATION / FPopulation;
         for i := 0 to High(Result) do
           Result[i] := Result[i] * factor;
@@ -254,6 +259,11 @@ end;
 function TcDataItem.GetDate(AIndex: Integer): TDate;
 begin
   Result := FFirstDate + AIndex;
+end;
+
+function TcDataItem.GetDateIndex(ADate: TDate): Integer;
+begin
+  Result := trunc(ADate) - trunc(FFirstDate);
 end;
 
 function TcDataItem.GetFirstDate: TDate;
@@ -363,6 +373,9 @@ procedure TcDataItem.SetCases(AFirstDate: TDate;
   const ACases: TCaseArray; ACaseType: TPrimaryCaseType);
 begin
   FFirstDate := AFirstDate;
+  SetLength(FRawData[ACaseType], Length(ACases));
+  Move(ACases[0], FRawData[ACaseType, 0], Length(FRawData[ACaseType]) * SizeOf(TCaseCount));
+
   case ACaseType of
     pctConfirmed:
       begin
