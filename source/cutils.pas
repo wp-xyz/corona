@@ -13,6 +13,7 @@ function MinimizeName(FileName: String; Canvas: TCanvas; MaxWidth: Integer;
   APathDelim: Char): String;
 
 procedure Split(AString: String; ADest: TStrings; ADelimiter: Char = ',');
+function StripThousandSeparator(const AString: String; ASep: Char): String;
 
 function UnQuote(const s: String): String;
 
@@ -158,6 +159,24 @@ begin
     inc(P);
   end;
 end;
+
+// Removes the specified thousand separator from a string }
+function StripThousandSeparator(const AString: String; ASep: Char): String;
+var
+  i, j: Integer;
+begin
+  SetLength(Result, Length(AString));
+  j := 0;
+  for i := 1 to Length(AString) do begin
+    if AString[i] <> ASep then
+    begin
+      inc(j);
+      Result[j] := AString[i];
+    end;
+  end;
+  SetLength(Result, j);
+end;
+
 
 // Replaces AnsiDeQuoteStr because it crashes in FPC 3.04 when the input string
 // is empty. And this version is a bit faster...

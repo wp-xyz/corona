@@ -14,7 +14,7 @@ type
 
   TDataType = (
     dtCumulative, dtNewCases,
-    dtNormalizedCumulative, dtNormalizedNewcases,
+    dtNormalizedCumulative, dtNormalizedNewCases,
     dtCumulativeCasesDoublingTime, dtNewCasesDoublingTime,
     dtCumVsNewCases, dtRValue
   );

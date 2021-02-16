@@ -217,7 +217,7 @@ uses
   TATypes, TAMath, TACustomSource, TAFitLib,
   // project-specific units
   cDataSource, cJohnsHopkinsUniversity, {$IFDEF RKI}cRobertKochInstitut,{$ENDIF}
-  cSeries, cAbout;
+  cSeries, cUtils, cAbout;
 
 const
   // DATA_DIR must end with path delimiter!
@@ -430,6 +430,7 @@ var
   col: TGridColumn;
   ser: TChartSeries;
   dt: TDateTime;
+  n: Integer;
 begin
   SaveDialog.Filename := '';
   if SaveDialog.Execute then
@@ -465,7 +466,10 @@ begin
       dt := StrToDateTime(GetCellText(0, r));
       Write(F, FormatDateTime(SAVE_DATE_FORMAT, dt));
       for c := 1 to Grid.ColCount-1 do
-        Write(F, #9, GetCellText(c, r));
+      begin
+        n := StrToInt(StripThousandSeparator(GetCellText(c, r), FormatSettings.ThousandSeparator));
+        Write(F, #9, n);
+      end;
       WriteLn(F);
       inc(r, r_delta);
     end;
