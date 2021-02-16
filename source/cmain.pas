@@ -12,14 +12,17 @@ interface
 uses
   LCLType, Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls,
   ExtCtrls, StdCtrls, Buttons, Grids, Types, LCLVersion, Menus, ActnList,
-  StdActns, CheckLst, TAGraph, TAIntervalSources, TASeries, TAChartListbox,
-  TALegend, TASources, TACustomSeries, TATransformations, TATools, TAFuncSeries,
-  TADataTools, cGlobal, TADrawUtils;
+  StdActns, CheckLst,
+  TAGraph, TAIntervalSources, TASeries, TAChartListbox, TALegend, TASources,
+  TACustomSeries, TATransformations, TATools, TAFuncSeries, TADataTools,
+  TAChartUtils,TADrawUtils,
+  cGlobal;
 
 type
 
   TCountArray = array of Integer;
   TDateArray = array of TDate;
+  TDataPointArray = array of TDoublePoint;
 
   { TMainForm }
 
@@ -211,7 +214,7 @@ implementation
 uses
   LCLIntf, Math, IniFiles, DateUtils, InterfaceBase, LCLPlatformDef,
   // TAChart units
-  TATypes, TAMath, TAChartUtils, TACustomSource, TAFitLib,
+  TATypes, TAMath, TACustomSource, TAFitLib,
   // project-specific units
   cDataSource, cJohnsHopkinsUniversity, {$IFDEF RKI}cRobertKochInstitut,{$ENDIF}
   cSeries, cAbout;
@@ -418,11 +421,15 @@ begin
 end;
 
 procedure TMainForm.acTableSaveExecute(Sender: TObject);
+const
+  ASCENDING = false;
 var
   r, c: Integer;
+  r_start, r_end, r_delta: Integer;
   F: TextFile;
   col: TGridColumn;
   ser: TChartSeries;
+  dt: TDateTime;
 begin
   SaveDialog.Filename := '';
   if SaveDialog.Execute then
@@ -439,12 +446,28 @@ begin
     end;
     WriteLn(F);
 
-    for r := 1 to Grid.RowCount-1 do
+    if ASCENDING then
     begin
-      Write(F, GetCellText(0, r));
+      r_start := 1;
+      r_end := Grid.RowCount;
+      r_delta := +1;
+    end else
+    begin
+      r_start := Grid.RowCount-1;
+      r_end := 0;
+      r_delta := -1;
+    end;
+
+    r := r_start;
+    while r <> r_end do begin
+//    for r := 1 to Grid.RowCount-1 do
+//    begin
+      dt := StrToDateTime(GetCellText(0, r));
+      Write(F, FormatDateTime(SAVE_DATE_FORMAT, dt));
       for c := 1 to Grid.ColCount-1 do
         Write(F, #9, GetCellText(c, r));
       WriteLn(F);
+      inc(r, r_delta);
     end;
     CloseFile(F);
   end;

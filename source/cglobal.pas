@@ -5,7 +5,7 @@ unit cGlobal;
 interface
 
 uses
-  Classes, SysUtils, TAChartUtils;
+  Classes, SysUtils;
 
 type
   TPrimaryCaseType = (pctConfirmed, pctDeaths, pctRecovered);
@@ -19,7 +19,7 @@ type
     dtCumVsNewCases, dtRValue
   );
 
-  TDataPointArray = array of TDoublePoint;
+//  TDataPointArray = array of TDoublePoint;
 
   TLocationParams = record
    {$IFDEF DEBUG_LOCATIONPARAMS}
@@ -42,6 +42,13 @@ const
 
   // Days used for moving-average-calculation
   ACCUMULATION_RANGE = 7;
+
+  // Reference population for calculation of incidence value
+  REF_POPULATION = 100*1000;
+
+  // Format for saving date
+  SAVE_DATE_FORMAT = 'yyyy-mm-dd';
+
 
 var
   InfectiousPeriod: Integer = INFECTIOUS_PERIOD;

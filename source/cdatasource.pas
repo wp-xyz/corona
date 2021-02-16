@@ -11,6 +11,7 @@ uses
 type
   TCaseCount = Int64;
   TCaseArray = array of TCaseCount;
+  TValueArray = array of Double;
 
   TcDataItem = class
   private
@@ -24,6 +25,7 @@ type
     FConfirmed: TCaseArray;
     FDeaths: TCaseArray;
     FRecovered: TCaseArray;
+    FRawData: array[TPrimaryCaseType] of TCaseArray;
 
     function GetCount(ACaseType: TPrimaryCaseType): Integer;
 
@@ -32,6 +34,7 @@ type
     function GetCumulativeRecovered(AIndex: Integer): TCaseCount;
     function GetCumulativeSick(AIndex: Integer): TCaseCount;
 
+    function GetDataArray(ACaseType: TCaseType; ADataType: TDataType): TValueArray;
     function GetDate(AIndex: Integer): TDate;
 
     function GetNewConfirmed(AIndex: Integer): TCaseCount;
@@ -176,6 +179,76 @@ begin
     Result := nc - nd - nr
   else
     Result := -1;
+end;
+
+function TcDataItem.GetDataArray(ACaseType: TCaseType;
+  ADataType: TDataType): TValueArray;
+
+  procedure WeeklySum(AValues: TValueArray);
+  var
+    i, j: Integer;
+    sum: Double;
+    v: Double;
+  begin
+    sum := 0;
+    for i := High(AValues) downto High(AValues)-6 do
+      if i > -1 then
+        sum := sum + AValues[i];
+    AValues[High(AValues)] := sum;
+    for i := High(AValues)-1 downto 0 do
+    begin
+      j := i - 6;  // 7 days earlier
+      if j < 0 then
+        sum := sum - AValues[i+1]
+      else
+        sum := sum - AValues[i+1] + AValues[j];
+      AValues[i] := sum;
+    end;
+  end;
+
+var
+  pct: TPrimaryCaseType;
+  factor: Double;
+  i: Integer;
+begin
+  if ACaseType <> ctSick then
+    pct := TPrimaryCaseType(ACaseType)
+  else
+    raise Exception.Create('Fix me: case type sick!');
+
+  case ADataType of
+    dtCumulative:
+      begin
+        SetLength(Result, Length(FRawData[pct]));
+        for i := 0 to High(Result) do
+          Result[i] := FRawData[pct, i];
+      end;
+    dtNewCases:
+      begin
+        SetLength(Result, Length(FRawData[pct]));
+        Result[0] := 0;
+        for i := 1 to High(Result) do
+          Result[i] := FRawData[pct, i] - FRawData[pct, i-1];
+      end;
+    dtNormalizedCumulative:
+      begin
+        Result := GetDataArray(ACaseType, dtCumulative);
+        WeeklySum(Result);
+        factor := REF_POPULATION / FPopulation;
+        for i := 0 to High(Result) do
+          Result[i] := Result[i] * factor;
+      end;
+    dtNormalizedNewCases:
+      begin
+        Result := GetDataArray(ACaseType, dtNewCases);
+        WeeklySum(Result);
+        factor := REF_POPULATION / FPopulation;
+        for i := 0 to High(Result) do
+          Result[i] := Result[i] * factor;
+      end;
+    else
+      raise Exception.Create('Data type not supported.');
+  end;
 end;
 
 function TcDataItem.GetDate(AIndex: Integer): TDate;

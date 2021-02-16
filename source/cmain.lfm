@@ -4,7 +4,7 @@ object MainForm: TMainForm
   Top = 120
   Width = 1111
   Caption = 'corona'
-  ClientHeight = 581
+  ClientHeight = 601
   ClientWidth = 1111
   Icon.Data = {
     E8CE000000000100070000000000010020001269000076000000303000000100
@@ -1670,7 +1670,6 @@ object MainForm: TMainForm
   OnCreate = FormCreate
   OnShow = FormShow
   ShowHint = True
-  LCLVersion = '2.1.0.0'
   object LeftSplitter: TSplitter
     Left = 219
     Height = 534
@@ -2013,7 +2012,7 @@ object MainForm: TMainForm
     end
     object ToolButton3: TToolButton
       Left = 47
-      Height = 5
+      Height = 40
       Top = 2
       Caption = 'ToolButton3'
       Style = tbsDivider
@@ -2040,7 +2039,7 @@ object MainForm: TMainForm
     end
     object ToolButton7: TToolButton
       Left = 265
-      Height = 5
+      Height = 40
       Top = 2
       Caption = 'ToolButton7'
       Style = tbsDivider
@@ -2052,7 +2051,7 @@ object MainForm: TMainForm
     end
     object ToolButton9: TToolButton
       Left = 346
-      Height = 5
+      Height = 40
       Top = 2
       Caption = 'ToolButton9'
       Style = tbsDivider
@@ -2072,7 +2071,7 @@ object MainForm: TMainForm
     end
     object ToolButton12: TToolButton
       Left = 140
-      Height = 5
+      Height = 40
       Top = 2
       Caption = 'ToolButton12'
       Style = tbsDivider
