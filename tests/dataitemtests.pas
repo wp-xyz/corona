@@ -106,11 +106,25 @@ type
     procedure CaseCountTest_Sick_Date3;
   end;
 
+  TDoublingTimeTests = class(TCoronaTestCase)
+  private
+    procedure DoublingTimeTest(ATestIndex: Integer; ACaseType: TCaseType; ADataType: TDataType);
+  published
+    procedure CumulativeCasesDoublingTime_Date1;
+    procedure CumulativeCasesDoublingTime_Date2;
+    procedure CumulativeCasesDoublingTime_Date3;
+    procedure NewCasesDoublingTime_Date1;
+    procedure NewCasesDoublingTime_Date2;
+{
+    procedure NewCasesDoublingTime_Date3;
+    }
+  end;
+
 
 implementation
 
 uses
-  DateUtils;
+  DateUtils, Math;
 
 const
   TEST_POPULATION = 83783945;
@@ -595,12 +609,94 @@ begin
 end;
 
 
+{------------------------------------------------------------------------------}
+{                      TDoublingTimeTest                                       }
+{------------------------------------------------------------------------------}
+const
+  // Doubling times determined by using Excel
+  DOUBLINGTIME_CUMULATIVE_TEST_DATES: Array[0..2] of String  = ('2020-03-01', '2021-01-01', '2021-02-15');
+  SOLL_DOUBLINGTIME_CUMULATIVE_CONFIRMED: Array[0..2] of Double = (NaN, 41.76701856, 69.58856461);
+
+  DOUBLINGTIME_NEW_TEST_DATES: array[0..1] of String     = ('2020-10-01', '2021-02-01');
+  SOLL_DOUBLINGTIME_NEW_CONFIRMED: Array[0..1] of Double = ( 49.29334677,          NaN);
+                                                     //      growing        shrinking
+
+procedure TDoublingTimeTests.DoublingTimeTest(ATestIndex: Integer;
+  ACaseType: TCaseType; ADataType: TDataType);
+const
+  EPS = 1E-4;
+var
+  idx: Integer;
+  actT2, expT2: Double;
+  sct, sdt, sd: String;
+begin
+  if not (ADataType in [dtCumulativeCasesDoublingTime, dtNewCasesDoublingTime]) then
+    fail('DataType not supposed to be tested here.');
+
+  case ADataType of
+    dtCumulativeCasesDoublingTime:
+      begin
+        sd := DOUBLINGTIME_CUMULATIVE_TEST_DATES[ATestIndex];
+        idx := FDataItem.GetDateIndex(ScanDateTime(SAVE_DATE_FORMAT, sd));
+        actT2 := FDataItem.GetDataArray(ctConfirmed, ADataType)[idx];
+        expT2 := SOLL_DOUBLINGTIME_CUMULATIVE_CONFIRMED[ATestIndex];
+        sct := 'confirmed';
+        sdt := 'cumulative';
+      end;
+    dtNewCasesDoublingTime:
+      begin
+        sd := DOUBLINGTIME_NEW_TEST_DATES[ATestIndex];
+        idx := FDataItem.GetDateIndex(ScanDateTime(SAVE_DATE_FORMAT, sd));
+        actT2 := FDataItem.GetdataArray(ctConfirmed, ADataType)[idx];
+        expT2 := SOLL_DOUBLINGTIME_NEW_CONFIRMED[ATestIndex];
+        sct := 'confirmed';
+        sdt := 'new';
+      end;
+  end;
+
+  if IsNaN(expT2) xor IsNaN(actT2) then
+    // Only one of the doubling times is NaN  --> error
+    AssertEquals(Format(
+      'Doubling time of %s %s cases mismatch on %s', [sct, sdt, sd]),
+      false, IsNaN(expT2) xor IsNaN(actT2)
+    )
+  else
+  if not (IsNaN(expT2) and IsNaN(actT2)) then
+    AssertEquals(Format(
+      'Doubling time of %s %s cases mismatch on %s', [sct, sdt, sd]),
+      expT2, actT2, EPS
+    );
+end;
+
+procedure TDoublingTimeTests.CumulativeCasesDoublingTime_Date1;
+begin
+  DoublingTimeTest(0, ctConfirmed, dtCumulativeCasesDoublingTime);
+end;
+procedure TDoublingTimeTests.CumulativeCasesDoublingTime_Date2;
+begin
+  DoublingTimeTest(1, ctConfirmed, dtCumulativeCasesDoublingTime);
+end;
+procedure TDoublingTimeTests.CumulativeCasesDoublingTime_Date3;
+begin
+  DoublingTimeTest(2, ctConfirmed, dtCumulativeCasesDoublingTime);
+end;
+
+procedure TDoublingTimeTests.NewCasesDoublingTime_Date1;
+begin
+  DoublingTimeTest(0, ctConfirmed, dtNewCasesDoublingTime);
+end;
+procedure TDoublingTimeTests.NewCasesDoublingTime_Date2;
+begin
+  DoublingTimeTest(1, ctConfirmed, dtNewCasesDoublingTime);
+end;
+
 initialization
   RegisterTest(TDateTests);
   RegisterTest(TCumulativeCasesTests);
   RegisterTest(TNewCasesTests);
   RegisterTest(TNormalizedCumulativeCasesTests);
   RegisterTest(TNormalizedNewCasesTests);
+  RegisterTest(TDoublingTimeTests);
 
 end.
 

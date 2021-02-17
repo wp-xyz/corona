@@ -52,6 +52,7 @@ type
     function HasData(ACaseType: TPrimaryCaseType): Boolean;
 
     function GetDataArray(ACaseType: TCaseType; ADataType: TDataType): TValueArray;
+    function GetSmoothedDataArray(ACaseType: TCaseType; ADataType: TDataType; SmoothingInterval: Integer): TValueArray;
 
     procedure SetCases(AFirstDate: TDate; const ACases: TCaseArray;
       ACaseType: TPrimaryCaseType);
@@ -213,7 +214,9 @@ function TcDataItem.GetDataArray(ACaseType: TCaseType;
 var
   pct: TPrimaryCaseType;
   factor: Double;
-  i: Integer;
+  i, j: Integer;
+  Y, YHalf, Y0: Double;
+  nDesc: Integer;
 begin
   if ACaseType <> ctSick then
     pct := TPrimaryCaseType(ACaseType);
@@ -251,6 +254,52 @@ begin
         for i := 0 to High(Result) do
           Result[i] := Result[i] * factor;
       end;
+    dtCumulativeCasesDoublingTime,
+    dtNewCasesDoublingTime:
+      begin
+        if ADataType = dtCumulativeCasesDoublingTime then
+          Result := GetSmoothedDataArray(ACaseType, dtCumulative, SmoothingRange)
+        else
+          Result := GetSmoothedDataArray(ACaseType, dtNewCases, SmoothingRange);
+        for i := High(Result) downto 0 do begin
+          Y := Result[i];
+          if Y < 100 then    // Skip too noisy part
+            Y := NaN
+          else begin
+            Y0 := Y;
+            YHalf := Y0/2;
+            Y := NaN;
+            nDesc := 0;     // Data points found on descending part
+            for j := i-1 downto 0 do
+            begin
+              if (Result[j] <= Y0) then      // Use ascending part only
+              begin
+                if (Result[j] <= Yhalf) then  // half value found
+                begin
+                  // Coming from the high side, j is the first point below the half
+                  // j+1 is the first point above the half
+                  Y := i - j - 1;
+                  if Result[j] <> Result[j+1] then
+                    Y := Y + (Result[j+1]-Yhalf)/(Result[j+1]-Result[j]);
+                  break;
+                end
+                else
+                  nDesc := 0;
+              end else
+                // Count values on descending part.
+                inc(nDesc);
+              // If there is a certain number of points on descending part --> ignore point
+              if nDesc > 10 then
+              begin
+                Y := NaN;
+                break;
+              end;
+            end;
+          end;
+          Result[i] := Y;
+        end;
+      end;
+
     else
       raise Exception.Create('Data type not supported.');
   end;
@@ -348,6 +397,41 @@ begin
     if InRange(i, 0, j) then
       Result := Result + NewRecovered[i];
   Result := Result / FPopulation * 100000
+end;
+
+{ Smoothes the value array specified by ACaseType and ADataType. Smoothing
+  occurs by a backward moving-average algorithm. }
+function TcDataItem.GetSmoothedDataArray(ACaseType: TCaseType;
+  ADataType: TDataType; SmoothingInterval: Integer): TValueArray;
+var
+  i, j: Integer;
+  sum: Double;
+  v: Double;
+  n: Integer;
+begin
+  Result := GetDataArray(ACaseType, ADataType);
+
+  sum := 0;
+  for i := High(Result) downto High(Result) - SmoothingInterval+1 do
+    if i > -1 then
+      sum := sum + Result[i];
+  v := Result[High(Result)];
+  if High(Result) >= SmoothingInterval then
+    n := SmoothingInterval
+  else
+    n := Length(Result);
+  Result[High(Result)] := sum/n;
+
+  for i := High(Result)-1 downto 0 do begin
+    if i >= SmoothingInterval - 1 then
+      sum := sum - v + Result[i - SmoothingInterval + 1]
+    else begin
+      sum := sum - v + Result[0];
+      dec(n);
+    end;
+    v := Result[i];
+    Result[i] := sum/n;
+  end;
 end;
 
 function TcDataItem.HasData(ACaseType: TPrimaryCaseType): Boolean;
