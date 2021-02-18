@@ -16,7 +16,7 @@ uses
   TAGraph, TAIntervalSources, TASeries, TAChartListbox, TALegend, TASources,
   TACustomSeries, TATransformations, TATools, TAFuncSeries, TADataTools,
   TAChartUtils,TADrawUtils,
-  cGlobal;
+  cGlobal, cDataSource;
 
 type
 
@@ -173,6 +173,7 @@ type
     procedure DownloadMsgHandler(Sender: TObject; const AMsg1, AMsg2: String; APercentage: Integer);
     procedure EnableMovingAverage(ASeries: TChartSeries; AEnabled, AStrict: Boolean);
     function GetCellText(ACol, ARow: Integer): String;
+    function GetDataItem(ANode: TTreeNode): TcDataItem;
     function GetDataType: TDataType;
     function GetLocation(ANode: TTreeNode): String;
     procedure GetLocation(ANode: TTreeNode; out ACountry, AState, ACity: String; out APopulation: Integer);
@@ -181,9 +182,9 @@ type
     function IsTimeSeries: Boolean;
 //    procedure LayoutBars;
     procedure LoadLocations;
-    procedure NormalizeToPopulation(ASource: TListChartSource; APopulation: Integer; PerWeek: Boolean);
-    procedure PopulateCumulativeSeries(const ADates, AValues: TStringArray; ASeries: TChartSeries);
-    procedure PopulateNewCasesSeries(const ADates, AValues: TStringArray; ASeries: TChartSeries);
+//    procedure NormalizeToPopulation(ASource: TListChartSource; APopulation: Integer; PerWeek: Boolean);
+//    procedure PopulateCumulativeSeries(const ADates, AValues: TStringArray; ASeries: TChartSeries);
+//    procedure PopulateNewCasesSeries(const ADates, AValues: TStringArray; ASeries: TChartSeries);
     procedure RestoreSeriesNodesFromList(AList: TFPList);
     procedure SeriesToArray(ASeries: TChartSeries; out AData: TDataPointArray);
     procedure ShowData(ANode: TTreeNode);
@@ -216,7 +217,7 @@ uses
   // TAChart units
   TATypes, TAMath, TACustomSource, TAFitLib,
   // project-specific units
-  cDataSource, cJohnsHopkinsUniversity, {$IFDEF RKI}cRobertKochInstitut,{$ENDIF}
+  cJohnsHopkinsUniversity, {$IFDEF RKI}cRobertKochInstitut,{$ENDIF}
   cSeries, cUtils, cAbout;
 
 const
@@ -949,6 +950,11 @@ begin
   end;
 end;
 
+function TMainForm.GetDataItem(ANode: TTreeNode): TcDataItem;
+begin
+  Result := TcDataItem(ANode.Data);
+end;
+
 function TMainForm.GetDataType: TDataType;
 begin
   Result := TDataType(cmbDataType.ItemIndex);
@@ -1300,7 +1306,7 @@ procedure TMainForm.MeasurementToolMeasure(ASender: TDataPointDistanceTool);
 begin
   FMeasurementSeries.Active := false;
 end;
-
+                          (*
 procedure TMainForm.NormalizeToPopulation(ASource: TListChartSource;
   APopulation: Integer; PerWeek: Boolean);
 var
@@ -1322,7 +1328,7 @@ begin
   else
     for i := ASource.Count-1 downto 0 do
       ASource.Item[i]^.Y := ASource.Item[i]^.Y / APopulation * PopulationRef;
-end;
+end;                        *)
 
 procedure TMainForm.PageControlChange(Sender: TObject);
 begin
@@ -1333,6 +1339,7 @@ begin
   }
 end;
 
+(*
 procedure TMainForm.PopulateCumulativeSeries(const ADates, AValues: TStringArray;
   ASeries: TChartSeries);
 var
@@ -1391,6 +1398,7 @@ begin
     Y0 := Y;
   end;
 end;
+*)
 
 procedure TMainForm.RestoreSeriesNodesFromList(AList: TFPList);
 var
@@ -1409,6 +1417,7 @@ begin
     AData[i] := ASeries.Source.Item[i]^.Point;
 end;
 
+{
 procedure TMainForm.ShowData(ANode: TTreeNode);
 var
   counts: array[TCaseType] of string = ('', '', '', '');
@@ -1656,6 +1665,301 @@ begin
             end;
           end;
       end;
+    end;
+
+    //LayoutBars;
+    UpdateAffectedSeries;
+    UpdateGrid;
+    if population > 0 then
+      FStatusText1 := Format('%s loaded (population %.0n)', [GetLocation(ANode), 1.0*population])
+    else
+      FStatusText1 := Format('%s loaded.', [GetLocation(ANode)]);
+    UpdateStatusBar;
+    UpdateActionStates;
+  finally
+    Screen.Cursor := crDefault;
+  end;
+end;
+}
+procedure TMainForm.ShowData(ANode: TTreeNode);
+var
+  caseType: TCaseType;
+  dt: TDataType;
+  pct: TPrimaryCaseType;
+  i, j: Integer;
+  ser: TBasicPointSeries;
+  country, state, city: String;
+  population: Integer;
+  dataSrcClass: TcDataSourceClass;
+  src: TCustomChartSource;
+  values, valuesNew: TValueArray;
+  item: TcDataItem;
+  d: TDateTime;
+  R, dR: Double;
+begin
+  if ANode = nil then
+    exit;
+
+  Screen.Cursor := crHourglass;
+  try
+    if not acChartOverlay.Checked then
+      Clear(false);
+
+    dataSrcClass := TJohnsHopkinsDataSource;
+    GetLocation(ANode, country, state, city, population);
+
+    {$IFDEF RKI}
+    (*
+
+      !!!!!!!!!! DO NOT DELETE THIS FOR THE MOMEMENT !!!!!!!!!!!!
+
+      Must download RKI data file and create a TcDataItem for the current node
+
+    if ((ANode.Level = 0) and (ANode.Text = RKI_CAPTION)) or
+       ((ANode.Level = 1) and (ANode.Parent.Text = RKI_CAPTION)) or
+       ((ANode.Level = 2) and (ANode.Parent.Parent.Text = RKI_CAPTION))
+    then begin
+      dataSrcClass := TRobertKochDataSource;
+      loc := PLocationParams(ANode.Data);
+      if loc = nil then
+        raise Exception.Create('Location cannot be nil.');
+
+      if (ANode.Level = 1) then
+      begin
+        country := IntToStr(loc^.ID);
+        state := '';
+      end else
+      if ANode.Level = 2 then
+      begin
+        state := FormatFloat('00000', loc^.ID);
+        loc := PLocationParams(ANode.Parent.Data);
+        country := IntToStr(loc^.ID);
+      end;
+    end;
+    *)
+    {$ENDIF}
+
+    dt := GetDataType();
+    item := GetDataItem(ANode);
+    d := item.FirstDate;
+
+    for caseType in TCaseType do
+    begin
+      if not clbCases.Checked[ord(caseType)] then
+        Continue;
+
+      ser := GetSeries(ANode, caseType, dt);
+      src := ser.Source;
+      case dt of
+        dtCumVsNewCases:
+          begin
+            values := item.GetSmoothedDataArray(caseType, dtCumulative, SmoothingRange);
+            valuesNew := item.GetSmoothedDataArray(caseType, dtNewCases, SmoothingRange);
+            ser.Source := nil;
+            ser.ListSource.YCount := 1;
+            ser.BeginUpdate;
+            try
+              for i := 0 to High(values) do
+                ser.AddXY(values[i], valuesNew[i]);
+            finally
+              ser.EndUpdate;
+            end;
+          end;
+
+        dtRValue:
+          begin
+            ser.Source := nil;
+            ser.ListSource.YCount := 2;
+            ser.ListSource.YErrorBarData.Kind := ebkChartSource;
+            ser.ListSource.YErrorBarData.IndexPlus := 1;
+            ser.ListSource.YErrorBarData.IndexMinus := -1;
+            if (ser is TLineseries) then
+              with TLineSeries(ser) do
+              begin
+                YErrorBars.Visible := true;
+                YErrorBars.Pen.Color := LinePen.Color;
+              end;
+            ser.BeginUpdate;
+            try
+              if caseType = ctSick then
+                pct := pctConfirmed
+              else
+                pct := TPrimaryCaseType(caseType);
+              for i := 0 to item.Count[pct]-1 do
+              begin
+                item.CalcRValue(i, R, dR);
+                if (not IsNaN(R)) and (dR/R < 0.5) then
+                  ser.AddXY(d + i, R, [dR])
+                else
+                  ser.AddXY(d + i, NaN);
+              end;
+            finally
+              ser.EndUpdate;
+            end;
+          end;
+
+        else
+          values := item.GetDataArray(caseType, dt);
+          ser.Source := nil;
+          ser.ListSource.YCount := 1;
+          ser.BeginUpdate;
+          try
+            for i := 0 to High(values) do
+              ser.AddXY(d + i, values[i]);
+          finally
+            ser.EndUpdate;
+            EnableMovingAverage(ser, acDataMovingAverage.Checked, true);
+          end;
+      end;
+        (*
+        dtNewCases, dtNormalizedNewCases:
+          begin
+            ser.Source := nil;
+            ser.ListSource.YCount := 1;
+            ser.BeginUpdate;
+            try
+              PopulateNewCasesSeries(saX, saY, ser);
+              if dt = dtNormalizedNewCases then
+                NormalizeToPopulation(ser.ListSource, population, true);
+            finally
+              ser.EndUpdate;
+              ser.Source := src;
+            end;
+          end;
+
+        dtCumulativeCasesDoublingTime,
+        dtNewCasesDoublingTime:
+          begin
+            ser.Source := nil;
+            ser.ListSource.YCount := 1;
+            ser.BeginUpdate;
+            try
+              if dt = dtCumulativeCasesDoublingTime then
+                PopulateCumulativeSeries(saX, saY, ser)
+              else
+                PopulateNewCasesSeries(saX, saY, ser);
+              EnableMovingAverage(ser, true, true);
+              SeriesToArray(ser, dataArr);
+              EnableMovingAverage(ser, false, true);
+
+              for i := High(dataArr) downto 0 do
+              begin
+                Y := dataArr[i].Y;
+                Y0 := Y;
+                if Y < 100 then
+                  Y := NaN
+                else
+                begin
+                  Yhalf := Y0 * 0.5;
+                  Y := NaN;
+                  nDesc := 0;  // Data points found on descending part
+                  for j := i-1 downto 0 do
+                  begin
+                    if (dataArr[j].Y <= Y0) then      // use ascending part only
+                    begin
+                      if (dataArr[j].Y <= Yhalf) then  // half value found
+                      begin
+                        Y := dataArr[i].X - dataArr[j].X;
+                        break;
+                      end
+                      else
+                        nDesc := 0;
+                    end else
+                      // Count values on descending part.
+                      inc(nDesc);
+                    // If there is a certaining number of points on descending part --> ignore point
+                    if nDesc > 10 then
+                    begin
+                      Y := NaN;
+                      break;
+                    end;
+                  end;
+                end;
+                ser.YValue[i] := Y;
+              end;
+            finally
+              ser.EndUpdate;
+            end;
+          end;
+
+        dtCumVsNewCases:
+          begin
+            ser.Source := nil;
+            ser.ListSource.YCount := 1;
+            ser.BeginUpdate;
+            try
+              // Get cumulative cases, smooth curve, store values in temp array
+              PopulateCumulativeSeries(saX, saY, ser);
+              EnableMovingAverage(ser, true, true);
+              SeriesToArray(ser, dataArr);
+
+              // Get new cases, do not smooth yet
+              ser.Source := nil;
+              PopulateNewCasesSeries(saX, saY, ser);
+
+              // Replace x by cumulative data from temp array
+              j := High(dataArr);
+              for i := ser.Count-1 downto 0 do
+              begin
+                ser.ListSource.Item[i]^.X := dataArr[j].Y;
+                ser.ListSource.item[i]^.Text := DateToStr(dataArr[j].X, cFormatSettings);
+                dec(j);
+              end;
+            finally
+              ser.EndUpdate;
+              // Smooth new case data
+              EnableMovingAverage(ser, true, true);
+            end;
+          end;
+
+        dtRValue:
+          begin
+            ser.Source := nil;
+            ser.BeginUpdate;
+            try
+              // Get new cases, smooth, store in temp array
+              PopulateNewCasesSeries(saX, saY, ser);
+              EnableMovingAverage(ser, true, true);
+              SeriesToArray(ser, dataArr);
+              ser.Source := nil;  // Make source writable again
+
+              // Calculate R as ratio NewCases/NewCases(5 days earlier)
+              ser.ListSource.YCount := 2;
+              ser.ListSource.YErrorBarData.Kind := ebkChartSource;
+              ser.ListSource.YErrorBarData.IndexPlus := 1;
+              ser.ListSource.YErrorBarData.IndexMinus := -1;
+              if (ser is TLineseries) then
+                with TLineSeries(ser) do
+                begin
+                  YErrorBars.Visible := true;
+                  YErrorBars.Pen.Color := LinePen.Color;
+                end;
+              for i:=ser.Count-1 downto 0 do
+              begin
+                ser.YValue[i] := NaN;
+                if i >= InfectiousPeriod then
+                begin
+                  Y0 := dataArr[i - InfectiousPeriod].Y;
+                  Y := dataArr[i].Y;
+                  if (Y0 > 0) and (Y > 0) then
+                  begin
+                    dY0 := sqrt(Y0);
+                    dY := sqrt(Y);
+                    dY := dY0/Y0 + dY/Y;
+                    if dY < 0.5 then begin
+                      ser.YValues[i, 0] := Y / Y0;                     // R value
+                      ser.YValues[i, 1] := ser.YValues[i, 0] * dY;     // error of R
+                    end;
+                  end;
+                end;
+              end;
+              RValueDone := true;
+            finally
+              ser.EndUpdate;
+            end;
+          end;
+      end;
+    *)
     end;
 
     //LayoutBars;
