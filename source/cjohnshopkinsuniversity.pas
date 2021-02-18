@@ -84,17 +84,8 @@ begin
       end;
       if firstDate = -1 then
         firstDate := childData.FirstDate;
-      case ct of
-        pctConfirmed:
-          for i := 0 to childData.Count[ct] - 1 do
-            cases[i] := cases[i] + childData.CumulativeConfirmed[i];
-        pctDeaths:
-          for i := 0 to childData.Count[ct]-1 do
-            cases[i] := cases[i] + childData.CumulativeDeaths[i];
-        pctRecovered:
-          for i := 0 to childData.Count[ct]-1 do
-            cases[i] := cases[i] + childData.CumulativeRecovered[i];
-      end;
+      for i := 0 to childData.Count[ct] - 1 do
+        cases[i] := cases[i] + childData.RawData[ct][i];
       child := child.GetNextSibling;
     end;
     data.SetCases(firstDate, cases, ct);

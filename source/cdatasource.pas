@@ -22,28 +22,10 @@ type
     FLatitude: Double;
     FPopulation: Int64;
     FFirstDate: TDate;
-    FConfirmed: TCaseArray;
-    FDeaths: TCaseArray;
-    FRecovered: TCaseArray;
     FRawData: array[TPrimaryCaseType] of TCaseArray;
-
     function GetCount(ACaseType: TPrimaryCaseType): Integer;
-
-    function GetCumulativeConfirmed(AIndex: Integer): TCaseCount;
-    function GetCumulativeDeaths(AIndex: Integer): TCaseCount;
-    function GetCumulativeRecovered(AIndex: Integer): TCaseCount;
-    function GetCumulativeSick(AIndex: Integer): TCaseCount;
-
     function GetDate(AIndex: Integer): TDate;
-
-    function GetNewConfirmed(AIndex: Integer): TCaseCount;
-    function GetNewDeaths(AIndex: Integer): TCaseCount;
-    function GetNewRecovered(AIndex: Integer): TCaseCount;
-    function GetNewSick(AIndex: Integer): TCaseCount;
-
-    function GetNormalizedNewConfirmed(AIndex: Integer): Double;
-    function GetNormalizedNewDeaths(AIndex: Integer): Double;
-    function GetNormalizedNewRecovered(AIndex: Integer): Double;
+    function GetRawData(ACaseType: TPrimaryCaseType): TCaseArray;
 
   public
     function GetDateIndex(ADate: TDate): Integer;
@@ -69,20 +51,7 @@ type
     property Date[AIndex: Integer]: TDate read GetDate;
 
     property Count[ACaseType: TPrimaryCaseType]: Integer read GetCount;
-
-    property CumulativeConfirmed[AIndex: Integer]: TCaseCount read GetCumulativeConfirmed;
-    property CumulativeDeaths[AIndex: Integer]: TCaseCount read GetCumulativeDeaths;
-    property CumulativeRecovered[AIndex: Integer]: TCaseCount read GetCumulativeRecovered;
-    property CumulativeSick[AIndex: Integer]: TCaseCount read GetCumulativeSick;
-
-    property NewConfirmed[AIndex: Integer]: TCaseCount read GetNewConfirmed;
-    property NewDeaths[AIndex: Integer]: TCaseCount read GetNewDeaths;
-    property NewRecovered[AIndex: Integer]: TCaseCount read GetNewRecovered;
-    property NewSick[AIndex: Integer]: TCaseCount read GetNewSick;
-
-    property NormalizedNewConfirmed[AIndex: Integer]: double read GetNormalizedNewConfirmed;
-    property NormalizedNewDeaths[AIndex: Integer]: Double read GetNormalizedNewDeaths;
-    property NormalizedNewRecovered[AIndex: Integer]: Double read GetNormalizedNewRecovered;
+    property RawData[ACaseType: TPrimaryCaseType]: TCaseArray read GetRawData;
   end;
 
   TStatusbarEvent = procedure (Sender: TObject; const AMsg1, AMsg2: String) of object;
@@ -139,7 +108,7 @@ const
 function TcDataItem.CalcRValue(AIndex: Integer; out R, dR: Double): Boolean;
 var
   i: Integer;
-  sum_now, sum_earlier: Int64;
+  sum_now, sum_earlier: TCaseCount;
   dSum_now, dSum_earlier: Double;
 begin
   Result := false;
@@ -156,11 +125,11 @@ begin
   //   sum(i, 3) = n(i) - n(i-3)
   if AIndex < SmoothingRange then
     exit;
-  sum_now := FConfirmed[AIndex] - FConfirmed[AIndex - SmoothingRange];
+  sum_now := FRawData[pctConfirmed, AIndex] - FRawData[pctConfirmed, AIndex - SmoothingRange];
   // Sum of new cases one generation time earlier (--> InfectiousPeriod)
   if AIndex < InfectiousPeriod + SmoothingRange then
     exit;
-  sum_earlier := FConfirmed[AIndex - InfectiousPeriod] - FConfirmed[AIndex - InfectiousPeriod - SmoothingRange];
+  sum_earlier := FRawData[pctConfirmed, AIndex - InfectiousPeriod] - FRawData[pctConfirmed, AIndex - InfectiousPeriod - SmoothingRange];
 
   // The formula for R is sum_now / sum_earlier.
 
@@ -184,54 +153,7 @@ end;
 
 function TcDataItem.GetCount(ACaseType: TPrimaryCaseType): Integer;
 begin
-  case ACaseType of
-    pctConfirmed: Result := Length(FConfirmed);
-    pctDeaths: Result := Length(FDeaths);
-    pctRecovered: Result := Length(FRecovered);
-  end;
-end;
-
-function TcDataItem.GetCumulativeConfirmed(AIndex: Integer): TCaseCount;
-begin
-  if (AIndex >= 0) and (AIndex < Length(FConfirmed)) then
-    Result := FConfirmed[AIndex]
-  else
-    Result := 0;
-end;
-
-function TcDataItem.GetCumulativeDeaths(AIndex: Integer): TCaseCount;
-begin
-  if (AIndex >= 0) and (AIndex < Length(FDeaths)) then
-    Result := FDeaths[AIndex]
-  else
-    Result := 0;
-end;
-
-function TcDataItem.GetCumulativeRecovered(AIndex: Integer): TCaseCount;
-var
-  n: Integer;
-begin
-  n := Length(FRecovered);
-  if n = 0 then
-    Result := -1
-  else
-  if Aindex < n then
-    Result := FRecovered[AIndex]
-  else
-    Result := 0;
-end;
-
-function TcDataItem.GetCumulativeSick(AIndex: Integer): TCaseCount;
-var
-  nc, nd, nr: Integer;
-begin
-  nc := GetCumulativeConfirmed(AIndex);
-  nd := GetCumulativeDeaths(AIndex);
-  nr := GetCumulativeRecovered(AIndex);   // no recovered for JHU US data
-  if nr > 0 then
-    Result := nc - nd - nr
-  else
-    Result := -1;
+  Result := Length(FRawData[ACaseType]);
 end;
 
 function TcDataItem.GetDataArray(ACaseType: TCaseType;
@@ -392,81 +314,12 @@ end;
 
 function TcDataItem.GetLastDate: TDate;
 begin
-  Result := FFirstDate + High(FConfirmed);
+  Result := FFirstDate + High(FRawData[pctConfirmed]);
 end;
 
-function TcDataitem.GetNewConfirmed(AIndex: Integer): TCaseCount;
+function TcDataItem.GetRawData(ACaseType: TPrimaryCaseType): TCaseArray;
 begin
-  if AIndex > 0 then
-    Result := GetCumulativeConfirmed(AIndex) - GetCumulativeConfirmed(AIndex-1)
-  else
-    Result := GetCumulativeConfirmed(0);
-end;
-
-function TcDataitem.GetNewDeaths(AIndex: Integer): TCaseCount;
-begin
-  if AIndex > 0 then
-    Result := GetCumulativeDeaths(AIndex) - GetCumulativeDeaths(AIndex-1)
-  else
-    Result := GetCumulativeDeaths(0);
-end;
-
-function TcDataitem.GetNewRecovered(AIndex: Integer): TCaseCount;
-begin
-  if AIndex > 0 then
-    Result := GetCumulativeRecovered(AIndex) - GetCumulativeRecovered(AIndex-1)
-  else
-    Result := GetCumulativeRecovered(0);
-end;
-
-function TcDataitem.GetNewSick(AIndex: Integer): TCaseCount;
-begin
-  if AIndex > 0 then
-    Result := GetCumulativeSick(AIndex) - GetCumulativeSick(AIndex-1)
-  else
-    Result := GetCumulativeSick(0);
-end;
-
-function TcDataItem.GetNormalizedNewConfirmed(AIndex: Integer): Double;
-var
-  i, j: Integer;
-begin
-  Result := 0;
-  if FPopulation <= 0 then
-    exit;
-  j := High(FConfirmed);
-  for i := AIndex - 6 to AIndex do
-    if InRange(i, 0, j) then
-      Result := Result + NewConfirmed[i];
-  Result := Result / FPopulation * REFERENCE_POPULATION;
-end;
-
-function TcDataItem.GetNormalizedNewDeaths(AIndex: Integer): Double;
-var
-  i, j: Integer;
-begin
-  Result := 0;
-  if FPopulation <= 0 then
-    exit;
-  j := High(FDeaths);
-  for i := AIndex - 6 to AIndex do
-    if InRange(i, 0, j) then
-      Result := Result + NewDeaths[i];
-  Result := Result / FPopulation * REFERENCE_POPULATION;
-end;
-
-function TcDataItem.GetNormalizedNewRecovered(AIndex: Integer): Double;
-var
-  i, j: Integer;
-begin
-  Result := 0;
-  if FPopulation <= 0 then
-    exit;
-  j := High(FRecovered);
-  for i := AIndex - 6 to AIndex do
-    if InRange(i, 0, j) then
-      Result := Result + NewRecovered[i];
-  Result := Result / FPopulation * 100000
+  Result := FRawData[ACaseType];
 end;
 
 { Smoothes the value array specified by ACaseType and ADataType. Smoothing
@@ -509,17 +362,9 @@ var
   i: Integer;
 begin
   Result := true;
-  case ACaseType of
-    pctConfirmed:
-      for i := 0 to Length(FConfirmed) - 1 do
-        if FConfirmed[i] > 0 then exit;
-    pctDeaths:
-      for i := 0 to Length(FDeaths) - 1 do
-        if FDeaths[i] > 0 then exit;
-    pctRecovered:
-      for i := 0 to Length(FRecovered) - 1 do
-        if FRecovered[i] > 0 then exit;
-  end;
+  for i := 0 to High(FRawData[ACaseType]) do
+    if FRawData[ACaseType, i] > 0 then
+      exit;
   Result := false;
 end;
 
@@ -528,28 +373,8 @@ procedure TcDataItem.SetCases(AFirstDate: TDate;
 begin
   FFirstDate := AFirstDate;
   SetLength(FRawData[ACaseType], Length(ACases));
-  Move(ACases[0], FRawData[ACaseType, 0], Length(FRawData[ACaseType]) * SizeOf(TCaseCount));
-
-  case ACaseType of
-    pctConfirmed:
-      begin
-        SetLength(FConfirmed, Length(ACases));
-        if Length(FConfirmed) > 0 then
-          Move(ACases[0], FConfirmed[0], Length(FConfirmed) * SizeOf(TCaseCount));
-      end;
-    pctDeaths:
-      begin
-        SetLength(FDeaths, Length(ACases));
-        if Length(FDeaths) > 0 then
-          Move(ACases[0], FDeaths[0], Length(FDeaths) * SizeOf(TCaseCount));
-      end;
-    pctRecovered:
-      begin
-        SetLength(FRecovered, Length(ACases));
-        if Length(FRecovered) > 0 then
-          Move(ACases[0], FRecovered[0], Length(FRecovered) * Sizeof(TCaseCount));
-      end;
-  end;
+  if Length(ACases) > 0 then
+    Move(ACases[0], FRawData[ACaseType, 0], Length(FRawData[ACaseType]) * SizeOf(TCaseCount));
 end;
 
 
