@@ -53,6 +53,7 @@ type
 
     function GetDataArray(ACaseType: TCaseType; ADataType: TDataType): TValueArray;
     function GetSmoothedDataArray(ACaseType: TCaseType; ADataType: TDataType; SmoothingInterval: Integer): TValueArray;
+    function CalcRValue(AIndex: Integer; out R, dR: Double): Boolean;
 
     procedure SetCases(AFirstDate: TDate; const ACases: TCaseArray;
       ACaseType: TPrimaryCaseType);
@@ -131,6 +132,55 @@ const
   REFERENCE_POPULATION = 100000;
 
 { TcDataItem }
+
+{ Calculates the R value (number of infections produced by one infected person)
+  dR is an error estimate of the R value.
+  The function result is false when R cannot be calculated (division by 0) }
+function TcDataItem.CalcRValue(AIndex: Integer; out R, dR: Double): Boolean;
+var
+  i: Integer;
+  sum_now, sum_earlier: Int64;
+  dSum_now, dSum_earlier: Double;
+begin
+  Result := false;
+  R := NaN;
+  dR := NaN;
+
+  // Calculate sum of new cases over a given time interval (--> SmoothingRange)
+  // Iterate back in history, starting at the specified index
+
+  // Speed trick: When n(i) is the accumulated value for day i, then n(i)-n(i-1)
+  // are the new cases of this day. Calculating the sum over, say, 3 days, means
+  //   sum(i, 3) = (n(i)-n(i-1)) + n(i-1)-n(i-2) + (n(i-2)-n(i-3).
+  // In this term the pairs of inner terms cancel. What is left is
+  //   sum(i, 3) = n(i) - n(i-3)
+  if AIndex < SmoothingRange then
+    exit;
+  sum_now := FConfirmed[AIndex] - FConfirmed[AIndex - SmoothingRange];
+  // Sum of new cases one generation time earlier (--> InfectiousPeriod)
+  if AIndex < InfectiousPeriod + SmoothingRange then
+    exit;
+  sum_earlier := FConfirmed[AIndex - InfectiousPeriod] - FConfirmed[AIndex - InfectiousPeriod - SmoothingRange];
+
+  // The formula for R is sum_now / sum_earlier.
+
+  // When sum_earlier is zero, R cannot be calculated
+  if sum_earlier = 0 then
+    exit;
+
+  // Error estimate: the error of each sum is approximately equal to sqrt(sum)
+  dSum_now := sqrt(sum_now);
+  dSum_earlier := sqrt(sum_earlier);
+
+  // The relative error of R is the sum of the relative errors of both sums (dSum/sum)
+  // The relative error of the sum cannot be calculated when the sum is zero:
+  if sum_now = 0 then
+    exit;
+
+  R := sum_now / sum_earlier;
+  dR := R * (dSum_now/sum_now + dSum_earlier/sum_earlier);
+  Result := true;
+end;
 
 function TcDataItem.GetCount(ACaseType: TPrimaryCaseType): Integer;
 begin
@@ -215,7 +265,7 @@ var
   pct: TPrimaryCaseType;
   factor: Double;
   i, j: Integer;
-  Y, YHalf, Y0: Double;
+  Y, YHalf, Y0, dY: Double;
   nDesc: Integer;
 begin
   if ACaseType <> ctSick then
@@ -299,7 +349,27 @@ begin
           Result[i] := Y;
         end;
       end;
+    dtRValue:
+      begin
+        Result := GetSmoothedDataArray(ctConfirmed, dtNewCases, SmoothingRange);
+        for i := High(Result) downto 0 do
+        begin
+          Y := Result[i];
+          Result[i] := NaN;
+          if Y <= 0 then Continue;
+          if i < InfectiousPeriod then Continue;
+          Y0 := Result[i - InfectiousPeriod];
+          if Y0 <= 0 then Continue;
 
+          // relative error estimate: rel error of quotient is sum of
+          // the relative errors of divisor and divident. Those relative errors
+          // are estimated to be 1/sqrt(Y)
+          dY := 1.0 / sqrt(Y) + 1.0 / sqrt(Y0);
+          // Accept only values with <50% error.
+          if dY < 0.5 then
+            Result[i] := Y / Y0;
+        end;
+      end;
     else
       raise Exception.Create('Data type not supported.');
   end;

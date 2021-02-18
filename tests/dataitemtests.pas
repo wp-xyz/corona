@@ -120,6 +120,19 @@ type
     }
   end;
 
+  TRValueTests = class(TCoronaTestCase)
+  private
+    procedure RValueTest(ATestIndex: Integer);
+    procedure CalcRValueTest(ATestIndex: Integer);
+  published
+    procedure RValue_Date1;
+    procedure RValue_Date2;
+    procedure RValue_Date3;
+    procedure CalcRValue_Date1;
+    procedure CalcRValue_Date2;
+    procedure CalcRValue_Date3;
+  end;
+
 
 implementation
 
@@ -690,6 +703,95 @@ begin
   DoublingTimeTest(1, ctConfirmed, dtNewCasesDoublingTime);
 end;
 
+
+{------------------------------------------------------------------------------}
+{                            R value tests                                     }
+{------------------------------------------------------------------------------}
+const                                      //  too small     R > 1                  R < 1
+  RVALUE_TEST_DATES: array[0..2] of String = ('2020-02-01',  '2020-10-01',          '2021-02-15');
+  SOLL_RVALUE: Array[0..2] of Double       = (NaN,           2027.57143/1727.71429, 7221.85714/8399.0);
+  SOLL_RVALUE_ERROR: array[0..2] of Double = (NaN,            0.02052205,        0.007370425);
+
+procedure TRValueTests.RValueTest(ATestIndex: Integer);
+const
+  EPS = 1E-4;
+var
+  idx: Integer;
+  actR, expR: Double;
+begin
+  idx := FDataItem.GetDateIndex(ScanDateTime(SAVE_DATE_FORMAT, RVALUE_TEST_DATES[ATestIndex]));
+  expR := SOLL_RVALUE[ATestIndex];
+  actR := FDataItem.GetDataArray(ctConfirmed, dtRValue)[idx];
+
+  if IsNaN(expR) xor IsNaN(actR) then
+    // Only one of the R values is NaN --> error
+    AssertEquals('R value mismatch on %s' + RVALUE_TEST_DATES[ATestIndex],
+      false, IsNaN(expR) xor IsNaN(actR)
+    )
+  else
+  if not (IsNaN(expR) and IsNaN(actR)) then
+    // None of the R values is NaN
+    AssertEquals('RValue mismatch on ' + RVALUE_TEST_DATES[ATestIndex],
+      expR, actR, EPS);
+    // In the else part both values are NaN which would mean "no error".
+end;
+
+procedure TRValueTests.RValue_Date1;
+begin
+  RValueTest(0);
+end;
+procedure TRValueTests.RValue_Date2;
+begin
+  RValueTest(1);
+end;
+procedure TRValueTests.RValue_Date3;
+begin
+  RValueTest(2);
+end;
+
+procedure TRValueTests.CalcRValueTest(ATestIndex: Integer);
+const
+  EPS = 1E-4;
+var
+  idx: Integer;
+  actR, expR: Double;
+  actRerr: Double;
+  ok: Boolean;
+begin
+  idx := FDataItem.GetDateIndex(ScanDateTime(SAVE_DATE_FORMAT, RVALUE_TEST_DATES[ATestIndex]));
+  expR := SOLL_RVALUE[ATestIndex];
+  ok := FDataItem.CalcRValue(idx, actR, actRErr);
+
+  if IsNaN(expR) xor IsNaN(actR) then
+    // Only one of the R values is NaN --> error
+    AssertEquals('R value mismatch on %s' + RVALUE_TEST_DATES[ATestIndex],
+      false, IsNaN(expR) xor IsNaN(actR)
+    )
+  else
+  if not (IsNaN(expR) and IsNaN(actR)) then
+  begin
+    // None of the R values is NaN
+    AssertEquals('R value mismatch on ' + RVALUE_TEST_DATES[ATestIndex],
+      expR, actR, EPS);
+     AssertEquals('R value error mismatch on ' + RVALUE_TEST_DATES[ATestIndex],
+       SOLL_RVALUE_ERROR[ATestIndex], actRErr, EPS);
+  end;
+  // In the else part both values are NaN which would mean "no error".
+end;
+
+procedure TRValueTests.CalcRValue_Date1;
+begin
+  CalcRValueTest(0);
+end;
+procedure TRValueTests.CalcRValue_Date2;
+begin
+  CalcRValueTest(1);
+end;
+procedure TRValueTests.CalcRValue_Date3;
+begin
+  CalcRValueTest(2);
+end;
+
 initialization
   RegisterTest(TDateTests);
   RegisterTest(TCumulativeCasesTests);
@@ -697,6 +799,7 @@ initialization
   RegisterTest(TNormalizedCumulativeCasesTests);
   RegisterTest(TNormalizedNewCasesTests);
   RegisterTest(TDoublingTimeTests);
+  RegisterTest(TRValueTests);
 
 end.
 
