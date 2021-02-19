@@ -680,7 +680,7 @@ begin
       dtCumVsNewCases:
         begin
           sx := ser.Source.Item[ASender.PointIndex]^.Text;
-          d := ScanDateTime('mm"/"dd"/"yy', ser.Source.Item[ASender.PointIndex]^.Text);
+          d := ScanDateTime('mm"/"dd"/"yy', ser.Source.Item[ASender.PointIndex]^.Text, cFormatSettings);
           if x = 1 then sx := '1 case' else sx := Format('%.0n cases', [x]);
           if y = 1 then sy := '1 new case' else sy := Format('%.0n new cases', [y]);
           FStatusText1 := Format('%s - %s, %s', [DateToStr(d), sx, sy]);
@@ -1760,7 +1760,7 @@ begin
             ser.BeginUpdate;
             try
               for i := 0 to High(values) do
-                ser.AddXY(values[i], valuesNew[i]);
+                ser.AddXY(values[i], valuesNew[i], DateToStr(d+i, cFormatSettings));
             finally
               ser.EndUpdate;
             end;
