@@ -1737,7 +1737,7 @@ object MainForm: TMainForm
         AnchorSideTop.Side = asrBottom
         Left = 0
         Height = 19
-        Top = 47
+        Top = 46
         Width = 149
         Action = acDataMovingAverage
         BorderSpacing.Top = 6
@@ -1750,13 +1750,13 @@ object MainForm: TMainForm
         AnchorSideTop.Side = asrBottom
         AnchorSideRight.Control = clbCases
         Left = 0
-        Height = 24
+        Height = 23
         Top = 17
         Width = 100
         Anchors = [akTop, akLeft, akRight]
         BorderSpacing.Top = 2
         BorderSpacing.Right = 8
-        ItemHeight = 16
+        ItemHeight = 15
         ItemIndex = 0
         Items.Strings = (
           'Cumulative cases'
@@ -1769,7 +1769,7 @@ object MainForm: TMainForm
           'Reproduction number'
         )
         OnChange = cmbDataTypeChange
-        Style = csOwnerDrawFixed
+        Style = csDropDownList
         TabOrder = 1
         Text = 'Cumulative cases'
       end
