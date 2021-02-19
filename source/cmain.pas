@@ -1760,7 +1760,8 @@ begin
             ser.BeginUpdate;
             try
               for i := 0 to High(values) do
-                ser.AddXY(values[i], valuesNew[i], DateToStr(d+i, cFormatSettings));
+                if (values[i] > 0) and (valuesNew[i] > 0) then  // avoid issues with log axes
+                  ser.AddXY(values[i], valuesNew[i], DateToStr(d+i, cFormatSettings));
             finally
               ser.EndUpdate;
             end;
