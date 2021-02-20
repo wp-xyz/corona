@@ -16,7 +16,7 @@ uses
   TAGraph, TAIntervalSources, TASeries, TAChartListbox, TALegend, TASources,
   TACustomSeries, TATransformations, TATools, TAFuncSeries, TADataTools,
   TAChartUtils,TADrawUtils,
-  cGlobal, cDataSource;
+  cGlobal, cDataSource, cGeoMap;
 
 type
 
@@ -46,6 +46,7 @@ type
     Chart: TChart;
     BottomAxisTransformations: TChartAxisTransformations;
     BottomAxisLogTransform: TLogarithmAxisTransform;
+    MapChart: TChart;
     ChartToolset: TChartToolset;
     acFileExit: TFileExit;
     cbMovingAverage: TCheckBox;
@@ -82,7 +83,8 @@ type
     mnuFileQuit: TMenuItem;
     mnuFile: TMenuItem;
     Panel1: TPanel;
-    ProgressBar: TProgressBar;
+    ChartSplitter: TSplitter;
+    TimeSeriesChartPanel: TPanel;
     ToolBar: TToolBar;
     ToolButton1: TToolButton;
     ToolButton10: TToolButton;
@@ -115,7 +117,6 @@ type
     ChartListbox: TChartListbox;
     DateTimeIntervalChartSource: TDateTimeIntervalChartSource;
     LeftPanel: TPanel;
-    RightPanel: TPanel;
     LeftSplitter: TSplitter;
     RightSplitter: TSplitter;
     StatusBar: TStatusBar;
@@ -162,6 +163,7 @@ type
     procedure TreeViewDeletion(Sender: TObject; Node: TTreeNode);
 
   private
+    FGeoMap: TcGeoMap;
     FMeasurementSeries: TFuncSeries;
     FFitCoeffs: array[0..1] of Double;
     FStatusText1, FStatusText2: String;
@@ -219,7 +221,7 @@ uses
   TATypes, TAMath, TACustomSource, TAFitLib,
   // project-specific units
   cJohnsHopkinsUniversity, {$IFDEF RKI}cRobertKochInstitut,{$ENDIF}
-  cSeries, cUtils, cAbout;
+  cSeries, cGeoReaderKML, cUtils, cAbout;
 
 const
   // DATA_DIR must end with path delimiter!
@@ -346,9 +348,11 @@ end;
 
 procedure TMainForm.acDataUpdateExecute(Sender: TObject);
 begin
+  {
   Progressbar.Show;
   UpdateData;
   Progressbar.Hide;
+  }
 end;
 
 procedure TMainForm.acInfectiousPeriodExecute(Sender: TObject);
@@ -807,6 +811,7 @@ end;
 procedure TMainForm.DownloadMsgHandler(Sender: TObject; const AMsg1, AMsg2: String;
   APercentage: Integer);
 begin
+  {
   Progressbar.Position := APercentage;
   Progressbar.Update;
 
@@ -816,6 +821,7 @@ begin
 
   // Make sure that status msg is painted in Linux
   Application.ProcessMessages;
+  }
 end;
 
 procedure TMainForm.EnableMovingAverage(ASeries: TChartSeries;
@@ -870,9 +876,10 @@ begin
   Grid.RowHeights[0] := 3 * Grid.Canvas.TextHeight('Tg') + 2* varCellPadding;
 
   PageControl.ActivePageIndex := 0;
+  {
   Progressbar.Parent := Statusbar;
   Progressbar.Align := alRight;
-
+  }
   CreateMeasurementSeries;
   InitShortCuts;
 
@@ -1430,11 +1437,26 @@ procedure TMainForm.ShowMap(ANode: TTreeNode);
 var
   mapRes: String;
   stream: TStream;
+  reader: TcGeoReader;
 begin
+  if FGeoMap = nil then
+  begin
+    FGeoMap := TcGeoMap.Create(self);
+    FGeoMap.Chart := MapChart;
+    FGeoMap.Projection := gpMercator;
+  end;
+
   mapRes := PChar(ANode.Data);
   stream := TResourceStream.Create(HINSTANCE, mapRes, RT_RCDATA);
   try
-    //     ---- add code here --------!!!!!
+    reader := TKMLReader.Create;
+    try
+      if not reader.Check(stream) then
+        raise Exception.Create('Resource ' + mapRes + ' is not a valid KML file.');
+      reader.ReadFromStream(stream, FGeoMap);
+    finally
+      reader.Free;
+    end;
   finally
     stream.Free;
   end;
@@ -2268,7 +2290,7 @@ begin
     end;
 
     LeftPanel.Width := ini.ReadInteger('MainForm', 'LeftPanel', LeftPanel.Width);
-    RightPanel.Width := ini.ReadInteger('MainForm', 'RightPanel', RightPanel.Width);
+    ChartListbox.Width := ini.ReadInteger('MainForm', 'RightPanel', ChartListBox.Width);
     PageControl.ActivePageIndex := ini.ReadInteger('MainForm', 'PageControl', PageControl.ActivePageIndex);
     PageControlChange(nil);
 
@@ -2337,7 +2359,7 @@ begin
     end;
 
     ini.WriteInteger('MainForm', 'LeftPanel', LeftPanel.Width);
-    ini.WriteInteger('MainForm', 'RightPanel', RightPanel.Width);
+    ini.WriteInteger('MainForm', 'RightPanel', ChartListBox.Width);
     ini.WriteInteger('MainForm', 'PageControl', PageControl.ActivePageIndex);
 
     ini.WriteBool('MainForm', 'ConfirmedCases', clbCases.Checked[0]);

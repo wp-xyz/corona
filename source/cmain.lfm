@@ -1837,97 +1837,130 @@ object MainForm: TMainForm
       Caption = 'Chart'
       ClientHeight = 494
       ClientWidth = 873
-      object Chart: TChart
-        Left = 6
-        Height = 482
-        Hint = 'Zoom: drag a rectangle from left-top to bottom-right corner with left mouse button down'#13#10'    or: use mouse wheel (zoom center is mouse position).'#13#10'Pan: drag with the right mouse button down'#13#10'Restore view: click'#13#10'Read data value: move mouse over data point (no key pressed)'#13#10'Measure doubling time: CTRL-drag over data points of interest with left mouse button down.'
-        Top = 6
-        Width = 680
+      object MapChart: TChart
+        Left = 0
+        Height = 264
+        Top = 0
+        Width = 873
         AxisList = <        
           item
-            Grid.Color = 14540253
-            Grid.Style = psSolid
-            AxisPen.Visible = True
+            Visible = False
             Marks.LabelBrush.Style = bsClear
             Minors = <>
-            Title.LabelFont.Height = -16
             Title.LabelFont.Orientation = 900
-            Title.LabelFont.Style = [fsBold]
-            Title.Visible = True
-            Title.Caption = 'Cases'
             Title.LabelBrush.Style = bsClear
           end        
           item
-            Grid.Color = 14540253
-            Grid.Style = psSolid
+            Visible = False
             Alignment = calBottom
-            AxisPen.Visible = True
-            Marks.Format = '%2:s'
             Marks.LabelBrush.Style = bsClear
-            Marks.Source = DateTimeIntervalChartSource
-            Marks.Style = smsLabel
             Minors = <>
-            Title.LabelFont.Height = -16
-            Title.LabelFont.Style = [fsBold]
-            Title.Visible = True
-            Title.Caption = 'Date'
             Title.LabelBrush.Style = bsClear
           end>
         BackColor = clWhite
         Foot.Brush.Color = clBtnFace
         Foot.Font.Color = clBlue
+        Frame.Visible = False
+        Proportional = True
         Title.Brush.Color = clBtnFace
         Title.Font.Color = clBlue
         Title.Text.Strings = (
           'TAChart'
         )
-        Toolset = ChartToolset
-        OnBeforeCustomDrawBackWall = ChartBeforeCustomDrawBackWall
         Align = alClient
-        Anchors = [akLeft]
-        BorderSpacing.Left = 6
-        BorderSpacing.Top = 6
-        BorderSpacing.Bottom = 6
         Color = clDefault
       end
-      object RightPanel: TPanel
-        Left = 697
-        Height = 482
-        Top = 6
-        Width = 170
-        Align = alRight
-        BorderSpacing.Around = 6
+      object TimeSeriesChartPanel: TPanel
+        Left = 0
+        Height = 225
+        Top = 269
+        Width = 873
+        Align = alBottom
         BevelOuter = bvNone
-        ClientHeight = 482
-        ClientWidth = 170
-        TabOrder = 2
-        object ChartListbox: TChartListbox
-          AnchorSideLeft.Control = RightPanel
-          AnchorSideTop.Control = RightPanel
-          AnchorSideRight.Control = RightPanel
-          AnchorSideRight.Side = asrBottom
-          AnchorSideBottom.Control = RightPanel
-          AnchorSideBottom.Side = asrBottom
+        ClientHeight = 225
+        ClientWidth = 873
+        TabOrder = 1
+        object Chart: TChart
           Left = 0
-          Height = 482
+          Height = 225
+          Hint = 'Zoom: drag a rectangle from left-top to bottom-right corner with left mouse button down'#13#10'    or: use mouse wheel (zoom center is mouse position).'#13#10'Pan: drag with the right mouse button down'#13#10'Restore view: click'#13#10'Read data value: move mouse over data point (no key pressed)'#13#10'Measure doubling time: CTRL-drag over data points of interest with left mouse button down.'
+          Top = 0
+          Width = 763
+          AxisList = <          
+            item
+              Grid.Color = 14540253
+              Grid.Style = psSolid
+              AxisPen.Visible = True
+              Marks.LabelBrush.Style = bsClear
+              Minors = <>
+              Title.LabelFont.Height = -16
+              Title.LabelFont.Orientation = 900
+              Title.LabelFont.Style = [fsBold]
+              Title.Visible = True
+              Title.Caption = 'Cases'
+              Title.LabelBrush.Style = bsClear
+            end          
+            item
+              Grid.Color = 14540253
+              Grid.Style = psSolid
+              Alignment = calBottom
+              AxisPen.Visible = True
+              Marks.Format = '%2:s'
+              Marks.LabelBrush.Style = bsClear
+              Marks.Source = DateTimeIntervalChartSource
+              Marks.Style = smsLabel
+              Minors = <>
+              Title.LabelFont.Height = -16
+              Title.LabelFont.Style = [fsBold]
+              Title.Visible = True
+              Title.Caption = 'Date'
+              Title.LabelBrush.Style = bsClear
+            end>
+          BackColor = clWhite
+          Foot.Brush.Color = clBtnFace
+          Foot.Font.Color = clBlue
+          Title.Brush.Color = clBtnFace
+          Title.Font.Color = clBlue
+          Title.Text.Strings = (
+            'TAChart'
+          )
+          Toolset = ChartToolset
+          OnBeforeCustomDrawBackWall = ChartBeforeCustomDrawBackWall
+          Align = alClient
+          Anchors = [akLeft]
+          Color = clDefault
+        end
+        object ChartListbox: TChartListbox
+          Left = 768
+          Height = 225
           Hint = 'Uncheck to remove a curve temporarily.'
           Top = 0
-          Width = 170
+          Width = 105
           Chart = Chart
           OnAddSeries = ChartListboxAddSeries
           OnCheckboxClick = ChartListboxCheckboxClick
-          Anchors = [akTop, akLeft, akRight, akBottom]
+          Align = alRight
           ItemHeight = 0
-          TabOrder = 0
+          TabOrder = 1
+        end
+        object RightSplitter: TSplitter
+          Left = 763
+          Height = 225
+          Top = 0
+          Width = 5
+          Align = alRight
+          ResizeAnchor = akRight
+          ResizeStyle = rsPattern
         end
       end
-      object RightSplitter: TSplitter
-        Left = 686
-        Height = 494
-        Top = 0
-        Width = 5
-        Align = alRight
-        ResizeAnchor = akRight
+      object ChartSplitter: TSplitter
+        Cursor = crVSplit
+        Left = 0
+        Height = 5
+        Top = 264
+        Width = 873
+        Align = alBottom
+        ResizeAnchor = akBottom
         ResizeStyle = rsPattern
       end
     end
@@ -2077,31 +2110,22 @@ object MainForm: TMainForm
       Style = tbsDivider
     end
   end
-  object ProgressBar: TProgressBar
-    Left = 895
-    Height = 20
-    Top = 538
-    Width = 200
-    BorderSpacing.Top = 2
-    TabOrder = 5
-    Visible = False
-  end
   object DateTimeIntervalChartSource: TDateTimeIntervalChartSource
     Params.MaxLength = 120
     Params.MinLength = 30
     Left = 592
-    Top = 440
+    Top = 384
   end
   object LeftAxisTransformations: TChartAxisTransformations
-    Left = 592
-    Top = 184
+    Left = 336
+    Top = 384
     object LeftAxisLogTransform: TLogarithmAxisTransform
       Base = 10
     end
   end
   object ChartToolset: TChartToolset
-    Left = 592
-    Top = 248
+    Left = 808
+    Top = 384
     object MeasurementTool: TDataPointDistanceTool
       Shift = [ssCtrl, ssLeft]
       OnAfterMouseUp = MeasurementToolAfterMouseUp
@@ -2143,8 +2167,8 @@ object MainForm: TMainForm
   end
   object ImageList: TImageList
     Scaled = True
-    Left = 448
-    Top = 72
+    Left = 480
+    Top = 24
     Bitmap = {
       4C7A0900000010000000100000006B0600000000000078DAED59FB531357140E
       F5CF683B9DA9E33FC2EB87FA8004B12D01223E5A71D02236813C08EB082AD231
@@ -2447,8 +2471,8 @@ object MainForm: TMainForm
   end
   object MainMenu: TMainMenu
     Images = ImageList
-    Left = 576
-    Top = 72
+    Left = 640
+    Top = 24
     object mnuFile: TMenuItem
       Caption = 'File'
       object mnuFileQuit: TMenuItem
@@ -2539,8 +2563,8 @@ object MainForm: TMainForm
   end
   object ActionList: TActionList
     Images = ImageList
-    Left = 448
-    Top = 184
+    Left = 560
+    Top = 24
     object acFileExit: TFileExit
       Category = 'File'
       Caption = 'Quit'
@@ -2654,7 +2678,7 @@ object MainForm: TMainForm
     end
   end
   object BottomAxisTransformations: TChartAxisTransformations
-    Left = 768
+    Left = 592
     Top = 440
     object BottomAxisLogTransform: TLogarithmAxisTransform
       Base = 10
