@@ -55,6 +55,7 @@ var
   SmoothingRange: Integer = ACCUMULATION_RANGE;
   RRange: Integer = (ACCUMULATION_RANGE - 1) div 2;           // +/- from center
   PopulationRef: Integer = 100000;         // population count for normalization
+  WorldMapResName: String = 'WORLD_MAP';
 
   cFormatSettings: TFormatSettings;
 

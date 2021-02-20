@@ -187,7 +187,8 @@ type
 //    procedure PopulateNewCasesSeries(const ADates, AValues: TStringArray; ASeries: TChartSeries);
     procedure RestoreSeriesNodesFromList(AList: TFPList);
     procedure SeriesToArray(ASeries: TChartSeries; out AData: TDataPointArray);
-    procedure ShowData(ANode: TTreeNode);
+    procedure ShowMap(ANode: TTreeNode);
+    procedure ShowTimeSeries(ANode: TTreeNode);
     procedure StatusMsgHandler(Sender: TObject; const AMsg1, AMsg2: String);
     function StoreSeriesNodesInList: TFPList;
     procedure UpdateActionStates;
@@ -322,9 +323,9 @@ begin
 
   for i := 0 to Chart.SeriesCount-1 do
     if Chart.Series[i] is TcLineSeries then
-      ShowData(TcLineSeries(Chart.Series[i]).Node)
+      ShowTimeSeries(TcLineSeries(Chart.Series[i]).Node)
     else if Chart.Series[i] is TcBarSeries then
-      ShowData(TcBarSeries(Chart.Series[i]).Node);
+      ShowTimeSeries(TcBarSeries(Chart.Series[i]).Node);
 end;
 
 procedure TMainForm.acDataMovingAverageExecute(Sender: TObject);
@@ -1224,6 +1225,8 @@ begin
   try
     TreeView.Items.Clear;
 
+    TreeView.Items.AddObject(nil, '(world map)', PChar(WorldMapResName));
+
     with TJohnsHopkinsDatasource.Create(DataDir) do
     try
       ok := LoadLocations(TreeView) and LoadData(TreeView);
@@ -1403,18 +1406,38 @@ end;
 procedure TMainForm.RestoreSeriesNodesFromList(AList: TFPList);
 var
   i: Integer;
+  node: TTreeNode;
 begin
   for i := 0 to AList.Count-1 do
-    ShowData(TTreeNode(AList[i]));
+  begin
+    node := TTreeNode(AList[i]);
+    if not ((node.Text <> '') and (node.Text[1] = '(')) then
+      ShowTimeSeries(TTreeNode(AList[i]));
+  end;
 end;
 
 procedure TMainForm.SeriesToArray(ASeries: TChartSeries; out AData: TDataPointArray);
 var
   i: Integer;
 begin
+  AData := nil;
   SetLength(AData, ASeries.Count);
   for i := 0 to ASeries.Count-1 do
     AData[i] := ASeries.Source.Item[i]^.Point;
+end;
+
+procedure TMainForm.ShowMap(ANode: TTreeNode);
+var
+  mapRes: String;
+  stream: TStream;
+begin
+  mapRes := PChar(ANode.Data);
+  stream := TResourceStream.Create(HINSTANCE, mapRes, RT_RCDATA);
+  try
+    //     ---- add code here --------!!!!!
+  finally
+    stream.Free;
+  end;
 end;
 
 {
@@ -1681,7 +1704,7 @@ begin
   end;
 end;
 }
-procedure TMainForm.ShowData(ANode: TTreeNode);
+procedure TMainForm.ShowTimeSeries(ANode: TTreeNode);
 var
   caseType: TCaseType;
   dt: TDataType;
@@ -2000,27 +2023,29 @@ begin
 end;
 
 procedure TMainForm.TreeViewClick(Sender: TObject);
+var
+  node: TTreeNode;
 begin
-  ShowData(TreeView.Selected);
+  node := TreeView.Selected;
+  if (node = nil) or (node.Text = '') then
+    exit;
+
+  // Text of mapping nodes MUST be put in parenthesis.
+  if node.Text[1] = '(' then
+    ShowMap(node)
+  else
+    ShowTimeSeries(TreeView.Selected);
 end;
 
 procedure TMainForm.TreeViewDeletion(Sender: TObject; Node: TTreeNode);
-var
-  data: TcDataItem;
-  loc: PLocationParams;
 begin
+  // This node contains the name of the resource with the map polygons.
+  // --> nothing to free
+  if (Node.Text <> '') and (Node.Text[1] = '(') then
+    exit;
+
   if TObject(Node.Data) is TcDataItem then
-  begin
-    data := TcDataItem(Node.Data);
-    data.Free;
-  end else
-  begin
-    // !!!!!!!!!! to be removed once TcDataItem is fully established
-    loc := PLocationParams(Node.Data);
-    if loc <> nil then
-      Dispose(loc);
-    Node.Data := nil;
-  end;
+    TcDataItem(Node.Data).Free;
 end;
 
 procedure TMainForm.UpdateActionStates;

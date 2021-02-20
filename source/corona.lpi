@@ -41,7 +41,7 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="11">
+    <Units Count="14">
       <Unit0>
         <Filename Value="corona.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -105,6 +105,21 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="cDownloadManager"/>
       </Unit10>
+      <Unit11>
+        <Filename Value="cpolygonseries.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="cPolygonSeries"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="cgeomap.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="cGeoMap"/>
+      </Unit12>
+      <Unit13>
+        <Filename Value="cgeoreaderkml.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="cGeoReaderKML"/>
+      </Unit13>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
