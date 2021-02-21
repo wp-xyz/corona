@@ -417,6 +417,7 @@ begin
       EnableMovingAverage(TChartSeries(Chart.Series[i]), isMovingAverage, false);
 
   MovingAverageInfo.Caption := Format('(%d days)', [SmoothingRange]);
+  MovingAverageInfo.Enabled := acDataMovingAverage.Enabled;
   UpdateGrid;
 end;
 
@@ -1671,7 +1672,8 @@ begin
   end;
 
   MapChart.Title.Visible := true;
-  MapChart.Title.Brush.Style := bsClear;
+  MapChart.Title.Brush.Style := bsSolid;
+  MapChart.Title.Brush.Color := MapChart.Color;
   MapChart.Title.Text.Text := Format('Normalized new %s (per week and %.0n population)',
     [LONG_CASETYPE_NAMES[ACaseType], REF_POPULATION*1.0]);
 

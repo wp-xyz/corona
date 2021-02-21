@@ -2042,11 +2042,8 @@ object MainForm: TMainForm
           Foot.Text.Strings = (
             ' '
           )
-          Foot.Visible = True
           Frame.Visible = False
           Proportional = True
-          Title.Brush.Color = clBtnFace
-          Title.Brush.Style = bsClear
           Title.Font.Color = clBlue
           Title.Font.Style = [fsBold]
           Title.Text.Strings = (
