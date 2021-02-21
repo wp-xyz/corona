@@ -6,7 +6,7 @@ uses
   {$IFDEF UNIX}
   cthreads,
   {$ENDIF}
-  Interfaces, Forms, cmain, cGeoMap, cgeoreaderkml;
+  Interfaces, Forms, cmain, cGeoMap, cgeoreaderkml, cPalette;
 
 {$R *.res}
 {$R corona_resources.rc}

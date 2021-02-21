@@ -41,7 +41,7 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="14">
+    <Units Count="15">
       <Unit0>
         <Filename Value="corona.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -120,6 +120,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="cGeoReaderKML"/>
       </Unit13>
+      <Unit14>
+        <Filename Value="cpalette.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="cPalette"/>
+      </Unit14>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -151,11 +156,6 @@
       <Debugging>
         <DebugInfoType Value="dsDwarf2"/>
       </Debugging>
-      <Options>
-        <Win32>
-          <GraphicApplication Value="True"/>
-        </Win32>
-      </Options>
     </Linking>
   </CompilerOptions>
   <Debugging>

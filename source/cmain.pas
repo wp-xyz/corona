@@ -12,14 +12,13 @@ interface
 uses
   LCLType, Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls,
   ExtCtrls, StdCtrls, Buttons, Grids, Types, LCLVersion, Menus, ActnList,
-  StdActns, CheckLst,
+  StdActns, CheckLst, ColorBox,
   TAGraph, TAIntervalSources, TASeries, TAChartListbox, TALegend, TASources,
   TACustomSeries, TATransformations, TATools, TAFuncSeries, TADataTools,
   TAChartUtils,TADrawUtils,
-  cGlobal, cDataSource, cGeoMap;
+  cGlobal, cDataSource, cGeoMap, cPalette;
 
 type
-
   TCountArray = array of Integer;
   TDateArray = array of TDate;
   TDataPointArray = array of TDoublePoint;
@@ -42,10 +41,13 @@ type
     acInfectiousPeriod: TAction;
     acSmoothingRange: TAction;
     acChartHighlightWeekends: TAction;
+    acChartMap: TAction;
     ActionList: TActionList;
     Chart: TChart;
     BottomAxisTransformations: TChartAxisTransformations;
     BottomAxisLogTransform: TLogarithmAxisTransform;
+    MapDateLabel: TLabel;
+    PaletteListbox: TColorListBox;
     MapChart: TChart;
     ChartToolset: TChartToolset;
     acFileExit: TFileExit;
@@ -84,12 +86,18 @@ type
     mnuFile: TMenuItem;
     Panel1: TPanel;
     ChartSplitter: TSplitter;
+    MapChartPanel: TPanel;
+    MapDateScrollbar: TScrollBar;
+    MapSlitter: TSplitter;
+    PaletteListboxPanel: TPanel;
     TimeSeriesChartPanel: TPanel;
     ToolBar: TToolBar;
     ToolButton1: TToolButton;
     ToolButton10: TToolButton;
     ToolButton11: TToolButton;
     ToolButton12: TToolButton;
+    ToolButton13: TToolButton;
+    ToolButton14: TToolButton;
     ToolButton2: TToolButton;
     ToolButton3: TToolButton;
     ToolButton4: TToolButton;
@@ -126,6 +134,7 @@ type
     procedure acChartHighlightWeekendsExecute(Sender: TObject);
     procedure acChartLinearExecute(Sender: TObject);
     procedure acChartLogarithmicExecute(Sender: TObject);
+    procedure acChartMapExecute(Sender: TObject);
     procedure acChartOverlayExecute(Sender: TObject);
     procedure acConfigAutoExecute(Sender: TObject);
     procedure acConfigHintExecute(Sender: TObject);
@@ -137,6 +146,7 @@ type
     procedure acNormalizeToPopulationExecute(Sender: TObject);
     procedure acSmoothingRangeExecute(Sender: TObject);
     procedure acTableSaveExecute(Sender: TObject);
+
     procedure ChartBeforeCustomDrawBackWall(ASender: TChart;
       ADrawer: IChartDrawer; const ARect: TRect; var ADoDefaultDrawing: Boolean);
     procedure ChartListboxAddSeries(ASender: TChartListbox;
@@ -145,25 +155,35 @@ type
     procedure clbCasesClickCheck(Sender: TObject);
     procedure cmbDataTypeChange(Sender: TObject);
     procedure CrossHairToolDraw(ASender: TDataPointDrawTool);
+
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
+
     procedure GridDrawCell(Sender: TObject; aCol, aRow: Integer; aRect: TRect;
       aState: TGridDrawState);
     procedure GridPrepareCanvas(sender: TObject; aCol, aRow: Integer;
       aState: TGridDrawState);
+
+    procedure MapDateScrollbarChange(Sender: TObject);
+
     procedure MeasurementToolAfterMouseUp(ATool: TChartTool; APoint: TPoint);
     procedure MeasurementToolGetDistanceText(ASender: TDataPointDistanceTool;
       var AText: String);
     procedure MeasurementToolMeasure(ASender: TDataPointDistanceTool);
+
     procedure PageControlChange(Sender: TObject);
+    procedure PaletteListboxGetColors(Sender: TCustomColorListBox;
+      Items: TStrings);
     procedure ToolBarResize(Sender: TObject);
+
     procedure TreeViewClick(Sender: TObject);
     procedure TreeViewDeletion(Sender: TObject; Node: TTreeNode);
 
   private
     FGeoMap: TcGeoMap;
+    FPalette: TPalette;
     FMeasurementSeries: TFuncSeries;
     FFitCoeffs: array[0..1] of Double;
     FStatusText1, FStatusText2: String;
@@ -179,16 +199,16 @@ type
     function GetDataType: TDataType;
     function GetLocation(ANode: TTreeNode): String;
     procedure GetLocation(ANode: TTreeNode; out ACountry, AState, ACity: String; out APopulation: Integer);
+    function GetMapCaseType: TCaseType;
     function GetSeries(ANode: TTreeNode; ACaseType: TCaseType; ADataType: TDataType): TBasicPointSeries;
     procedure InitShortCuts;
     function IsTimeSeries: Boolean;
 //    procedure LayoutBars;
     procedure LoadLocations;
-//    procedure NormalizeToPopulation(ASource: TListChartSource; APopulation: Integer; PerWeek: Boolean);
-//    procedure PopulateCumulativeSeries(const ADates, AValues: TStringArray; ASeries: TChartSeries);
-//    procedure PopulateNewCasesSeries(const ADates, AValues: TStringArray; ASeries: TChartSeries);
+    procedure PopulatePaletteListbox(ACaseType: TCaseType);
     procedure RestoreSeriesNodesFromList(AList: TFPList);
     procedure SeriesToArray(ASeries: TChartSeries; out AData: TDataPointArray);
+    procedure ShowCoronaMap(ANode: TTreeNode; ADateIndex: Integer; ACaseType: TCaseType);
     procedure ShowMap(ANode: TTreeNode);
     procedure ShowTimeSeries(ANode: TTreeNode);
     procedure StatusMsgHandler(Sender: TObject; const AMsg1, AMsg2: String);
@@ -221,7 +241,7 @@ uses
   TATypes, TAMath, TACustomSource, TAFitLib,
   // project-specific units
   cJohnsHopkinsUniversity, {$IFDEF RKI}cRobertKochInstitut,{$ENDIF}
-  cSeries, cGeoReaderKML, cUtils, cAbout;
+  cSeries, cPolygonSeries, cGeoReaderKML, cUtils, cAbout;
 
 const
   // DATA_DIR must end with path delimiter!
@@ -284,6 +304,21 @@ end;
 procedure TMainForm.acChartLogarithmicExecute(Sender: TObject);
 begin
   UpdateAxes(not IsTimeSeries(), true);
+end;
+
+procedure TMainForm.acChartMapExecute(Sender: TObject);
+begin
+  if acChartMap.Checked then
+  begin
+    MapChartPanel.Align := alClient;
+    TimeSeriesChartPanel.Align := alBottom;
+    if FGeoMap = nil then
+    ShowMap(nil);
+  end else
+    TimeSeriesChartPanel.Align := alClient;
+  MapChartPanel.Visible := acChartMap.Checked;
+  ChartSplitter.Visible := acChartMap.Checked;
+  if ChartSplitter.Visible then ChartSplitter.Top := 0;
 end;
 
 procedure TMainForm.acChartOverlayExecute(Sender: TObject);
@@ -876,12 +911,11 @@ begin
   Grid.RowHeights[0] := 3 * Grid.Canvas.TextHeight('Tg') + 2* varCellPadding;
 
   PageControl.ActivePageIndex := 0;
-  {
-  Progressbar.Parent := Statusbar;
-  Progressbar.Align := alRight;
-  }
   CreateMeasurementSeries;
   InitShortCuts;
+
+  FPalette := IncidencePalette;
+  PopulatePaletteListbox(GetMapCaseType);
 
   LoadLocations;
 end;
@@ -1030,6 +1064,11 @@ begin
   end;
 end;
 
+function TMainForm.GetMapCaseType: TCaseType;
+begin
+  Result := ctConfirmed;
+end;
+
 function TMainForm.GetSeries(ANode: TTreeNode; ACaseType: TCaseType;
   ADataType: TDataType): TBasicPointSeries;
 var
@@ -1173,6 +1212,11 @@ begin
   Grid.Canvas.TextStyle := ts;
 end;
 
+procedure TMainForm.MapDateScrollbarChange(Sender: TObject);
+begin
+  ShowCoronaMap(TreeView.Items.GetFirstNode, MapDateScrollbar.Position, GetMapCaseType);
+end;
+
 procedure TMainForm.InitShortCuts;
 begin
  {$IFDEF LINUX}
@@ -1231,8 +1275,6 @@ begin
   TreeView.Items.BeginUpdate;
   try
     TreeView.Items.Clear;
-
-    TreeView.Items.AddObject(nil, '(world map)', PChar(WorldMapResName));
 
     with TJohnsHopkinsDatasource.Create(DataDir) do
     try
@@ -1349,6 +1391,32 @@ begin
   }
 end;
 
+procedure TMainForm.PaletteListboxGetColors(Sender: TCustomColorListBox;
+  Items: TStrings);
+var
+  i: Integer;
+  item, nextItem: TPaletteItem;
+  m: Double;
+  msk, mask1, mask2: String;
+begin
+  m := FPalette.Multiplier;
+  case GetMapCaseType of
+    ctConfirmed: msk := '%.0f';
+    ctDeaths: msk := '%.2g';
+  end;
+  mask1 := '>' + msk;
+  mask2 := msk + '-' + msk;
+
+  Items.Clear;
+  Items.AddObject('(no data)', TObject(PtrInt(FPalette.BaseColor)));
+  for i := 0 to High(FPalette.Items)-1 do
+  begin
+    item := FPalette.Items[i];
+    nextItem := FPalette.Items[i+1];
+    Items.AddObject(Format(mask2, [item.Value*m, nextitem.Value*m]), TObject(PtrInt(item.Color)));
+  end;
+  Items.AddObject(Format(mask1, [nextItem.Value*m]), TObject(PtrInt(nextItem.Color)));
+end;
 (*
 procedure TMainForm.PopulateCumulativeSeries(const ADates, AValues: TStringArray;
   ASeries: TChartSeries);
@@ -1410,6 +1478,16 @@ begin
 end;
 *)
 
+procedure TMainForm.PopulatePaletteListbox(ACaseType: TCaseType);
+begin
+  if ACaseType = ctConfirmed then FPalette.Multiplier := 1.0;
+  if ACaseType = ctDeaths then FPalette.Multiplier := 0.01;
+
+  PaletteListbox.Style := PaletteListbox.Style - [cbCustomColors];
+  PaletteListbox.Style := PaletteListbox.Style + [cbCustomColors];
+  PaletteListBox.Selected := clNone;
+end;
+
 procedure TMainForm.RestoreSeriesNodesFromList(AList: TFPList);
 var
   i: Integer;
@@ -1433,20 +1511,63 @@ begin
     AData[i] := ASeries.Source.Item[i]^.Point;
 end;
 
+procedure TMainForm.ShowCoronaMap(ANode: TTreeNode;
+  ADateIndex: Integer; ACaseType: TCaseType);
+var
+  data: TcDataItem;
+  value: Double;
+  clr: TColor;
+  ser: TcPolygonSeries;
+  s: String;
+  startDate: TDate;
+begin
+  while ANode <> nil do
+  begin
+    data := TcDataItem(ANode.Data);
+    value := data.CalcNormalizedNewCases(ADateIndex, ACaseType);
+    clr := FPalette.GetColor(value);
+    ser := FGeoMap.Series[data.Name];
+    if ser <> nil then
+      ser.Brush.Color := clr;
+    startdate := data.FirstDate;
+    ANode := ANode.GetNextSibling;
+  end;
+
+  MapChart.Title.Visible := true;
+  MapChart.Title.Brush.Style := bsClear;
+  case ACaseType of
+    ctConfirmed:
+      s := 'cases';
+    ctDeaths:
+      s := 'deaths';
+  end;
+  MapChart.Title.Text.Text := Format('Normalized new %s (per week and %.0n population',
+    [s, REF_POPULATION*1.0]);
+
+  MapDateLabel.Caption := DateToStr(startDate + ADateIndex);
+end;
+
 procedure TMainForm.ShowMap(ANode: TTreeNode);
 var
   mapRes: String;
   stream: TStream;
   reader: TcGeoReader;
+  data: TcDataitem;
 begin
   if FGeoMap = nil then
   begin
     FGeoMap := TcGeoMap.Create(self);
     FGeoMap.Chart := MapChart;
     FGeoMap.Projection := gpMercator;
+    FGeoMap.DefaultPenColor := clGray;
   end;
 
-  mapRes := PChar(ANode.Data);
+  if ANode = nil then
+  begin
+    ANode := TreeView.Items.GetFirstNode;
+    mapRes := WorldMapResName;
+  end;
+
   stream := TResourceStream.Create(HINSTANCE, mapRes, RT_RCDATA);
   try
     reader := TKMLReader.Create;
@@ -1454,6 +1575,18 @@ begin
       if not reader.Check(stream) then
         raise Exception.Create('Resource ' + mapRes + ' is not a valid KML file.');
       reader.ReadFromStream(stream, FGeoMap);
+
+      // Prepare date scrollbar
+      data := TcDataItem(ANode.Data);
+      if data <> nil then
+      begin
+        MapDateScrollbar.Max := data.Count[pctConfirmed] - 1;
+        MapDateScrollbar.Min := 0;
+        MapDateScrollbar.Position := MapDateScrollbar.Max;
+      end;
+
+      // Display the map
+      ShowCoronaMap(ANode, MapDateScrollbar.Position, GetMapCaseType);
     finally
       reader.Free;
     end;
@@ -2291,6 +2424,7 @@ begin
 
     LeftPanel.Width := ini.ReadInteger('MainForm', 'LeftPanel', LeftPanel.Width);
     ChartListbox.Width := ini.ReadInteger('MainForm', 'RightPanel', ChartListBox.Width);
+    PaletteListboxPanel.Width := ini.ReadInteger('MainForm', 'PaletteListbox', PaletteListboxPanel.Width);
     PageControl.ActivePageIndex := ini.ReadInteger('MainForm', 'PageControl', PageControl.ActivePageIndex);
     PageControlChange(nil);
 
@@ -2299,6 +2433,8 @@ begin
     clbCases.Checked[2] := ini.ReadBool('MainForm', 'RecoveredCases', clbCases.Checked[2]);
     clbCases.Checked[3] := ini.ReadBool('MainForm', 'SickCases', clbCases.Checked[3]);
 
+    acChartMap.Checked := ini.ReadBool('MainForm', 'ShowMap', acChartMap.Checked);
+    acChartMapExecute(nil);
     acDataMovingAverage.Checked := ini.ReadBool('MainForm', 'MovingAverage', acDataMovingAverage.Checked);
     acChartOverlay.Checked := ini.ReadBool('MainForm', 'Overlay', acChartOverlay.Checked);
     acChartHighlightWeekends.Checked := ini.ReadBool('MainForm', 'HighlightWeekends', acChartHighlightWeekends.Checked);
@@ -2368,6 +2504,7 @@ begin
     ini.WriteBool('MainForm', 'SickCases', clbCases.Checked[3]);
     ini.WriteInteger('MainForm', 'DataType', cmbDataType.ItemIndex);
 
+    ini.Writebool('MainForm', 'ShowMap', acChartMap.Checked);
     ini.WriteBool('MainForm', 'MovingAverage', acDataMovingAverage.Checked);
     ini.WriteBool('MainForm', 'Overlay', acChartOverlay.Checked);
     ini.WriteBool('MainForm', 'HighlightWeekends', acChartHighlightWeekends.Checked);

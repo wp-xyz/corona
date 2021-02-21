@@ -43,6 +43,8 @@ type
     FChart: TChart;
     FActive: Boolean;
     FFileName: String;
+    FPenColor: TColor;
+    FBrushColor: TColor;
     FProjectionProc: TcGeoProjectionProc;
     FProjectionInvProc: TcGeoProjectionInvProc;
     FOnProjection: TcGeoProjectionEvent;
@@ -62,8 +64,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
 
-    procedure AddGeoPolygon(AName: String; const APoints: TDoublePointArray;
-      AFillColor: TColor = clTAColor; ABorderColor: TColor = clTAColor);
+    procedure AddGeoPolygon(AName: String; const APoints: TDoublePointArray);
     procedure Clear;
     procedure ListUniquePolygonNames(AList: TStrings);
     property Series[const AName: String]: TcPolygonSeries read GetSeries;
@@ -71,6 +72,8 @@ type
   published
     property Active: Boolean read FActive write SetActive default false;
     property Chart: TChart read FChart write SetChart;
+    property DefaultBrushColor: TColor read FBrushColor write FBrushColor default clWhite;
+    property DefaultPenColor: TColor read FPenColor write FPenColor default clBlack;
     property FileName: TFileName read FFileName write SetFileName;
     property Projection: TcGeoProjection read GetProjection write SetProjection default gpMercator;
     property OnProjection: TcGeoProjectionEvent read FOnProjection write FOnProjection;
@@ -366,6 +369,8 @@ end;
 constructor TcGeoMap.Create(AOwner: TComponent);
 begin
   inherited;
+  FBrushColor := clWhite;
+  FPenColor := clBlack;
   DoSetProjection(gpSimple);
 end;
 
@@ -373,8 +378,7 @@ end;
 { Adds a polygon to the map. The polygon consists of longitude/latitude pairs
   where angles are given in degrees. When the polygon exactly meets a point
   already used it is assumed that the polygon consists of several parts. }
-procedure TcGeoMap.AddGeoPolygon(AName: String; const APoints: TDoublePointArray;
-  AFillColor: TColor = clTAColor; ABorderColor: TColor = clTAColor);
+procedure TcGeoMap.AddGeoPolygon(AName: String; const APoints: TDoublePointArray);
 var
   ser: TcGeoMapSeries;
   i: Integer;
@@ -389,8 +393,8 @@ begin
   begin
     ser := TcGeoMapSeries.Create(FChart);
     ser.Title := AName;
-    ser.Brush.Color := AFillColor;
-    ser.Pen.Color := ABorderColor;
+    ser.Brush.Color := FBrushColor;
+    ser.Pen.Color := FPenColor;
   end;
 
   if (GetProjection = gpCustom) then

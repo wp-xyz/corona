@@ -35,6 +35,8 @@ type
 
     function GetDataArray(ACaseType: TCaseType; ADataType: TDataType): TValueArray;
     function GetSmoothedDataArray(ACaseType: TCaseType; ADataType: TDataType; SmoothingInterval: Integer): TValueArray;
+
+    function CalcNormalizedNewCases(AIndex: Integer; ACaseType: TCaseType): Double;
     function CalcRValue(AIndex: Integer; out R, dR: Double): Boolean;
 
     procedure SetCases(AFirstDate: TDate; const ACases: TCaseArray;
@@ -101,6 +103,36 @@ const
   REFERENCE_POPULATION = 100000;
 
 { TcDataItem }
+
+function TcDataItem.CalcNormalizedNewCases(AIndex: Integer; ACaseType: TCaseType): Double;
+var
+  accum_Now, accum_WeekBefore: TCaseCount;
+  j: Integer;
+begin
+  Result := 0;
+
+  if Length(FRawData[pctConfirmed]) = 0 then
+    exit;
+
+  if AIndex < 0 then
+    AIndex := 0;
+  if AIndex > High(FRawData[pctConfirmed]) then
+    AIndex := High(FRawData[pctConfirmed]);
+  j := AIndex - 7;
+  if j < 0 then j := 0;
+
+  if ACaseType = ctSick then
+  begin
+    accum_Now := FRawData[pctConfirmed,AIndex] - FRawData[pctDeaths, AIndex] - FRawData[pctRecovered, AIndex];
+    accum_WeekBefore := FRawData[pctConfirmed, j] - FRawData[pctDeaths, j] - FRawData[pctRecovered, j];
+  end else
+  begin
+    accum_Now := FRawData[TPrimaryCaseType(ACaseType), AIndex];
+    accum_WeekBefore := FRawdata[TPrimaryCaseType(ACaseType), j];
+  end;
+
+  Result := (accum_Now - accum_WeekBefore) / FPopulation * REF_POPULATION;
+end;
 
 { Calculates the R value (number of infections produced by one infected person)
   dR is an error estimate of the R value.

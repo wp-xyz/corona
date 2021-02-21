@@ -5,7 +5,9 @@ unit cUtils;
 interface
 
 uses
-  Classes, SysUtils, Graphics;
+  Classes, SysUtils, Graphics, Math;
+
+function BrighterColor(AColor: TColor; AFraction: Double): TColor;
 
 function FormatBytes(AValue: Int64): String;
 
@@ -19,6 +21,18 @@ function UnQuote(const s: String): String;
 
 
 implementation
+
+function BrighterColor(AColor: TColor; AFraction: Double): TColor;
+var
+  f: Double;
+begin
+  f := 1.0 + AFraction;
+  Result := RGBToColor(
+    EnsureRange(Round(Red(AColor) * f), 0, 255),
+    EnsureRange(Round(Green(AColor) * f), 0, 255),
+    EnsureRange(Round(Blue(AColor) * f), 0, 255)
+  );
+end;
 
 { Creates a nicely formatted string for a bytes value.
 
