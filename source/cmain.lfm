@@ -1716,8 +1716,8 @@ object MainForm: TMainForm
       HideSelection = False
       ReadOnly = True
       TabOrder = 0
-      OnClick = TreeViewClick
       OnDeletion = TreeViewDeletion
+      OnSelectionChanged = TreeViewSelectionChanged
       Options = [tvoAutoItemHeight, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
     end
     object Panel1: TPanel
@@ -1966,8 +1966,14 @@ object MainForm: TMainForm
               Title.LabelBrush.Style = bsClear
             end>
           BackColor = clWhite
+          Foot.Alignment = taLeftJustify
           Foot.Brush.Color = clBtnFace
+          Foot.Brush.Style = bsClear
           Foot.Font.Color = clBlue
+          Foot.Text.Strings = (
+            ' '
+          )
+          Foot.Visible = True
           Frame.Visible = False
           Proportional = True
           Title.Brush.Color = clBtnFace
@@ -1977,6 +1983,7 @@ object MainForm: TMainForm
           Title.Text.Strings = (
             'TAChart'
           )
+          Toolset = MapToolset
           Anchors = [akTop, akLeft, akRight, akBottom]
           Color = clDefault
         end
@@ -2947,6 +2954,25 @@ object MainForm: TMainForm
     Top = 440
     object BottomAxisLogTransform: TLogarithmAxisTransform
       Base = 10
+    end
+  end
+  object MapToolset: TChartToolset
+    Left = 520
+    Top = 144
+    object MapToolsetZoomDragTool: TZoomDragTool
+      Shift = [ssLeft]
+      Brush.Style = bsClear
+      RestoreExtentOn = [zreDragTopLeft, zreDragTopRight, zreDragBottomLeft, zreDifferentDrag]
+    end
+    object MapToolsetPanDragTool: TPanDragTool
+      Shift = [ssRight]
+    end
+    object MapToolsetDataPointHintTool: TDataPointHintTool
+      OnHint = MapToolsetDataPointHintToolHint
+    end
+    object MapToolsetDataPointClickTool: TDataPointClickTool
+      Shift = [ssLeft, ssDouble]
+      OnPointClick = MapToolsetDataPointClickToolPointClick
     end
   end
 end

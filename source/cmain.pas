@@ -49,7 +49,12 @@ type
     Chart: TChart;
     BottomAxisTransformations: TChartAxisTransformations;
     BottomAxisLogTransform: TLogarithmAxisTransform;
+    MapToolset: TChartToolset;
     MapDateLabel: TLabel;
+    MapToolsetDataPointClickTool: TDataPointClickTool;
+    MapToolsetDataPointHintTool: TDataPointHintTool;
+    MapToolsetPanDragTool: TPanDragTool;
+    MapToolsetZoomDragTool: TZoomDragTool;
     MenuItem12: TMenuItem;
     MenuItem14: TMenuItem;
     MenuItem9: TMenuItem;
@@ -175,6 +180,10 @@ type
       aState: TGridDrawState);
 
     procedure MapDateScrollbarChange(Sender: TObject);
+    procedure MapToolsetDataPointClickToolPointClick(ATool: TChartTool;
+      APoint: TPoint);
+    procedure MapToolsetDataPointHintToolHint(ATool: TDataPointHintTool;
+      const APoint: TPoint; var AHint: String);
 
     procedure MeasurementToolAfterMouseUp(ATool: TChartTool; APoint: TPoint);
     procedure MeasurementToolGetDistanceText(ASender: TDataPointDistanceTool;
@@ -188,6 +197,7 @@ type
 
     procedure TreeViewClick(Sender: TObject);
     procedure TreeViewDeletion(Sender: TObject; Node: TTreeNode);
+    procedure TreeViewSelectionChanged(Sender: TObject);
 
   private
     FGeoMap: TcGeoMap;
@@ -1235,6 +1245,74 @@ begin
   ShowCoronaMap(TreeView.Items.GetFirstNode, MapDateScrollbar.Position, GetMapCaseType);
 end;
 
+procedure TMainForm.MapToolsetDataPointClickToolPointClick(ATool: TChartTool;
+  APoint: TPoint);
+var
+  ser: TChartSeries;
+  node: TTreeNode;
+begin
+  if (ATool is TDataPointClickTool) and ((TDataPointClickTool(ATool).Series) is TChartSeries) then
+  begin
+    ser := TChartSeries(TDataPointClickTool(ATool).Series);
+    node := TreeView.Items.FindNodeWithText(ser.Title);
+    TreeView.Selected := node;
+  end;
+end;
+
+procedure TMainForm.MapToolsetDataPointHintToolHint(ATool: TDataPointHintTool;
+  const APoint: TPoint; var AHint: String);
+
+  procedure ClearAll;
+  begin
+    FStatusText1 := '';
+  end;
+
+var
+  ser: TcPolygonSeries;
+  node: TTreeNode;
+  dataitem: TcDataitem;
+  dateIndex: Integer;
+begin
+  Hint := '';
+
+  if ATool.Series is TcPolygonSeries then
+  begin
+    ser := TcPolygonSeries(ATool.Series);
+    node := TreeView.Items.FindNodeWithText(ser.Title);
+    if node <> nil then
+    begin
+      dataItem := TcDataItem(node.Data);
+      dateIndex := Round(dataitem.FirstDate) + MapDateScrollbar.Position;
+      FStatusText1 := Format('%s: Population %.0n, new cases per week and %.0n population %.1f', [
+        dataItem.Name, dataItem.Population*1.0,
+        REF_POPULATION*1.0,
+        dataItem.CalcNormalizedNewCases(dateIndex, ctConfirmed)
+      ]);
+    end else
+      ClearAll;
+  end else
+    ClearAll;
+  UpdateStatusbar;
+end;
+(*
+
+  if ATool is TDataPointHintToo
+  procedure TMainForm.ChartToolsetDataPointClickTool1PointClick(
+    ATool: TChartTool; APoint: TPoint);
+  var
+    ser: TChartSeries;
+    node: TTreeNode;
+  begin
+    if (ATool is TDataPointClickTool) then
+    begin
+      ser := TDataPointClickTool(ATool).Series as TChartSeries;
+      node := TreeView.Items.FindNodeWithText(ser.Title);
+      TreeView.Selected := node;
+    end;
+  end;
+end;
+*)
+
 procedure TMainForm.InitShortCuts;
 begin
  {$IFDEF LINUX}
@@ -2222,6 +2300,21 @@ begin
 
   if TObject(Node.Data) is TcDataItem then
     TcDataItem(Node.Data).Free;
+end;
+
+procedure TMainForm.TreeViewSelectionChanged(Sender: TObject);
+var
+  node: TTreeNode;
+begin
+  node := TreeView.Selected;
+  if (node = nil) or (node.Text = '') then
+    exit;
+
+  // Text of mapping nodes MUST be put in parenthesis.
+  if node.Text[1] = '(' then
+    ShowMap(node)
+  else
+    ShowTimeSeries(TreeView.Selected);
 end;
 
 procedure TMainForm.UpdateActionStates;
