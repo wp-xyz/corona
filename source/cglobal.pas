@@ -34,6 +34,9 @@ const
   CASETYPE_NAMES: array [TCaseType] of string = (
     'confirmed', 'deaths', 'recovered', 'sick'
   );
+  LONG_CASETYPE_NAMES: array [TCaseType] of string = (
+    'confirmed cases', 'deaths', 'recovered cases', 'sick cases'
+  );
 
   R_NUMBER_STR = 'R number';
 

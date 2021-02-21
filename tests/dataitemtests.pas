@@ -36,85 +36,99 @@ type
 
   TCumulativeCasesTests = class(TCoronaTestCase)
   private
-    procedure CaseCountTest(ATestIndex: Integer; ACaseType: TCaseType);
+    procedure GetDataArrayTest(ATestIndex: Integer; ACaseType: TCaseType);
   published
-    procedure CaseCountTest_Confirmed_Date1;
-    procedure CaseCountTest_Confirmed_Date2;
-    procedure CaseCountTest_Confirmed_Date3;
-    procedure CaseCountTest_Deaths_Date1;
-    procedure CaseCountTest_Deaths_Date2;
-    procedure CaseCountTest_Deaths_Date3;
-    procedure CaseCountTest_Recovered_Date1;
-    procedure CaseCountTest_Recovered_Date2;
-    procedure CaseCountTest_Recovered_Date3;
-    procedure CaseCountTest_Sick_Date1;
-    procedure CaseCountTest_Sick_Date2;
-    procedure CaseCountTest_Sick_Date3;
+    procedure GetDataArrayTest_Confirmed_Date1;
+    procedure GetDataArrayTest_Confirmed_Date2;
+    procedure GetDataArrayTest_Confirmed_Date3;
+    procedure GetDataArrayTest_Deaths_Date1;
+    procedure GetDataArrayTest_Deaths_Date2;
+    procedure GetDataArrayTest_Deaths_Date3;
+    procedure GetDataArrayTest_Recovered_Date1;
+    procedure GetDataArrayTest_Recovered_Date2;
+    procedure GetDataArrayTest_Recovered_Date3;
+    procedure GetDataArrayTest_Sick_Date1;
+    procedure GetDataArrayTest_Sick_Date2;
+    procedure GetDataArrayTest_Sick_Date3;
   end;
 
   TNewCasesTests = class(TCoronaTestCase)
   private
-    procedure CaseCountTest(ATestIndex: Integer; ACaseType: TCaseType);
+    procedure GetDataArrayTest(ATestIndex: Integer; ACaseType: TCaseType);
   published
-    procedure CaseCountTest_Confirmed_Date1;
-    procedure CaseCountTest_Confirmed_Date2;
-    procedure CaseCountTest_Confirmed_Date3;
-    procedure CaseCountTest_Deaths_Date1;
-    procedure CaseCountTest_Deaths_Date2;
-    procedure CaseCountTest_Deaths_Date3;
-    procedure CaseCountTest_Recovered_Date1;
-    procedure CaseCountTest_Recovered_Date2;
-    procedure CaseCountTest_Recovered_Date3;
-    procedure CaseCountTest_Sick_Date1;
-    procedure CaseCountTest_Sick_Date2;
-    procedure CaseCountTest_Sick_Date3;
+    procedure GetDataArrayTest_Confirmed_Date1;
+    procedure GetDataArrayTest_Confirmed_Date2;
+    procedure GetDataArrayTest_Confirmed_Date3;
+    procedure GetDataArrayTest_Deaths_Date1;
+    procedure GetDataArrayTest_Deaths_Date2;
+    procedure GetDataArrayTest_Deaths_Date3;
+    procedure GetDataArrayTest_Recovered_Date1;
+    procedure GetDataArrayTest_Recovered_Date2;
+    procedure GetDataArrayTest_Recovered_Date3;
+    procedure GetDataArrayTest_Sick_Date1;
+    procedure GetDataArrayTest_Sick_Date2;
+    procedure GetDataArrayTest_Sick_Date3;
   end;
 
   TNormalizedCumulativeCasesTests = class(TCoronaTestCase)
   private
-    procedure CaseCountTest(ATestIndex: Integer; ACaseType: TCaseType);
+    procedure GetDataArrayTest(ATestIndex: Integer; ACaseType: TCaseType);
   published
-    procedure CaseCountTest_Confirmed_Date1;
-    procedure CaseCountTest_Confirmed_Date2;
-    procedure CaseCountTest_Confirmed_Date3;
-    procedure CaseCountTest_Deaths_Date1;
-    procedure CaseCountTest_Deaths_Date2;
-    procedure CaseCountTest_Deaths_Date3;
-    procedure CaseCountTest_Recovered_Date1;
-    procedure CaseCountTest_Recovered_Date2;
-    procedure CaseCountTest_Recovered_Date3;
-    procedure CaseCountTest_Sick_Date1;
-    procedure CaseCountTest_Sick_Date2;
-    procedure CaseCountTest_Sick_Date3;
+    procedure GetDataArrayTest_Confirmed_Date1;
+    procedure GetDataArrayTest_Confirmed_Date2;
+    procedure GetDataArrayTest_Confirmed_Date3;
+    procedure GetDataArrayTest_Deaths_Date1;
+    procedure GetDataArrayTest_Deaths_Date2;
+    procedure GetDataArrayTest_Deaths_Date3;
+    procedure GetDataArrayTest_Recovered_Date1;
+    procedure GetDataArrayTest_Recovered_Date2;
+    procedure GetDataArrayTest_Recovered_Date3;
+    procedure GetDataArrayTest_Sick_Date1;
+    procedure GetDataArrayTest_Sick_Date2;
+    procedure GetDataArrayTest_Sick_Date3;
   end;
 
   TNormalizedNewCasesTests = class(TCoronaTestCase)
   private
-    procedure CaseCountTest(ATestIndex: Integer; ACaseType: TCaseType);
+    procedure CalcNormalizedNewCasesTest(ATestIndex: Integer; ACaseType: TCaseType);
+    procedure GetDataArrayTest(ATestIndex: Integer; ACaseType: TCaseType);
   published
-    procedure CaseCountTest_Confirmed_Date1;
-    procedure CaseCountTest_Confirmed_Date2;
-    procedure CaseCountTest_Confirmed_Date3;
-    procedure CaseCountTest_Deaths_Date1;
-    procedure CaseCountTest_Deaths_Date2;
-    procedure CaseCountTest_Deaths_Date3;
-    procedure CaseCountTest_Recovered_Date1;
-    procedure CaseCountTest_Recovered_Date2;
-    procedure CaseCountTest_Recovered_Date3;
-    procedure CaseCountTest_Sick_Date1;
-    procedure CaseCountTest_Sick_Date2;
-    procedure CaseCountTest_Sick_Date3;
+    procedure CalcNormalizedNewCases_Confirmed_Date1;
+    procedure CalcNormalizedNewCases_Confirmed_Date2;
+    procedure CalcNormalizedNewCases_Confirmed_Date3;
+    procedure CalcNormalizedNewCases_Deaths_Date1;
+    procedure CalcNormalizedNewCases_Deaths_Date2;
+    procedure CalcNormalizedNewCases_Deaths_Date3;
+    procedure CalcNormalizedNewCases_Recovered_Date1;
+    procedure CalcNormalizedNewCases_Recovered_Date2;
+    procedure CalcNormalizedNewCases_Recovered_Date3;
+    procedure CalcNormalizedNewCases_Sick_Date1;
+    procedure CalcNormalizedNewCases_Sick_Date2;
+    procedure CalcNormalizedNewCases_Sick_Date3;
+
+    procedure GetDataArrayTest_Confirmed_Date1;
+    procedure GetDataArrayTest_Confirmed_Date2;
+    procedure GetDataArrayTest_Confirmed_Date3;
+    procedure GetDataArrayTest_Deaths_Date1;
+    procedure GetDataArrayTest_Deaths_Date2;
+    procedure GetDataArrayTest_Deaths_Date3;
+    procedure GetDataArrayTest_Recovered_Date1;
+    procedure GetDataArrayTest_Recovered_Date2;
+    procedure GetDataArrayTest_Recovered_Date3;
+    procedure GetDataArrayTest_Sick_Date1;
+    procedure GetDataArrayTest_Sick_Date2;
+    procedure GetDataArrayTest_Sick_Date3;
   end;
 
   TDoublingTimeTests = class(TCoronaTestCase)
   private
-    procedure DoublingTimeTest(ATestIndex: Integer; ACaseType: TCaseType; ADataType: TDataType);
+    procedure GetDataArrayTest(ATestIndex: Integer; ADataType: TDataType);
   published
-    procedure CumulativeCasesDoublingTime_Date1;
-    procedure CumulativeCasesDoublingTime_Date2;
-    procedure CumulativeCasesDoublingTime_Date3;
-    procedure NewCasesDoublingTime_Date1;
-    procedure NewCasesDoublingTime_Date2;
+    procedure GetDataArrayTest_Cumulative_Date1;
+    procedure GetDataArrayTest_Cumulative_Date2;
+    procedure GetDataArrayTest_Cumulative_Date3;
+    procedure GetDataArrayTest_NewCases_Date1;
+    procedure GetDataArrayTest_NewCases_Date2;
 {
     procedure NewCasesDoublingTime_Date3;
     }
@@ -122,15 +136,15 @@ type
 
   TRValueTests = class(TCoronaTestCase)
   private
-    procedure RValueTest(ATestIndex: Integer);
+    procedure GetDataArrayTest(ATestIndex: Integer);
     procedure CalcRValueTest(ATestIndex: Integer);
   published
-    procedure RValue_Date1;
-    procedure RValue_Date2;
-    procedure RValue_Date3;
-    procedure CalcRValue_Date1;
-    procedure CalcRValue_Date2;
-    procedure CalcRValue_Date3;
+    procedure GetDataArrayTest_Date1;
+    procedure GetDataArrayTest_Date2;
+    procedure GetDataArrayTest_Date3;
+    procedure CalcRValueTest_Date1;
+    procedure CalcRValueTest_Date2;
+    procedure CalcRValueTest_Date3;
   end;
 
 
@@ -275,7 +289,7 @@ const
   SOLL_CUMULATIVE_RECOVERED: Array[0..2] of Integer = (          16,     1388744,        2148269);
   SOLL_CUMULATIVE_SICK: Array[0..2] of Integer      = (         114,      339748,         133319);
 
-procedure TCumulativeCasesTests.CaseCountTest(ATestIndex: Integer;
+procedure TCumulativeCasesTests.GetDataArrayTest(ATestIndex: Integer;
   ACaseType: TCaseType);
 var
   idx: Integer;
@@ -301,56 +315,56 @@ begin
   end;
 end;
 
-procedure TCumulativeCasesTests.CaseCountTest_Confirmed_Date1;
+procedure TCumulativeCasesTests.GetDataArrayTest_Confirmed_Date1;
 begin
-  CaseCountTest(0, ctConfirmed);
+  GetDataArrayTest(0, ctConfirmed);
 end;
-procedure TCumulativeCasesTests.CaseCountTest_Confirmed_Date2;
+procedure TCumulativeCasesTests.GetDataArrayTest_Confirmed_Date2;
 begin
-  caseCountTest(1, ctConfirmed);
+  GetDataArrayTest(1, ctConfirmed);
 end;
-procedure TCumulativeCasesTests.CaseCountTest_Confirmed_Date3;
+procedure TCumulativeCasesTests.GetDataArrayTest_Confirmed_Date3;
 begin
-  CaseCountTest(2, ctConfirmed);
-end;
-
-procedure TCumulativeCasesTests.CaseCountTest_Deaths_Date1;
-begin
-  CaseCountTest(0, ctDeaths);
-end;
-procedure TCumulativeCasesTests.CaseCountTest_Deaths_Date2;
-begin
-  caseCountTest(1, ctDeaths);
-end;
-procedure TCumulativeCasesTests.CaseCountTest_Deaths_Date3;
-begin
-  CaseCountTest(2, ctDeaths);
+  GetDataArrayTest(2, ctConfirmed);
 end;
 
-procedure TCumulativeCasesTests.CaseCountTest_Recovered_Date1;
+procedure TCumulativeCasesTests.GetDataArrayTest_Deaths_Date1;
 begin
-  CaseCountTest(0, ctRecovered);
+  GetDataArrayTest(0, ctDeaths);
 end;
-procedure TCumulativeCasesTests.CaseCountTest_Recovered_Date2;
+procedure TCumulativeCasesTests.GetDataArrayTest_Deaths_Date2;
 begin
-  caseCountTest(1, ctRecovered);
+  GetDataArrayTest(1, ctDeaths);
 end;
-procedure TCumulativeCasesTests.CaseCountTest_Recovered_Date3;
+procedure TCumulativeCasesTests.GetDataArrayTest_Deaths_Date3;
 begin
-  CaseCountTest(2, ctRecovered);
+  GetDataArrayTest(2, ctDeaths);
 end;
 
-procedure TCumulativeCasesTests.CaseCountTest_Sick_Date1;
+procedure TCumulativeCasesTests.GetDataArrayTest_Recovered_Date1;
 begin
-  CaseCountTest(0, ctSick);
+  GetDataArrayTest(0, ctRecovered);
 end;
-procedure TCumulativeCasesTests.CaseCountTest_Sick_Date2;
+procedure TCumulativeCasesTests.GetDataArrayTest_Recovered_Date2;
 begin
-  caseCountTest(1, ctSick);
+  GetDataArrayTest(1, ctRecovered);
 end;
-procedure TCumulativeCasesTests.CaseCountTest_Sick_Date3;
+procedure TCumulativeCasesTests.GetDataArrayTest_Recovered_Date3;
 begin
-  CaseCountTest(2, ctSick);
+  GetDataArrayTest(2, ctRecovered);
+end;
+
+procedure TCumulativeCasesTests.GetDataArrayTest_Sick_Date1;
+begin
+  GetDataArrayTest(0, ctSick);
+end;
+procedure TCumulativeCasesTests.GetDataArrayTest_Sick_Date2;
+begin
+  GetDataArrayTest(1, ctSick);
+end;
+procedure TCumulativeCasesTests.GetDataArrayTest_Sick_Date3;
+begin
+  GetDataArrayTest(2, ctSick);
 end;
 
 {------------------------------------------------------------------------------}
@@ -364,7 +378,7 @@ const
   SOLL_NEW_RECOVERED: Array[0..2] of Integer = (           0,        38036,        11336);
   SOLL_NEW_SICK: Array[0..2] of Integer      = (          51,       -36273,        -6385);
 
-procedure TNewCasesTests.CaseCountTest(ATestIndex: Integer; ACaseType: TCaseType);
+procedure TNewCasesTests.GetDataArrayTest(ATestIndex: Integer; ACaseType: TCaseType);
 var
   idx: Integer;
 begin
@@ -389,71 +403,68 @@ begin
   end;
 end;
 
-procedure TNewCasesTests.CaseCountTest_Confirmed_Date1;
+procedure TNewCasesTests.GetDataArrayTest_Confirmed_Date1;
 begin
-  CaseCountTest(0, ctConfirmed);
+  GetDataArrayTest(0, ctConfirmed);
 end;
-procedure TNewCasesTests.CaseCountTest_Confirmed_Date2;
+procedure TNewCasesTests.GetDataArrayTest_Confirmed_Date2;
 begin
-  CaseCountTest(1, ctConfirmed);
+  GetDataArrayTest(1, ctConfirmed);
 end;
-procedure TNewCasesTests.CaseCountTest_Confirmed_Date3;
+procedure TNewCasesTests.GetDataArrayTest_Confirmed_Date3;
 begin
-  CaseCountTest(2, ctConfirmed);
-end;
-
-procedure TNewCasesTests.CaseCountTest_Deaths_Date1;
-begin
-  caseCountTest(0, ctDeaths);
-end;
-procedure TNewCasesTests.CaseCountTest_Deaths_Date2;
-begin
-  caseCountTest(1, ctDeaths);
-end;
-procedure TNewCasesTests.CaseCountTest_Deaths_Date3;
-begin
-  caseCountTest(2, ctDeaths);
+  GetDataArrayTest(2, ctConfirmed);
 end;
 
-procedure TNewCasesTests.CaseCountTest_Recovered_Date1;
+procedure TNewCasesTests.GetDataArrayTest_Deaths_Date1;
 begin
-  CaseCountTest(0, ctRecovered);
+  GetDataArrayTest(0, ctDeaths);
 end;
-procedure TNewCasesTests.CaseCountTest_Recovered_Date2;
+procedure TNewCasesTests.GetDataArrayTest_Deaths_Date2;
 begin
-  CaseCountTest(1, ctRecovered);
+  GetDataArrayTest(1, ctDeaths);
 end;
-procedure TNewCasesTests.CaseCountTest_Recovered_Date3;
+procedure TNewCasesTests.GetDataArrayTest_Deaths_Date3;
 begin
-  CaseCountTest(2, ctRecovered);
+  GetDataArrayTest(2, ctDeaths);
 end;
 
-procedure TNewCasesTests.CaseCountTest_Sick_Date1;
+procedure TNewCasesTests.GetDataArrayTest_Recovered_Date1;
 begin
-  CaseCountTest(0, ctSick);
+  GetDataArrayTest(0, ctRecovered);
 end;
-procedure TNewCasesTests.CaseCountTest_Sick_Date2;
+procedure TNewCasesTests.GetDataArrayTest_Recovered_Date2;
 begin
-  CaseCountTest(1, ctSick);
+  GetDataArrayTest(1, ctRecovered);
 end;
-procedure TNewCasesTests.CaseCountTest_Sick_Date3;
+procedure TNewCasesTests.GetDataArrayTest_Recovered_Date3;
 begin
-  CaseCountTest(2, ctSick);
+  GetDataArrayTest(2, ctRecovered);
+end;
+
+procedure TNewCasesTests.GetDataArrayTest_Sick_Date1;
+begin
+  GetDataArrayTest(0, ctSick);
+end;
+procedure TNewCasesTests.GetDataArrayTest_Sick_Date2;
+begin
+  GetDataArrayTest(1, ctSick);
+end;
+procedure TNewCasesTests.GetDataArrayTest_Sick_Date3;
+begin
+  GetDataArrayTest(2, ctSick);
 end;
 
 {------------------------------------------------------------------------------}
 
-procedure TNormalizedCumulativeCasesTests.CaseCountTest(ATestIndex: Integer;
+procedure TNormalizedCumulativeCasesTests.GetDataArrayTest(ATestIndex: Integer;
   ACaseType: TCaseType);
 var
   idx: Integer;
-  data: TValueArray;
   f: Double;
 begin
   f := REF_POPULATION / TEST_POPULATION;
   idx := FDataItem.GetDateIndex(ScanDateTime(SAVE_DATE_FORMAT, CUMULATIVE_TEST_DATES[ATestIndex]));
-
-  //data := FDataItem.GetDataArray(ctConfirmed, dtNormalizedCumulative);
 
   case ACaseType of
     ctConfirmed:
@@ -474,56 +485,56 @@ begin
   end;
 end;
 
-procedure TNormalizedCumulativeCasesTests.CaseCountTest_Confirmed_Date1;
+procedure TNormalizedCumulativeCasesTests.GetDataArrayTest_Confirmed_Date1;
 begin
-  CaseCountTest(0, ctConfirmed);
+  GetDataArrayTest(0, ctConfirmed);
 end;
-procedure TNormalizedCumulativeCasesTests.CaseCountTest_Confirmed_Date2;
+procedure TNormalizedCumulativeCasesTests.GetDataArrayTest_Confirmed_Date2;
 begin
-  CaseCountTest(1, ctConfirmed);
+  GetDataArrayTest(1, ctConfirmed);
 end;
-procedure TNormalizedCumulativeCasesTests.CaseCountTest_Confirmed_Date3;
+procedure TNormalizedCumulativeCasesTests.GetDataArrayTest_Confirmed_Date3;
 begin
-  CaseCountTest(2, ctConfirmed);
-end;
-
-procedure TNormalizedCumulativeCasesTests.CaseCountTest_Deaths_Date1;
-begin
-  caseCountTest(0, ctDeaths);
-end;
-procedure TNormalizedCumulativeCasesTests.CaseCountTest_Deaths_Date2;
-begin
-  caseCountTest(1, ctDeaths);
-end;
-procedure TNormalizedCumulativeCasesTests.CaseCountTest_Deaths_Date3;
-begin
-  caseCountTest(2, ctDeaths);
+  GetDataArrayTest(2, ctConfirmed);
 end;
 
-procedure TNormalizedCumulativeCasesTests.CaseCountTest_Recovered_Date1;
+procedure TNormalizedCumulativeCasesTests.GetDataArrayTest_Deaths_Date1;
 begin
-  CaseCountTest(0, ctRecovered);
+  GetDataArrayTest(0, ctDeaths);
 end;
-procedure TNormalizedCumulativeCasesTests.CaseCountTest_Recovered_Date2;
+procedure TNormalizedCumulativeCasesTests.GetDataArrayTest_Deaths_Date2;
 begin
-  CaseCountTest(1, ctRecovered);
+  GetDataArrayTest(1, ctDeaths);
 end;
-procedure TNormalizedCumulativeCasesTests.CaseCountTest_Recovered_Date3;
+procedure TNormalizedCumulativeCasesTests.GetDataArrayTest_Deaths_Date3;
 begin
-  CaseCountTest(2, ctRecovered);
+  GetDataArrayTest(2, ctDeaths);
 end;
 
-procedure TNormalizedCumulativeCasesTests.CaseCountTest_Sick_Date1;
+procedure TNormalizedCumulativeCasesTests.GetDataArrayTest_Recovered_Date1;
 begin
-  CaseCountTest(0, ctSick);
+  GetDataArrayTest(0, ctRecovered);
 end;
-procedure TNormalizedCumulativeCasesTests.CaseCountTest_Sick_Date2;
+procedure TNormalizedCumulativeCasesTests.GetDataArrayTest_Recovered_Date2;
 begin
-  CaseCountTest(1, ctSick);
+  GetDataArrayTest(1, ctRecovered);
 end;
-procedure TNormalizedCumulativeCasesTests.CaseCountTest_Sick_Date3;
+procedure TNormalizedCumulativeCasesTests.GetDataArrayTest_Recovered_Date3;
 begin
-  CaseCountTest(2, ctSick);
+  GetDataArrayTest(2, ctRecovered);
+end;
+
+procedure TNormalizedCumulativeCasesTests.GetDataArrayTest_Sick_Date1;
+begin
+  GetDataArrayTest(0, ctSick);
+end;
+procedure TNormalizedCumulativeCasesTests.GetDataArrayTest_Sick_Date2;
+begin
+  GetDataArrayTest(1, ctSick);
+end;
+procedure TNormalizedCumulativeCasesTests.GetDataArrayTest_Sick_Date3;
+begin
+  GetDataArrayTest(2, ctSick);
 end;
 
 {------------------------------------------------------------------------------}
@@ -536,7 +547,34 @@ const
   SOLL_NORMALIZED_NEW_RECOVERED: Array[0..2] of Integer = (  2, 152776, 93929);
   SOLL_NORMALIZED_NEW_SICK: Array[0..2] of Integer      = (112, -27440, -46473);
 
-procedure TNormalizedNewCasesTests.CaseCountTest(ATestIndex: Integer;
+
+procedure TNormalizedNewCasesTests.CalcNormalizedNewCasesTest(ATestIndex: Integer;
+  ACaseType: TCaseType);
+var
+  idx: Integer;
+  expCount, actCount: Double;
+  f: Double;
+begin
+  f := REF_POPULATION / TEST_POPULATION;
+  idx := FDataItem.GetDateIndex(ScanDateTime(SAVE_DATE_FORMAT, NORMALIZED_NEW_TEST_DATES[ATestIndex]));
+
+  actCount := FDataItem.CalcNormalizedNewCases(idx, ACaseType);
+  case ACaseType of
+    ctConfirmed:  expCount := SOLL_NORMALIZED_NEW_TOTAL[ATestIndex]*f;
+    ctDeaths: expCount := SOLL_NORMALIZED_NEW_DEATHS[ATestIndex]*f;
+    ctRecovered: expCount := SOLL_NORMALIZED_NEW_RECOVERED[ATestIndex]*f;
+    ctSick: expCount :=SOLL_NORMALIZED_NEW_SICK[ATestIndex]*f;
+  end;
+
+  AssertEquals(Format(
+    'DataItem normalized new %s mismatch on %s',
+      [LONG_CASETYPE_NAMES[ACaseType], NORMALIZED_NEW_TEST_DATES[ATestIndex]]),
+    expCount,
+    actCount
+  );
+end;
+
+procedure TNormalizedNewCasesTests.GetDataArrayTest(ATestIndex: Integer;
   ACaseType: TCaseType);
 var
   idx: Integer;
@@ -550,75 +588,126 @@ begin
 
   case ACaseType of
     ctConfirmed:
-      AssertEquals('DataItem normalized cumulative confirmed cases mismatch on ' + NORMALIZED_NEW_TEST_DATES[ATestIndex],
+      AssertEquals('DataItem normalized new confirmed cases mismatch on ' + NORMALIZED_NEW_TEST_DATES[ATestIndex],
         SOLL_NORMALIZED_NEW_TOTAL[ATestIndex]*f, FDataItem.GetDataArray(ctConfirmed, dtNormalizedNewCases)[idx]);
 
     ctDeaths:
-      AssertEquals('DataItem normalized cumulative deaths mismatch on ' + NORMALIZED_NEW_TEST_DATES[ATestIndex],
+      AssertEquals('DataItem normalized new deaths mismatch on ' + NORMALIZED_NEW_TEST_DATES[ATestIndex],
         SOLL_NORMALIZED_NEW_DEATHS[ATestIndex]*f, FDataItem.GetDataArray(ctDeaths, dtNormalizedNewCases)[idx]);
 
     ctRecovered:
-      AssertEquals('DataItem normalized cumulative recovered cases mismatch on ' + NORMALIZED_NEW_TEST_DATES[ATestIndex],
+      AssertEquals('DataItem normalized new recovered cases mismatch on ' + NORMALIZED_NEW_TEST_DATES[ATestIndex],
         SOLL_NORMALIZED_NEW_RECOVERED[ATestIndex]*f, FDataItem.GetDataArray(ctRecovered, dtNormalizedNewCases)[idx]);
 
     ctSick:
-      AssertEquals('DataItem normalized cumulative sick cases mismatch on ' + NORMALIZED_NEW_TEST_DATES[ATestIndex],
+      AssertEquals('DataItem normalized new sick cases mismatch on ' + NORMALIZED_NEW_TEST_DATES[ATestIndex],
         SOLL_NORMALIZED_NEW_SICK[ATestIndex]*f, FDataItem.GetDataArray(ctSick, dtNormalizedNewCases)[idx]);
   end;
 end;
 
-procedure TNormalizedNewCasesTests.CaseCountTest_Confirmed_Date1;
+procedure TNormalizedNewCasesTests.CalcNormalizedNewCases_Confirmed_Date1;
 begin
-  CaseCountTest(0, ctConfirmed);
+  CalcNormalizedNewCasesTest(0, ctConfirmed);
+end;
+procedure TNormalizedNewCasesTests.CalcNormalizedNewCases_Confirmed_Date2;
+begin
+  CalcNormalizedNewCasesTest(1, ctConfirmed);
+end;
+procedure TNormalizedNewCasesTests.CalcNormalizedNewCases_Confirmed_Date3;
+begin
+  CalcNormalizedNewCasesTest(2, ctConfirmed);
 end;
 
-procedure TNormalizedNewCasesTests.CaseCountTest_Confirmed_Date2;
+procedure TNormalizedNewCasesTests.CalcNormalizedNewCases_Deaths_Date1;
 begin
-  CaseCountTest(1, ctConfirmed);
+  CalcNormalizedNewCasesTest(0, ctDeaths);
+end;
+procedure TNormalizedNewCasesTests.CalcNormalizedNewCases_Deaths_Date2;
+begin
+  CalcNormalizedNewCasesTest(1, ctDeaths);
+end;
+procedure TNormalizedNewCasesTests.CalcNormalizedNewCases_Deaths_Date3;
+begin
+  CalcNormalizedNewCasesTest(2, ctDeaths);
 end;
 
-procedure TNormalizedNewCasesTests.CaseCountTest_Confirmed_Date3;
+procedure TNormalizedNewCasesTests.CalcNormalizedNewCases_Recovered_Date1;
 begin
-  CaseCountTest(2, ctConfirmed);
+  CalcNormalizedNewCasesTest(0, ctRecovered);
+end;
+procedure TNormalizedNewCasesTests.CalcNormalizedNewCases_Recovered_Date2;
+begin
+  CalcNormalizedNewCasesTest(1, ctRecovered);
+end;
+procedure TNormalizedNewCasesTests.CalcNormalizedNewCases_Recovered_Date3;
+begin
+  CalcNormalizedNewCasesTest(2, ctRecovered);
 end;
 
-procedure TNormalizedNewCasesTests.CaseCountTest_Deaths_Date1;
+procedure TNormalizedNewCasesTests.CalcNormalizedNewCases_Sick_Date1;
 begin
-  caseCountTest(0, ctDeaths);
+  CalcNormalizedNewCasesTest(0, ctSick);
 end;
-procedure TNormalizedNewCasesTests.CaseCountTest_Deaths_Date2;
+procedure TNormalizedNewCasesTests.CalcNormalizedNewCases_Sick_Date2;
 begin
-  caseCountTest(1, ctDeaths);
+  CalcNormalizedNewCasesTest(1, ctSick);
 end;
-procedure TNormalizedNewCasesTests.CaseCountTest_Deaths_Date3;
+procedure TNormalizedNewCasesTests.CalcNormalizedNewCases_Sick_Date3;
 begin
-  caseCountTest(2, ctDeaths);
-end;
-
-procedure TNormalizedNewCasesTests.CaseCountTest_Recovered_Date1;
-begin
-  CaseCountTest(0, ctRecovered);
-end;
-procedure TNormalizedNewCasesTests.CaseCountTest_Recovered_Date2;
-begin
-  CaseCountTest(1, ctRecovered);
-end;
-procedure TNormalizedNewCasesTests.CaseCountTest_Recovered_Date3;
-begin
-  CaseCountTest(2, ctRecovered);
+  CalcNormalizedNewCasesTest(2, ctSick);
 end;
 
-procedure TNormalizedNewCasesTests.CaseCountTest_Sick_Date1;
+
+procedure TNormalizedNewCasesTests.GetDataArrayTest_Confirmed_Date1;
 begin
-  CaseCountTest(0, ctSick);
+  GetDataArrayTest(0, ctConfirmed);
 end;
-procedure TNormalizedNewCasesTests.CaseCountTest_Sick_Date2;
+procedure TNormalizedNewCasesTests.GetDataArrayTest_Confirmed_Date2;
 begin
-  CaseCountTest(1, ctSick);
+  GetDataArrayTest(1, ctConfirmed);
 end;
-procedure TNormalizedNewCasesTests.CaseCountTest_Sick_Date3;
+procedure TNormalizedNewCasesTests.GetDataArrayTest_Confirmed_Date3;
 begin
-  CaseCountTest(2, ctSick);
+  GetDataArrayTest(2, ctConfirmed);
+end;
+
+procedure TNormalizedNewCasesTests.GetDataArrayTest_Deaths_Date1;
+begin
+  GetDataArrayTest(0, ctDeaths);
+end;
+procedure TNormalizedNewCasesTests.GetDataArrayTest_Deaths_Date2;
+begin
+  GetDataArrayTest(1, ctDeaths);
+end;
+procedure TNormalizedNewCasesTests.GetDataArrayTest_Deaths_Date3;
+begin
+  GetDataArrayTest(2, ctDeaths);
+end;
+
+procedure TNormalizedNewCasesTests.GetDataArrayTest_Recovered_Date1;
+begin
+  GetDataArrayTest(0, ctRecovered);
+end;
+procedure TNormalizedNewCasesTests.GetDataArrayTest_Recovered_Date2;
+begin
+  GetDataArrayTest(1, ctRecovered);
+end;
+procedure TNormalizedNewCasesTests.GetDataArrayTest_Recovered_Date3;
+begin
+  GetDataArrayTest(2, ctRecovered);
+end;
+
+procedure TNormalizedNewCasesTests.GetDataArrayTest_Sick_Date1;
+begin
+  GetDataArrayTest(0, ctSick);
+end;
+procedure TNormalizedNewCasesTests.GetDataArrayTest_Sick_Date2;
+begin
+  GetDataArrayTest(1, ctSick);
+end;
+procedure TNormalizedNewCasesTests.GetDataArrayTest_Sick_Date3;
+begin
+  GetDataArrayTest(2, ctSick);
 end;
 
 
@@ -634,8 +723,8 @@ const
   SOLL_DOUBLINGTIME_NEW_CONFIRMED: Array[0..1] of Double = ( 49.29334677,          NaN);
                                                      //      growing        shrinking
 
-procedure TDoublingTimeTests.DoublingTimeTest(ATestIndex: Integer;
-  ACaseType: TCaseType; ADataType: TDataType);
+procedure TDoublingTimeTests.GetDataArrayTest(ATestIndex: Integer;
+  ADataType: TDataType);
 const
   EPS = 1E-4;
 var
@@ -660,7 +749,7 @@ begin
       begin
         sd := DOUBLINGTIME_NEW_TEST_DATES[ATestIndex];
         idx := FDataItem.GetDateIndex(ScanDateTime(SAVE_DATE_FORMAT, sd));
-        actT2 := FDataItem.GetdataArray(ctConfirmed, ADataType)[idx];
+        actT2 := FDataItem.GetDataArray(ctConfirmed, ADataType)[idx];
         expT2 := SOLL_DOUBLINGTIME_NEW_CONFIRMED[ATestIndex];
         sct := 'confirmed';
         sdt := 'new';
@@ -681,26 +770,26 @@ begin
     );
 end;
 
-procedure TDoublingTimeTests.CumulativeCasesDoublingTime_Date1;
+procedure TDoublingTimeTests.GetDataArrayTest_Cumulative_Date1;
 begin
-  DoublingTimeTest(0, ctConfirmed, dtCumulativeCasesDoublingTime);
+  GetDataArrayTest(0, dtCumulativeCasesDoublingTime);
 end;
-procedure TDoublingTimeTests.CumulativeCasesDoublingTime_Date2;
+procedure TDoublingTimeTests.GetDataArrayTest_Cumulative_Date2;
 begin
-  DoublingTimeTest(1, ctConfirmed, dtCumulativeCasesDoublingTime);
+  GetDataArrayTest(1, dtCumulativeCasesDoublingTime);
 end;
-procedure TDoublingTimeTests.CumulativeCasesDoublingTime_Date3;
+procedure TDoublingTimeTests.GetDataArrayTest_Cumulative_Date3;
 begin
-  DoublingTimeTest(2, ctConfirmed, dtCumulativeCasesDoublingTime);
+  GetDataArrayTest(2, dtCumulativeCasesDoublingTime);
 end;
 
-procedure TDoublingTimeTests.NewCasesDoublingTime_Date1;
+procedure TDoublingTimeTests.GetDataArrayTest_NewCases_Date1;
 begin
-  DoublingTimeTest(0, ctConfirmed, dtNewCasesDoublingTime);
+  GetDataArrayTest(0, dtNewCasesDoublingTime);
 end;
-procedure TDoublingTimeTests.NewCasesDoublingTime_Date2;
+procedure TDoublingTimeTests.GetDataArrayTest_NewCases_Date2;
 begin
-  DoublingTimeTest(1, ctConfirmed, dtNewCasesDoublingTime);
+  GetDataArrayTest(1, dtNewCasesDoublingTime);
 end;
 
 
@@ -712,7 +801,7 @@ const                                      //  too small     R > 1              
   SOLL_RVALUE: Array[0..2] of Double       = (NaN,           2027.57143/1727.71429, 7221.85714/8399.0);
   SOLL_RVALUE_ERROR: array[0..2] of Double = (NaN,            0.02052205,        0.007370425);
 
-procedure TRValueTests.RValueTest(ATestIndex: Integer);
+procedure TRValueTests.GetDataArrayTest(ATestIndex: Integer);
 const
   EPS = 1E-4;
 var
@@ -736,17 +825,17 @@ begin
     // In the else part both values are NaN which would mean "no error".
 end;
 
-procedure TRValueTests.RValue_Date1;
+procedure TRValueTests.GetDataArrayTest_Date1;
 begin
-  RValueTest(0);
+  GetDataArrayTest(0);
 end;
-procedure TRValueTests.RValue_Date2;
+procedure TRValueTests.GetDataArrayTest_Date2;
 begin
-  RValueTest(1);
+  GetDataArrayTest(1);
 end;
-procedure TRValueTests.RValue_Date3;
+procedure TRValueTests.GetDataArrayTest_Date3;
 begin
-  RValueTest(2);
+  GetDataArrayTest(2);
 end;
 
 procedure TRValueTests.CalcRValueTest(ATestIndex: Integer);
@@ -779,15 +868,15 @@ begin
   // In the else part both values are NaN which would mean "no error".
 end;
 
-procedure TRValueTests.CalcRValue_Date1;
+procedure TRValueTests.CalcRValueTest_Date1;
 begin
   CalcRValueTest(0);
 end;
-procedure TRValueTests.CalcRValue_Date2;
+procedure TRValueTests.CalcRValueTest_Date2;
 begin
   CalcRValueTest(1);
 end;
-procedure TRValueTests.CalcRValue_Date3;
+procedure TRValueTests.CalcRValueTest_Date3;
 begin
   CalcRValueTest(2);
 end;
