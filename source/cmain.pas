@@ -52,7 +52,8 @@ type
     cmbMapDataType: TComboBox;
     DateIndicatorLine: TConstantLine;
     MovingAverageInfo: TLabel;
-    Splitter1: TSplitter;
+    CasesSplitter: TSplitter;
+    CasesPanel: TPanel;
     TimeSeriesGroup: TGroupBox;
     MapDataGroup: TGroupBox;
     MapToolset: TChartToolset;
@@ -938,15 +939,15 @@ end;
 
 procedure TMainForm.FormActivate(Sender: TObject);
 var
-  p3: Integer;
+  p4: Integer;
 begin
   // Workaround for gtk2 issue: Listbox.ItemHeight is 0 only after FormShow.
   if GetDefaultLCLWidgetType = lpGtk2 then
   begin
-    p3 := Scale96ToForm(3);
-    clbCases.Height := clbCases.Items.Count * clbCases.ItemHeight + 2*p3;
+    p4 := Scale96ToForm(4);
+    CasesPanel.ClientHeight := clbCases.Items.Count * clbCases.ItemHeight + 2*p4;
   end;
-  TimeSeriesGroup.ClientHeight := clbCases.Top + clbCases.Height + clbCases.BorderSpacing.Bottom;
+  //TimeSeriesGroup.ClientHeight := Cases.Top + clbCases.Height + clbCases.BorderSpacing.Bottom;
 end;
 
 procedure TMainForm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -2579,6 +2580,7 @@ begin
     LeftPanel.Width := ini.ReadInteger('MainForm', 'LeftPanel', LeftPanel.Width);
     ChartListbox.Width := ini.ReadInteger('MainForm', 'RightPanel', ChartListBox.Width);
     PaletteListboxPanel.Width := ini.ReadInteger('MainForm', 'PaletteListbox', PaletteListboxPanel.Width);
+    CasesPanel.Width := ini.ReadInteger('MainForm', 'CasesPanel', CasesPanel.Width);
     PageControl.ActivePageIndex := ini.ReadInteger('MainForm', 'PageControl', PageControl.ActivePageIndex);
     PageControlChange(nil);
 
@@ -2597,10 +2599,19 @@ begin
     acChartOverlay.Checked := ini.ReadBool('MainForm', 'Overlay', acChartOverlay.Checked);
     acChartHighlightWeekends.Checked := ini.ReadBool('MainForm', 'HighlightWeekends', acChartHighlightWeekends.Checked);
 
+    n := ini.ReadInteger('MainForm', 'MapDataType', cmbMapDataType.ItemIndex);
+    if (n >= 0) and (n < cmbMapDataType.Items.Count) then
+    begin
+      cmbMapDataType.ItemIndex := n;
+      cmbMapDataTypeChange(nil);
+    end;
+
     n := ini.ReadInteger('MainForm', 'DataType', cmbDataType.ItemIndex);
     if (n >= 0) and (n <= ord(High(TDataType))) then
       cmbDataType.ItemIndex := n;
+
     isLog := ini.ReadBool('MainForm', 'Logarithmic', acChartLogarithmic.Checked);
+
     case GetDataType() of
       dtCumulative, dtNormalizedCumulative:
         begin
@@ -2657,13 +2668,15 @@ begin
       ini.WriteInteger('MainForm', 'PaletteListbox', PaletteListboxPanel.Width);
     if acChartTimeSeries.Checked then
       ini.WriteInteger('MainForm', 'RightPanel', ChartListBox.Width);
-    ini.WriteInteger('MainForm', 'PageControl', PageControl.ActivePageIndex);
+  ini.WriteInteger('MainForm', 'CasesPanel', CasesPanel.Width);
+  ini.WriteInteger('MainForm', 'PageControl', PageControl.ActivePageIndex);
 
     ini.WriteBool('MainForm', 'ConfirmedCases', clbCases.Checked[0]);
     ini.WriteBool('MainForm', 'DeathCases', clbCases.Checked[1]);
     ini.WriteBool('MainForm', 'RecoveredCases', clbCases.Checked[2]);
     ini.WriteBool('MainForm', 'SickCases', clbCases.Checked[3]);
     ini.WriteInteger('MainForm', 'DataType', cmbDataType.ItemIndex);
+    ini.WriteInteger('MainForm', 'MapDataType', cmbMapDataType.ItemIndex);
 
     ini.WriteBool('MainForm', 'ShowMap', acChartMap.Checked);
     ini.WriteBool('MainForm', 'ShowTimeSeries', acChartTimeSeries.Checked);
