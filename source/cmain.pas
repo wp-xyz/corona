@@ -1478,12 +1478,7 @@ begin
 end;
 *)
 
-type
-  TMyColorListBox = class(TColorListbox);
-
 procedure TMainForm.PopulatePaletteListbox(ACaseType: TCaseType);
-var
-  h: Integer;
 begin
   if ACaseType = ctConfirmed then FPalette.Multiplier := 1.0;
   if ACaseType = ctDeaths then FPalette.Multiplier := 0.01;

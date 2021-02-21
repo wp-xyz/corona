@@ -185,7 +185,11 @@ end;
 
 procedure TcPolygonSeries.GetLegendItems(AItems: TChartLegendItems);
 begin
-  GetLegendItemsRect(AItems, FBrush, FPen);
+  // This is code of the Laz-trunk version --> does not compile on Laz 2.0.10.
+  // Since we do not need a legend for the polygon series here, the code can
+  // be skipped.
+
+//  GetLegendItemsRect(AItems, FBrush, FPen);
 end;
 
 { Is overridden in order to detect tool events inside the polygon (nptCustom).
