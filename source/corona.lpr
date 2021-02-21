@@ -6,10 +6,9 @@ uses
   {$IFDEF UNIX}
   cthreads,
   {$ENDIF}
-  Interfaces, Forms, cmain, cGeoMap, cgeoreaderkml, cPalette;
+  Interfaces, Forms, cmain;
 
 {$R *.res}
-{$R corona_resources.rc}
 
 begin
   RequireDerivedFormResource:=True;

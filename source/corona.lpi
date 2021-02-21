@@ -16,6 +16,9 @@
         <DpiAware Value="True"/>
       </XPManifest>
       <Icon Value="0"/>
+      <Resources Count="1">
+        <Resource_0 FileName="world_map.kml" Type="RCDATA" ResourceName="WORLD_MAP"/>
+      </Resources>
     </General>
     <VersionInfo>
       <UseVersionInfo Value="True"/>
@@ -156,6 +159,11 @@
       <Debugging>
         <DebugInfoType Value="dsDwarf2"/>
       </Debugging>
+      <Options>
+        <Win32>
+          <GraphicApplication Value="True"/>
+        </Win32>
+      </Options>
     </Linking>
   </CompilerOptions>
   <Debugging>

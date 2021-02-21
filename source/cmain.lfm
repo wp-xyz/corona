@@ -1949,7 +1949,7 @@ object MainForm: TMainForm
           Left = 0
           Height = 247
           Top = 0
-          Width = 588
+          Width = 600
           AxisList = <          
             item
               Visible = False
@@ -1980,7 +1980,7 @@ object MainForm: TMainForm
           Color = clDefault
         end
         object MapSlitter: TSplitter
-          Left = 594
+          Left = 600
           Height = 264
           Top = 0
           Width = 5
@@ -1995,7 +1995,7 @@ object MainForm: TMainForm
           Left = 0
           Height = 17
           Top = 247
-          Width = 588
+          Width = 600
           Anchors = [akLeft, akRight, akBottom]
           PageSize = 0
           TabOrder = 2
