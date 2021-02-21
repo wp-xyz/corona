@@ -1,7 +1,7 @@
 object MainForm: TMainForm
-  Left = 321
+  Left = 312
   Height = 601
-  Top = 120
+  Top = 218
   Width = 973
   Caption = 'corona'
   ClientHeight = 581
@@ -1672,7 +1672,7 @@ object MainForm: TMainForm
   ShowHint = True
   LCLVersion = '2.1.0.0'
   object LeftSplitter: TSplitter
-    Left = 219
+    Left = 259
     Height = 514
     Top = 44
     Width = 5
@@ -1689,29 +1689,28 @@ object MainForm: TMainForm
     Left = 6
     Height = 502
     Top = 50
-    Width = 213
+    Width = 253
     Align = alLeft
-    AutoSize = True
     BorderSpacing.Left = 6
     BorderSpacing.Top = 6
     BorderSpacing.Bottom = 6
     BevelOuter = bvNone
     ClientHeight = 502
-    ClientWidth = 213
+    ClientWidth = 253
     TabOrder = 0
     object TreeView: TTreeView
       AnchorSideLeft.Control = LeftPanel
-      AnchorSideTop.Control = Panel1
+      AnchorSideTop.Control = TimeSeriesGroup
       AnchorSideTop.Side = asrBottom
       AnchorSideRight.Control = LeftPanel
       AnchorSideRight.Side = asrBottom
       AnchorSideBottom.Control = LeftPanel
       AnchorSideBottom.Side = asrBottom
       Left = 0
-      Height = 384
+      Height = 288
       Hint = 'Click on the country to display'
-      Top = 118
-      Width = 213
+      Top = 214
+      Width = 253
       Anchors = [akTop, akLeft, akRight, akBottom]
       BorderSpacing.Top = 6
       HideSelection = False
@@ -1721,42 +1720,77 @@ object MainForm: TMainForm
       OnSelectionChanged = TreeViewSelectionChanged
       Options = [tvoAutoItemHeight, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
     end
-    object Panel1: TPanel
+    object MapDataGroup: TGroupBox
       Left = 0
-      Height = 112
+      Height = 55
       Top = 0
-      Width = 213
+      Width = 253
       Align = alTop
       AutoSize = True
-      BevelOuter = bvNone
-      ClientHeight = 112
-      ClientWidth = 213
+      Caption = 'Map data'
+      ClientHeight = 35
+      ClientWidth = 249
       TabOrder = 1
+      object cmbMapDataType: TComboBox
+        AnchorSideLeft.Control = MapDataGroup
+        AnchorSideTop.Control = MapDataGroup
+        AnchorSideRight.Control = MapDataGroup
+        AnchorSideRight.Side = asrBottom
+        Left = 6
+        Height = 23
+        Top = 6
+        Width = 237
+        Anchors = [akTop, akLeft, akRight]
+        BorderSpacing.Around = 6
+        ItemHeight = 15
+        ItemIndex = 0
+        Items.Strings = (
+          'Normalized new confirmed cases'
+          'Normalized new deaths'
+        )
+        OnChange = cmbMapDataTypeChange
+        Style = csDropDownList
+        TabOrder = 0
+        Text = 'Normalized new confirmed cases'
+      end
+    end
+    object TimeSeriesGroup: TGroupBox
+      Left = 0
+      Height = 145
+      Top = 63
+      Width = 253
+      Align = alTop
+      BorderSpacing.Top = 8
+      BorderSpacing.Bottom = 6
+      Caption = 'Time series data'
+      ClientHeight = 125
+      ClientWidth = 249
+      TabOrder = 2
       object cbMovingAverage: TCheckBox
-        AnchorSideLeft.Control = Panel1
         AnchorSideTop.Control = cmbDataType
         AnchorSideTop.Side = asrBottom
         Left = 0
         Height = 19
         Top = 46
-        Width = 149
+        Width = 105
         Action = acDataMovingAverage
+        BorderSpacing.Left = 8
         BorderSpacing.Top = 6
-        Caption = 'Moving average (7 days)'
         TabOrder = 0
       end
       object cmbDataType: TComboBox
-        AnchorSideLeft.Control = Panel1
+        AnchorSideLeft.Control = TimeSeriesGroup
         AnchorSideTop.Control = lblDataType
         AnchorSideTop.Side = asrBottom
-        AnchorSideRight.Control = clbCases
-        Left = 0
+        AnchorSideRight.Control = Splitter1
+        Left = 8
         Height = 23
         Top = 17
-        Width = 100
+        Width = 140
         Anchors = [akTop, akLeft, akRight]
+        BorderSpacing.Left = 8
         BorderSpacing.Top = 2
-        BorderSpacing.Right = 8
+        BorderSpacing.Right = 4
         ItemHeight = 15
         ItemIndex = 0
         Items.Strings = (
@@ -1770,13 +1804,14 @@ object MainForm: TMainForm
           'Reproduction number'
         )
         OnChange = cmbDataTypeChange
+        OnDropDown = cmbDataTypeDropDown
         Style = csDropDownList
         TabOrder = 1
         Text = 'Cumulative cases'
       end
       object lblDataType: TLabel
-        AnchorSideLeft.Control = Panel1
-        AnchorSideTop.Control = Panel1
+        AnchorSideLeft.Control = TimeSeriesGroup
+        AnchorSideTop.Control = TimeSeriesGroup
         Left = 0
         Height = 15
         Top = 0
@@ -1786,16 +1821,21 @@ object MainForm: TMainForm
         ParentColor = False
       end
       object clbCases: TCheckListBox
+        AnchorSideLeft.Control = Splitter1
+        AnchorSideLeft.Side = asrBottom
         AnchorSideTop.Control = lblCases
         AnchorSideTop.Side = asrBottom
-        AnchorSideRight.Control = Panel1
+        AnchorSideRight.Control = TimeSeriesGroup
         AnchorSideRight.Side = asrBottom
-        Left = 108
+        Left = 161
         Height = 95
         Top = 17
-        Width = 105
-        Anchors = [akTop, akRight]
+        Width = 80
+        Anchors = [akTop, akLeft, akRight]
+        BorderSpacing.Left = 4
         BorderSpacing.Top = 2
+        BorderSpacing.Right = 8
+        BorderSpacing.Bottom = 8
         Items.Strings = (
           'Confirmed'
           'Deaths'
@@ -1811,21 +1851,43 @@ object MainForm: TMainForm
       end
       object lblCases: TLabel
         AnchorSideLeft.Control = clbCases
-        AnchorSideTop.Control = Panel1
-        Left = 108
+        Left = 161
         Height = 15
         Top = 0
         Width = 33
         Caption = 'Cases:'
         ParentColor = False
       end
+      object Splitter1: TSplitter
+        AnchorSideTop.Control = lblCases
+        AnchorSideBottom.Control = clbCases
+        AnchorSideBottom.Side = asrBottom
+        Left = 152
+        Height = 112
+        Top = 0
+        Width = 5
+        Align = alNone
+        Anchors = [akTop, akBottom]
+      end
+      object MovingAverageInfo: TLabel
+        AnchorSideLeft.Control = cbMovingAverage
+        AnchorSideTop.Control = cbMovingAverage
+        AnchorSideTop.Side = asrBottom
+        Left = 24
+        Height = 15
+        Top = 65
+        Width = 41
+        BorderSpacing.Left = 24
+        Caption = '(7 days)'
+        ParentColor = False
+      end
     end
   end
   object PageControl: TPageControl
-    Left = 224
+    Left = 264
     Height = 502
     Top = 50
-    Width = 743
+    Width = 703
     ActivePage = pgChart
     Align = alClient
     BorderSpacing.Top = 6
@@ -1837,23 +1899,23 @@ object MainForm: TMainForm
     object pgChart: TTabSheet
       Caption = 'Chart'
       ClientHeight = 474
-      ClientWidth = 735
+      ClientWidth = 695
       object TimeSeriesChartPanel: TPanel
         Left = 0
         Height = 225
         Top = 249
-        Width = 735
+        Width = 695
         Align = alBottom
         BevelOuter = bvNone
         ClientHeight = 225
-        ClientWidth = 735
+        ClientWidth = 695
         TabOrder = 0
         object Chart: TChart
           Left = 0
           Height = 225
           Hint = 'Zoom: drag a rectangle from left-top to bottom-right corner with left mouse button down'#13#10'    or: use mouse wheel (zoom center is mouse position).'#13#10'Pan: drag with the right mouse button down'#13#10'Restore view: click'#13#10'Read data value: move mouse over data point (no key pressed)'#13#10'Measure doubling time: CTRL-drag over data points of interest with left mouse button down.'
           Top = 0
-          Width = 600
+          Width = 560
           AxisList = <          
             item
               Grid.Color = 14540253
@@ -1905,7 +1967,7 @@ object MainForm: TMainForm
           end
         end
         object ChartListbox: TChartListbox
-          Left = 605
+          Left = 565
           Height = 225
           Hint = 'Uncheck to remove a curve temporarily.'
           Top = 0
@@ -1918,7 +1980,7 @@ object MainForm: TMainForm
           TabOrder = 1
         end
         object RightSplitter: TSplitter
-          Left = 600
+          Left = 560
           Height = 225
           Top = 0
           Width = 5
@@ -1932,7 +1994,7 @@ object MainForm: TMainForm
         Left = 0
         Height = 5
         Top = 244
-        Width = 735
+        Width = 695
         Align = alBottom
         ResizeAnchor = akBottom
         ResizeStyle = rsPattern
@@ -1941,11 +2003,11 @@ object MainForm: TMainForm
         Left = 0
         Height = 244
         Top = 0
-        Width = 735
+        Width = 695
         Align = alClient
         BevelOuter = bvNone
         ClientHeight = 244
-        ClientWidth = 735
+        ClientWidth = 695
         TabOrder = 2
         Visible = False
         object MapChart: TChart
@@ -1956,7 +2018,7 @@ object MainForm: TMainForm
           Left = 0
           Height = 227
           Top = 0
-          Width = 594
+          Width = 554
           AxisList = <          
             item
               Visible = False
@@ -1995,7 +2057,7 @@ object MainForm: TMainForm
           Color = clDefault
         end
         object MapSlitter: TSplitter
-          Left = 594
+          Left = 554
           Height = 244
           Top = 0
           Width = 5
@@ -2010,14 +2072,14 @@ object MainForm: TMainForm
           Left = 0
           Height = 17
           Top = 227
-          Width = 594
+          Width = 554
           Anchors = [akLeft, akRight, akBottom]
           PageSize = 0
           TabOrder = 2
           OnChange = MapDateScrollbarChange
         end
         object PaletteListboxPanel: TPanel
-          Left = 605
+          Left = 565
           Height = 244
           Top = 0
           Width = 130

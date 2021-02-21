@@ -49,7 +49,12 @@ type
     Chart: TChart;
     BottomAxisTransformations: TChartAxisTransformations;
     BottomAxisLogTransform: TLogarithmAxisTransform;
+    cmbMapDataType: TComboBox;
     DateIndicatorLine: TConstantLine;
+    MovingAverageInfo: TLabel;
+    Splitter1: TSplitter;
+    TimeSeriesGroup: TGroupBox;
+    MapDataGroup: TGroupBox;
     MapToolset: TChartToolset;
     MapDateLabel: TLabel;
     MapToolsetDataPointClickTool: TDataPointClickTool;
@@ -96,7 +101,6 @@ type
     mnuChart: TMenuItem;
     mnuFileQuit: TMenuItem;
     mnuFile: TMenuItem;
-    Panel1: TPanel;
     ChartSplitter: TSplitter;
     MapChartPanel: TPanel;
     MapDateScrollbar: TScrollBar;
@@ -168,6 +172,8 @@ type
     procedure ChartListboxCheckboxClick(ASender: TObject; AIndex: Integer);
     procedure clbCasesClickCheck(Sender: TObject);
     procedure cmbDataTypeChange(Sender: TObject);
+    procedure cmbDataTypeDropDown(Sender: TObject);
+    procedure cmbMapDataTypeChange(Sender: TObject);
     procedure CrossHairToolDraw(ASender: TDataPointDrawTool);
 
     procedure FormActivate(Sender: TObject);
@@ -410,7 +416,7 @@ begin
     if Chart.Series[i] is TChartSeries then
       EnableMovingAverage(TChartSeries(Chart.Series[i]), isMovingAverage, false);
 
-  cbMovingAverage.Caption := Format('Moving average (%d days)', [SmoothingRange]);
+  MovingAverageInfo.Caption := Format('(%d days)', [SmoothingRange]);
   UpdateGrid;
 end;
 
@@ -473,7 +479,7 @@ begin
         SmoothingRange := n;
         RRange := (n - 1) div 2;
 
-        cbMovingAverage.Caption := Format('Moving average (%d days)', [SmoothingRange]);
+        MovingAverageInfo.Caption := Format('(%d days)', [SmoothingRange]);
 
         // Recalculate the currently loaded data
         L := StoreSeriesNodesInList();
@@ -861,6 +867,22 @@ begin
   end;
 end;
 
+procedure TMainForm.cmbDataTypeDropDown(Sender: TObject);
+var
+  i, w: Integer;
+begin
+  w := 0;
+  for i := 0 to cmbDataType.Items.Count-1 do
+    w := Max(w, cmbDataType.Canvas.TextWidth(cmbDataType.Items[i]));
+  cmbDataType.ItemWidth := w + Scale96ToForm(10);
+end;
+
+procedure TMainForm.cmbMapDataTypeChange(Sender: TObject);
+begin
+  PopulatePaletteListbox(GetMapCaseType);
+  ShowMap(nil);
+end;
+
 procedure TMainForm.CreateMeasurementSeries;
 begin
   FMeasurementSeries := TFuncSeries.Create(Chart);
@@ -923,6 +945,7 @@ begin
     p3 := Scale96ToForm(3);
     clbCases.Height := clbCases.Items.Count * clbCases.ItemHeight + 2*p3;
   end;
+  TimeSeriesGroup.ClientHeight := clbCases.Top + clbCases.Height + clbCases.BorderSpacing.Bottom;
 end;
 
 procedure TMainForm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -1106,7 +1129,10 @@ end;
 
 function TMainForm.GetMapCaseType: TCaseType;
 begin
-  Result := ctConfirmed;
+  case cmbMapDataType.ItemIndex of
+    0: Result := ctConfirmed;
+    1: Result := ctDeaths;
+  end;
 end;
 
 function TMainForm.GetSeries(ANode: TTreeNode; ACaseType: TCaseType;
@@ -1590,8 +1616,10 @@ end;
 
 procedure TMainForm.PopulatePaletteListbox(ACaseType: TCaseType);
 begin
-  if ACaseType = ctConfirmed then FPalette.Multiplier := 1.0;
-  if ACaseType = ctDeaths then FPalette.Multiplier := 0.01;
+  case ACaseType of
+    ctConfirmed: FPalette.Multiplier := 1.0;
+    ctDeaths: FPalette.Multiplier := 0.01;
+  end;
 
   PaletteListbox.Style := PaletteListbox.Style - [cbCustomColors];
   PaletteListbox.Style := PaletteListbox.Style + [cbCustomColors];
@@ -2595,7 +2623,7 @@ begin
 
     cmbDataType.Items[ord(dtRValue)] := Format('Reproduction number (%d d)', [InfectiousPeriod]);
     cmbDataTypeChange(nil);
-    cbMovingAverage.Caption := Format('Moving average (%d days)', [SmoothingRange]);
+    MovingAverageInfo.Caption := Format('(%d days)', [SmoothingRange]);
 
   finally
     UpdateActionStates;
