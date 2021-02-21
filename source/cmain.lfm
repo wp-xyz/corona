@@ -4,7 +4,7 @@ object MainForm: TMainForm
   Top = 120
   Width = 973
   Caption = 'corona'
-  ClientHeight = 601
+  ClientHeight = 581
   ClientWidth = 973
   Icon.Data = {
     E8CE000000000100070000000000010020001269000076000000303000000100
@@ -1670,9 +1670,10 @@ object MainForm: TMainForm
   OnCreate = FormCreate
   OnShow = FormShow
   ShowHint = True
+  LCLVersion = '2.1.0.0'
   object LeftSplitter: TSplitter
     Left = 219
-    Height = 534
+    Height = 514
     Top = 44
     Width = 5
     ResizeStyle = rsPattern
@@ -1680,13 +1681,13 @@ object MainForm: TMainForm
   object StatusBar: TStatusBar
     Left = 0
     Height = 23
-    Top = 578
+    Top = 558
     Width = 973
     Panels = <>
   end
   object LeftPanel: TPanel
     Left = 6
-    Height = 522
+    Height = 502
     Top = 50
     Width = 213
     Align = alLeft
@@ -1695,7 +1696,7 @@ object MainForm: TMainForm
     BorderSpacing.Top = 6
     BorderSpacing.Bottom = 6
     BevelOuter = bvNone
-    ClientHeight = 522
+    ClientHeight = 502
     ClientWidth = 213
     TabOrder = 0
     object TreeView: TTreeView
@@ -1707,7 +1708,7 @@ object MainForm: TMainForm
       AnchorSideBottom.Control = LeftPanel
       AnchorSideBottom.Side = asrBottom
       Left = 0
-      Height = 404
+      Height = 384
       Hint = 'Click on the country to display'
       Top = 118
       Width = 213
@@ -1822,7 +1823,7 @@ object MainForm: TMainForm
   end
   object PageControl: TPageControl
     Left = 224
-    Height = 522
+    Height = 502
     Top = 50
     Width = 743
     ActivePage = pgChart
@@ -1835,12 +1836,12 @@ object MainForm: TMainForm
     OnChange = PageControlChange
     object pgChart: TTabSheet
       Caption = 'Chart'
-      ClientHeight = 494
+      ClientHeight = 474
       ClientWidth = 735
       object TimeSeriesChartPanel: TPanel
         Left = 0
         Height = 225
-        Top = 269
+        Top = 249
         Width = 735
         Align = alBottom
         BevelOuter = bvNone
@@ -1896,6 +1897,12 @@ object MainForm: TMainForm
           Align = alClient
           Anchors = [akLeft]
           Color = clDefault
+          object DateIndicatorLine: TConstantLine
+            LineStyle = lsVertical
+            Pen.Color = clFuchsia
+            Pen.Width = 2
+            Title = 'Date indicator'
+          end
         end
         object ChartListbox: TChartListbox
           Left = 605
@@ -1924,7 +1931,7 @@ object MainForm: TMainForm
         Cursor = crVSplit
         Left = 0
         Height = 5
-        Top = 264
+        Top = 244
         Width = 735
         Align = alBottom
         ResizeAnchor = akBottom
@@ -1932,12 +1939,12 @@ object MainForm: TMainForm
       end
       object MapChartPanel: TPanel
         Left = 0
-        Height = 264
+        Height = 244
         Top = 0
         Width = 735
         Align = alClient
         BevelOuter = bvNone
-        ClientHeight = 264
+        ClientHeight = 244
         ClientWidth = 735
         TabOrder = 2
         Visible = False
@@ -1947,7 +1954,7 @@ object MainForm: TMainForm
           AnchorSideRight.Control = MapSlitter
           AnchorSideBottom.Control = MapDateScrollbar
           Left = 0
-          Height = 247
+          Height = 227
           Top = 0
           Width = 594
           AxisList = <          
@@ -1989,7 +1996,7 @@ object MainForm: TMainForm
         end
         object MapSlitter: TSplitter
           Left = 594
-          Height = 264
+          Height = 244
           Top = 0
           Width = 5
           Align = alRight
@@ -2002,7 +2009,7 @@ object MainForm: TMainForm
           AnchorSideBottom.Side = asrBottom
           Left = 0
           Height = 17
-          Top = 247
+          Top = 227
           Width = 594
           Anchors = [akLeft, akRight, akBottom]
           PageSize = 0
@@ -2011,13 +2018,13 @@ object MainForm: TMainForm
         end
         object PaletteListboxPanel: TPanel
           Left = 605
-          Height = 264
+          Height = 244
           Top = 0
           Width = 130
           Align = alRight
           BorderSpacing.Left = 6
           BevelOuter = bvNone
-          ClientHeight = 264
+          ClientHeight = 244
           ClientWidth = 130
           TabOrder = 3
           object PaletteListbox: TColorListBox
@@ -2027,7 +2034,7 @@ object MainForm: TMainForm
             AnchorSideRight.Side = asrBottom
             AnchorSideBottom.Control = MapDateLabel
             Left = 0
-            Height = 243
+            Height = 223
             Top = 0
             Width = 130
             Style = []
@@ -2040,7 +2047,7 @@ object MainForm: TMainForm
           object MapDateLabel: TLabel
             Left = 0
             Height = 15
-            Top = 249
+            Top = 229
             Width = 130
             Align = alBottom
             Anchors = [akLeft, akBottom]

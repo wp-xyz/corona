@@ -49,6 +49,7 @@ type
     Chart: TChart;
     BottomAxisTransformations: TChartAxisTransformations;
     BottomAxisLogTransform: TLogarithmAxisTransform;
+    DateIndicatorLine: TConstantLine;
     MapToolset: TChartToolset;
     MapDateLabel: TLabel;
     MapToolsetDataPointClickTool: TDataPointClickTool;
@@ -663,12 +664,14 @@ procedure TMainForm.ChartListboxAddSeries(ASender: TChartListbox;
 var
   ct: TCaseType;
 begin
-  if ASeries is TFuncSeries then begin
+  if ((ASeries = DateIndicatorLine) and not (acChartMap.Checked and acChartTimeSeries.Checked)) or
+     (ASeries is TFuncSeries) then
+  begin
     ASkip := true;
     exit;
   end;
 
-  if (not ASeries.Active) and (TChartSeries(ASeries).Count = 0) then
+  if (not ASeries.Active) and (ASeries is TChartSeries) and (TChartSeries(ASeries).Count = 0) then
     for ct in TCaseType do
       if (pos(CASETYPE_NAMES[ct], ASeries.Title) > 0) or
          (pos(R_NUMBER_STR, ASeries.Title) > 0) then
@@ -868,7 +871,16 @@ begin
   FMeasurementseries.AxisIndexY := 0;
   FMeasurementSeries.Pen.Width := 3;
   FMeasurementSeries.Pen.Color := clGreen;
+  FMeasurementSeries.ZPosition := 99;
   Chart.AddSeries(FMeasurementSeries);
+
+  DateIndicatorLine := TConstantLine.Create(Chart);
+  DateIndicatorLine.Active := false;
+  DateIndicatorLine.LineStyle := lsVertical;
+  DateIndicatorLine.Pen.Width := 2;
+  DateIndicatorLine.Pen.Color := clFuchsia;
+  DateIndicatorLine.Title := 'Date indicator';
+  Chart.AddSeries(DateIndicatorLine);
 end;
 
 procedure TMainForm.DownloadMsgHandler(Sender: TObject; const AMsg1, AMsg2: String;
@@ -1616,7 +1628,6 @@ var
   value: Double;
   clr: TColor;
   ser: TcPolygonSeries;
-  s: String;
   startDate: TDate;
 begin
   while ANode <> nil do
@@ -1633,16 +1644,11 @@ begin
 
   MapChart.Title.Visible := true;
   MapChart.Title.Brush.Style := bsClear;
-  case ACaseType of
-    ctConfirmed:
-      s := 'cases';
-    ctDeaths:
-      s := 'deaths';
-  end;
-  MapChart.Title.Text.Text := Format('Normalized new %s (per week and %.0n population',
-    [s, REF_POPULATION*1.0]);
+  MapChart.Title.Text.Text := Format('Normalized new %s (per week and %.0n population)',
+    [LONG_CASETYPE_NAMES[ACaseType], REF_POPULATION*1.0]);
 
   MapDateLabel.Caption := DateToStr(startDate + ADateIndex);
+  DateIndicatorLine.Position := startDate + ADateIndex;
 end;
 
 procedure TMainForm.ShowMap(ANode: TTreeNode);
@@ -1683,6 +1689,8 @@ begin
         MapDateScrollbar.Min := 0;
         MapDateScrollbar.Position := MapDateScrollbar.Max;
       end;
+
+      DateIndicatorLine.Position := data.GetLastDate;
 
       // Display the map
       ShowCoronaMap(ANode, MapDateScrollbar.Position, GetMapCaseType);
@@ -2249,6 +2257,8 @@ begin
       FStatusText1 := Format('%s loaded.', [GetLocation(ANode)]);
     UpdateStatusBar;
     UpdateActionStates;
+    if acChartMap.Checked and acChartTimeSeries.Checked then
+      DateIndicatorLine.Position := d + MapDateScrollbar.Position;
   finally
     Screen.Cursor := crDefault;
   end;
@@ -2644,6 +2654,8 @@ begin
 end;
 
 procedure TMainForm.ShowCharts(VisibleCharts: TVisibleCharts);
+var
+  idx: Integer;
 begin
   case VisibleCharts of
     vcMap:
@@ -2654,6 +2666,7 @@ begin
         MapChartPanel.Visible := true;
         ChartSplitter.Visible := false;
         TimeSeriesChartPanel.Visible := false;
+        DateIndicatorLine.Active := false;
       end;
     vcTimeSeries:
       begin  // Time series chart only
@@ -2663,6 +2676,7 @@ begin
         ChartSplitter.Visible := false;
         TimeSeriesChartPanel.Visible := true;
         TimeSeriesChartPanel.Align := alClient;
+        DateIndicatorLine.Active := false;
       end;
     vcBoth:
       begin  // Map chart at top (client) + Time series chart at bottom
@@ -2674,6 +2688,9 @@ begin
         ChartSplitter.Visible := true;
         TimeSeriesChartPanel.Visible := true;
         ChartSplitter.Top := 0;
+        idx := ChartListbox.Items.IndexOf('Date indicator');
+        if idx > -1 then
+          DateIndicatorLine.Active := ChartListbox.Checked[idx];
       end;
   end;
 
