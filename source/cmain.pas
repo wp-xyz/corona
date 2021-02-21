@@ -23,6 +23,8 @@ type
   TDateArray = array of TDate;
   TDataPointArray = array of TDoublePoint;
 
+  TVisibleCharts = (vcMap, vcTimeSeries, vcBoth);
+
   { TMainForm }
 
   TMainForm = class(TForm)
@@ -42,11 +44,15 @@ type
     acSmoothingRange: TAction;
     acChartHighlightWeekends: TAction;
     acChartMap: TAction;
+    acChartTimeSeries: TAction;
     ActionList: TActionList;
     Chart: TChart;
     BottomAxisTransformations: TChartAxisTransformations;
     BottomAxisLogTransform: TLogarithmAxisTransform;
     MapDateLabel: TLabel;
+    MenuItem12: TMenuItem;
+    MenuItem14: TMenuItem;
+    MenuItem9: TMenuItem;
     PaletteListbox: TColorListBox;
     MapChart: TChart;
     ChartToolset: TChartToolset;
@@ -98,6 +104,7 @@ type
     ToolButton12: TToolButton;
     ToolButton13: TToolButton;
     ToolButton14: TToolButton;
+    ToolButton15: TToolButton;
     ToolButton2: TToolButton;
     ToolButton3: TToolButton;
     ToolButton4: TToolButton;
@@ -136,6 +143,7 @@ type
     procedure acChartLogarithmicExecute(Sender: TObject);
     procedure acChartMapExecute(Sender: TObject);
     procedure acChartOverlayExecute(Sender: TObject);
+    procedure acChartTimeSeriesExecute(Sender: TObject);
     procedure acConfigAutoExecute(Sender: TObject);
     procedure acConfigHintExecute(Sender: TObject);
     procedure acDataClearExecute(Sender: TObject);
@@ -208,6 +216,7 @@ type
     procedure PopulatePaletteListbox(ACaseType: TCaseType);
     procedure RestoreSeriesNodesFromList(AList: TFPList);
     procedure SeriesToArray(ASeries: TChartSeries; out AData: TDataPointArray);
+    procedure ShowCharts(VisibleCharts: TVisibleCharts);
     procedure ShowCoronaMap(ANode: TTreeNode; ADateIndex: Integer; ACaseType: TCaseType);
     procedure ShowMap(ANode: TTreeNode);
     procedure ShowTimeSeries(ANode: TTreeNode);
@@ -307,23 +316,36 @@ begin
 end;
 
 procedure TMainForm.acChartMapExecute(Sender: TObject);
+var
+  vc: TVisibleCharts;
 begin
-  if acChartMap.Checked then
-  begin
-    MapChartPanel.Align := alClient;
-    TimeSeriesChartPanel.Align := alBottom;
-    if FGeoMap = nil then
-    ShowMap(nil);
-  end else
-    TimeSeriesChartPanel.Align := alClient;
-  MapChartPanel.Visible := acChartMap.Checked;
-  ChartSplitter.Visible := acChartMap.Checked;
-  if ChartSplitter.Visible then ChartSplitter.Top := 0;
+  if acChartMap.Checked and acChartTimeSeries.Checked then
+    vc := vcBoth
+  else if acChartMap.Checked then
+    vc := vcMap
+  else if acChartTimeSeries.Checked then
+    vc := vcTimeSeries
+  else
+  begin // Make sure that at least one of the two is checked
+    if Sender = acChartMap then
+      vc := vcMap
+    else if sender = acChartTimeSeries then
+      vc := vcTimeSeries
+    else
+      exit;
+  end;
+
+  ShowCharts(vc);
 end;
 
 procedure TMainForm.acChartOverlayExecute(Sender: TObject);
 begin
   // Checked state is evaluated when adding curves.
+end;
+
+procedure TMainForm.acChartTimeSeriesExecute(Sender: TObject);
+begin
+  //
 end;
 
 procedure TMainForm.acConfigAutoExecute(Sender: TObject);
@@ -383,11 +405,7 @@ end;
 
 procedure TMainForm.acDataUpdateExecute(Sender: TObject);
 begin
-  {
-  Progressbar.Show;
   UpdateData;
-  Progressbar.Hide;
-  }
 end;
 
 procedure TMainForm.acInfectiousPeriodExecute(Sender: TObject);
@@ -1297,6 +1315,8 @@ begin
     end;
     {$ENDIF}
 
+    if acChartMap.Checked then ShowMap(nil);
+
   finally
     TreeView.AlphaSort;
     TreeView.Items.EndUpdate;
@@ -1560,7 +1580,8 @@ begin
     FGeoMap.Chart := MapChart;
     FGeoMap.Projection := gpMercator;
     FGeoMap.DefaultPenColor := clGray;
-  end;
+  end else
+    FGeoMap.Clear;
 
   if ANode = nil then
   begin
@@ -2433,7 +2454,11 @@ begin
     clbCases.Checked[2] := ini.ReadBool('MainForm', 'RecoveredCases', clbCases.Checked[2]);
     clbCases.Checked[3] := ini.ReadBool('MainForm', 'SickCases', clbCases.Checked[3]);
 
-    acChartMap.Checked := ini.ReadBool('MainForm', 'ShowMap', acChartMap.Checked);
+    n := 0;
+    if ini.ReadBool('MainForm', 'ShowMap', acChartMap.Checked) then n := n or 1;
+    if ini.ReadBool('MainForm', 'ShowTimeSeries', acChartTimeSeries.Checked) then n := n or 2;
+    if n = 0 then n := 3;
+    ShowCharts(TVisibleCharts(n-1));
     acChartMapExecute(nil);
     acDataMovingAverage.Checked := ini.ReadBool('MainForm', 'MovingAverage', acDataMovingAverage.Checked);
     acChartOverlay.Checked := ini.ReadBool('MainForm', 'Overlay', acChartOverlay.Checked);
@@ -2495,7 +2520,10 @@ begin
     end;
 
     ini.WriteInteger('MainForm', 'LeftPanel', LeftPanel.Width);
-    ini.WriteInteger('MainForm', 'RightPanel', ChartListBox.Width);
+    if acChartMap.Checked then
+      ini.WriteInteger('MainForm', 'PaletteListbox', PaletteListboxPanel.Width);
+    if acChartTimeSeries.Checked then
+      ini.WriteInteger('MainForm', 'RightPanel', ChartListBox.Width);
     ini.WriteInteger('MainForm', 'PageControl', PageControl.ActivePageIndex);
 
     ini.WriteBool('MainForm', 'ConfirmedCases', clbCases.Checked[0]);
@@ -2504,7 +2532,8 @@ begin
     ini.WriteBool('MainForm', 'SickCases', clbCases.Checked[3]);
     ini.WriteInteger('MainForm', 'DataType', cmbDataType.ItemIndex);
 
-    ini.Writebool('MainForm', 'ShowMap', acChartMap.Checked);
+    ini.WriteBool('MainForm', 'ShowMap', acChartMap.Checked);
+    ini.WriteBool('MainForm', 'ShowTimeSeries', acChartTimeSeries.Checked);
     ini.WriteBool('MainForm', 'MovingAverage', acDataMovingAverage.Checked);
     ini.WriteBool('MainForm', 'Overlay', acChartOverlay.Checked);
     ini.WriteBool('MainForm', 'HighlightWeekends', acChartHighlightWeekends.Checked);
@@ -2519,6 +2548,44 @@ begin
   finally
     ini.Free;
   end;
+end;
+
+procedure TMainForm.ShowCharts(VisibleCharts: TVisibleCharts);
+begin
+  case VisibleCharts of
+    vcMap:
+      begin   // Map chart only
+        acChartMap.Checked := true;
+        acChartTimeSeries.Checked := false;
+        MapChartPanel.Align := alClient;
+        MapChartPanel.Visible := true;
+        ChartSplitter.Visible := false;
+        TimeSeriesChartPanel.Visible := false;
+      end;
+    vcTimeSeries:
+      begin  // Time series chart only
+        acChartMap.Checked := false;
+        acChartTimeSeries.Checked := true;
+        MapChartPanel.Visible := false;
+        ChartSplitter.Visible := false;
+        TimeSeriesChartPanel.Visible := true;
+        TimeSeriesChartPanel.Align := alClient;
+      end;
+    vcBoth:
+      begin  // Map chart at top (client) + Time series chart at bottom
+        acChartMap.Checked := true;
+        acChartTimeSeries.Checked := true;
+        MapChartPanel.Align := alClient;
+        TimeSeriesChartPanel.Align := alBottom;
+        MapChartPanel.Visible := true;
+        ChartSplitter.Visible := true;
+        TimeSeriesChartPanel.Visible := true;
+        ChartSplitter.Top := 0;
+      end;
+  end;
+
+  if acChartMap.Checked then
+    ShowMap(nil);
 end;
 
 procedure TMainForm.ToolBarResize(Sender: TObject);
