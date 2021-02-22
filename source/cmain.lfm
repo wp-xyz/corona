@@ -1707,9 +1707,9 @@ object MainForm: TMainForm
       AnchorSideBottom.Control = LeftPanel
       AnchorSideBottom.Side = asrBottom
       Left = 0
-      Height = 304
+      Height = 312
       Hint = 'Click on the country to display'
-      Top = 198
+      Top = 190
       Width = 253
       Anchors = [akTop, akLeft, akRight, akBottom]
       BorderSpacing.Top = 6
@@ -1722,13 +1722,13 @@ object MainForm: TMainForm
     end
     object MapDataGroup: TGroupBox
       Left = 0
-      Height = 59
+      Height = 51
       Top = 0
       Width = 253
       Align = alTop
       AutoSize = True
       Caption = 'Map data'
-      ClientHeight = 39
+      ClientHeight = 31
       ClientWidth = 249
       TabOrder = 1
       object cmbMapDataType: TComboBox
@@ -1738,10 +1738,12 @@ object MainForm: TMainForm
         AnchorSideRight.Side = asrBottom
         Left = 8
         Height = 23
-        Top = 8
+        Top = 0
         Width = 233
         Anchors = [akTop, akLeft, akRight]
-        BorderSpacing.Around = 8
+        BorderSpacing.Left = 8
+        BorderSpacing.Right = 8
+        BorderSpacing.Bottom = 8
         ItemHeight = 15
         ItemIndex = 0
         Items.Strings = (
@@ -1757,7 +1759,7 @@ object MainForm: TMainForm
     object TimeSeriesGroup: TGroupBox
       Left = 0
       Height = 125
-      Top = 67
+      Top = 59
       Width = 253
       Align = alTop
       AutoSize = True
