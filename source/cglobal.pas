@@ -19,6 +19,11 @@ type
     dtCumVsNewCases, dtRValue
   );
 
+  TMapDataType = (
+    mdtNormalizedNewConfirmed, mdtNormalizedNewDeaths,
+    mdtRValue
+  );
+
 //  TDataPointArray = array of TDoublePoint;
 
   TLocationParams = record

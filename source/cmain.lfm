@@ -1749,6 +1749,7 @@ object MainForm: TMainForm
         Items.Strings = (
           'Normalized new confirmed cases'
           'Normalized new deaths'
+          'Reproduction number (R, 5 days)'
         )
         OnChange = cmbMapDataTypeChange
         Style = csDropDownList

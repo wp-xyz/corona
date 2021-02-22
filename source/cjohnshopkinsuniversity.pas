@@ -302,7 +302,10 @@ begin
           for j := firstDataIndex to fields.Count-1 do
             cases[j-firstDataIndex] := StrToInt64(fields[j]);
 
-          data.SetCases(firstDate, cases, ACaseType);
+          if Length(cases) > 0 then
+            data.SetCases(firstDate, cases, ACaseType)
+          else
+            data.Free;
         end;
       end else
       begin
@@ -332,7 +335,10 @@ begin
           for j := 4 to fields.Count-1 do
             cases[j-4] := StrToInt64(fields[j]);
 
-          data.SetCases(firstDate, cases, ACaseType);
+          if Length(cases) > 0 then
+            data.SetCases(firstDate, cases, ACaseType)
+          else
+            data.Free;
         end;
       end;
 

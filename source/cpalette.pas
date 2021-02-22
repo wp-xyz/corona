@@ -25,7 +25,7 @@ type
 
 const
   // To be used for normalized new cases
-  INCIDENCE_ITEMS: array[0..10] of TPaletteItem = (
+  INCIDENCE_PALETTE_ITEMS: array[0..10] of TPaletteItem = (
     (Value:   1; Color: $D9F0E2),    // > 1
     (Value:  10; Color: $B4D0C5),    // > 10
     (Value:  20; Color: $8ED1A9),
@@ -38,24 +38,24 @@ const
     (Value:1000; Color: $643820),
     (Value:2000; Color: $0C0C0C)
   );
-  (*
-  INICIDENCE_ITEMS: array[0..9] of TPaletteItem = (
-    (Value: 0.1; Color:$D8D8D8),
-    (Value:  10; Color:$C3C3C3),
-    (Value:  20; Color:$AEAEAE),
-    (Value:  35; Color:$4B82DF),
-    (Value:  50; Color:$1543C6),
-    (Value: 100; Color:$0B2A9F),
-    (Value: 200; Color:$081676),
-    (Value: 400; Color:$00054F),
-    (Value: 700; Color:$000222),
-    (Value:1000; Color:$000000)
+  // To be used for R value mapping
+  RVALUE_PALETTE_ITEMS: array[0..8] of TPaletteItem = (
+    (Value: 0.01; Color: $358254),
+    (Value: 0.2;  Color: $8ED1A9),
+    (Value: 0.5;  Color: $D9F0E2),
+    (Value: 0.9;  Color: $CCF2FF),
+    (Value: 1.1;  Color: $66D9FF),
+    (Value: 1.5;  Color: $83B1F4),
+    (Value: 2.0;  Color: $115AC5),
+    (Value: 3.0;  Color: $0C3C84),
+    (Value: 5.0;  Color: $0000FF)
   );
-    *)
-var
-  IncidencePalette: TPalette;
+
 
 implementation
+
+uses
+  Math;
 
 procedure TPalette.Init(ABaseColor: TColor; const AItems: Array of TPaletteItem;
   AMultiplier: Double);
@@ -74,6 +74,9 @@ var
   i: Integer;
   item: TPaletteItem;
 begin
+  Result := BaseColor;
+  if IsNaN(AValue) then
+    exit;
   AValue := AValue / Multiplier;
   for i := High(Items) downto Low(Items) do
     if AValue > Items[i].Value then
@@ -81,12 +84,8 @@ begin
       Result := Items[i].Color;
       exit;
     end;
-  Result := BaseColor;
 end;
 
-
-initialization
-  IncidencePalette.Init(clWhite, INCIDENCE_ITEMS, 1.0);
 
 end.
 

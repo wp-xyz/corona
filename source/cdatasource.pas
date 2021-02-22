@@ -37,7 +37,8 @@ type
     function GetSmoothedDataArray(ACaseType: TCaseType; ADataType: TDataType; SmoothingInterval: Integer): TValueArray;
 
     function CalcNormalizedNewCases(AIndex: Integer; ACaseType: TCaseType): Double;
-    function CalcRValue(AIndex: Integer; out R, dR: Double): Boolean;
+    function CalcRValue(AIndex: Integer; out R, dR: Double): Boolean; overload;
+    function CalcRValue(AIndex: Integer): Double; overload;
 
     procedure SetCases(AFirstDate: TDate; const ACases: TCaseArray;
       ACaseType: TPrimaryCaseType);
@@ -147,6 +148,9 @@ begin
   R := NaN;
   dR := NaN;
 
+  if Length(FRawData[pctConfirmed]) = 0 then
+    exit;
+
   // Calculate sum of new cases over a given time interval (--> SmoothingRange)
   // Iterate back in history, starting at the specified index
 
@@ -166,21 +170,28 @@ begin
   // The formula for R is sum_now / sum_earlier.
 
   // When sum_earlier is zero, R cannot be calculated
-  if sum_earlier = 0 then
+  if sum_earlier <= 0 then
+    exit;
+
+  // The relative error of R is the sum of the relative errors of both sums (dSum/sum)
+  // The relative error of the sum cannot be calculated when the sum is zero:
+  if sum_now <= 0 then
     exit;
 
   // Error estimate: the error of each sum is approximately equal to sqrt(sum)
   dSum_now := sqrt(sum_now);
   dSum_earlier := sqrt(sum_earlier);
 
-  // The relative error of R is the sum of the relative errors of both sums (dSum/sum)
-  // The relative error of the sum cannot be calculated when the sum is zero:
-  if sum_now = 0 then
-    exit;
-
   R := sum_now / sum_earlier;
   dR := R * (dSum_now/sum_now + dSum_earlier/sum_earlier);
   Result := true;
+end;
+
+function TcDataItem.CalcRValue(AIndex: Integer): Double;
+var
+  dR: Double;
+begin
+  CalcRValue(AIndex, Result, dR);
 end;
 
 function TcDataItem.GetCount(ACaseType: TPrimaryCaseType): Integer;

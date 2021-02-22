@@ -225,17 +225,17 @@ type
     function GetDataType: TDataType;
     function GetLocation(ANode: TTreeNode): String;
     procedure GetLocation(ANode: TTreeNode; out ACountry, AState, ACity: String; out APopulation: Integer);
-    function GetMapCaseType: TCaseType;
+    function GetMapDataType: TMapDataType;
     function GetSeries(ANode: TTreeNode; ACaseType: TCaseType; ADataType: TDataType): TBasicPointSeries;
     procedure InitShortCuts;
     function IsTimeSeries: Boolean;
 //    procedure LayoutBars;
     procedure LoadLocations;
-    procedure PopulatePaletteListbox(ACaseType: TCaseType);
+    procedure PopulatePaletteListbox(AMapDataType: TMapDataType);
     procedure RestoreSeriesNodesFromList(AList: TFPList);
     procedure SeriesToArray(ASeries: TChartSeries; out AData: TDataPointArray);
     procedure ShowCharts(VisibleCharts: TVisibleCharts);
-    procedure ShowCoronaMap(ANode: TTreeNode; ADateIndex: Integer; ACaseType: TCaseType);
+    procedure ShowCoronaMap(ANode: TTreeNode; ADateIndex: Integer; AMapDataType: TMapDataType);
     procedure ShowMap(ANode: TTreeNode);
     procedure ShowTimeSeries(ANode: TTreeNode);
     procedure StatusMsgHandler(Sender: TObject; const AMsg1, AMsg2: String);
@@ -245,6 +245,7 @@ type
     procedure UpdateAxes(LogarithmicX, LogarithmicY: Boolean);
     procedure UpdateData;
     procedure UpdateGrid;
+    procedure UpdateInfectiousPeriod;
     procedure UpdateStatusBar(ASeparator: String = ' ');
 
     procedure LoadIni;
@@ -439,15 +440,7 @@ begin
     if TryStrToInt(s, n) and (n > 0) then
     begin
       InfectiousPeriod := n;
-      cmbDataType.Items[ord(dtRValue)] := Format('Reproduction number (%d d)', [InfectiousPeriod]);
-
-      // Recalculate the currently loaded data
-      L := StoreSeriesNodesInList();
-      try
-        RestoreSeriesNodesFromList(L);
-      finally
-        L.Free;
-      end;
+      UpdateInfectiousPeriod;
     end else
       MessageDlg('No valid number.', mtError, [mbOk], 0);
   end;
@@ -881,7 +874,7 @@ end;
 
 procedure TMainForm.cmbMapDataTypeChange(Sender: TObject);
 begin
-  PopulatePaletteListbox(GetMapCaseType);
+  PopulatePaletteListbox(GetMapDataType);
   ShowMap(nil);
 end;
 
@@ -979,8 +972,7 @@ begin
   CreateMeasurementSeries;
   InitShortCuts;
 
-  FPalette := IncidencePalette;
-  PopulatePaletteListbox(GetMapCaseType);
+  PopulatePaletteListbox(GetMapDataType);
 
   LoadLocations;
 end;
@@ -1129,12 +1121,9 @@ begin
   end;
 end;
 
-function TMainForm.GetMapCaseType: TCaseType;
+function TMainForm.GetMapDataType: TMapDataType;
 begin
-  case cmbMapDataType.ItemIndex of
-    0: Result := ctConfirmed;
-    1: Result := ctDeaths;
-  end;
+  Result := TMapDataType(cmbMapDataType.ItemIndex);
 end;
 
 function TMainForm.GetSeries(ANode: TTreeNode; ACaseType: TCaseType;
@@ -1282,7 +1271,7 @@ end;
 
 procedure TMainForm.MapDateScrollbarChange(Sender: TObject);
 begin
-  ShowCoronaMap(TreeView.Items.GetFirstNode, MapDateScrollbar.Position, GetMapCaseType);
+  ShowCoronaMap(TreeView.Items.GetFirstNode, MapDateScrollbar.Position, GetMapDataType);
 end;
 
 procedure TMainForm.MapToolsetDataPointClickToolPointClick(ATool: TChartTool;
@@ -1322,11 +1311,13 @@ begin
     if node <> nil then
     begin
       dataItem := TcDataItem(node.Data);
-      dateIndex := Round(dataitem.FirstDate) + MapDateScrollbar.Position;
-      FStatusText1 := Format('%s: Population %.0n, new cases per week and %.0n population %.1f', [
+      dateIndex := MapDateScrollbar.Position;
+      FStatusText1 := Format('%s: Population %.0n, new cases/deaths per week and %.0n population %.1f / %.2f; R value: %.1f', [
         dataItem.Name, dataItem.Population*1.0,
         REF_POPULATION*1.0,
-        dataItem.CalcNormalizedNewCases(dateIndex, ctConfirmed)
+        dataItem.CalcNormalizedNewCases(dateIndex, ctConfirmed),
+        dataItem.CalcNormalizedNewCases(dateIndex, ctDeaths),
+        dataItem.CalcRValue(dateIndex)
       ]);
     end else
       ClearAll;
@@ -1538,9 +1529,10 @@ var
   msk, mask1, mask2: String;
 begin
   m := FPalette.Multiplier;
-  case GetMapCaseType of
-    ctConfirmed: msk := '%.0f';
-    ctDeaths: msk := '%.2g';
+  case GetMapDataType of
+    mdtNormalizedNewConfirmed: msk := '%.0f';
+    mdtNormalizedNewDeaths: msk := '%.2g';
+    mdtRValue: msk := '%.2f';
   end;
   mask1 := '>' + msk;
   mask2 := msk + '-' + msk;
@@ -1616,11 +1608,12 @@ begin
 end;
 *)
 
-procedure TMainForm.PopulatePaletteListbox(ACaseType: TCaseType);
+procedure TMainForm.PopulatePaletteListbox(AMapDataType: TMapDataType);
 begin
-  case ACaseType of
-    ctConfirmed: FPalette.Multiplier := 1.0;
-    ctDeaths: FPalette.Multiplier := 0.01;
+  case AMapDataType of
+    mdtNormalizedNewConfirmed: FPalette.Init(clWhite, INCIDENCE_PALETTE_ITEMS, 1.0);
+    mdtNormalizedNewDeaths: FPalette.Init(clWhite, INCIDENCE_PALETTE_ITEMS, 0.01);
+    mdtRValue: FPalette.Init(clWhite, RVALUE_PALETTE_ITEMS, 1.0);
   end;
 
   PaletteListbox.Style := PaletteListbox.Style - [cbCustomColors];
@@ -1652,18 +1645,45 @@ begin
 end;
 
 procedure TMainForm.ShowCoronaMap(ANode: TTreeNode;
-  ADateIndex: Integer; ACaseType: TCaseType);
+  ADateIndex: Integer; AMapDataType: TMapDataType);
 var
   data: TcDataItem;
-  value: Double;
+  value, dummy: Double;
   clr: TColor;
   ser: TcPolygonSeries;
   startDate: TDate;
+  ct: TCaseType = ctConfirmed;
+  dt: TDataType = dtRValue;
+  title: String;
 begin
+  case AMapDataType of
+    mdtNormalizedNewConfirmed:
+      begin
+        ct := ctConfirmed;
+        dt := dtNormalizedNewCases;
+        title := Format('Normalized new %s (per week and %.0n population)',
+          [LONG_CASETYPE_NAMES[ct], REF_POPULATION*1.0]);
+      end;
+    mdtNormalizedNewDeaths:
+      begin
+        ct := ctDeaths;
+        dt := dtNormalizedNewCases;
+        title := Format('Normalized new %s (per week and %.0n population)',
+          [LONG_CASETYPE_NAMES[ct], REF_POPULATION*1.0]);
+      end;
+    mdtRValue:
+      title := 'Reproduction number R';
+  end;
+
   while ANode <> nil do
   begin
     data := TcDataItem(ANode.Data);
-    value := data.CalcNormalizedNewCases(ADateIndex, ACaseType);
+    case AMapDataType of
+      mdtNormalizedNewConfirmed, mdtNormalizedNewDeaths:
+        value := data.CalcNormalizedNewCases(ADateIndex, ct);
+      mdtRValue:
+        data.CalcRValue(ADateIndex, value, dummy);
+    end;
     clr := FPalette.GetColor(value);
     ser := FGeoMap.Series[data.Name];
     if ser <> nil then
@@ -1675,8 +1695,7 @@ begin
   MapChart.Title.Visible := true;
   MapChart.Title.Brush.Style := bsSolid;
   MapChart.Title.Brush.Color := MapChart.Color;
-  MapChart.Title.Text.Text := Format('Normalized new %s (per week and %.0n population)',
-    [LONG_CASETYPE_NAMES[ACaseType], REF_POPULATION*1.0]);
+  MapChart.Title.Text.Text := title;
 
   MapDateLabel.Caption := DateToStr(startDate + ADateIndex);
   DateIndicatorLine.Position := startDate + ADateIndex;
@@ -1724,7 +1743,7 @@ begin
       DateIndicatorLine.Position := data.GetLastDate;
 
       // Display the map
-      ShowCoronaMap(ANode, MapDateScrollbar.Position, GetMapCaseType);
+      ShowCoronaMap(ANode, MapDateScrollbar.Position, GetMapDataType);
     finally
       reader.Free;
     end;
@@ -2522,6 +2541,22 @@ begin
     Grid.RowCount := ser.Count + Grid.FixedRows;
   finally
     Grid.EndUpdate;
+  end;
+end;
+
+procedure TMainForm.UpdateInfectiousPeriod;
+var
+  L: TFPList;
+begin
+  cmbDataType.Items[ord(dtRValue)] := Format('Reproduction number (R, %d d)', [InfectiousPeriod]);
+  cmbMapDataType.Items[ord(mdtRValue)] := Format('Reproduction number (R, %d days)', [InfectiousPeriod]);
+
+  // Recalculate the currently loaded data
+  L := StoreSeriesNodesInList();
+  try
+    RestoreSeriesNodesFromList(L);
+  finally
+    L.Free;
   end;
 end;
 
