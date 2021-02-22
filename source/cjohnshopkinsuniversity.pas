@@ -309,8 +309,8 @@ begin
         firstDate := StrToDate(fields[4], fs);
         for i := 1 to lines.Count-1 do begin
           Split(lines[i], fields);
-          state := fields[0];
-          country := fields[1];
+          state := Unquote(fields[0]);
+          country := Unquote(fields[1]);
           countryNode := ATreeView.Items.FindNodeWithText(country);
           if state <> '' then
           begin
