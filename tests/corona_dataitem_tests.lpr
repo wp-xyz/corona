@@ -3,7 +3,7 @@ program corona_dataitem_tests;
 {$mode objfpc}{$H+}
 
 uses
-  Interfaces, Forms, GuiTestRunner, DataItemTests;
+  Interfaces, Forms, GuiTestRunner, DataItemTests, UtilsTests;
 
 {$R *.res}
 

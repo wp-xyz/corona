@@ -34,7 +34,7 @@
         <PackageName Value="FCL"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="4">
+    <Units Count="6">
       <Unit0>
         <Filename Value="corona_dataitem_tests.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -54,6 +54,16 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="cGlobal"/>
       </Unit3>
+      <Unit4>
+        <Filename Value="utilstests.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UtilsTests"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="..\source\cutils.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="cUtils"/>
+      </Unit5>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
