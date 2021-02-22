@@ -8,7 +8,7 @@
         <CompatibilityMode Value="True"/>
       </Flags>
       <SessionStorage Value="InProjectDir"/>
-      <Title Value="corona_dataitem_tests"/>
+      <Title Value="corona_tests"/>
       <ResourceType Value="res"/>
       <UseXPManifest Value="True"/>
       <Icon Value="0"/>
@@ -36,7 +36,7 @@
     </RequiredPackages>
     <Units Count="6">
       <Unit0>
-        <Filename Value="corona_dataitem_tests.lpr"/>
+        <Filename Value="corona_tests.lpr"/>
         <IsPartOfProject Value="True"/>
       </Unit0>
       <Unit1>
@@ -70,7 +70,7 @@
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
-      <Filename Value="corona_dataitem_tests"/>
+      <Filename Value="corona_tests"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>

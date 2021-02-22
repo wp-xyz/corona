@@ -1,4 +1,4 @@
-program corona_dataitem_tests;
+program corona_tests;
 
 {$mode objfpc}{$H+}
 
