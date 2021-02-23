@@ -1699,19 +1699,12 @@ object MainForm: TMainForm
     ClientWidth = 253
     TabOrder = 0
     object TreeView: TTreeView
-      AnchorSideLeft.Control = LeftPanel
-      AnchorSideTop.Control = TimeSeriesGroup
-      AnchorSideTop.Side = asrBottom
-      AnchorSideRight.Control = LeftPanel
-      AnchorSideRight.Side = asrBottom
-      AnchorSideBottom.Control = LeftPanel
-      AnchorSideBottom.Side = asrBottom
       Left = 0
-      Height = 312
+      Height = 304
       Hint = 'Click on the country to display'
-      Top = 190
+      Top = 198
       Width = 253
-      Anchors = [akTop, akLeft, akRight, akBottom]
+      Align = alClient
       BorderSpacing.Top = 6
       HideSelection = False
       ReadOnly = True
@@ -1727,6 +1720,7 @@ object MainForm: TMainForm
       Width = 253
       Align = alTop
       AutoSize = True
+      BorderSpacing.Bottom = 8
       Caption = 'Map data'
       ClientHeight = 31
       ClientWidth = 249
@@ -1763,9 +1757,7 @@ object MainForm: TMainForm
       Top = 59
       Width = 253
       Align = alTop
-      AutoSize = True
-      BorderSpacing.Top = 8
-      BorderSpacing.Bottom = 6
+      BorderSpacing.Bottom = 3
       Caption = 'Time series data'
       ClientHeight = 105
       ClientWidth = 249
@@ -1897,6 +1889,15 @@ object MainForm: TMainForm
           ParentColor = False
         end
       end
+    end
+    object TreeSplitter: TSplitter
+      Cursor = crVSplit
+      Left = 0
+      Height = 5
+      Top = 187
+      Width = 253
+      Align = alTop
+      ResizeAnchor = akTop
     end
   end
   object PageControl: TPageControl

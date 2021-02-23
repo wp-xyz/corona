@@ -54,6 +54,7 @@ type
     MovingAverageInfo: TLabel;
     CasesSplitter: TSplitter;
     CasesPanel: TPanel;
+    TreeSplitter: TSplitter;
     TimeSeriesGroup: TGroupBox;
     MapDataGroup: TGroupBox;
     MapToolset: TChartToolset;
@@ -937,13 +938,10 @@ procedure TMainForm.FormActivate(Sender: TObject);
 var
   p4: Integer;
 begin
-  // Workaround for gtk2 issue: Listbox.ItemHeight is 0 only after FormShow.
-  if GetDefaultLCLWidgetType = lpGtk2 then
-  begin
-    p4 := Scale96ToForm(4);
-    CasesPanel.ClientHeight := clbCases.Items.Count * clbCases.ItemHeight + 2*p4;
-  end;
-  //TimeSeriesGroup.ClientHeight := Cases.Top + clbCases.Height + clbCases.BorderSpacing.Bottom;
+  p4 := Scale96ToForm(4);
+  CasesPanel.Constraints.MinHeight := clbCases.Top + clbCases.Items.Count * clbCases.ItemHeight + 2*p4;
+  TimeSeriesGroup.Constraints.MinHeight := TimeseriesGroup.Height - TimeSeriesGroup.ClientHeight +
+    CasesPanel.Constraints.MinHeight + CasesPanel.BorderSpacing.Bottom;
 end;
 
 procedure TMainForm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -2650,6 +2648,7 @@ begin
     ChartListbox.Width := ini.ReadInteger('MainForm', 'RightPanel', ChartListBox.Width);
     PaletteListboxPanel.Width := ini.ReadInteger('MainForm', 'PaletteListbox', PaletteListboxPanel.Width);
     CasesPanel.Width := ini.ReadInteger('MainForm', 'CasesPanel', CasesPanel.Width);
+    TimeSeriesGroup.Height := ini.ReadInteger('MainForm', 'TimeSeriesGroup', TimeSeriesGroup.Height);
     PageControl.ActivePageIndex := ini.ReadInteger('MainForm', 'PageControl', PageControl.ActivePageIndex);
     PageControlChange(nil);
 
@@ -2738,6 +2737,7 @@ begin
     if acChartTimeSeries.Checked then
       ini.WriteInteger('MainForm', 'RightPanel', ChartListBox.Width);
   ini.WriteInteger('MainForm', 'CasesPanel', CasesPanel.Width);
+  ini.WriteInteger('MainForm', 'TimeSeriesGroup', TimeSeriesGroup.Height);
   ini.WriteInteger('MainForm', 'PageControl', PageControl.ActivePageIndex);
 
     ini.WriteBool('MainForm', 'ConfirmedCases', clbCases.Checked[0]);
@@ -2779,6 +2779,10 @@ begin
         ChartSplitter.Visible := false;
         TimeSeriesChartPanel.Visible := false;
         DateIndicatorLine.Active := false;
+        MapDataGroup.Visible := true;
+        TimeSeriesGroup.Visible := false;
+        TreeSplitter.Visible := false;
+        TreeView.Visible := false;
       end;
     vcTimeSeries:
       begin  // Time series chart only
@@ -2789,6 +2793,10 @@ begin
         TimeSeriesChartPanel.Visible := true;
         TimeSeriesChartPanel.Align := alClient;
         DateIndicatorLine.Active := false;
+        MapDataGroup.Visible := false;
+        TimeSeriesGroup.Visible := true;
+        TreeView.Visible := true;
+        TreeSplitter.Visible := false;
       end;
     vcBoth:
       begin  // Map chart at top (client) + Time series chart at bottom
@@ -2800,6 +2808,11 @@ begin
         ChartSplitter.Visible := true;
         TimeSeriesChartPanel.Visible := true;
         ChartSplitter.Top := 0;
+        MapDataGroup.Visible := true;
+        TimeSeriesGroup.Visible := true;
+        TreeView.Visible := true;
+        TreeSplitter.Visible := true;
+        TreeSplitter.Top := Height;
         idx := ChartListbox.Items.IndexOf('Date indicator');
         if idx > -1 then
           DateIndicatorLine.Active := ChartListbox.Checked[idx];
