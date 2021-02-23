@@ -5,8 +5,9 @@ Downloads daily accumulated case counts of the corona virus disease from the 201
 - Plots the universal curve new cases vs cumulative cases.
 - Estimates characteristic pandemic numbers: doubling time, reproduction number. (Disclaimer: due to various calculation methods, these numbers may differ from official data).
 
+![Screenshot](screenshots/corona-1.png)
 ## Installation
-This repository contains Lazarus source files only. Please use Lazarus v2.0.6 or
+This repository contains Lazarus source files only. Please use Lazarus v2.0.8 or
 later to compile the binary.
 
 No additional packages are required to compile the application. But the OpenSSL library must be available. In Windows, copy the files libeay32.dll and ssleay32.dll of the correct bitness to the application directory.
