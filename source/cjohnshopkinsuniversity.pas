@@ -289,10 +289,6 @@ begin
           district := fields[5];
           state := fields[6];
           country := fields[7];
-
-          if i = 337 then
-            writeln(i, ' ',  country, ' ', state, ' ', district);
-
           countryNode := ATreeView.Items.FindNodeWithText(country);
           stateNode := countryNode.FindNode(state);
           if stateNode = nil then

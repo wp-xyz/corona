@@ -2796,7 +2796,8 @@ begin
         MapDataGroup.Visible := false;
         TimeSeriesGroup.Visible := true;
         TreeView.Visible := true;
-        TreeSplitter.Visible := false;
+        TreeSplitter.Visible := true;
+        TreeSplitter.Top := Height;
       end;
     vcBoth:
       begin  // Map chart at top (client) + Time series chart at bottom
@@ -2810,9 +2811,10 @@ begin
         ChartSplitter.Top := 0;
         MapDataGroup.Visible := true;
         TimeSeriesGroup.Visible := true;
+        TimeSeriesGroup.Top := Height;
         TreeView.Visible := true;
         TreeSplitter.Visible := true;
-        TreeSplitter.Top := Height;
+        TreeSplitter.Top := TimeSeriesGroup.Top + TimeSeriesGroup.Height;
         idx := ChartListbox.Items.IndexOf('Date indicator');
         if idx > -1 then
           DateIndicatorLine.Active := ChartListbox.Checked[idx];
