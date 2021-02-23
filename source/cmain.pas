@@ -105,7 +105,7 @@ type
     ChartSplitter: TSplitter;
     MapChartPanel: TPanel;
     MapDateScrollbar: TScrollBar;
-    MapSlitter: TSplitter;
+    MapSplitter: TSplitter;
     PaletteListboxPanel: TPanel;
     TimeSeriesChartPanel: TPanel;
     ToolBar: TToolBar;
@@ -801,11 +801,11 @@ begin
             dtCumulative:
               lblTableHdr.Caption := 'Cumulative cases';
             dtNormalizedCumulative:
-              lblTableHdr.Caption := Format('Cumulative cases per %.0n persons', [1.0 * PopulationRef]);
+              lblTableHdr.Caption := Format('Cumulative cases per %.0n population', [1.0 * PopulationRef]);
             dtNewCases:
               lblTableHdr.Caption := 'New cases per day';
             dtNormalizedNewCases:
-              lblTableHdr.Caption := Format('New cases per %.0n persons and week', [1.0 * PopulationRef])
+              lblTableHdr.Caption := Format('New cases per week and %.0n population', [1.0 * PopulationRef])
             else
               raise Exception.Create('Data type not handled by cmbDataTypeChange');
           end;

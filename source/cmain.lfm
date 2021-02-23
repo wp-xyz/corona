@@ -1939,6 +1939,7 @@ object MainForm: TMainForm
               AxisPen.Visible = True
               Marks.LabelBrush.Style = bsClear
               Minors = <>
+              Title.Alignment = taCenter
               Title.LabelFont.Height = -16
               Title.LabelFont.Orientation = 900
               Title.LabelFont.Style = [fsBold]
@@ -2029,7 +2030,7 @@ object MainForm: TMainForm
         object MapChart: TChart
           AnchorSideLeft.Control = MapChartPanel
           AnchorSideTop.Control = MapChartPanel
-          AnchorSideRight.Control = MapSlitter
+          AnchorSideRight.Control = MapSplitter
           AnchorSideBottom.Control = MapDateScrollbar
           Left = 0
           Height = 227
@@ -2070,7 +2071,7 @@ object MainForm: TMainForm
           Anchors = [akTop, akLeft, akRight, akBottom]
           Color = clDefault
         end
-        object MapSlitter: TSplitter
+        object MapSplitter: TSplitter
           Left = 554
           Height = 244
           Top = 0
@@ -2080,7 +2081,7 @@ object MainForm: TMainForm
         end
         object MapDateScrollbar: TScrollBar
           AnchorSideLeft.Control = MapChartPanel
-          AnchorSideRight.Control = MapSlitter
+          AnchorSideRight.Control = MapSplitter
           AnchorSideBottom.Control = MapChartPanel
           AnchorSideBottom.Side = asrBottom
           Left = 0
