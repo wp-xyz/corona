@@ -203,7 +203,7 @@ type
       Items: TStrings);
     procedure ToolBarResize(Sender: TObject);
 
-    procedure TreeViewClick(Sender: TObject);
+//    procedure TreeViewClick(Sender: TObject);
     procedure TreeViewDeletion(Sender: TObject; Node: TTreeNode);
     procedure TreeViewSelectionChanged(Sender: TObject);
 
@@ -226,6 +226,7 @@ type
     function GetLocation(ANode: TTreeNode): String;
     procedure GetLocation(ANode: TTreeNode; out ACountry, AState, ACity: String; out APopulation: Integer);
     function GetMapDataType: TMapDataType;
+    procedure GetMapResourceNode(var ANode: TTreeNode; out AResName: String);
     function GetSeries(ANode: TTreeNode; ACaseType: TCaseType; ADataType: TDataType): TBasicPointSeries;
     procedure InitShortCuts;
     function IsTimeSeries: Boolean;
@@ -233,6 +234,7 @@ type
     procedure LoadLocations;
     procedure PopulatePaletteListbox(AMapDataType: TMapDataType);
     procedure RestoreSeriesNodesFromList(AList: TFPList);
+    procedure SelectNode(ANode: TTreeNode);
     procedure SeriesToArray(ASeries: TChartSeries; out AData: TDataPointArray);
     procedure ShowCharts(VisibleCharts: TVisibleCharts);
     procedure ShowCoronaMap(ANode: TTreeNode; ADateIndex: Integer; AMapDataType: TMapDataType);
@@ -585,6 +587,7 @@ begin
   LeftPanel.Constraints.MinWidth := LeftPanel.Width;
   LeftPanel.AutoSize := false;
 
+  LoadLocations;
   LoadIni;
 end;
 
@@ -694,7 +697,7 @@ var
 begin
   L := StoreSeriesNodesInList();
   try
-    TreeViewClick(nil);
+    SelectNode(TreeView.Selected);
     RestoreSeriesNodesFromlist(L);
   finally
     L.Free;
@@ -875,7 +878,7 @@ end;
 procedure TMainForm.cmbMapDataTypeChange(Sender: TObject);
 begin
   PopulatePaletteListbox(GetMapDataType);
-  ShowMap(nil);
+  ShowMap(TreeView.Selected);
 end;
 
 procedure TMainForm.CreateMeasurementSeries;
@@ -974,7 +977,7 @@ begin
 
   PopulatePaletteListbox(GetMapDataType);
 
-  LoadLocations;
+//  LoadLocations;
 end;
 
 procedure TMainForm.FormShow(Sender: TObject);
@@ -1236,6 +1239,35 @@ begin
   UpdateAffectedSeries;
 end;
 
+{ Starting at ANode, goes up the tree towards root and returns the
+  MapResource field of the first parent which is <> ''. This identifies the
+  name of the resource with the map to be displayed.
+  At exit ANode points to the first node with data contained in this map. }
+procedure TMainForm.GetMapResourceNode(var ANode: TTreeNode; out AResName: String);
+var
+  dataitem: TcDataItem;
+  node: TTreeNode;
+begin
+  node := ANode;
+  AResName := '';
+  while node <> nil do
+  begin
+    dataitem := TcDataItem(node.Data);
+    if dataitem.MapResource <> '' then
+    begin
+      AResName := dataitem.MapResource;
+      ANode := node.GetFirstChild;
+      exit;
+    end;
+    node := node.Parent;
+  end;
+
+  // If we get here we did not find any map node. --> Select the world map and
+  // the very first node
+  ANode := TreeView.Items.GetFirstNode;
+  AResName := WorldMapResName;
+end;
+
 procedure TMainForm.GridDrawCell(Sender: TObject; aCol, aRow: Integer;
   aRect: TRect; aState: TGridDrawState);
 var
@@ -1270,8 +1302,13 @@ begin
 end;
 
 procedure TMainForm.MapDateScrollbarChange(Sender: TObject);
+var
+  node: TTreeNode;
+  dummy: String;
 begin
-  ShowCoronaMap(TreeView.Items.GetFirstNode, MapDateScrollbar.Position, GetMapDataType);
+  node := TreeView.Selected;
+  GetMapResourceNode(node, dummy);
+  ShowCoronaMap(node, MapDateScrollbar.Position, GetMapDataType);
 end;
 
 procedure TMainForm.MapToolsetDataPointClickToolPointClick(ATool: TChartTool;
@@ -1634,6 +1671,17 @@ begin
   end;
 end;
 
+procedure TMainForm.SelectNode(ANode: TTreeNode);
+begin
+  if (ANode = nil) or (ANode.Text = '') then
+    exit;
+
+  if acChartMap.Checked then
+    ShowMap(ANode);
+  if acChartTimeSeries.Checked then
+    ShowTimeSeries(ANode);
+end;
+
 procedure TMainForm.SeriesToArray(ASeries: TChartSeries; out AData: TDataPointArray);
 var
   i: Integer;
@@ -1703,7 +1751,7 @@ end;
 
 procedure TMainForm.ShowMap(ANode: TTreeNode);
 var
-  mapRes: String;
+  mapRes: String = '';
   stream: TStream;
   reader: TcGeoReader;
   data: TcDataitem;
@@ -1717,11 +1765,7 @@ begin
   end else
     FGeoMap.Clear;
 
-  if ANode = nil then
-  begin
-    ANode := TreeView.Items.GetFirstNode;
-    mapRes := WorldMapResName;
-  end;
+  GetMapResourceNode(ANode, mapRes);
 
   stream := TResourceStream.Create(HINSTANCE, mapRes, RT_RCDATA);
   try
@@ -2335,7 +2379,7 @@ begin
     else if ChartListbox.Series[i] is TcBarSeries then
       Result.Add(TcBarSeries(ChartListbox.Series[i]).Node);
 end;
-
+          (*
 procedure TMainForm.TreeViewClick(Sender: TObject);
 var
   node: TTreeNode;
@@ -2344,12 +2388,11 @@ begin
   if (node = nil) or (node.Text = '') then
     exit;
 
-  // Text of mapping nodes MUST be put in parenthesis.
-  if node.Text[1] = '(' then
-    ShowMap(node)
-  else
-    ShowTimeSeries(TreeView.Selected);
-end;
+  if acChartMap.Checked then
+    ShowMap(node);
+  if acChartTimeSeries.Checked then
+    ShowTimeSeries(node);
+end;        *)
 
 procedure TMainForm.TreeViewDeletion(Sender: TObject; Node: TTreeNode);
 begin
@@ -2363,18 +2406,8 @@ begin
 end;
 
 procedure TMainForm.TreeViewSelectionChanged(Sender: TObject);
-var
-  node: TTreeNode;
 begin
-  node := TreeView.Selected;
-  if (node = nil) or (node.Text = '') then
-    exit;
-
-  // Text of mapping nodes MUST be put in parenthesis.
-  if node.Text[1] = '(' then
-    ShowMap(node)
-  else
-    ShowTimeSeries(TreeView.Selected);
+  SelectNode(TreeView.Selected);
 end;
 
 procedure TMainForm.UpdateActionStates;
@@ -2773,7 +2806,7 @@ begin
   end;
 
   if acChartMap.Checked then
-    ShowMap(nil);
+    ShowMap(TreeView.Selected);
 end;
 
 procedure TMainForm.ToolBarResize(Sender: TObject);

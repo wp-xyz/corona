@@ -119,6 +119,24 @@ begin
           AMap.AddGeoPolygon(item.Name, item.Polygon);
           ser := TcGeoMapSeries(AMap.Chart.Series[AMap.Chart.SeriesCount-1]);
           ser.GeoMap := AMap;
+        end else
+        if nodeName = 'MultiGeometry' then
+        begin
+          child2node := childNode.FirstChild;
+          while child2node <> nil do
+          begin
+            nodeName := child2Node.NodeName;
+            if nodeName = 'Polygon' then
+            begin
+              item.Name := itemName;
+              item.Polygon := nil;
+              ExtractPolygon(child2node, item);
+              AMap.AddGeoPolygon(item.Name, item.Polygon);
+              ser := TcGeoMapSeries(AMap.Chart.Series[AMap.Chart.SeriesCount-1]);
+              ser.GeoMap := AMap;
+            end;
+            child2Node := child2Node.NextSibling;
+          end;
         end;
         childNode := childNode.NextSibling;
       end;

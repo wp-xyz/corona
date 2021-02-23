@@ -22,7 +22,8 @@ type
     FLatitude: Double;
     FPopulation: Int64;
     FFirstDate: TDate;
-    FRawData: array[TPrimaryCaseType] of TCaseArray;
+    FMapResource: String;
+    FRawData: array[TPrimaryCaseType] of TCaseArray;  // Cumulative cases!
     function GetCount(ACaseType: TPrimaryCaseType): Integer;
     function GetDate(AIndex: Integer): TDate;
     function GetRawData(ACaseType: TPrimaryCaseType): TCaseArray;
@@ -49,6 +50,7 @@ type
     property Longitude: Double read FLongitude write FLongitude;
     property Latitude: Double read FLatitude write FLatitude;
     property Population: Int64 read FPopulation write FPopulation;
+    property MapResource: String read FMapResource write FMapResource;
 
     property FirstDate: TDate read FFirstDate;
     property Date[AIndex: Integer]: TDate read GetDate;

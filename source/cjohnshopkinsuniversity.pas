@@ -451,6 +451,8 @@ begin
         data.Population := population;
         data.Longitude := lon;
         data.Latitude := lat;
+        if country = 'US' then
+          data.MapResource := USStatesMapResName;
         countryNode := ATreeView.Items.AddChildObject(nil, country, data)
       end;
 
