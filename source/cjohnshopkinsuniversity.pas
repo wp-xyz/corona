@@ -289,13 +289,18 @@ begin
           district := fields[5];
           state := fields[6];
           country := fields[7];
+
+          if i = 337 then
+            writeln(i, ' ',  country, ' ', state, ' ', district);
+
           countryNode := ATreeView.Items.FindNodeWithText(country);
           stateNode := countryNode.FindNode(state);
-          districtNode := stateNode.FindNode(district);
-          if districtNode <> nil then
-            data := TcDataItem(districtNode.Data)
-          else
+          if stateNode = nil then
             continue;
+          districtNode := stateNode.FindNode(district);
+          if districtNode = nil then
+            continue;
+          data := TcDataItem(districtNode.Data);
 
           // extract case count
           SetLength(cases, fields.Count-firstDataIndex);

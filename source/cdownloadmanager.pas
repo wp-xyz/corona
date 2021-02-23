@@ -71,7 +71,8 @@ implementation
 {$R *.lfm}
 
 uses
-  fphttpclient, opensslsockets, //FileCtrl,
+  fphttpclient,
+  {$IF FPC_FullVersion >= 32000}opensslsockets{$else}openssl{$ENDIF},
   cUtils;
 
 { TDownloadThread }
