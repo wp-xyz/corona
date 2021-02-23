@@ -2188,7 +2188,8 @@ begin
               ser.AddXY(d + i, values[i]);
           finally
             ser.EndUpdate;
-            EnableMovingAverage(ser, acDataMovingAverage.Checked, true);
+            if not (dt in [dtCumulativeCasesDoublingTime, dtNewCasesDoublingTime]) then
+              EnableMovingAverage(ser, acDataMovingAverage.Checked, true);
           end;
       end;
         (*
