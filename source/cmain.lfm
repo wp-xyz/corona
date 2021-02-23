@@ -3054,6 +3054,8 @@ object MainForm: TMainForm
     end
     object MapToolsetDataPointHintTool: TDataPointHintTool
       OnHint = MapToolsetDataPointHintToolHint
+      UseApplicationHint = True
+      UseDefaultHintText = False
     end
     object MapToolsetDataPointClickTool: TDataPointClickTool
       Shift = [ssLeft, ssDouble]

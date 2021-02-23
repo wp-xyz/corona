@@ -193,7 +193,6 @@ type
       APoint: TPoint);
     procedure MapToolsetDataPointHintToolHint(ATool: TDataPointHintTool;
       const APoint: TPoint; var AHint: String);
-
     procedure MeasurementToolAfterMouseUp(ATool: TChartTool; APoint: TPoint);
     procedure MeasurementToolGetDistanceText(ASender: TDataPointDistanceTool;
       var AText: String);
@@ -1325,59 +1324,45 @@ end;
 
 procedure TMainForm.MapToolsetDataPointHintToolHint(ATool: TDataPointHintTool;
   const APoint: TPoint; var AHint: String);
-
-  procedure ClearAll;
-  begin
-    FStatusText1 := '';
-  end;
-
 var
   ser: TcPolygonSeries;
   node: TTreeNode;
   dataitem: TcDataitem;
   dateIndex: Integer;
 begin
-  Hint := '';
+//  Hint := '';
 
+//  FStatusText1 := '';
   if ATool.Series is TcPolygonSeries then
   begin
     ser := TcPolygonSeries(ATool.Series);
+
+    WriteLn(ser.Title);
+
     node := TreeView.Items.FindNodeWithText(ser.Title);
     if node <> nil then
     begin
       dataItem := TcDataItem(node.Data);
       dateIndex := MapDateScrollbar.Position;
-      FStatusText1 := Format('%s: Population %.0n, new cases/deaths per week and %.0n population %.1f / %.2f; R value: %.1f', [
+      AHint := Format(
+        '%s' + LineEnding +
+        '  Population: %.0n' + LineEnding +
+        '  New cases per week and %.0n population: %.1f' + LineEnding +
+        '  New deaths per week and %.0n population: %.2f' + LineEnding +
+        '  R value: %.1f',  [
+                       {
+      //FStatusText1 := Format(
+        '%s: Population %.0n, new cases/deaths per week and %.0n population %.1f / %.2f; R value: %.1f', [
+      }
         dataItem.Name, dataItem.Population*1.0,
-        REF_POPULATION*1.0,
-        dataItem.CalcNormalizedNewCases(dateIndex, ctConfirmed),
-        dataItem.CalcNormalizedNewCases(dateIndex, ctDeaths),
+        REF_POPULATION*1.0, dataItem.CalcNormalizedNewCases(dateIndex, ctConfirmed),
+        REF_POPULATION*1.0,dataItem.CalcNormalizedNewCases(dateIndex, ctDeaths),
         dataItem.CalcRValue(dateIndex)
       ]);
-    end else
-      ClearAll;
-  end else
-    ClearAll;
-  UpdateStatusbar;
-end;
-(*
-
-  if ATool is TDataPointHintToo
-  procedure TMainForm.ChartToolsetDataPointClickTool1PointClick(
-    ATool: TChartTool; APoint: TPoint);
-  var
-    ser: TChartSeries;
-    node: TTreeNode;
-  begin
-    if (ATool is TDataPointClickTool) then
-    begin
-      ser := TDataPointClickTool(ATool).Series as TChartSeries;
-      node := TreeView.Items.FindNodeWithText(ser.Title);
-      TreeView.Selected := node;
     end;
   end;
+  //UpdateStatusbar;
 end;
-*)
 
 procedure TMainForm.InitShortCuts;
 begin
