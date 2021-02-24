@@ -214,7 +214,7 @@ uses
   TATypes, TAMath, TAChartUtils, TACustomSource, TAFitLib,
   // project-specific units
   cDataSource, cJohnsHopkinsUniversity, {$IFDEF RKI}cRobertKochInstitut,{$ENDIF}
-  cSeries, cAbout;
+  cUtils, cSeries, cAbout;
 
 const
   // DATA_DIR must end with path delimiter!
@@ -806,12 +806,24 @@ end;
 procedure TMainForm.FormActivate(Sender: TObject);
 var
   p3: Integer;
+  clr: TColor;
 begin
   // Workaround for gtk2 issue: Listbox.ItemHeight is 0 only after FormShow.
   if GetDefaultLCLWidgetType = lpGtk2 then
   begin
     p3 := Scale96ToForm(3);
     clbCases.Height := clbCases.Items.Count * clbCases.ItemHeight + 2*p3;
+  end;
+
+  clr := ColorToRGB(Chart.Color);
+  if Red(clr) + Green(clr) + Blue(clr) > 3*128 then
+  begin
+    Chart.LeftAxis.Grid.Color := BrighterColor(clr, -0.25);
+    Chart.BottomAxis.Grid.Color := BrighterColor(clr, -0.25);
+  end else
+  begin
+    Chart.LeftAxis.Grid.Color := BrighterColor(clr, +0.25);
+    Chart.BottomAxis.Grid.Color := BrighterColor(clr, +0.25);
   end;
 end;
 
