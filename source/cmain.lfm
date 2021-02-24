@@ -1937,6 +1937,7 @@ object MainForm: TMainForm
             item
               Grid.Color = 14540253
               Grid.Style = psSolid
+              AxisPen.Color = clWindowText
               AxisPen.Visible = True
               Marks.LabelBrush.Style = bsClear
               Minors = <>
@@ -1952,6 +1953,7 @@ object MainForm: TMainForm
               Grid.Color = 14540253
               Grid.Style = psSolid
               Alignment = calBottom
+              AxisPen.Color = clWindowText
               AxisPen.Visible = True
               Marks.Format = '%2:s'
               Marks.LabelBrush.Style = bsClear
@@ -1964,9 +1966,10 @@ object MainForm: TMainForm
               Title.Caption = 'Date'
               Title.LabelBrush.Style = bsClear
             end>
-          BackColor = clWhite
+          BackColor = clWindow
           Foot.Brush.Color = clBtnFace
           Foot.Font.Color = clBlue
+          Frame.Color = clWindowText
           Title.Brush.Color = clBtnFace
           Title.Font.Color = clBlue
           Title.Text.Strings = (
@@ -1976,7 +1979,7 @@ object MainForm: TMainForm
           OnBeforeCustomDrawBackWall = ChartBeforeCustomDrawBackWall
           Align = alClient
           Anchors = [akLeft]
-          Color = clDefault
+          Color = clWindow
           object DateIndicatorLine: TConstantLine
             LineStyle = lsVertical
             Pen.Color = clFuchsia
@@ -2063,14 +2066,15 @@ object MainForm: TMainForm
           Frame.Visible = False
           Proportional = True
           Title.Brush.Color = clBtnFace
-          Title.Font.Color = clBlue
+          Title.Brush.Style = bsClear
+          Title.Font.Color = clWindowText
           Title.Font.Style = [fsBold]
           Title.Text.Strings = (
             'TAChart'
           )
           Toolset = MapToolset
           Anchors = [akTop, akLeft, akRight, akBottom]
-          Color = clDefault
+          Color = clWindow
         end
         object MapSplitter: TSplitter
           Left = 554

@@ -936,11 +936,18 @@ end;
 procedure TMainForm.FormActivate(Sender: TObject);
 var
   p4: Integer;
+  clr: TColor;
 begin
   p4 := Scale96ToForm(4);
   CasesPanel.Constraints.MinHeight := clbCases.Top + clbCases.Items.Count * clbCases.ItemHeight + 2*p4;
   TimeSeriesGroup.Constraints.MinHeight := TimeseriesGroup.Height - TimeSeriesGroup.ClientHeight +
     CasesPanel.Constraints.MinHeight + CasesPanel.BorderSpacing.Bottom;
+
+  clr := ColorToRGB(Chart.BackColor);
+  if Red(clr) + Green(clr) + Blue(clr) > 3*128 then
+    Chart.LeftAxis.Grid.Color := BrighterColor(clr, -0.25)
+  else
+    Chart.LeftAxis.Grid.Color := BrighterColor(clr, +0.25);
 end;
 
 procedure TMainForm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -1721,8 +1728,6 @@ begin
   end;
 
   MapChart.Title.Visible := true;
-  MapChart.Title.Brush.Style := bsSolid;
-  MapChart.Title.Brush.Color := MapChart.Color;
   MapChart.Title.Text.Text := title;
 
   MapDateLabel.Caption := DateToStr(startDate + ADateIndex);
