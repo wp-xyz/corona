@@ -1336,9 +1336,6 @@ begin
   if ATool.Series is TcPolygonSeries then
   begin
     ser := TcPolygonSeries(ATool.Series);
-
-    WriteLn(ser.Title);
-
     node := TreeView.Items.FindNodeWithText(ser.Title);
     if node <> nil then
     begin

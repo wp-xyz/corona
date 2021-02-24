@@ -72,7 +72,7 @@ implementation
 
 uses
   fphttpclient,
-  {$IF FPC_FullVersion >= 32000}opensslsockets{$else}openssl{$ENDIF},
+  {$IF FPC_FullVersion >= 30200}opensslsockets{$else}openssl{$ENDIF},
   cUtils;
 
 { TDownloadThread }
