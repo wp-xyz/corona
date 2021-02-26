@@ -1966,7 +1966,6 @@ object MainForm: TMainForm
               Title.Caption = 'Date'
               Title.LabelBrush.Style = bsClear
             end>
-          BackColor = clWindow
           Foot.Brush.Color = clBtnFace
           Foot.Font.Color = clBlue
           Frame.Color = clWindowText
