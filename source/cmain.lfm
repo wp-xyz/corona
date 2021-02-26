@@ -2140,8 +2140,8 @@ object MainForm: TMainForm
     end
     object pgTable: TTabSheet
       Caption = 'Table'
-      ClientHeight = 471
-      ClientWidth = 831
+      ClientHeight = 474
+      ClientWidth = 695
       object Grid: TDrawGrid
         AnchorSideLeft.Control = pgTable
         AnchorSideTop.Control = lblTableHint
@@ -2151,9 +2151,9 @@ object MainForm: TMainForm
         AnchorSideBottom.Control = pgTable
         AnchorSideBottom.Side = asrBottom
         Left = 6
-        Height = 413
+        Height = 416
         Top = 52
-        Width = 819
+        Width = 683
         Anchors = [akTop, akLeft, akRight, akBottom]
         BorderSpacing.Around = 6
         ColCount = 2
@@ -2245,7 +2245,7 @@ object MainForm: TMainForm
       Action = acChartLogarithmic
     end
     object ToolButton7: TToolButton
-      Left = 376
+      Left = 336
       Height = 40
       Top = 2
       Caption = 'ToolButton7'
@@ -2264,7 +2264,7 @@ object MainForm: TMainForm
       Style = tbsDivider
     end
     object ToolButton10: TToolButton
-      Left = 336
+      Left = 341
       Hint = 'Copy chart to clipboard'
       Top = 2
       Action = acChartCopyToClipboard
