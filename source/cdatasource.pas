@@ -235,6 +235,12 @@ var
   Y, YHalf, Y0, dY: Double;
   nDesc: Integer;
 begin
+  if Length(FRawData[pctConfirmed]) = 0 then
+  begin
+    Result := nil;
+    exit;
+  end;
+
   if ACaseType <> ctSick then
     pct := TPrimaryCaseType(ACaseType);
   case ADataType of
