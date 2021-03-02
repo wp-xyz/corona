@@ -247,6 +247,7 @@ type
     procedure UpdateAffectedSeries;
     procedure UpdateAxes(LogarithmicX, LogarithmicY: Boolean);
     procedure UpdateData;
+    procedure UpdateDateIndicatorLine(ADate: TDate);
     procedure UpdateGrid;
     procedure UpdateInfectiousPeriod;
     procedure UpdateStatusBar(ASeparator: String = ' ');
@@ -705,14 +706,14 @@ begin
     ASkip := true;
     exit;
   end;
-  {
+{
   if ((ASeries = DateIndicatorLine) and not (acChartMap.Checked and acChartTimeSeries.Checked)) or
      (ASeries is TFuncSeries) then
   begin
     ASkip := true;
     exit;
   end;
-   }
+}
   if (not ASeries.Active) and (ASeries is TChartSeries) and (TChartSeries(ASeries).Count = 0) then
     for ct in TCaseType do
       if (pos(CASETYPE_NAMES[ct], ASeries.Title) > 0) or
@@ -1016,6 +1017,8 @@ begin
   PageControl.ActivePageIndex := 0;
   CreateMeasurementSeries;
   InitShortCuts;
+
+  FreeAndNil(DateIndicatorLine);  // needed at designtime, will be recreated
 
   PopulatePaletteListbox(GetMapDataType);
 end;
@@ -1787,7 +1790,7 @@ begin
   MapChart.Title.Text.Text := title;
 
   MapDateLabel.Caption := DateToStr(startDate + ADateIndex);
-  DateIndicatorLine.Position := startDate + ADateIndex;
+  UpdateDateIndicatorLine(startDate + ADateIndex);
 end;
 
 procedure TMainForm.ShowMap(ANode: TTreeNode);
@@ -1827,7 +1830,7 @@ begin
         MapDateScrollbar.Position := MapDateScrollbar.Max;
       end;
 
-      DateIndicatorLine.Position := data.GetLastDate;
+      UpdateDateIndicatorLine(data.GetLastDate);
 
       // Display the map
       ShowCoronaMap(ANode, MapDateScrollbar.Position, GetMapDataType);
@@ -2577,6 +2580,12 @@ begin
   UpdateStatusbar;
 end;
 
+procedure TMainForm.UpdateDateIndicatorLine(ADate: TDate);
+begin
+  if Assigned(DateIndicatorLine) then
+    DateIndicatorLine.Position := ADate;
+end;
+
 procedure TMainForm.UpdateGrid;
 var
   n: Integer;
@@ -2663,7 +2672,10 @@ begin
   try
     acConfigAuto.Checked := ini.ReadBool('MainForm', 'Automatic', acConfigAuto.Checked);
     if not acConfigAuto.Checked then
+    begin
+      ShowCharts(vcBoth);
       exit;
+    end;
 
     ws := TWindowState(ini.ReadInteger('MainForm', 'WindowState', ord(WindowState)));
     if ws = wsMaximized then
@@ -2838,6 +2850,7 @@ begin
         TreeView.Visible := true;
         TreeSplitter.Visible := true;
         TreeSplitter.Top := Height;
+//        ChartListbox.Populate;
       end;
     vcBoth:
       begin  // Map chart at top (client) + Time series chart at bottom
@@ -2856,15 +2869,13 @@ begin
         TreeSplitter.Visible := true;
         TreeSplitter.Top := TimeSeriesGroup.Top + TimeSeriesGroup.Height;
         idx := ChartListbox.Items.IndexOf('Date indicator');
-        if idx > -1 then
+        if (idx > -1) and Assigned(DateIndicatorLine) then
           DateIndicatorLine.Active := ChartListbox.Checked[idx];
       end;
   end;
 
   if acChartMap.Checked then
     ShowMap(TreeView.Selected);
-
-  ChartListbox.Populate;
 end;
 
 procedure TMainForm.ToolBarResize(Sender: TObject);

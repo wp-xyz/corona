@@ -1980,6 +1980,7 @@ object MainForm: TMainForm
           Anchors = [akLeft]
           Color = clWindow
           object DateIndicatorLine: TConstantLine
+            Active = False
             LineStyle = lsVertical
             Pen.Color = clFuchsia
             Pen.Width = 2
