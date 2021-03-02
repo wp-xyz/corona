@@ -452,8 +452,10 @@ begin
         data.Population := population;
         data.Longitude := lon;
         data.Latitude := lat;
-        if country = 'US' then
-          data.MapResource := USStatesMapResName;
+        case country of
+          'US': data.MapResource := USStatesMapResName;
+          'China': data.MapResource := ChinaMapResName;
+        end;
         countryNode := ATreeView.Items.AddChildObject(nil, country, data)
       end;
 

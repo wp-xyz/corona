@@ -16,9 +16,10 @@
         <DpiAware Value="True"/>
       </XPManifest>
       <Icon Value="0"/>
-      <Resources Count="2">
+      <Resources Count="3">
         <Resource_0 FileName="maps\us_states_map.kml" Type="RCDATA" ResourceName="US_STATES_MAP"/>
         <Resource_1 FileName="maps\world_map.kml" Type="RCDATA" ResourceName="WORLD_MAP"/>
+        <Resource_2 FileName="maps\china_map.kml" Type="RCDATA" ResourceName="CHINA_MAP"/>
       </Resources>
     </General>
     <VersionInfo>
