@@ -102,7 +102,7 @@
           </Linking>
         </CompilerOptions>
       </Item3>
-      <Item4 Name="Debug without heaptrc">
+      <Item4 Name="Debug_no_heaptrc">
         <CompilerOptions>
           <Version Value="11"/>
           <PathDelim Value="\"/>
