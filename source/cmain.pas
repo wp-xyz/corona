@@ -319,6 +319,17 @@ begin
     {$ENDIF}
 end;
 
+function CreateIni: TCustomIniFile;
+var
+  fn: String;
+begin
+  if PortableInstallation then
+    fn := ChangeFileExt(Application.ExeName, '.cfg')
+  else
+    fn := GetAppConfigFile(false);
+  Result := TMemIniFile.Create(fn);
+end;
+
 
 { TMainForm }
 
@@ -999,8 +1010,6 @@ begin
   InitShortCuts;
 
   PopulatePaletteListbox(GetMapDataType);
-
-//  LoadLocations;
 end;
 
 procedure TMainForm.FormShow(Sender: TObject);
@@ -1780,9 +1789,6 @@ var
   reader: TcGeoReader;
   data: TcDataitem;
 begin
-  if ANode = nil then
-    exit;
-
   if FGeoMap = nil then
   begin
     FGeoMap := TcGeoMap.Create(self);
@@ -1793,6 +1799,8 @@ begin
     FGeoMap.Clear;
 
   GetMapResourceNode(ANode, mapRes);
+  if ANode = nil then
+    exit;
 
   stream := TResourceStream.Create(HINSTANCE, mapRes, RT_RCDATA);
   try
@@ -2632,11 +2640,6 @@ begin
   else
     Statusbar.SimpleText := '';
   Statusbar.Update;
-end;
-
-function CreateIni: TCustomIniFile;
-begin
-  Result := TMemIniFile.Create(GetAppConfigFile(false));
 end;
 
 procedure TMainForm.LoadIni;
