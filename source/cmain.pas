@@ -2673,6 +2673,10 @@ begin
     acConfigAuto.Checked := ini.ReadBool('MainForm', 'Automatic', acConfigAuto.Checked);
     if not acConfigAuto.Checked then
     begin
+      cmbMapDataType.ItemIndex := ord(mdtNormalizedNewConfirmed);
+      cmbMapDataTypeChange(nil);
+      cmbDataType.ItemIndex := ord(dtNormalizedNewCases);
+      cmbDataTypeChange(nil);
       ShowCharts(vcBoth);
       exit;
     end;
@@ -2830,7 +2834,8 @@ begin
         MapChartPanel.Visible := true;
         ChartSplitter.Visible := false;
         TimeSeriesChartPanel.Visible := false;
-        DateIndicatorLine.Active := false;
+        if Assigned(DateIndicatorLine) then
+          DateIndicatorLine.Active := false;
         MapDataGroup.Visible := true;
         TimeSeriesGroup.Visible := false;
         TreeSplitter.Visible := false;
@@ -2844,7 +2849,8 @@ begin
         ChartSplitter.Visible := false;
         TimeSeriesChartPanel.Visible := true;
         TimeSeriesChartPanel.Align := alClient;
-        DateIndicatorLine.Active := false;
+        if Assigned(DateIndicatorLine) then
+          DateIndicatorLine.Active := false;
         MapDataGroup.Visible := false;
         TimeSeriesGroup.Visible := true;
         TreeView.Visible := true;
