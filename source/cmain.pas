@@ -220,6 +220,7 @@ type
     function CalcFit(ASeries: TBasicChartSeries; xmin, xmax: Double): Boolean;
     procedure CalcFitCurveHandler(const AX: Double; out AY: Double);
     procedure Clear(UnselectTree: Boolean = true);
+    procedure ClearAllSeries;
     procedure CreateMeasurementSeries;
     procedure DownloadMsgHandler(Sender: TObject; const AMsg1, AMsg2: String; APercentage: Integer);
     procedure EnableMovingAverage(ASeries: TChartSeries; AEnabled, AStrict: Boolean);
@@ -824,10 +825,21 @@ procedure TMainForm.Clear(UnselectTree: Boolean = true);
 begin
   if UnselectTree then
     TreeView.Selected := nil;
-  Chart.ClearSeries;
+
+  ClearAllSeries;
   CreateMeasurementSeries;
+
   UpdateGrid;
   UpdateActionStates;
+end;
+
+procedure TMainForm.ClearAllSeries;
+begin
+  // Be careful here: DateIndicatorLine is destroyed in Chart.ClearSeries but it
+  // is still access by the ChartListBox. Better to destroy it before this - it
+  // will be recreated anyway by CreateMeasurementSeries
+  FreeAndNil(DateIndicatorLine);
+  Chart.ClearSeries;
 end;
 
 procedure TMainForm.cmbDataTypeChange(Sender: TObject);
