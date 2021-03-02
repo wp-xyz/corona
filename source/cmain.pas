@@ -233,6 +233,7 @@ type
 //    procedure LayoutBars;
     procedure LoadLocations;
     procedure PopulatePaletteListbox(AMapDataType: TMapDataType);
+    procedure ReadCommandlineParams;
     procedure RestoreSeriesNodesFromList(AList: TFPList);
     procedure SelectNode(ANode: TTreeNode);
     procedure SeriesToArray(ASeries: TChartSeries; out AData: TDataPointArray);
@@ -274,13 +275,14 @@ uses
   cSeries, cPolygonSeries, cGeoReaderKML, cUtils, cAbout;
 
 const
+{
   // DATA_DIR must end with path delimiter!
   {$IFDEF DARWIN}
   DATA_DIR = '../../../data/';
   {$ELSE}
   DATA_DIR = 'data/';
   {$ENDIF}
-
+           }
   // Chart series colors
   COLORS: array[0..9] of TColor = (
     clRed, clBlue, clFuchsia, clLime, clSkyBlue,
@@ -300,6 +302,22 @@ var
 
   // DataDir is the directory in which the downloaded csv files are found.
   DataDir: String;
+
+function GetDataDir: String;
+begin
+  if PortableInstallation then
+   {$IFDEF DARWIN}
+    Result := Application.Location + '../../../data/'
+   {$ELSE}
+    Result := Application.Location + 'data/'
+   {$ENDIF}
+  else
+    {$IFDEF Windows}
+    Result := GetUserDir + 'CoronaData\';
+    {$ELSE}
+    Result := GetUserDir + '.coronadata/';
+    {$ENDIF}
+end;
 
 
 { TMainForm }
@@ -587,6 +605,7 @@ begin
   LeftPanel.Constraints.MinWidth := LeftPanel.Width;
   LeftPanel.AutoSize := false;
 
+  ReadCommandlineParams;
   LoadLocations;
   LoadIni;
 end;
@@ -961,7 +980,7 @@ begin
   // Narrower input box
   cInputQueryEditSizePercents := 0;
 
-  DataDir := Application.Location + DATA_DIR;  // DATA_DIR ends with a path delimiter
+  DataDir := GetDataDir; // ends with a path delimiter
   DateOffset := BaseDate;
 
   WheelZoomTool.ZoomFactor := 1.05;
@@ -1645,6 +1664,26 @@ begin
   PaletteListBox.Selected := clNone;
 end;
 
+procedure TMainForm.ReadCommandlineParams;
+var
+  i: Integer;
+  s: String;
+begin
+  for i := 1 to ParamCount do
+  begin
+    s := ParamStr(i);
+    if s[1] in ['-', '/'] then
+    begin
+      s := lowercase(Copy(s, 2, MaxInt));
+      if s = 'portable' then
+      begin
+        PortableInstallation := true;
+        DataDir := GetDataDir;
+      end;
+    end;
+  end;
+end;
+
 procedure TMainForm.RestoreSeriesNodesFromList(AList: TFPList);
 var
   i: Integer;
@@ -1741,6 +1780,9 @@ var
   reader: TcGeoReader;
   data: TcDataitem;
 begin
+  if ANode = nil then
+    exit;
+
   if FGeoMap = nil then
   begin
     FGeoMap := TcGeoMap.Create(self);
