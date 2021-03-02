@@ -836,10 +836,17 @@ end;
 procedure TMainForm.ClearAllSeries;
 begin
   // Be careful here: DateIndicatorLine is destroyed in Chart.ClearSeries but it
-  // is still access by the ChartListBox. Better to destroy it before this - it
-  // will be recreated anyway by CreateMeasurementSeries
-  FreeAndNil(DateIndicatorLine);
-  Chart.ClearSeries;
+  // is still accessed by the ChartListBox. Better to prevent TChartListbox from
+  // updating itself during the clearing steps.
+  ChartListbox.Chart := nil;
+  try
+    // Another safety measure: make sure that DateIndicatorLine is nil while
+    // Chart.ClearSeries is executing
+    FreeAndNil(DateIndicatorLine);
+    Chart.ClearSeries;
+  finally
+    ChartListBox.Chart := Chart;
+  end;
 end;
 
 procedure TMainForm.cmbDataTypeChange(Sender: TObject);
