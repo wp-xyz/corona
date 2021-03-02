@@ -1,7 +1,7 @@
 object MainForm: TMainForm
-  Left = 312
+  Left = 297
   Height = 601
-  Top = 218
+  Top = 214
   Width = 973
   Caption = 'corona'
   ClientHeight = 581
@@ -2882,7 +2882,11 @@ object MainForm: TMainForm
     object mnuConfig: TMenuItem
       Caption = 'Configuration'
       object MenuItem4: TMenuItem
-        Action = acConfigAuto
+        Action = acConfigAutoLoad
+        AutoCheck = True
+      end
+      object MenuItem15: TMenuItem
+        Action = acConfigAutoSave
         AutoCheck = True
       end
       object mnuConfigHints: TMenuItem
@@ -2938,6 +2942,20 @@ object MainForm: TMainForm
       ImageIndex = 4
       OnExecute = acDataClearExecute
     end
+    object acConfigAutoLoad: TAction
+      Category = 'Config'
+      AutoCheck = True
+      Caption = 'Automatic loading'
+      Checked = True
+      OnExecute = acConfigAutoLoadExecute
+    end
+    object acConfigAutoSave: TAction
+      Category = 'Config'
+      AutoCheck = True
+      Caption = 'Automatic saving'
+      Checked = True
+      OnExecute = acConfigAutoSaveExecute
+    end
     object acConfigHint: TAction
       Category = 'Config'
       AutoCheck = True
@@ -2951,13 +2969,6 @@ object MainForm: TMainForm
       Hint = 'Save table to CSV file'
       ImageIndex = 3
       OnExecute = acTableSaveExecute
-    end
-    object acConfigAuto: TAction
-      Category = 'Config'
-      AutoCheck = True
-      Caption = 'Automatic saving/loading'
-      Checked = True
-      OnExecute = acConfigAutoExecute
     end
     object acChartOverlay: TAction
       Category = 'Chart'
@@ -3005,16 +3016,6 @@ object MainForm: TMainForm
       Caption = 'Moving average'
       OnExecute = acDataMovingAverageExecute
     end
-    object acInfectiousPeriod: TAction
-      Category = 'Config'
-      Caption = 'Infectious period...'
-      OnExecute = acInfectiousPeriodExecute
-    end
-    object acSmoothingRange: TAction
-      Category = 'Config'
-      Caption = 'Smoothing range...'
-      OnExecute = acSmoothingRangeExecute
-    end
     object acChartHighlightWeekends: TAction
       Category = 'Chart'
       AutoCheck = True
@@ -3036,6 +3037,16 @@ object MainForm: TMainForm
       Checked = True
       ImageIndex = 10
       OnExecute = acChartMapExecute
+    end
+    object acInfectiousPeriod: TAction
+      Category = 'Config'
+      Caption = 'Infectious period...'
+      OnExecute = acInfectiousPeriodExecute
+    end
+    object acSmoothingRange: TAction
+      Category = 'Config'
+      Caption = 'Smoothing range...'
+      OnExecute = acSmoothingRangeExecute
     end
   end
   object BottomAxisTransformations: TChartAxisTransformations

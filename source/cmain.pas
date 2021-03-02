@@ -34,7 +34,7 @@ type
     acChartLogarithmic: TAction;
     acConfigHint: TAction;
     acTableSave: TAction;
-    acConfigAuto: TAction;
+    acConfigAutoLoad: TAction;
     acChartLinear: TAction;
     acChartCopyToClipboard: TAction;
     acChartOverlay: TAction;
@@ -45,12 +45,14 @@ type
     acChartHighlightWeekends: TAction;
     acChartMap: TAction;
     acChartTimeSeries: TAction;
+    acConfigAutoSave: TAction;
     ActionList: TActionList;
     Chart: TChart;
     BottomAxisTransformations: TChartAxisTransformations;
     BottomAxisLogTransform: TLogarithmAxisTransform;
     cmbMapDataType: TComboBox;
     DateIndicatorLine: TConstantLine;
+    MenuItem15: TMenuItem;
     MovingAverageInfo: TLabel;
     CasesSplitter: TSplitter;
     CasesPanel: TPanel;
@@ -156,7 +158,8 @@ type
     procedure acChartMapExecute(Sender: TObject);
     procedure acChartOverlayExecute(Sender: TObject);
     procedure acChartTimeSeriesExecute(Sender: TObject);
-    procedure acConfigAutoExecute(Sender: TObject);
+    procedure acConfigAutoLoadExecute(Sender: TObject);
+    procedure acConfigAutoSaveExecute(Sender: TObject);
     procedure acConfigHintExecute(Sender: TObject);
     procedure acDataClearExecute(Sender: TObject);
     procedure acDataCommonStartExecute(Sender: TObject);
@@ -399,7 +402,12 @@ begin
   //
 end;
 
-procedure TMainForm.acConfigAutoExecute(Sender: TObject);
+procedure TMainForm.acConfigAutoLoadExecute(Sender: TObject);
+begin
+  // Checked state is evaluated when reading ini.
+end;
+
+procedure TMainForm.acConfigAutoSaveExecute(Sender: TObject);
 begin
   // Checked state is evaluated when writing ini.
 end;
@@ -2670,8 +2678,8 @@ var
 begin
   ini := CreateIni;
   try
-    acConfigAuto.Checked := ini.ReadBool('MainForm', 'Automatic', acConfigAuto.Checked);
-    if not acConfigAuto.Checked then
+    acConfigAutoLoad.Checked := ini.ReadBool('MainForm', 'AutoLoad', acConfigAutoLoad.Checked);
+    if not acConfigAutoLoad.Checked then
     begin
       cmbMapDataType.ItemIndex := ord(mdtNormalizedNewConfirmed);
       cmbMapDataTypeChange(nil);
@@ -2680,6 +2688,8 @@ begin
       ShowCharts(vcBoth);
       exit;
     end;
+
+    acConfigAutoSave.Checked := ini.ReadBool('MainForm', 'AutoSave', acConfigAutoSave.Checked);
 
     ws := TWindowState(ini.ReadInteger('MainForm', 'WindowState', ord(WindowState)));
     if ws = wsMaximized then
@@ -2774,9 +2784,11 @@ var
 begin
   ini := CreateIni;
   try
-    ini.WriteBool('MainForm', 'Automatic', acConfigAuto.Checked);
-    if not acConfigAuto.Checked then
+    ini.WriteBool('MainForm', 'AutoSave', acConfigAutoSave.Checked);
+    if not acConfigAutoSave.Checked then
       exit;
+
+    ini.WriteBool('MainForm', 'AutoLoad', acConfigAutoLoad.Checked);
 
     ini.WriteInteger('MainForm', 'WindowState', ord(WindowState));
     if WindowState = wsNormal then
