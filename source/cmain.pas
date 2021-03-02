@@ -698,13 +698,21 @@ procedure TMainForm.ChartListboxAddSeries(ASender: TChartListbox;
 var
   ct: TCaseType;
 begin
+  if ((ASeries = DateIndicatorLine) and not acChartMap.Checked) or
+     (ASeries is TFuncSeries)
+  then
+  begin
+    ASkip := true;
+    exit;
+  end;
+  {
   if ((ASeries = DateIndicatorLine) and not (acChartMap.Checked and acChartTimeSeries.Checked)) or
      (ASeries is TFuncSeries) then
   begin
     ASkip := true;
     exit;
   end;
-
+   }
   if (not ASeries.Active) and (ASeries is TChartSeries) and (TChartSeries(ASeries).Count = 0) then
     for ct in TCaseType do
       if (pos(CASETYPE_NAMES[ct], ASeries.Title) > 0) or
@@ -2855,6 +2863,8 @@ begin
 
   if acChartMap.Checked then
     ShowMap(TreeView.Selected);
+
+  ChartListbox.Populate;
 end;
 
 procedure TMainForm.ToolBarResize(Sender: TObject);
