@@ -482,6 +482,9 @@ begin
           data.Population := population;
           data.Longitude := lon;
           data.Latitude := lat;
+          case country of
+            'US': data.MapResource := USCountiesMapResName;
+          end;
           stateNode := ATreeView.Items.AddChildObject(countryNode, state, data);
         end;
 
@@ -494,6 +497,11 @@ begin
           data.Population := population;
           data.Longitude := lon;
           data.Latitude := lat;
+          {
+          case country of
+            'US': data.MapResource := USCountiesMapResName;
+          end;
+          }
           citynode := ATreeView.Items.AddChildObject(stateNode, city, data);
         end;
       end;

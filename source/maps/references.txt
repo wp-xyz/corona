@@ -14,3 +14,11 @@ china_map.kml
   Converted to kml by QGIS
   xml attributes simplified, names adapted to JHU data files.
   (missing Hongkong and Macau)
+  
+us_states_map.kml and us_counties_map.kml
+  https://www.census.gov/geographies/mapping-files/time-series/geo/carto-boundary-file.html
+  Reduced by https://mapshaper.org
+  Converted to kml by QGIS
+  xml attributes simplified, names adapted to JHU data files.
+  (two Alaskan islands beyond date boundary deleted for better symmetry of maps)
+  

@@ -65,6 +65,7 @@ var
   PopulationRef: Integer = 100000;         // population count for normalization
   WorldMapResName: String = 'WORLD_MAP';
   USStatesMapResName: String = 'US_STATES_MAP';
+  USCountiesMapResName: String = 'US_COUNTIES_MAP';
   ChinaMapResName: String = 'CHINA_MAP';
   CanadaMapResName: String = 'CANADA_MAP';
   PortableInstallation: Boolean = false;
