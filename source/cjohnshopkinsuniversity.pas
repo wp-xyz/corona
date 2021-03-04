@@ -455,6 +455,7 @@ begin
         case country of
           'US': data.MapResource := USStatesMapResName;
           'China': data.MapResource := ChinaMapResName;
+          'Canada': data.MapResource := CanadaMapResName;
         end;
         countryNode := ATreeView.Items.AddChildObject(nil, country, data)
       end;

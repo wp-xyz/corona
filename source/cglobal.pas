@@ -66,6 +66,7 @@ var
   WorldMapResName: String = 'WORLD_MAP';
   USStatesMapResName: String = 'US_STATES_MAP';
   ChinaMapResName: String = 'CHINA_MAP';
+  CanadaMapResName: String = 'CANADA_MAP';
   PortableInstallation: Boolean = false;
 
   cFormatSettings: TFormatSettings;

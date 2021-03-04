@@ -1,0 +1,16 @@
+country-and-codes-list.csv
+  https://datahub.io/JohnSnowLabs/country-and-continent-codes-list/r/0.html
+
+canada_map.kml
+  https://open.canada.ca/data/en/dataset/bab06e04-e6d0-41f1-a595-6cff4d71bedf
+  Reduced by https://mapshaper.org
+  Converted to kml by QGIS
+  xml attributes simplified, names adapted to JHU data files.
+  missing: Diamond Princess, Recovered, 
+  
+china_map.kml
+  https://geodata.lib.utexas.edu/catalog/stanford-bw669kf8724  
+  Reduced by https://mapshaper.org
+  Converted to kml by QGIS
+  xml attributes simplified, names adapted to JHU data files.
+  (missing Hongkong and Macau)
