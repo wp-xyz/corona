@@ -12,6 +12,7 @@ type
   TCaseCount = Int64;
   TCaseArray = array of TCaseCount;
   TValueArray = array of Double;
+  TMapRes = (mrPrimary, mrSecondary);
 
   TcDataItem = class
   private
@@ -22,7 +23,9 @@ type
     FLatitude: Double;
     FPopulation: Int64;
     FFirstDate: TDate;
-    FMapResource: String;
+    FPrimaryMapResource: String;
+    FSecondaryMapResource: String;
+    FMapResourceUsed: TMapRes;
     FRawData: array[TPrimaryCaseType] of TCaseArray;  // Cumulative cases!
     function GetCount(ACaseType: TPrimaryCaseType): Integer;
     function GetDate(AIndex: Integer): TDate;
@@ -50,7 +53,9 @@ type
     property Longitude: Double read FLongitude write FLongitude;
     property Latitude: Double read FLatitude write FLatitude;
     property Population: Int64 read FPopulation write FPopulation;
-    property MapResource: String read FMapResource write FMapResource;
+    property PrimaryMapResource: String read FPrimaryMapResource write FPrimaryMapResource;
+    property SecondaryMapResource: String read FSecondaryMapResource write FSecondaryMapResource;
+    property MapResourceUsed: TMapRes read FMapResourceUsed write FMapResourceUsed;
 
     property FirstDate: TDate read FFirstDate;
     property Date[AIndex: Integer]: TDate read GetDate;

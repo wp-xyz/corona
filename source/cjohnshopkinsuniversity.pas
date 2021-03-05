@@ -453,12 +453,19 @@ begin
         data.Longitude := lon;
         data.Latitude := lat;
         case country of
-          'Australia': data.MapResource := AustraliaMapResName;
-          'Canada': data.MapResource := CanadaMapResName;
-          'China': data.MapResource := ChinaMapResName;
-          'US': data.MapResource := USStatesMapResName;
+          'Australia':
+            data.PrimaryMapResource := AustraliaMapResName;
+          'Canada':
+            data.PrimaryMapResource := CanadaMapResName;
+          'China':
+            data.PrimaryMapResource := ChinaMapResName;
+          'US':
+            begin
+              data.PrimaryMapResource := USStatesMapResName;
+              data.SecondaryMapResource := USCountiesMapResName;
+            end;
         end;
-        countryNode := ATreeView.Items.AddChildObject(nil, country, data)
+        countryNode := ATreeView.Items.AddChildObject(nil, country, data);
       end;
 
       if state <> '' then
@@ -476,16 +483,19 @@ begin
         end;
         if stateNode = nil then
         begin
-          data := TcDataitem.Create;
+          data := TcDataItem.Create;
           data.Name := state;
           data.ParentName := country;
           data.ID := -1;  // not used by JHU
           data.Population := population;
           data.Longitude := lon;
           data.Latitude := lat;
+          {
           case country of
-            'US': data.MapResource := USCountiesMapResName;
+            'US': TcDataItem(countryNode.Data).MapResource := USCountiesMapResName;
+//            'US': data.MapResource := USCountiesMapResName;
           end;
+          }
           stateNode := ATreeView.Items.AddChildObject(countryNode, state, data);
         end;
 
@@ -498,6 +508,7 @@ begin
           data.Population := population;
           data.Longitude := lon;
           data.Latitude := lat;
+          data.MapResourceUsed := mrSecondary;
           {
           case country of
             'US': data.MapResource := USCountiesMapResName;

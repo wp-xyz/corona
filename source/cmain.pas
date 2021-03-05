@@ -230,7 +230,7 @@ type
     function GetLocation(ANode: TTreeNode): String;
     procedure GetLocation(ANode: TTreeNode; out ACountry, AState, ACity: String; out APopulation: Integer);
     function GetMapDataType: TMapDataType;
-    procedure GetMapResourceNode(var ANode: TTreeNode; out AResName: String);
+    procedure GetMapResourceNode(var ANode: TTreeNode; out AResName: String; out IsSecondary: Boolean);
     function GetSeries(ANode: TTreeNode; ACaseType: TCaseType; ADataType: TDataType): TBasicPointSeries;
     procedure InitShortCuts;
     function IsTimeSeries: Boolean;
@@ -242,7 +242,8 @@ type
     procedure SelectNode(ANode: TTreeNode);
     procedure SeriesToArray(ASeries: TChartSeries; out AData: TDataPointArray);
     procedure ShowCharts(VisibleCharts: TVisibleCharts);
-    procedure ShowCoronaMap(ANode: TTreeNode; ADateIndex: Integer; AMapDataType: TMapDataType);
+    procedure ShowCoronaMap(ANode: TTreeNode; ADateIndex: Integer; AMapDataType: TMapDataType;
+      IsSecondary: Boolean);
     procedure ShowMap(ANode: TTreeNode);
     procedure ShowTimeSeries(ANode: TTreeNode);
     procedure StatusMsgHandler(Sender: TObject; const AMsg1, AMsg2: String);
@@ -1313,23 +1314,47 @@ end;
   MapResource field of the first parent which is <> ''. This identifies the
   name of the resource with the map to be displayed.
   At exit ANode points to the first node with data contained in this map. }
-procedure TMainForm.GetMapResourceNode(var ANode: TTreeNode; out AResName: String);
+procedure TMainForm.GetMapResourceNode(var ANode: TTreeNode; out AResName: String;
+  out IsSecondary: Boolean);
 var
   dataitem: TcDataItem;
   node: TTreeNode;
 begin
-  node := ANode;
   AResName := '';
-  while node <> nil do
+  IsSecondary := false;
+
+  if ANode <> nil then
   begin
-    dataitem := TcDataItem(node.Data);
-    if dataitem.MapResource <> '' then
-    begin
-      AResName := dataitem.MapResource;
-      ANode := node.GetFirstChild;
-      exit;
+    node := ANode;
+    dataItem := TcDataItem(ANode.Data);
+
+    case dataItem.MapResourceUsed of
+      mrPrimary:
+        while node <> nil do
+        begin
+          dataitem := TcDataItem(node.Data);
+          if dataitem.PrimaryMapResource <> '' then
+          begin
+            AResName := dataitem.PrimaryMapResource;
+            ANode := node.GetFirstChild;
+            exit;
+          end;
+          node := node.Parent;
+        end;
+      mrSecondary:
+        while node <> nil do
+        begin
+          dataitem := TcDataItem(node.Data);
+          if dataitem.SecondaryMapResource <> '' then
+          begin
+            AResName := dataItem.SecondaryMapResource;
+            ANode := node.GetFirstChild;
+            IsSecondary := true;
+            exit;
+          end;
+          node := node.Parent;
+        end;
     end;
-    node := node.Parent;
   end;
 
   // If we get here we did not find any map node. --> Select the world map and
@@ -1375,10 +1400,11 @@ procedure TMainForm.MapDateScrollbarChange(Sender: TObject);
 var
   node: TTreeNode;
   dummy: String;
+  isSecondary: boolean;
 begin
   node := TreeView.Selected;
-  GetMapResourceNode(node, dummy);
-  ShowCoronaMap(node, MapDateScrollbar.Position, GetMapDataType);
+  GetMapResourceNode(node, dummy, isSecondary);
+  ShowCoronaMap(node, MapDateScrollbar.Position, GetMapDataType, isSecondary);
 end;
 
 procedure TMainForm.MapToolsetDataPointClickToolPointClick(ATool: TChartTool;
@@ -1766,7 +1792,7 @@ begin
 end;
 
 procedure TMainForm.ShowCoronaMap(ANode: TTreeNode;
-  ADateIndex: Integer; AMapDataType: TMapDataType);
+  ADateIndex: Integer; AMapDataType: TMapDataType; IsSecondary: Boolean);
 var
   data: TcDataItem;
   value, dummy: Double;
@@ -1776,6 +1802,7 @@ var
   ct: TCaseType = ctConfirmed;
   dt: TDataType = dtRValue;
   title: String;
+  node: TTreeNode;
 begin
   case AMapDataType of
     mdtNormalizedNewConfirmed:
@@ -1798,26 +1825,41 @@ begin
 
   while ANode <> nil do
   begin
-    data := TcDataItem(ANode.Data);
-    case AMapDataType of
-      mdtNormalizedNewConfirmed, mdtNormalizedNewDeaths:
-        value := data.CalcNormalizedNewCases(ADateIndex, ct);
-      mdtRValue:
-        data.CalcRValue(ADateIndex, value, dummy);
+    if IsSecondary then
+    begin
+      node := ANode.GetFirstChild;
+      if node <> nil then
+      begin
+        ShowCoronaMap(node, ADateIndex, AMapDataType, false);
+        data := TcDataItem(node.Data);
+        startdate := data.FirstDate;
+      end;
+    end else
+    begin
+      data := TcDataItem(ANode.Data);
+      case AMapDataType of
+        mdtNormalizedNewConfirmed, mdtNormalizedNewDeaths:
+          value := data.CalcNormalizedNewCases(ADateIndex, ct);
+        mdtRValue:
+          data.CalcRValue(ADateIndex, value, dummy);
+      end;
+      clr := FPalette.GetColor(value);
+      ser := FGeoMap.Series[data.Name];
+      if ser <> nil then
+        ser.Brush.Color := clr;
+      startdate := data.FirstDate;
     end;
-    clr := FPalette.GetColor(value);
-    ser := FGeoMap.Series[data.Name];
-    if ser <> nil then
-      ser.Brush.Color := clr;
-    startdate := data.FirstDate;
     ANode := ANode.GetNextSibling;
   end;
 
-  MapChart.Title.Visible := true;
-  MapChart.Title.Text.Text := title;
+  if not IsSecondary then
+  begin
+    MapChart.Title.Visible := true;
+    MapChart.Title.Text.Text := title;
 
-  MapDateLabel.Caption := DateToStr(startDate + ADateIndex);
-  UpdateDateIndicatorLine(startDate + ADateIndex);
+    MapDateLabel.Caption := DateToStr(startDate + ADateIndex);
+    UpdateDateIndicatorLine(startDate + ADateIndex);
+  end;
 end;
 
 procedure TMainForm.ShowMap(ANode: TTreeNode);
@@ -1826,6 +1868,7 @@ var
   stream: TStream;
   reader: TcGeoReader;
   data: TcDataitem;
+  isSecondary: Boolean;
 begin
   if FGeoMap = nil then
   begin
@@ -1836,7 +1879,7 @@ begin
   end else
     FGeoMap.Clear;
 
-  GetMapResourceNode(ANode, mapRes);
+  GetMapResourceNode(ANode, mapRes, isSecondary);
   if ANode = nil then
     exit;
 
@@ -1860,7 +1903,7 @@ begin
       UpdateDateIndicatorLine(data.GetLastDate);
 
       // Display the map
-      ShowCoronaMap(ANode, MapDateScrollbar.Position, GetMapDataType);
+      ShowCoronaMap(ANode, MapDateScrollbar.Position, GetMapDataType, isSecondary);
     finally
       reader.Free;
     end;
