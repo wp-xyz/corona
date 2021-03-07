@@ -230,8 +230,10 @@ type
     function GetLocation(ANode: TTreeNode): String;
     procedure GetLocation(ANode: TTreeNode; out ACountry, AState, ACity: String; out APopulation: Integer);
     function GetMapDataType: TMapDataType;
-    procedure GetMapResourceNode(var ANode: TTreeNode; out AResName: String; out IsSecondary: Boolean);
-    function GetSeries(ANode: TTreeNode; ACaseType: TCaseType; ADataType: TDataType): TBasicPointSeries;
+    procedure GetMapResourceNode(var ANode: TTreeNode; out AResName: String;
+      out IsSecondary: Boolean);
+    function GetSeries(ANode: TTreeNode; ACaseType: TCaseType;
+      ADataType: TDataType): TBasicPointSeries;
     procedure InitShortCuts;
     function IsTimeSeries: Boolean;
 //    procedure LayoutBars;
@@ -273,7 +275,7 @@ implementation
 {$R *.lfm}
 
 uses
-  LCLIntf, Math, IniFiles, DateUtils, InterfaceBase, LCLPlatformDef,
+  LCLIntf, Math, IniFiles, DateUtils, LCLPlatformDef,
   // TAChart units
   TATypes, TAMath, TACustomSource, TAFitLib,
   // project-specific units
@@ -293,8 +295,6 @@ const
   COLORS: array[0..9] of TColor = (
     clRed, clBlue, clFuchsia, clLime, clSkyBlue,
     clTeal, clPurple, clBlack, clMedGray, clMoneyGreen);
-
-  BARWIDTH_PERCENT = 80;
 
   START_COUNT = 100;
 
@@ -1844,7 +1844,12 @@ begin
           data.CalcRValue(ADateIndex, value, dummy);
       end;
       clr := FPalette.GetColor(value);
-      ser := FGeoMap.Series[data.Name];
+
+      ser := nil;
+      if data.GeoID <> -1 then
+        ser := FGeoMap.SeriesByID[data.GeoID];
+      if ser = nil then
+        ser := FGeoMap.SeriesByName[data.Name];
       if ser <> nil then
         ser.Brush.Color := clr;
       startdate := data.FirstDate;
@@ -1874,7 +1879,6 @@ begin
   begin
     FGeoMap := TcGeoMap.Create(self);
     FGeoMap.Chart := MapChart;
-    FGeoMap.Projection := gpMercator;
     FGeoMap.DefaultPenColor := clGray;
   end else
     FGeoMap.Clear;
@@ -1883,13 +1887,23 @@ begin
   if ANode = nil then
     exit;
 
-  stream := TResourceStream.Create(HINSTANCE, mapRes, RT_RCDATA);
+  if mapRes = WorldMapResName then
+    FGeoMap.Projection := gpMercator
+  else
+  begin
+    FGeoMap.Projection := gpOrthographic;
+    if (mapRes = USStatesMapResName) or (mapRes = USCountiesMapResName) then
+      FGeoMap.GeoIDOffset := 84000000;
+  end;
+
+  stream := TResourceStream.Create(HINSTANCE, mapRes, LCLType.RT_RCDATA);
   try
     reader := TKMLReader.Create;
     try
       if not reader.Check(stream) then
         raise Exception.Create('Resource ' + mapRes + ' is not a valid KML file.');
       reader.ReadFromStream(stream, FGeoMap);
+      FGeoMap.Plot;
 
       // Prepare date scrollbar
       data := TcDataItem(ANode.Data);

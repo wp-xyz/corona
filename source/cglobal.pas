@@ -24,7 +24,7 @@ type
     mdtRValue
   );
 
-//  TDataPointArray = array of TDoublePoint;
+  TGeoID = Int64;
 
   TLocationParams = record
    {$IFDEF DEBUG_LOCATIONPARAMS}

@@ -16,7 +16,7 @@ type
 
   TcDataItem = class
   private
-    FID: Integer;
+    FGeoID: TGeoID;
     FName: String;
     FParentName: String;
     FLongitude: Double;
@@ -47,7 +47,7 @@ type
     procedure SetCases(AFirstDate: TDate; const ACases: TCaseArray;
       ACaseType: TPrimaryCaseType);
 
-    property ID: Integer read FID write FID;
+    property GeoID: TGeoID read FGeoID write FGeoID;
     property Name: String read FName write FName;
     property ParentName: String read FParentName write FParentName;
     property Longitude: Double read FLongitude write FLongitude;

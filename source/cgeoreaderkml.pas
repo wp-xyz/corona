@@ -5,7 +5,8 @@ unit cGeoReaderKML;
 interface
 
 uses
-  Classes, SysUtils, laz2_dom, laz2_xmlread, cGeoMap;
+  Classes, SysUtils, laz2_dom, laz2_xmlread,
+  cGlobal, cGeoMap;
 
 type
   TKMLReader = class(TcGeoReader)
@@ -66,10 +67,12 @@ var
   item: TcGeoItem;
   nodeName: String;
   itemName: String;
+  geoID: TGeoID;
   s: String;
   ser: TcGeoMapSeries;
 begin
   itemName := '';
+  geoID := -1;
   node := ANode.FirstChild;
   while node <> nil do
   begin
@@ -97,6 +100,12 @@ begin
                 s := child2Node.FirstChild.NodeValue;
                 if s <> '' then
                   itemName := s;
+              end else
+              if s = 'GEOID' then
+              begin
+                s := child2Node.FirstChild.NodeValue;
+                if s <> '' then
+                  geoID := StrToInt64(s);
               end;
             end;
             child2Node := child2Node.NextSibling;
@@ -114,11 +123,10 @@ begin
         if nodeName = 'Polygon' then
         begin
           item.Name := itemName;
+          item.GeoID := geoID;
           item.Polygon := nil;
           ExtractPolygon(childNode, item);
-          AMap.AddGeoPolygon(item.Name, item.Polygon);
-          ser := TcGeoMapSeries(AMap.Chart.Series[AMap.Chart.SeriesCount-1]);
-          ser.GeoMap := AMap;
+          AMap.AddGeoPolygon(item.Name, item.GeoID, item.Polygon);
         end else
         if nodeName = 'MultiGeometry' then
         begin
@@ -129,11 +137,10 @@ begin
             if nodeName = 'Polygon' then
             begin
               item.Name := itemName;
+              item.GeoID := geoID;
               item.Polygon := nil;
               ExtractPolygon(child2node, item);
-              AMap.AddGeoPolygon(item.Name, item.Polygon);
-              ser := TcGeoMapSeries(AMap.Chart.Series[AMap.Chart.SeriesCount-1]);
-              ser.GeoMap := AMap;
+              AMap.AddGeoPolygon(item.Name, item.GeoID, item.Polygon);
             end;
             child2Node := child2Node.NextSibling;
           end;
@@ -144,11 +151,10 @@ begin
     if nodeName = 'Polygon' then
     begin
       item.Name := itemName;
+      item.GeoID := geoID;
       item.Polygon := nil;
       ExtractPolygon(node, item);
-      AMap.AddGeoPolygon(item.Name, item.Polygon);
-      ser := TcGeoMapSeries(AMap.Chart.Series[AMap.Chart.SeriesCount-1]);
-      ser.GeoMap := AMap;
+      AMap.AddGeoPolygon(item.Name, item.GeoID, item.Polygon);
     end;
     node := node.NextSibling;
   end;

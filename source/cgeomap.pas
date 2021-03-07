@@ -5,8 +5,8 @@ unit cGeoMap;
 interface
 
 uses
-  Classes, SysUtils, Graphics,
-  TAGraph, TAChartUtils, cPolygonSeries;
+  Classes, SysUtils, Graphics, Contnrs,
+  TAGraph, TAChartUtils, cGlobal, cPolygonSeries;
 
 type
   EcGeoError = class(EChartError);
@@ -15,6 +15,7 @@ type
 
   TcGeoItem = record
     Name: String;
+    GeoID: Int64;
     Polygon: array of TDoublePoint;
     RingStart: array of Integer;
   end;
@@ -25,16 +26,27 @@ type
     gpMiller,       // Mercator with latitudes scales by 4/5 = ESRI:54003 - World Miller Cylindrical
     gpHammerAitoff, //
     gpGallPeters,   // preserves area
+    gpOrthographic, // orthographic projection
     gpCustom        // use projection defined by OnProjection event
   );
 
-  TcGeoProjectionProc = procedure (ALongitude, ALatitude: Double; out X, Y: Double);
-  TcGeoProjectionInvProc = procedure (X, Y: Double; out ALongitude, ALatitude: Double);
+  TcGeoProjectionProc = procedure (ALongitude, ALatitude, ARefLongitude, ARefLatitude: Double;
+    out X, Y: Double);
+  TcGeoProjectionInvProc = procedure (X, Y, ARefLongitude, ARefLatitude: Double;
+    out ALongitude, ALatitude: Double);
 
   TcGeoProjectionEvent = procedure (Sender: TObject;
-    ALongitude, ALatitude: Double; out X, Y: Double) of object;
+    ALongitude, ALatitude, ARefLongitude, ARefLatitude: Double;
+    out X, Y: Double) of object;
   TcGeoProjectionInvEvent = procedure (Sender: TObject;
-    X, y: Double; out ALongitude, ALatitude: Double) of object;
+    X, y, ARefLongitude, ARefLatitude: Double;
+    out ALongitude, ALatitude: Double) of object;
+
+  TcGeoMapItem = class
+    Name: String;
+    GeoID: TGeoID;
+    Points: TDoublePointArray;
+  end;
 
   { TcGeoMap }
 
@@ -45,12 +57,15 @@ type
     FFileName: String;
     FPenColor: TColor;
     FBrushColor: TColor;
+    FGeoIDOffset: TGeoID;
+    FItems: TFPObjectList;
     FProjectionProc: TcGeoProjectionProc;
     FProjectionInvProc: TcGeoProjectionInvProc;
     FOnProjection: TcGeoProjectionEvent;
     FOnProjectionInv: TcGeoProjectionInvEvent;
 
-    function GetSeries(const AName: String): TcPolygonSeries;
+    function GetSeriesByID(const AGeoID: TGeoID): TcPolygonSeries;
+    function GetSeriesByName(const AName: String): TcPolygonSeries;
     function GetProjection: TcGeoProjection;
     procedure SetActive(AValue: Boolean);
     procedure SetChart(AValue: TChart);
@@ -58,16 +73,21 @@ type
     procedure SetProjection(AValue: TcGeoProjection);
 
   protected
+    procedure CalcCenter(out AveLongitude, AveLatitude: Double);
     procedure DoSetProjection(AValue: TcGeoProjection);
     function LoadFile: Boolean;
 
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
 
-    procedure AddGeoPolygon(AName: String; const APoints: TDoublePointArray);
+    procedure AddGeoPolygon(AName: String; AGeoID: TGeoID; const APoints: TDoublePointArray);
     procedure Clear;
+    procedure ClearSeries;
     procedure ListUniquePolygonNames(AList: TStrings);
-    property Series[const AName: String]: TcPolygonSeries read GetSeries;
+    procedure Plot;
+    property SeriesByID[const AGeoID: Int64]: TcPolygonSeries read GetSeriesByID;
+    property SeriesByName[const AName: String]: TcPolygonSeries read GetSeriesByName;
 
   published
     property Active: Boolean read FActive write SetActive default false;
@@ -75,6 +95,7 @@ type
     property DefaultBrushColor: TColor read FBrushColor write FBrushColor default clWhite;
     property DefaultPenColor: TColor read FPenColor write FPenColor default clBlack;
     property FileName: TFileName read FFileName write SetFileName;
+    property GeoIDOffset: TGeoID read FGeoIDOffset write FGeoIDOffset default 0;
     property Projection: TcGeoProjection read GetProjection write SetProjection default gpMercator;
     property OnProjection: TcGeoProjectionEvent read FOnProjection write FOnProjection;
     property OnProjectionInverse: TcGeoProjectionInvEvent read FOnProjectionInv write FOnProjectionInv;
@@ -83,8 +104,10 @@ type
   TcGeoMapSeries = class(TcPolygonSeries)
   protected
     FGeoMap: TcGeoMap;
+    FGeoID: TGeoID;
   public
     property GeoMap: TcGeoMap read FGeoMap write FGeoMap;
+    property GeoID: TGeoID read FGeoID write FGeoID;
   end;
 
   TcGeoReader = class
@@ -124,21 +147,24 @@ const
 -------------------------------------------------------------------------------}
 
 // Set projected planar coordinate values equal to the spherical angular coordinates
-procedure SimpleProjection(In1, In2: Double; out Out1, Out2: Double);
+procedure SimpleProjection(In1, In2, ARefLongitude, ARefLatitude: Double;
+  out Out1, Out2: Double);
 begin
   Out1 := In1;
   Out2 := In2;
 end;
 
 // https://forum.openstreetmap.org/viewtopic.php?id=20097
-procedure Mercator(ALongitude, ALatitude: Double; out X, Y: Double);
+procedure Mercator(ALongitude, ALatitude, ARefLongitude, ARefLatitude: Double;
+  out X, Y: Double);
 begin
   X := ALongitude * PItRo180;
   Y := ln(tan((90 + ALatitude) * PIo360)) * R2D;
   Y := Y * PItRo180;
 end;
 
-procedure InvMercator(X, Y: Double; out ALongitude, ALatitude: Double);
+procedure InvMercator(X, Y, ARefLongitude, ARefLatitude: Double;
+  out ALongitude, ALatitude: Double);
 begin
   ALongitude := (X / 20037508.34) * 180;
   ALatitude := (Y / 20037508.34) * 180;
@@ -147,13 +173,15 @@ end;
 
 
 // https://en.wikipedia.org/wiki/Gall%E2%80%93Peters_projection
-procedure GallPeters(ALongitude, ALatitude: Double; out X, Y: Double);
+procedure GallPeters(ALongitude, ALatitude, ARefLongitude, ARefLatitude: Double;
+  out X, Y: Double);
 begin
   X := PItRo180 * ALongitude;            // R * lambda
   Y := TWO_R * sin(D2R * ALatitude);     // 2 * r * sin(phi)
 end;
 
-procedure InvGallPeters(X, Y: Double; out ALongitude, ALatitude: Double);
+procedure InvGallPeters(X, Y, ARefLongitude, ARefLatitude: Double;
+  out ALongitude, ALatitude: Double);
 begin
   ALongitude := X / PItRo180;
   ALatitude := arcsin(Y / TWO_R) * R2D;
@@ -161,7 +189,8 @@ end;
 
 
 // https://en.wikipedia.org/wiki/Hammer_projection
-procedure HammerAitoff(ALongitude, ALatitude: Double; out X, Y: Double);
+procedure HammerAitoff(ALongitude, ALatitude, ARefLongitude, ARefLatitude: Double;
+  out X, Y: Double);
 var
   lambda2, phi: Double;
   sinPhi, cosPhi, sinLambda2, cosLambda2: double;
@@ -176,7 +205,8 @@ begin
   Y := SQRT2 * sinPhi / denom;
 end;
 
-procedure InvHammerAitoff(X, Y: Double; out ALongitude, ALatitude: Double);
+procedure InvHammerAitoff(X, Y, ARefLongitude, ARefLatitude: Double;
+  out ALongitude, ALatitude: Double);
 var
   z: Double;
   phi, lambda: Double;
@@ -190,7 +220,8 @@ end;
 
 
 // https://en.wikipedia.org/wiki/Miller_cylindrical_projection
-procedure Miller(ALongitude, ALatitude: Double; out X, Y: Double);
+procedure Miller(ALongitude, ALatitude, ARefLongitude, ARefLatitude: Double;
+  out X, Y: Double);
 var
   phi, lambda: Double;
 begin
@@ -205,7 +236,8 @@ begin
     Y := NaN;
 end;
 
-procedure InvMiller(X, Y: Double; out ALongitude, ALatitude: Double);
+procedure InvMiller(X, Y, ARefLongitude, ARefLatitude: Double;
+  out ALongitude, ALatitude: Double);
 var
   phi, tmp: Double;
 begin
@@ -214,6 +246,60 @@ begin
   tmp := exp(4/5*Y);
   phi := 5/2 * arctan(tmp) - 5/8 * pi;
   ALatitude := R2D * phi;
+end;
+
+
+// https://en.wikipedia.org/wiki/Orthographic_map_projection
+procedure Orthographic(ALongitude, ALatitude, ARefLongitude, ARefLatitude: Double;
+  out X, Y: Double);
+var
+  phi, cosPhi, sinPhi: Double;
+  phi0, cosPhi0, sinPhi0: double;
+  lambda, lambda0, cosLambda, sinLambda: Double;
+  c, cPhi, sPhi: Double;
+begin
+  lambda := ALongitude * D2R;
+  phi := ALatitude * D2R;
+  lambda0 := ARefLongitude * D2R;
+  phi0 := ARefLatitude * D2R;
+  SinCos(phi, sinPhi, cosPhi);
+  SinCos(phi0, sinPhi0, cosPhi0);
+  SinCos(lambda - lambda0, sinLambda, cosLambda);
+  c := sinPhi0 * sinPhi + cosPhi0 * cosPhi * cosLambda;
+  if c > 0 then
+  begin
+    X := EARTH_RADIUS * cosPhi * sinLambda;
+    Y := EARTH_RADIUS * (cosPhi0 * sinPhi - sinPhi0 * cosPhi * cosLambda);
+  end else
+  begin
+    // Point on other side of sphere must be clipped
+    X := Infinity;  // To do: Find better values
+    Y := Infinity;
+  end;
+end;
+
+procedure InvOrthographic(X, Y, ARefLongitude, ARefLatitude: Double;
+  out ALongitude, ALatitude: Double);
+var
+  rho: Double;
+  c, sinC, cosC: Double;
+  phi, phi0, sinPhi0, cosPhi0: Double;
+  lambda, lambda0: Double;
+begin
+  lambda0 := ARefLongitude * D2R;
+
+  phi0 := ARefLatitude * D2R;
+  SinCos(phi0, sinPhi0, cosPhi0);
+
+  rho := sqrt(X*X + Y*Y);
+  c := arcsin(rho/EARTH_RADIUS);
+  SinCos(c, sinC, cosC);
+
+  phi := arcsin(cosC * sinPhi0 + (Y * sinC * cosPhi0) / rho);
+  lambda := lambda0 + arctan2(X * sinC, rho * cosC * cosPhi0 - Y * sinC * sinPhi0);
+
+  ALongitude := lambda / D2R;
+  ALatitude := phi / D2R;
 end;
 
 
@@ -369,71 +455,91 @@ end;
 constructor TcGeoMap.Create(AOwner: TComponent);
 begin
   inherited;
+  FItems := TFPObjectList.Create;
   FBrushColor := clWhite;
   FPenColor := clBlack;
   DoSetProjection(gpSimple);
 end;
 
+destructor TcGeoMap.Destroy;
+begin
+  FItems.Free;
+  inherited;
+end;
 
 { Adds a polygon to the map. The polygon consists of longitude/latitude pairs
   where angles are given in degrees. When the polygon exactly meets a point
   already used it is assumed that the polygon consists of several parts. }
-procedure TcGeoMap.AddGeoPolygon(AName: String; const APoints: TDoublePointArray);
+procedure TcGeoMap.AddGeoPolygon(AName: String; AGeoID: TGeoID;
+  const APoints: TDoublePointArray);
 var
-  ser: TcGeoMapSeries;
-  i: Integer;
-  x, y: Double;
-  lon, lat: Double;
+  item: TcGeoMapItem;
 begin
-  if FChart = nil then
-    raise EChartError.Create('No chart connected to GeoMap');
+  item := TcGeoMapItem.Create;
+  item.Name := AName;
+  item.GeoID := AGeoID + FGeoIDOffset;
+  item.Points := APoints;
+  FItems.Add(item);
+end;
 
-  ser := GetSeries(AName) as TcGeoMapSeries;
-  if ser = nil then
-  begin
-    ser := TcGeoMapSeries.Create(FChart);
-    ser.Title := AName;
-    ser.Brush.Color := FBrushColor;
-    ser.Pen.Color := FPenColor;
-  end;
-
-  if (GetProjection = gpCustom) then
-  begin
-    if Assigned(FOnProjection) then
-    for i := 0 to High(APoints) do
+procedure TcGeoMap.CalcCenter(out AveLongitude, AveLatitude: double);
+var
+  i, j, n: Integer;
+  item: TcGeoMapItem;
+begin
+  AveLongitude := 0;
+  AveLatitude := 0;
+  n := 0;
+  for i := 0 to FItems.Count-1 do begin
+    item := TcGeoMapItem(FItems[i]);
+    for j := 0 to High(item.Points) do
     begin
-      lon := APoints[i].X;
-      lat := APoints[i].Y;
-      FOnProjection(self, lon, lat, x, y);
-      ser.AddXY(x, y);
-    end;
-  end else
-  begin
-    for i := 0 to High(APoints) do
-    begin
-      lon := APoints[i].X;
-      lat := APoints[i].Y;
-      FProjectionProc(lon, lat, x, y);
-      ser.AddXY(x, y);
+      AveLongitude := AveLongitude + item.Points[j].X;
+      AveLatitude := AveLatitude + item.Points[j].Y;
+      inc(n);
     end;
   end;
-
-  FChart.AddSeries(ser);
+  AveLongitude := AveLongitude / n;
+  AveLatitude := AveLatitude / n;
 end;
 
 procedure TcGeoMap.Clear;
+begin
+  FItems.Clear;
+  ClearSeries;
+end;
+
+procedure TcGeoMap.ClearSeries;
 var
   i: Integer;
 begin
   if FChart = nil then
     exit;
 
-  for i := FChart.SeriesCount-1 downto 0 do
-    if (FChart.Series[i] is TcGeoMapSeries) and (TcGeoMapseries(FChart.Series[i]).GeoMap = self) then
+  for i := FChart.Series.Count-1 downto 0 do
+    if (FChart.Series[i] is TcGeoMapSeries) and (TcGeoMapSeries(FChart.Series[i]).GeoMap = self) then
       FChart.Series[i].Free;
 end;
 
-function TcGeoMap.GetSeries(const AName: String): TcPolygonSeries;
+function TcGeoMap.GetSeriesByID(const AGeoID: TGeoID): TcPolygonSeries;
+var
+  i: Integer;
+begin
+  if FChart = nil then
+    exit(nil);
+
+  for i := 0 to FChart.SeriesCount-1 do
+    if (FChart.Series[i] is TcGeoMapSeries) and
+       (TcGeoMapSeries(FChart.Series[i]).GeoID = AGeoID) then
+    begin
+      Result := TcGeoMapSeries(FChart.Series[i]);
+      exit;
+    end;
+
+  Result := nil;
+end;
+
+function TcGeoMap.GetSeriesByName(const AName: String): TcPolygonSeries;
 var
   i: Integer;
 begin
@@ -467,6 +573,9 @@ begin
   else
   if FProjectionProc = @GallPeters then
     Result := gpGallPeters
+  else
+  if FProjectionProc = @Orthographic then
+    Result := gpOrthographic
   else
     Result := gpCustom;
 end;
@@ -517,6 +626,97 @@ begin
   end;
 end;
 
+procedure TcGeoMap.Plot;
+var
+  ser: TcGeoMapSeries;
+  item: TcGeoMapItem;
+  i, j: Integer;
+  x, y: Double;
+  lon, lat: Double;
+  aveLon, aveLat: Double;
+begin
+  if FChart = nil then
+    raise EChartError.Create('No chart connected to GeoMap');
+
+  CalcCenter(aveLon, aveLat);
+  ClearSeries;
+
+  for i := 0 to FItems.Count-1 do begin
+    item := TcGeoMapItem(FItems[i]);
+    ser := TcGeoMapSeries.Create(FChart);
+    ser.GeoID := item.GeoID;
+    ser.Title := item.Name;
+    ser.Brush.Color := FBrushColor;
+    ser.Pen.Color := FPenColor;
+    ser.GeoMap := self;
+    if (GetProjection = gpCustom) then
+    begin
+      if Assigned(FOnProjection) then
+        for j := 0 to High(item.Points) do
+        begin
+          lon := item.Points[j].X;
+          lat := item.Points[j].Y;
+          FOnProjection(Self, lon, lat, aveLon, aveLat, x, y);
+          ser.AddXY(x, y);
+        end;
+    end else
+      for j := 0 to High(item.Points) do
+      begin
+        lon := item.Points[j].x;
+        lat := item.Points[j].y;
+        FProjectionProc(lon, lat, aveLon, aveLat, x, y);
+        if not (IsInfinite(abs(x)) or IsInfinite(abs(y))) then
+          ser.AddXY(x, y);
+      end;
+    FChart.AddSeries(ser);
+  end;
+  {
+
+  aveLon := 0;
+  aveLat := 0;
+  n := 0;
+  for i := 0 to High(APoints) do
+  begin
+    aveLon := aveLon + APoints[i].X;
+    aveLat := avelat + APoints[i].Y;
+    inc(n);
+  end;
+  aveLon := aveLon / n;
+  aveLat := aveLat / n;
+
+  ser := GetSeries(AName) as TcGeoMapSeries;
+  if ser = nil then
+  begin
+    ser := TcGeoMapSeries.Create(FChart);
+    ser.Title := AName;
+    ser.Brush.Color := FBrushColor;
+    ser.Pen.Color := FPenColor;
+  end;
+
+  if (GetProjection = gpCustom) then
+  begin
+    if Assigned(FOnProjection) then
+    for i := 0 to High(APoints) do
+    begin
+      lon := APoints[i].X;
+      lat := APoints[i].Y;
+      FOnProjection(self, lon, lat, aveLon, aveLat, x, y);
+      ser.AddXY(x, y);
+    end;
+  end else
+  begin
+    for i := 0 to High(APoints) do
+    begin
+      lon := APoints[i].X;
+      lat := APoints[i].Y;
+      FProjectionProc(lon, lat, aveLon, aveLat, x, y);
+      ser.AddXY(x, y);
+    end;
+  end;
+
+  FChart.AddSeries(ser);
+  }
+end;
 
 procedure TcGeoMap.SetActive(AValue: Boolean);
 begin
@@ -580,6 +780,11 @@ begin
       begin
         FProjectionProc := @GallPeters;
         FProjectionInvProc := @InvGallPeters;
+      end;
+    gpOrthographic:
+      begin
+        FProjectionProc := @Orthographic;
+        FProjectionInvProc := @InvOrthographic;
       end;
     gpCustom:
       begin

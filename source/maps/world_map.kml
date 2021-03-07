@@ -13,7 +13,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Afghanistan</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">4</SimpleData>
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -96,8 +96,8 @@
     </Placemark><Placemark>
       <styleUrl>#defaultStyle</styleUrl>
       <name>Angola</name>
-      <ExtendedData>
-        
+      <ExtendedData>        
+        <SimpleData name="GEOID">24</SimpleData>
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -192,8 +192,8 @@
     </Placemark><Placemark>
       <styleUrl>#defaultStyle</styleUrl>
       <name>Albania</name>
-      <ExtendedData>
-        
+      <ExtendedData>        
+        <SimpleData name="GEOID">8</SimpleData>
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -230,7 +230,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>United Arab Emirates</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">784</SimpleData>
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -267,7 +267,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Argentina</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">32</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -409,7 +409,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Armenia</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">51</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -468,7 +468,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Bangladesh</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">50</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -519,7 +519,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Bulgaria</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">100</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -561,8 +561,8 @@
     </Placemark><Placemark>
       <styleUrl>#defaultStyle</styleUrl>
       <name>Bosnia and Herzegovina</name>
-      <ExtendedData>
-        
+      <ExtendedData>        
+        <SimpleData name="GEOID">70</SimpleData>
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -599,7 +599,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Australia</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">36</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -861,7 +861,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Austria</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">40</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -912,8 +912,8 @@
     </Placemark><Placemark>
       <styleUrl>#defaultStyle</styleUrl>
       <name>Azerbaijan</name>
-      <ExtendedData>
-        
+      <ExtendedData>        
+        <SimpleData name="GEOID">31</SimpleData>
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -978,7 +978,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Burundi</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">108</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -1005,8 +1005,8 @@
     </Placemark><Placemark>
       <styleUrl>#defaultStyle</styleUrl>
       <name>Belgium</name>
-      <ExtendedData>
-        
+      <ExtendedData>        
+        <SimpleData name="GEOID">56</SimpleData>
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -1036,7 +1036,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Benin</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">204</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -1076,7 +1076,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Burkina Faso</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">854</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -1130,7 +1130,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Bahamas</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">44</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -1178,7 +1178,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Belarus</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">112</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -1237,7 +1237,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Belize</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">84</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -1272,7 +1272,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Bermuda</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">60</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -1373,7 +1373,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Bolivia</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">68</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -1448,7 +1448,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Brazil</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">76</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -1666,7 +1666,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Brunei</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">96</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -1689,7 +1689,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Bhutan</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">64</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -1717,7 +1717,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Botswana</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">72</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -1772,7 +1772,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Central African Republic</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">140</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -1849,7 +1849,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Canada</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">124</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -2830,7 +2830,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Switzerland</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">756</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -2869,7 +2869,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Chile</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">152</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -3004,7 +3004,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Congo (Brazzaville)</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">178</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -3068,7 +3068,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Colombia</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">170</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -3183,7 +3183,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Costa Rica</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">188</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -3234,7 +3234,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>China</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">156</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -3495,7 +3495,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Cote d'Ivoire</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">384</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -3556,7 +3556,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Cameroon</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">120</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -3632,7 +3632,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Congo (Kinshasa)</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">180</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -3769,7 +3769,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Cuba</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">192</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -3826,7 +3826,6 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Northern Cyprus</name>
       <ExtendedData>
-        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -3857,7 +3856,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Cyprus</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">196</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -3887,7 +3886,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Czechia</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">203</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -3937,7 +3936,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Germany</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">276</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -4010,7 +4009,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Djibouti</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">262</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -4040,7 +4039,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Denmark</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">208</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -4085,7 +4084,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Dominican Republic</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">214</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -4126,7 +4125,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Algeria</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">12</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -4203,7 +4202,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Ecuador</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">218</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -4251,7 +4250,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Egypt</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">818</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -4308,7 +4307,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Eritrea</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">232</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -4351,7 +4350,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Spain</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">724</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -4417,7 +4416,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Estonia</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">233</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -4449,7 +4448,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Ethiopia</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">231</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -4523,7 +4522,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Finland</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">246</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -4576,7 +4575,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Fiji</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">242</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -4625,7 +4624,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Falkland Islands</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">238</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -4650,7 +4649,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>France</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">250</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -4726,7 +4725,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Gabon</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">266</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -4772,7 +4771,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>United Kingdom</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">826</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -4849,7 +4848,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Georgia</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">268</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -4888,7 +4887,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Ghana</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">288</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -4928,7 +4927,6 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Macedonia</name>
       <ExtendedData>
-        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -4960,7 +4958,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Guinea</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">324</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -5045,7 +5043,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Gambia</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">270</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -5076,7 +5074,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Guinea-Bissau</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">624</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -5109,8 +5107,8 @@
     </Placemark><Placemark>
       <styleUrl>#defaultStyle</styleUrl>
       <name>Equatorial Guinea</name>
-      <ExtendedData>
-        
+      <ExtendedData>        
+        <SimpleData name="GEOID">226</SimpleData>
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -5132,7 +5130,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Greece</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">300</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -5207,7 +5205,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Greenland</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">304</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -5354,7 +5352,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Guatemala</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">320</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -5404,7 +5402,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>French Guiana</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">254</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -5438,7 +5436,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Guyana</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">328</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -5493,7 +5491,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Slovakia</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">703</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -5541,7 +5539,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Honduras</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">340</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -5613,7 +5611,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Croatia</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">191</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -5670,7 +5668,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Haiti</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">332</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -5706,7 +5704,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Hungary</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">348</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -5752,7 +5750,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Indonesia</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">360</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -6089,7 +6087,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Slovenia</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">705</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -6122,7 +6120,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>India</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">356</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -6273,7 +6271,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Ireland</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">372</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -6301,7 +6299,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Iran</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">364</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -6391,7 +6389,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Iraq</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">368</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -6436,7 +6434,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Iceland</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">352</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -6471,7 +6469,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Israel</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">376</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -6509,7 +6507,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Italy</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">380</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -6623,7 +6621,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Jamaica</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">388</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -6649,7 +6647,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Jordan</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">400</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -6683,7 +6681,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Japan</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">392</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -6775,7 +6773,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Kazakhstan</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">398</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -6902,7 +6900,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Kenya</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">404</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -6954,7 +6952,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Kyrgyzstan</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">417</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -7004,7 +7002,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Cambodia</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">116</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -7036,7 +7034,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Korea, South</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">410</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -7070,7 +7068,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Kosovo</name>
       <ExtendedData>
-        
+         <SimpleData name="GEOID">383</SimpleData>
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -7106,7 +7104,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Kuwait</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">414</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -7130,7 +7128,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Laos</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">418</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -7182,7 +7180,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Lebanon</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">422</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -7208,7 +7206,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Liberia</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">430</SimpleData>
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -7250,7 +7248,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Libya</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">434</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -7321,7 +7319,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Sri Lanka</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">144</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -7346,7 +7344,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Lesotho</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">426</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -7373,7 +7371,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Lithuania</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">440</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -7407,7 +7405,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Luxembourg</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">442</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -7429,7 +7427,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Latvia</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">428</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -7466,7 +7464,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Morocco</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">504</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -7545,7 +7543,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Moldova</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">498</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -7587,7 +7585,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Madagascar</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">450</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -7651,7 +7649,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Mexico</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">484</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -7836,7 +7834,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Mali</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">466</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -7927,7 +7925,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Malta</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">470</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -7964,7 +7962,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Burma</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">104</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -8049,7 +8047,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Montenegro</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">499</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -8082,7 +8080,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Mongolia</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">496</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -8172,7 +8170,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Mozambique</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">508</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -8264,7 +8262,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Mauritania</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">478</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -8318,7 +8316,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Malawi</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">454</SimpleData>
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -8361,7 +8359,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Malaysia</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">458</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -8444,7 +8442,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Namibia</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">516</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -8503,7 +8501,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>New Caledonia</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">540</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -8531,7 +8529,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Niger</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">562</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -8604,7 +8602,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Nigeria</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">566</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -8677,7 +8675,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Nicaragua</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">558</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -8744,7 +8742,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Netherlands</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">528</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -8773,7 +8771,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Norway</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">578</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -8894,7 +8892,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Nepal</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">524</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -8932,7 +8930,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>New Zealand</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">554</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -9019,7 +9017,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Oman</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">512</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -9087,7 +9085,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Pakistan</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">586</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -9168,7 +9166,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Panama</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">591</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -9235,7 +9233,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Peru</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">604</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -9326,7 +9324,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Philippines</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">608</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -9487,7 +9485,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Papua New Guinea</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">598</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -9601,7 +9599,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Poland</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">616</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -9661,7 +9659,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Puerto Rico</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">630</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -9743,7 +9741,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Portugal</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">620</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -9791,7 +9789,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Paraguay</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">600</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -9839,7 +9837,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Qatar</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">634</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -9863,7 +9861,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Romania</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">642</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -9922,7 +9920,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Russia</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">643</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -10607,7 +10605,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Rwanda</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">646</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -10635,7 +10633,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Western Sahara</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">732</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -10678,7 +10676,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Saudi Arabia</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">682</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -10769,7 +10767,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Sudan</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">729</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -10863,7 +10861,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>South Sudan</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">728</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -10941,7 +10939,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Senegal</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">686</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -11000,7 +10998,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Solomon Islands</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">90</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -11076,7 +11074,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Sierra Leone</name>
       <ExtendedData>
-        
+         <SimpleData name="GEOID">694</SimpleData>
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -11113,7 +11111,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>El Salvador</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">222</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -11148,7 +11146,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Somaliland</name>
       <ExtendedData>
-        
+
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -11187,7 +11185,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Somalia</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">706</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -11236,9 +11234,9 @@
     </MultiGeometry>
     </Placemark><Placemark>
       <styleUrl>#defaultStyle</styleUrl>
-      <name>Republic of Serbia</name>
+      <name>Serbia</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">688</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -11299,7 +11297,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Suriname</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">740</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -11340,7 +11338,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Sweden</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">752</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -11471,7 +11469,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Syria</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">760</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -11513,7 +11511,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Chad</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">148</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -11586,7 +11584,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Togo</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">768</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -11620,7 +11618,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Thailand</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">764</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -11699,7 +11697,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Tajikistan</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">762</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -11824,7 +11822,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Timor-Leste</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">626</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -11850,7 +11848,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Trinidad and Tobago</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">780</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -11873,7 +11871,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Tunisia</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">788</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -11919,7 +11917,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Turkey</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">792</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -12007,7 +12005,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Taiwan*</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">158</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -12031,7 +12029,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Tanzania</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">834</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -12095,7 +12093,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Uganda</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">800</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -12137,7 +12135,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Ukraine</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">804</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -12250,7 +12248,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Uruguay</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">858</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -12286,7 +12284,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Uzbekistan</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">860</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -12355,7 +12353,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Venezuela</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">862</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -12462,7 +12460,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>US</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">840</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -12974,7 +12972,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Vietnam</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">704</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -13033,7 +13031,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Vanuatu</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">548</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -13064,9 +13062,9 @@
     </MultiGeometry>
     </Placemark><Placemark>
       <styleUrl>#defaultStyle</styleUrl>
-      <name>West Bank</name>
+      <name>West Bank and Gaza</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">275</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -13090,7 +13088,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Yemen</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">887</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -13149,7 +13147,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>South Africa</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">710</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -13261,7 +13259,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Zambia</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">894</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -13337,7 +13335,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Zimbabwe</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">716</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>

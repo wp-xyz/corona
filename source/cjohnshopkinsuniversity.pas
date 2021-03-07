@@ -392,6 +392,7 @@ var
   i: Integer;
   population: Int64;
   country, state, city: String;
+  geoID: TGeoID;
   lon, lat: Double;
   data: TcDataItem;
 begin
@@ -417,6 +418,7 @@ begin
       country := Unquote(sa[7]);
       state := Unquote(sa[6]);
       city := Unquote(sa[5]);
+      if not TryStrToInt64(sa[0], geoID) then geoID := -1;
       if not TryStrToInt64(sa[11], population) then population := -1;
       if not TryStrToFloat(sa[9], lon, cFormatSettings) then lon := 0;
       if not TryStrToFloat(sa[8], lat, cFormatSettings) then lat := 0;
@@ -448,7 +450,7 @@ begin
         data := TcDataItem.Create;
         data.Name := country;
         data.ParentName := '';
-        data.ID := -1;  // not used by JHU
+        data.GeoID := geoID;
         data.Population := population;
         data.Longitude := lon;
         data.Latitude := lat;
@@ -486,7 +488,7 @@ begin
           data := TcDataItem.Create;
           data.Name := state;
           data.ParentName := country;
-          data.ID := -1;  // not used by JHU
+          data.GeoID := geoID;
           data.Population := population;
           data.Longitude := lon;
           data.Latitude := lat;
@@ -504,7 +506,7 @@ begin
           data := TcDataItem.Create;
           data.Name := city;
           data.ParentName := state;
-          data.ID := -1;  // not used by JHU
+          data.GeoID := geoID;
           data.Population := population;
           data.Longitude := lon;
           data.Latitude := lat;
