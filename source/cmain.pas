@@ -216,6 +216,7 @@ type
     FMeasurementSeries: TFuncSeries;
     FFitCoeffs: array[0..1] of Double;
     FStatusText1, FStatusText2: String;
+    FMapLock: Integer;
 
     function CalcFit(ASeries: TBasicChartSeries; xmin, xmax: Double): Boolean;
     procedure CalcFitCurveHandler(const AX: Double; out AY: Double);
@@ -231,7 +232,7 @@ type
     procedure GetLocation(ANode: TTreeNode; out ACountry, AState, ACity: String; out APopulation: Integer);
     function GetMapDataType: TMapDataType;
     procedure GetMapResourceNode(var ANode: TTreeNode; out AResName: String;
-      out IsSecondary: Boolean);
+      out APlotChildNodes: Boolean);
     function GetSeries(ANode: TTreeNode; ACaseType: TCaseType;
       ADataType: TDataType): TBasicPointSeries;
     procedure InitShortCuts;
@@ -244,8 +245,10 @@ type
     procedure SelectNode(ANode: TTreeNode);
     procedure SeriesToArray(ASeries: TChartSeries; out AData: TDataPointArray);
     procedure ShowCharts(VisibleCharts: TVisibleCharts);
-    procedure ShowCoronaMap(ANode: TTreeNode; ADateIndex: Integer; AMapDataType: TMapDataType;
-      IsSecondary: Boolean);
+    procedure ShowCoronaMap(ANode: TTreeNode; ADateIndex: Integer;
+      AMapDataType: TMapDataType; PlotChildNodeData: Boolean);
+    procedure ShowCoronaMapLevel(ANode: TTreeNode; ADateIndex: Integer;
+      AMapDataType: TMapDataType);
     procedure ShowMap(ANode: TTreeNode);
     procedure ShowTimeSeries(ANode: TTreeNode);
     procedure StatusMsgHandler(Sender: TObject; const AMsg1, AMsg2: String);
@@ -764,6 +767,9 @@ var
   dt: TDataType;
   d: TDate;
 begin
+  if ASender = nil then
+    exit;
+
   if ASender.Series = nil then
     FStatusText1 := ''
   else
@@ -1310,51 +1316,61 @@ begin
   UpdateAffectedSeries;
 end;
 
-{ Starting at ANode, goes up the tree towards root and returns the
-  MapResource field of the first parent which is <> ''. This identifies the
-  name of the resource with the map to be displayed.
-  At exit ANode points to the first node with data contained in this map. }
+{ ANode has been clicked. Finds the map which will be displayed for this node.
+  Returns the resource name of the map, and the first data node. The calling
+  routine will extract Covid data for all sibling nodes of the returned ANode. }
 procedure TMainForm.GetMapResourceNode(var ANode: TTreeNode; out AResName: String;
-  out IsSecondary: Boolean);
+  out APlotChildNodes: Boolean);
 var
   dataitem: TcDataItem;
   node: TTreeNode;
+  n: Integer;
 begin
   AResName := '';
-  IsSecondary := false;
+  APlotChildNodes := false;
+  if ANode = nil then
+    exit;
 
-  if ANode <> nil then
+  dataItem := TcDataItem(ANode.Data);
+
+  // A node at the country level always displays the world map
+  if ANode.Level = 1 then
   begin
-    node := ANode;
-    dataItem := TcDataItem(ANode.Data);
+    AResName := WorldMapResName;
+  //  APlotChildNodes := ANode.Haschildren and (dataItem.MapResource = '');  // this is true for countries like Denmark
+    ANode := ANode.GetFirstSibling;
+    exit;
+  end;
 
-    case dataItem.MapResourceUsed of
-      mrPrimary:
-        while node <> nil do
-        begin
-          dataitem := TcDataItem(node.Data);
-          if dataitem.PrimaryMapResource <> '' then
-          begin
-            AResName := dataitem.PrimaryMapResource;
-            ANode := node.GetFirstChild;
-            exit;
-          end;
-          node := node.Parent;
-        end;
-      mrSecondary:
-        while node <> nil do
-        begin
-          dataitem := TcDataItem(node.Data);
-          if dataitem.SecondaryMapResource <> '' then
-          begin
-            AResName := dataItem.SecondaryMapResource;
-            ANode := node.GetFirstChild;
-            IsSecondary := true;
-            exit;
-          end;
-          node := node.Parent;
-        end;
+  // Nodes using the "other map" find the map two levels up the tree.
+  if dataItem.UseOtherMapResource then
+  begin
+    node := ANode.Parent;
+    if node = nil then
+      exit;
+    node := node.Parent;
+    dataitem := TcDataItem(node.Data);
+    AResName := dataItem.OtherMapResource;
+    ANode := ANode.Parent.GetFirstSibling;
+    APlotChildNodes := true;
+    exit;
+  end;
+
+  // Nodes with the regular map can be any number of levels higher than the
+  // current node. --> move up the tree until we find the node with the map
+  node := ANode;
+  while node <> nil do begin
+    dataItem := TcDataItem(node.Data);
+    if dataItem.MapResource <> '' then
+    begin
+      AResName := dataItem.MapResource;
+      if ANode.Parent = nil then  // ANode is world node
+        ANode := ANode.GetFirstChild
+      else
+        ANode := ANode.GetFirstSibling;
+      exit;
     end;
+    node := node.Parent;
   end;
 
   // If we get here we did not find any map node. --> Select the world map and
@@ -1399,12 +1415,17 @@ end;
 procedure TMainForm.MapDateScrollbarChange(Sender: TObject);
 var
   node: TTreeNode;
+  data: TcDataItem;
   dummy: String;
-  isSecondary: boolean;
+  plotChildData: Boolean;
 begin
   node := TreeView.Selected;
-  GetMapResourceNode(node, dummy, isSecondary);
-  ShowCoronaMap(node, MapDateScrollbar.Position, GetMapDataType, isSecondary);
+  if node = nil then
+    exit;
+  data := TcDataItem(node.Data);
+
+  GetMapResourceNode(node, dummy, plotChildData);
+  ShowCoronaMap(node, MapDateScrollbar.Position, GetMapDataType, plotChildData);
 end;
 
 procedure TMainForm.MapToolsetDataPointClickToolPointClick(ATool: TChartTool;
@@ -1791,8 +1812,45 @@ begin
     AData[i] := ASeries.Source.Item[i]^.Point;
 end;
 
+procedure TMainForm.ShowCoronaMapLevel(ANode: TTreeNode; ADateIndex: Integer;
+  AMapDataType: TMapDataType);
+var
+  data: TcDataItem;
+  value, dummy: Double;
+  clr: TColor;
+  ser: TcPolygonSeries;
+  ct: TCaseType = ctConfirmed;
+begin
+  while ANode <> nil do
+  begin
+    if anode.Text = 'Argentina' then
+      clr := 0;
+
+
+    data := TcDataItem(ANode.Data);
+    case AMapDataType of
+      mdtNormalizedNewConfirmed, mdtNormalizedNewDeaths:
+        value := data.CalcNormalizedNewCases(ADateIndex, ct);
+      mdtRValue:
+        data.CalcRValue(ADateIndex, value, dummy);
+    end;
+    clr := FPalette.GetColor(value);
+
+    ser := nil;
+    if data.GeoID <> -1 then
+      ser := FGeoMap.SeriesByID[data.GeoID];
+    if ser = nil then
+      ser := FGeoMap.SeriesByName[data.Name];
+    if ser <> nil then
+      ser.Brush.Color := clr;
+
+    ANode := ANode.GetNextSibling;
+  end;
+end;
+
+
 procedure TMainForm.ShowCoronaMap(ANode: TTreeNode;
-  ADateIndex: Integer; AMapDataType: TMapDataType; IsSecondary: Boolean);
+  ADateIndex: Integer; AMapDataType: TMapDataType; PlotChildNodeData: Boolean);
 var
   data: TcDataItem;
   value, dummy: Double;
@@ -1804,6 +1862,9 @@ var
   title: String;
   node: TTreeNode;
 begin
+  if ANode = nil then
+    exit;
+
   case AMapDataType of
     mdtNormalizedNewConfirmed:
       begin
@@ -1823,6 +1884,43 @@ begin
       title := 'Reproduction number R';
   end;
 
+  MapChart.Title.Visible := true;
+  MapChart.Title.Text.Text := title;
+
+  data := TcDataItem(ANode.Data);
+  startDate := data.firstDate;
+  MapDateLabel.Caption := DateToStr(startDate + ADateIndex);
+  UpdateDateIndicatorLine(startDate + ADateIndex);
+
+  if PlotChildNodeData then begin
+    while ANode <> nil do
+    begin
+      ShowCoronaMapLevel(ANode.GetFirstChild, ADateIndex, AMapDataType);
+      ANode := ANode.GetNextSibling;
+    end
+  end else
+    ShowCoronaMapLevel(ANode, ADateIndex, AMapDataType);
+                                    (*
+
+
+      while node <> nil do
+      begin
+        ShowCoronaMapLevel(node,
+        data := TcDataItem(node.Data);
+        startDate := data.FirstDate;
+        case AMapDataType of
+          mdtNormalizedNewConfirmed, mdtNormalizedNewDeaths:
+            value := data.CalcNormalizedNewCases(ADateIndex, ct);
+          mdtRValue:
+            value := data.CalcRValue(ADateIndex, value, dummy);
+        end;
+        clr := FPalette.GetColor(value);
+
+        ser := nil;
+        if data.GeoID <> -1 then
+          ser := FGeoMap.SeriesByID[data.GeoID];
+        if ser = nil then
+          ser := FGeoMap.SeriesByName[data.Name];
   while ANode <> nil do
   begin
     if IsSecondary then
@@ -1865,6 +1963,7 @@ begin
     MapDateLabel.Caption := DateToStr(startDate + ADateIndex);
     UpdateDateIndicatorLine(startDate + ADateIndex);
   end;
+  *)
 end;
 
 procedure TMainForm.ShowMap(ANode: TTreeNode);
@@ -1872,9 +1971,13 @@ var
   mapRes: String = '';
   stream: TStream;
   reader: TcGeoReader;
-  data: TcDataitem;
-  isSecondary: Boolean;
+  data: TcDataItem;
+  oldScrollPos: Integer;
+  plotChildData: Boolean;
 begin
+  if FMapLock > 0 then
+    exit;
+
   if FGeoMap = nil then
   begin
     FGeoMap := TcGeoMap.Create(self);
@@ -1883,7 +1986,10 @@ begin
   end else
     FGeoMap.Clear;
 
-  GetMapResourceNode(ANode, mapRes, isSecondary);
+  if ANode = nil then
+    ANode := TreeView.Items.GetFirstNode;
+
+  GetMapResourceNode(ANode, mapRes, plotChildData);
   if ANode = nil then
     exit;
 
@@ -1895,6 +2001,11 @@ begin
     if (mapRes = USStatesMapResName) or (mapRes = USCountiesMapResName) then
       FGeoMap.GeoIDOffset := 84000000;
   end;
+
+  if MapDateScrollbar.Max > 0 then
+    oldScrollPos := MapDateScrollbar.Position
+  else
+    oldScrollPos := -1;
 
   stream := TResourceStream.Create(HINSTANCE, mapRes, LCLType.RT_RCDATA);
   try
@@ -1911,13 +2022,16 @@ begin
       begin
         MapDateScrollbar.Max := data.Count[pctConfirmed] - 1;
         MapDateScrollbar.Min := 0;
-        MapDateScrollbar.Position := MapDateScrollbar.Max;
+        if oldScrollPos > -1 then
+          MapDateScrollBar.Position := oldScrollPos
+        else
+          MapDateScrollbar.Position := MapDateScrollbar.Max;
       end;
 
       UpdateDateIndicatorLine(data.GetLastDate);
 
       // Display the map
-      ShowCoronaMap(ANode, MapDateScrollbar.Position, GetMapDataType, isSecondary);
+      ShowCoronaMap(ANode, MapDateScrollbar.Position, GetMapDataType, plotChildData);
     finally
       reader.Free;
     end;
@@ -2765,6 +2879,9 @@ begin
       exit;
     end;
 
+    // Avoid unnecessary repainting the maps
+    inc(FMapLock);
+
     acConfigAutoSave.Checked := ini.ReadBool('MainForm', 'AutoSave', acConfigAutoSave.Checked);
 
     ws := TWindowState(ini.ReadInteger('MainForm', 'WindowState', ord(WindowState)));
@@ -2848,6 +2965,8 @@ begin
     cmbDataTypeChange(nil);
     MovingAverageInfo.Caption := Format('(%d days)', [SmoothingRange]);
 
+    // Release painting of map. Repainting itself is done by the caller.
+    dec(FMapLock);
   finally
     UpdateActionStates;
     ini.Free;

@@ -380,6 +380,8 @@ begin
       CalcParentCases(node);
       node := node.GetNextSibling;
     end;
+
+    CalcParentCases(ATreeView.Items.GetFirstNode);  // World node
   end;
 end;
 
@@ -387,7 +389,7 @@ function TJohnsHopkinsDataSource.LoadLocations(ATreeView: TTreeView): Boolean;
 var
   fn: String;
   L: TStrings;
-  countryNode, stateNode, cityNode, node: TTreeNode;
+  worldNode, countryNode, stateNode, cityNode, node: TTreeNode;
   sa: TStringArray;
   i: Integer;
   population: Int64;
@@ -403,6 +405,15 @@ begin
   fn := FCacheDir + FILENAME_POPULATION;
   if not FileExists(fn) then
     exit;
+
+  data := TcDataItem.Create;
+  data.Name := 'World';
+  data.ParentName := '';
+  data.GeoID := 0;
+  data.Population := 1;  // to be calculated later
+  data.MapResource := WorldMapResName;
+  data.UseOtherMapResource := false;
+  worldNode := ATreeView.Items.AddChildObject(nil, 'World (JHU)', data);
 
   L := TStringList.Create;
   try
@@ -444,7 +455,7 @@ begin
         end;
       end;
 
-      countryNode := ATreeView.Items.FindTopLvlNode(country);
+      countryNode := worldNode.FindNode(country);
       if countryNode = nil then
       begin
         data := TcDataItem.Create;
@@ -454,20 +465,25 @@ begin
         data.Population := population;
         data.Longitude := lon;
         data.Latitude := lat;
+        data.UseOtherMapResource := false;
         case country of
           'Australia':
-            data.PrimaryMapResource := AustraliaMapResName;
+            data.MapResource := AustraliaMapResName;
           'Canada':
-            data.PrimaryMapResource := CanadaMapResName;
+            data.MapResource := CanadaMapResName;
           'China':
-            data.PrimaryMapResource := ChinaMapResName;
+            data.MapResource := ChinaMapResName;
           'US':
             begin
-              data.PrimaryMapResource := USStatesMapResName;
-              data.SecondaryMapResource := USCountiesMapResName;
+              data.MapResource := USStatesMapResName;
+              data.OtherMapResource := USCountiesMapResName;
             end;
+          {
+          else
+            data.MapResource := WorldMapResName;
+            }
         end;
-        countryNode := ATreeView.Items.AddChildObject(nil, country, data);
+        countryNode := ATreeView.Items.AddChildObject(worldNode, country, data);
       end;
 
       if state <> '' then
@@ -492,12 +508,6 @@ begin
           data.Population := population;
           data.Longitude := lon;
           data.Latitude := lat;
-          {
-          case country of
-            'US': TcDataItem(countryNode.Data).MapResource := USCountiesMapResName;
-//            'US': data.MapResource := USCountiesMapResName;
-          end;
-          }
           stateNode := ATreeView.Items.AddChildObject(countryNode, state, data);
         end;
 
@@ -510,16 +520,14 @@ begin
           data.Population := population;
           data.Longitude := lon;
           data.Latitude := lat;
-          data.MapResourceUsed := mrSecondary;
-          {
-          case country of
-            'US': data.MapResource := USCountiesMapResName;
-          end;
-          }
+          data.UseOtherMapResource := true;
           citynode := ATreeView.Items.AddChildObject(stateNode, city, data);
         end;
       end;
     end;
+
+    worldNode.Expanded := true;
+
   finally
     L.Free;
   end;

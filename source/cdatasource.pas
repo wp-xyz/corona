@@ -12,7 +12,6 @@ type
   TCaseCount = Int64;
   TCaseArray = array of TCaseCount;
   TValueArray = array of Double;
-  TMapRes = (mrPrimary, mrSecondary);
 
   TcDataItem = class
   private
@@ -23,9 +22,9 @@ type
     FLatitude: Double;
     FPopulation: Int64;
     FFirstDate: TDate;
-    FPrimaryMapResource: String;
-    FSecondaryMapResource: String;
-    FMapResourceUsed: TMapRes;
+    FMapResource: String;
+    FOtherMapResource: String;
+    FUseOtherMapResource: Boolean;
     FRawData: array[TPrimaryCaseType] of TCaseArray;  // Cumulative cases!
     function GetCount(ACaseType: TPrimaryCaseType): Integer;
     function GetDate(AIndex: Integer): TDate;
@@ -47,17 +46,25 @@ type
     procedure SetCases(AFirstDate: TDate; const ACases: TCaseArray;
       ACaseType: TPrimaryCaseType);
 
+    // Unique ID of the country/state/county assigned to this data item.
     property GeoID: TGeoID read FGeoID write FGeoID;
+    // Name of the country/state/county
     property Name: String read FName write FName;
     property ParentName: String read FParentName write FParentName;
     property Longitude: Double read FLongitude write FLongitude;
     property Latitude: Double read FLatitude write FLatitude;
     property Population: Int64 read FPopulation write FPopulation;
-    property PrimaryMapResource: String read FPrimaryMapResource write FPrimaryMapResource;
-    property SecondaryMapResource: String read FSecondaryMapResource write FSecondaryMapResource;
-    property MapResourceUsed: TMapRes read FMapResourceUsed write FMapResourceUsed;
 
+    // Name of the resource with the map
+    property MapResource: String read FMapResource write FMapResource;
+    // US has two maps: one with states, the other one with counties - this is the counties map
+    property OtherMapResource: String read FOtherMapResource write FOtherMapResource;
+    // Determins that this data item needs the "other" map
+    property UseOtherMapResource: boolean read FUseOtherMapResource write FUseOtherMapResource;
+
+    // Date of the first data record. There must be no gaps in the date till the last record.
     property FirstDate: TDate read FFirstDate;
+    // Date of the data record at the specified index.
     property Date[AIndex: Integer]: TDate read GetDate;
 
     property Count[ACaseType: TPrimaryCaseType]: Integer read GetCount;

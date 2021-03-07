@@ -86,6 +86,16 @@ begin
       while childNode <> nil do
       begin
         nodeName := childNode.NodeName;
+        if nodeName = 'SimpleData' then
+        begin
+          s := GetAttrValue(childNode, 'name');
+          if s = 'GEOID' then
+          begin
+            s := childNode.Firstchild.NodeValue;
+            if s <> '' then
+              geoID := StrToInt64(s);
+          end;
+        end else
         if nodeName = 'SchemaData' then
         begin
           child2Node := childNode.FirstChild;

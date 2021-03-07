@@ -2094,6 +2094,7 @@ object MainForm: TMainForm
           Top = 227
           Width = 554
           Anchors = [akLeft, akRight, akBottom]
+          Max = 0
           PageSize = 0
           TabOrder = 2
           OnChange = MapDateScrollbarChange

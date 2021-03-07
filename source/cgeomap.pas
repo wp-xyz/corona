@@ -73,7 +73,7 @@ type
     procedure SetProjection(AValue: TcGeoProjection);
 
   protected
-    procedure CalcCenter(out AveLongitude, AveLatitude: Double);
+    procedure CalcCenter(out ARefLongitude, ARefLatitude: Double);
     procedure DoSetProjection(AValue: TcGeoProjection);
     function LoadFile: Boolean;
 
@@ -482,11 +482,29 @@ begin
   FItems.Add(item);
 end;
 
-procedure TcGeoMap.CalcCenter(out AveLongitude, AveLatitude: double);
+procedure TcGeoMap.CalcCenter(out ARefLongitude, ARefLatitude: double);
 var
-  i, j, n: Integer;
+  i, j: Integer;
   item: TcGeoMapItem;
+  minLon, maxLon, minLat, maxLat: Double;
 begin
+  minLon := Infinity;
+  maxLon := -Infinity;
+  minLat := Infinity;
+  maxLat := -Infinity;
+  for i := 0 to FItems.Count-1 do
+  begin
+    item := TcGeoMapItem(FItems[i]);
+    for j := 0 to High(item.Points) do
+    begin
+      UpdateMinMax(item.Points[j].X, minLon, maxLon);
+      UpdateMinMax(item.Points[j].Y, minLat, maxLat);
+    end;
+  end;
+  ARefLongitude := (maxLon + minLon) / 2;
+  ARefLatitude := (maxLat + minLat) / 2;
+
+  {
   AveLongitude := 0;
   AveLatitude := 0;
   n := 0;
@@ -501,6 +519,7 @@ begin
   end;
   AveLongitude := AveLongitude / n;
   AveLatitude := AveLatitude / n;
+  }
 end;
 
 procedure TcGeoMap.Clear;
@@ -633,18 +652,22 @@ var
   i, j: Integer;
   x, y: Double;
   lon, lat: Double;
-  aveLon, aveLat: Double;
+  refLon, refLat: Double;
 begin
   if FChart = nil then
     raise EChartError.Create('No chart connected to GeoMap');
 
-  CalcCenter(aveLon, aveLat);
+  CalcCenter(refLon, refLat);
   ClearSeries;
 
   for i := 0 to FItems.Count-1 do begin
     item := TcGeoMapItem(FItems[i]);
-    ser := TcGeoMapSeries.Create(FChart);
+
+    ser := GetSeriesByID(item.GeoID) as TcGeoMapSeries;  // Append to existing polygon(s)
+    if ser = nil then
+      ser := TcGeoMapSeries.Create(FChart);
     ser.GeoID := item.GeoID;
+
     ser.Title := item.Name;
     ser.Brush.Color := FBrushColor;
     ser.Pen.Color := FPenColor;
@@ -656,7 +679,7 @@ begin
         begin
           lon := item.Points[j].X;
           lat := item.Points[j].Y;
-          FOnProjection(Self, lon, lat, aveLon, aveLat, x, y);
+          FOnProjection(Self, lon, lat, refLon, refLat, x, y);
           ser.AddXY(x, y);
         end;
     end else
@@ -664,7 +687,7 @@ begin
       begin
         lon := item.Points[j].x;
         lat := item.Points[j].y;
-        FProjectionProc(lon, lat, aveLon, aveLat, x, y);
+        FProjectionProc(lon, lat, refLon, refLat, x, y);
         if not (IsInfinite(abs(x)) or IsInfinite(abs(y))) then
           ser.AddXY(x, y);
       end;
