@@ -6,7 +6,7 @@
 	<SimpleField name="COUNTYFP" type="string"></SimpleField>
 	<SimpleField name="COUNTYNS" type="string"></SimpleField>
 	<SimpleField name="AFFGEOID" type="string"></SimpleField>
-	<SimpleField name="GEOID" type="string"></SimpleField>
+	<SimpleField name="GEOID" type="int"></SimpleField>
 	<SimpleField name="LSAD" type="string"></SimpleField>
 	<SimpleField name="ALAND" type="float"></SimpleField>
 	<SimpleField name="AWATER" type="float"></SimpleField>

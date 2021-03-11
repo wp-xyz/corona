@@ -3,7 +3,7 @@
 <Document id="root_doc">
 <Schema name="canada_map" id="canada_map">
 	<SimpleField name="NAME" type="string"></SimpleField>
-  <SimpleField name="GEOID" type="integer"></SimpleField>
+  <SimpleField name="GEOID" type="int"></SimpleField>
 </Schema>
 <Folder><name>canada_map</name>
   <Placemark>

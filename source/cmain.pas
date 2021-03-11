@@ -229,15 +229,14 @@ type
     function GetDataItem(ANode: TTreeNode): TcDataItem;
     function GetDataType: TDataType;
     function GetLocation(ANode: TTreeNode): String;
-    procedure GetLocation(ANode: TTreeNode; out ACountry, AState, ACity: String; out APopulation: Integer);
+    procedure GetLocation(ANode: TTreeNode; out ACountry, AState, ACity: String; out APopulation: Int64);
     function GetMapDataType: TMapDataType;
-    procedure GetMapResourceNode(var ANode: TTreeNode; out AResName: String;
+    procedure GetMapResourceParams(var ANode: TTreeNode; out AResName: String;
       out APlotChildNodes: Boolean);
     function GetSeries(ANode: TTreeNode; ACaseType: TCaseType;
       ADataType: TDataType): TBasicPointSeries;
     procedure InitShortCuts;
     function IsTimeSeries: Boolean;
-//    procedure LayoutBars;
     procedure LoadLocations;
     procedure PopulatePaletteListbox(AMapDataType: TMapDataType);
     procedure ReadCommandlineParams;
@@ -766,63 +765,66 @@ var
   sx, sy: String;
   dt: TDataType;
   d: TDate;
+  idx: Integer;
 begin
   if ASender = nil then
     exit;
 
-  if ASender.Series = nil then
-    FStatusText1 := ''
-  else
+  FStatusText1 := '';
   if ASender.Series is TChartSeries then
   begin
     dt := GetDataType();
     ser := TChartSeries(ASender.Series);
-    x := ser.GetXValue(ASender.PointIndex);
-    y := ser.GetYValue(ASender.PointIndex);
-    case dt of
-      dtCumulative, dtNormalizedCumulative:
-        begin
-          sx := FormatDateTime('dddddd', x);
-          if y < 0.5 then sy := '0 cases'
-            else if y < 1.5 then sy := '1 case'
-            else sy := Format('%.*n cases', [DECS[(y < 100) and (dt = dtNormalizedCumulative)], y]);
-          if dt = dtNormalizedCumulative then
-            sy := sy + ' per 100 000 inhabitants and per week';
-          FStatusText1 := Format('%s, %s', [sx, sy]);
-        end;
-      dtNewCases, dtNormalizedNewCases:
-        begin
-          sx := FormatDateTime('dddddd', x);
-          if y = 1.0 then
-            sy := '1 new case'
-          else
-            sy := Format('%.*n new cases', [DECS[(y < 100) and (dt = dtNormalizedNewCases)], y]);
-          if dt = dtNormalizedNewCases then
-            sy := sy + ' per 100 000 inhabitants and per week';
-          FStatusText1 := Format('%s, %s', [sx, sy]);
-        end;
-      dtCumulativeCasesDoublingTime, dtNewCasesDoublingTime:
-        begin
-          sx := FormatDateTime('dddddd', x);
-          sy := Format('Doubling time %.1f', [y]);
-          FStatusText1 := Format('%s, %s', [sx, sy]);
-        end;
-      dtCumVsNewCases:
-        begin
-          sx := ser.Source.Item[ASender.PointIndex]^.Text;
-          d := ScanDateTime('mm"/"dd"/"yy', ser.Source.Item[ASender.PointIndex]^.Text, cFormatSettings);
-          if x = 1 then sx := '1 case' else sx := Format('%.0n cases', [x]);
-          if y = 1 then sy := '1 new case' else sy := Format('%.0n new cases', [y]);
-          FStatusText1 := Format('%s - %s, %s', [DateToStr(d), sx, sy]);
-        end;
-      dtRValue:
-        begin
-          sx := FormatDateTime('dddddd', x);
-          sy := Format('Reproduction number: %.1f', [y]);
-          FStatusText1 := Format('%s, %s', [sx, sy]);
-        end;
+    idx := ASender.PointIndex;
+    if idx > -1 then
+    begin
+      x := ser.GetXValue(idx);
+      y := ser.GetYValue(idx);
+      case dt of
+        dtCumulative, dtNormalizedCumulative:
+          begin
+            sx := FormatDateTime('dddddd', x);
+            if y < 0.5 then sy := '0 cases'
+              else if y < 1.5 then sy := '1 case'
+              else sy := Format('%.*n cases', [DECS[(y < 100) and (dt = dtNormalizedCumulative)], y]);
+            if dt = dtNormalizedCumulative then
+              sy := sy + ' per 100 000 inhabitants and per week';
+            FStatusText1 := Format('%s, %s', [sx, sy]);
+          end;
+        dtNewCases, dtNormalizedNewCases:
+          begin
+            sx := FormatDateTime('dddddd', x);
+            if y = 1.0 then
+              sy := '1 new case'
+            else
+              sy := Format('%.*n new cases', [DECS[(y < 100) and (dt = dtNormalizedNewCases)], y]);
+            if dt = dtNormalizedNewCases then
+              sy := sy + ' per 100 000 inhabitants and per week';
+            FStatusText1 := Format('%s, %s', [sx, sy]);
+          end;
+        dtCumulativeCasesDoublingTime, dtNewCasesDoublingTime:
+          begin
+            sx := FormatDateTime('dddddd', x);
+            sy := Format('Doubling time %.1f', [y]);
+            FStatusText1 := Format('%s, %s', [sx, sy]);
+          end;
+        dtCumVsNewCases:
+          begin
+            sx := ser.Source.Item[ASender.PointIndex]^.Text;
+            d := ScanDateTime('mm"/"dd"/"yy', ser.Source.Item[ASender.PointIndex]^.Text, cFormatSettings);
+            if x = 1 then sx := '1 case' else sx := Format('%.0n cases', [x]);
+            if y = 1 then sy := '1 new case' else sy := Format('%.0n new cases', [y]);
+            FStatusText1 := Format('%s - %s, %s', [DateToStr(d), sx, sy]);
+          end;
+        dtRValue:
+          begin
+            sx := FormatDateTime('dddddd', x);
+            sy := Format('Reproduction number: %.1f', [y]);
+            FStatusText1 := Format('%s, %s', [sx, sy]);
+          end;
+      end;
+      FStatusText1 := ser.Title + ': ' + FStatusText1;
     end;
-    FStatusText1 := ser.Title + ': ' + FStatusText1;
     ASender.Handled;
   end;
   UpdateStatusBar;
@@ -1140,7 +1142,7 @@ begin
 end;
 
 procedure TMainForm.GetLocation(ANode: TTreeNode;
-  out ACountry, AState, ACity: String; out APopulation: Integer);
+  out ACountry, AState, ACity: String; out APopulation: Int64);
 var
   item: TcDataItem;
   loc: PLocationParams;
@@ -1150,32 +1152,23 @@ begin
   ACity := '';
 
   case ANode.Level of
-    0: ACountry := ANode.Text;
-    1: begin
+    0,
+    1,
+    2: ACountry := ANode.Text;
+    3: begin
          AState := ANode.Text;
          ACountry := ANode.Parent.Text;
        end;
-    2: begin
+    4: begin
          ACity := ANode.Text;
          AState := ANode.Parent.Text;
          ACountry := ANode.Parent.Parent.Text;
        end;
   end;
-  {
-  if ANode.Parent = nil then begin
-    ACountry := ANode.Text;
-    AState := '';
-    ACity := '';
-  end else
-  begin
-    ACountry := ANode.Parent.Text;
-    AState := ANode.Text;
 
-  end;
-  }
   if TObject(ANode.Data) is TcDataItem then
   begin
-    item := TcDataitem(ANode.Data);
+    item := TcDataItem(ANode.Data);
     if item <> nil then
       APopulation := item.Population;
   end else
@@ -1190,7 +1183,7 @@ end;
 function TMainForm.GetLocation(ANode: TTreeNode): String;
 var
   country, state, city: String;
-  population: Integer;
+  population: Int64;
 begin
   GetLocation(ANode, country, state, city, population);
   Result := country;
@@ -1316,6 +1309,78 @@ begin
   UpdateAffectedSeries;
 end;
 
+{ The specified node has been clicked.
+  If the node's parent data contain a specification of the map to be displayed the
+  name of its resource is returned. If there is no map specification then
+  the parents are checked upwards until a node with a map resource name is found.
+  The clicked node's data contain also information at which tree level the
+  data to be mapped are found relative to the map node. }
+procedure TMainForm.GetMapResourceParams(var ANode: TTreeNode; out AResName: String;
+  out APlotChildNodes: Boolean);
+var
+  dataItem: TcDataItem;
+  ANodeDataItem: TcDataItem;
+  datanode: TTreeNode;
+  mapNode: TTreeNode;
+  i: Integer;
+begin
+  AResName := '';
+  APlotChildNodes := false;
+  if ANode = nil then
+    exit;
+
+  ANodeDataItem := TcDataItem(ANode.Data);
+  mapNode := ANode.Parent;
+  if mapNode = nil then
+    mapNode := ANode.GetFirstSibling;
+  repeat
+    dataItem := TcDataItem(mapNode.Data);
+    if ANodeDataItem.UseOtherMapResource and (dataItem.OtherMapResource <> '') then
+    begin
+      AResName := dataItem.OtherMapResource;
+      break;
+    end else
+    if not ANodeDataItem.UseOtherMapResource and (dataItem.MapResource <> '') then
+    begin
+      AResName := dataItem.MapResource;
+      break;
+    end else
+      mapNode := mapNode.Parent;
+  until (mapnode = nil);
+
+  if mapNode <> nil then
+  begin
+    dataNode := mapNode;
+    if ANodeDataItem.UseOtherMapResource then
+    begin
+      if ANodeDataItem.OtherMapDataLevelDist = 0 then
+        dataNode := dataNode.GetFirstSibling
+      else
+        for i := 1 to ANodeDataItem.OtherMapDataLevelDist do
+        begin
+          if dataNode = nil then
+            raise Exception.Create('Incorret map information');
+          dataNode := datanode.GetFirstChild;
+        end;
+      APlotChildNodes := ANodeDataItem.OtherMapDataAtChildLevel;
+    end else
+    begin
+      if ANodeDataItem.MapDataLevelDist = 0 then
+        dataNode := dataNode.GetFirstSibling
+      else
+        for i := 1 to ANodeDataItem.MapDataLevelDist do
+        begin
+          if dataNode = nil then
+            raise Exception.Create('Incorrect map information');
+          dataNode := datanode.GetFirstChild;
+        end;
+      APlotChildNodes := ANodeDataItem.MapDataAtChildLevel;
+    end;
+    ANode := dataNode;
+  end;
+end;
+
+  (*
 { ANode has been clicked. Finds the map which will be displayed for this node.
   Returns the resource name of the map, and the first data node. The calling
   routine will extract Covid data for all sibling nodes of the returned ANode. }
@@ -1368,6 +1433,8 @@ begin
         ANode := ANode.GetFirstChild
       else
         ANode := ANode.GetFirstSibling;
+      if (ANode.Level = 1) and (ANode.Text = 'Africa') then
+        APlotChildNodes := true;
       exit;
     end;
     node := node.Parent;
@@ -1378,6 +1445,7 @@ begin
   ANode := TreeView.Items.GetFirstNode;
   AResName := WorldMapResName;
 end;
+*)
 
 procedure TMainForm.GridDrawCell(Sender: TObject; aCol, aRow: Integer;
   aRect: TRect; aState: TGridDrawState);
@@ -1424,7 +1492,7 @@ begin
     exit;
   data := TcDataItem(node.Data);
 
-  GetMapResourceNode(node, dummy, plotChildData);
+  GetMapResourceParams(node, dummy, plotChildData);
   ShowCoronaMap(node, MapDateScrollbar.Position, GetMapDataType, plotChildData);
 end;
 
@@ -1821,6 +1889,12 @@ var
   ser: TcPolygonSeries;
   ct: TCaseType = ctConfirmed;
 begin
+  case AMapDataType of
+    mdtNormalizedNewConfirmed: ct := ctConfirmed;
+    mdtNormalizedNewDeaths: ct := ctDeaths;
+    mdtRValue: ct := ctConfirmed;
+  end;
+
   while ANode <> nil do
   begin
     if anode.Text = 'Argentina' then
@@ -1974,6 +2048,7 @@ var
   data: TcDataItem;
   oldScrollPos: Integer;
   plotChildData: Boolean;
+  n: Integer;
 begin
   if FMapLock > 0 then
     exit;
@@ -1989,7 +2064,7 @@ begin
   if ANode = nil then
     ANode := TreeView.Items.GetFirstNode;
 
-  GetMapResourceNode(ANode, mapRes, plotChildData);
+  GetMapResourceParams(ANode, mapRes, plotChildData);
   if ANode = nil then
     exit;
 
@@ -2020,12 +2095,16 @@ begin
       data := TcDataItem(ANode.Data);
       if data <> nil then
       begin
-        MapDateScrollbar.Max := data.Count[pctConfirmed] - 1;
-        MapDateScrollbar.Min := 0;
-        if oldScrollPos > -1 then
-          MapDateScrollBar.Position := oldScrollPos
-        else
-          MapDateScrollbar.Position := MapDateScrollbar.Max;
+        n := data.Count[pctConfirmed];
+        if n > 0 then
+        begin
+          MapDateScrollbar.Max := n - 1;
+          MapDateScrollbar.Min := 0;
+          if oldScrollPos > -1 then
+            MapDateScrollBar.Position := oldScrollPos
+          else
+            MapDateScrollbar.Position := MapDateScrollbar.Max;
+        end;
       end;
 
       UpdateDateIndicatorLine(data.GetLastDate);
@@ -2312,7 +2391,7 @@ var
   i, j: Integer;
   ser: TBasicPointSeries;
   country, state, city: String;
-  population: Integer;
+  population: Int64;
   dataSrcClass: TcDataSourceClass;
   src: TCustomChartSource;
   values, valuesNew: TValueArray;

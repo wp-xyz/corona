@@ -5,7 +5,7 @@
 	<SimpleField name="STATEFP" type="string"></SimpleField>
 	<SimpleField name="STATENS" type="string"></SimpleField>
 	<SimpleField name="AFFGEOID" type="string"></SimpleField>
-	<SimpleField name="GEOID" type="string"></SimpleField>
+	<SimpleField name="GEOID" type="int"></SimpleField>
 	<SimpleField name="STUSPS" type="string"></SimpleField>
 	<SimpleField name="LSAD" type="string"></SimpleField>
 	<SimpleField name="ALAND" type="float"></SimpleField>

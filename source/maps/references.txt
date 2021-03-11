@@ -4,6 +4,7 @@ Covid-19 data files:
 
 country-and-codes-list.csv
   https://datahub.io/JohnSnowLabs/country-and-continent-codes-list/r/0.html
+  Some countries renamed and added to be compatibile with JHU data files.
 
 australia_map.kml
   https://www.abs.gov.au/AUSSTATS/abs@.nsf/DetailsPage/1259.0.30.001July%202011?OpenDocument

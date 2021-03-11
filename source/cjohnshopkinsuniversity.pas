@@ -12,6 +12,10 @@ type
   TJohnsHopkinsDataSource = class(TcDataSource)
   private
     procedure CalcParentCases(ANode: TTreeNode);
+    procedure CalcParentPopulation(ANode: TTreeNode);
+    procedure CreateTopNodes(ATreeView: TTreeView;
+      out AWorldNode, AAfricaNode, AAsiaNode, AEuropeNode, ANorthAmericaNode,
+      ASouthAmericaNode, AOceaniaNode: TTreeNode);
     function GetDataString_Sick(const ACountry, AState, ACity: String;
       out AHeader, ACounts: String): Boolean;
     function InternalLoadData(ATreeView: TTreeView; ACaseType: TPrimaryCaseType;
@@ -27,7 +31,7 @@ type
 implementation
 
 uses
-  Dialogs,
+  LCLType, Dialogs,
   cUtils, cDownloadManager;
 
 const
@@ -40,6 +44,8 @@ const
 
   FILENAME_CONFIRMED_US = 'time_series_covid19_confirmed_US.csv';
   FILENAME_DEATHS_US = 'time_series_covid19_deaths_US.csv';
+
+  COUNTRIES_CONTINENTS_RESNAME = 'COUNTRY-AND-CONTINENT-CODES-LIST';
 
 function BeginsWithQuote(s: String): Boolean;
 begin
@@ -90,6 +96,98 @@ begin
     end;
     data.SetCases(firstDate, cases, ct);
   end;
+end;
+
+procedure TJohnsHopkinsDataSource.CalcParentPopulation(ANode: TTreeNode);
+var
+  n: Int64;
+  data, childData: TcDataItem;
+  child: TTreeNode;
+begin
+  if (ANode = nil) and not ANode.HasChildren then
+    exit;
+
+  data := TcDataItem(ANode.Data);
+
+  n := 0;
+  child := ANode.GetFirstChild;
+  while (child <> nil) do begin
+    childData := TcDataItem(child.Data);
+    n := n + childData.population;
+    child := child.GetNextSibling;
+  end;
+
+  data.Population := n;
+end;
+
+procedure TJohnsHopkinsDataSource.CreateTopNodes(ATreeView: TTreeView;
+  out AWorldNode, AAfricaNode, AAsiaNode, AEuropeNode, ANorthAmericaNode,
+  ASouthAmericaNode, AOceaniaNode: TTreeNode);
+var
+  data: TcDataItem;
+begin
+  data := TcDataItem.Create;
+  data.Name := 'World';
+  data.ParentName := '';
+  data.GeoID := 0;
+  data.Population := 1;  // to be calculated later
+  data.MapResource := WorldMapResName;
+  data.MapDataLevelDist := 1;
+  data.MapDataAtChildLevel := true;
+  AWorldNode := ATreeView.Items.AddChildObject(nil, 'World (JHU)', data);
+
+  // Create continent nodes
+  data := TcDataItem.Create;
+  data.Name := 'Africa';
+  data.ParentName := 'World';
+  data.GeoID := -10;
+  data.Population := 1;
+  data.MapDataLevelDist := 1;  // 1st level below world map node
+  data.MapDataAtChildLevel := true;
+  AAfricaNode := ATreeView.Items.AddChildObject(AWorldNode, 'Africa', data);
+
+  data := TcDataItem.Create;
+  data.Name := 'Asia';
+  data.ParentName := 'World';
+  data.GeoID := -11;
+  data.Population := 1;
+  data.MapDataLevelDist := 1;  // 1st level below world map node
+  data.MapDataAtChildLevel := true;
+  AAsiaNode := ATreeView.Items.AddChildObject(AWorldNode, 'Asia', data);
+
+  data := TcDataItem.Create;
+  data.Name := 'Europe';
+  data.Parentname := 'World';
+  data.GeoID := -12;
+  data.MapDataLevelDist := 1;  // 1st level below world map node
+  data.MapDataAtChildLevel := true;
+  AEuropeNode := ATreeView.Items.AddChildObject(AWorldNode, 'Europe', data);
+
+  data := TcDataItem.Create;
+  data.Name := 'North America';
+  data.Parentname := 'World';
+  data.GeoID := -13;
+  data.MapDataLevelDist := 1;  // 1st level below world map node
+  data.MapDataAtChildLevel := true;
+  ANorthAmericaNode := ATreeView.Items.AddChildObject(AWorldNode, 'North America', data);
+
+  data := TcDataItem.Create;
+  data.Name := 'South America';
+  data.Parentname := 'World';
+  data.GeoID := -14;
+  data.MapDataLevelDist := 1;  // 1st level below world map node
+  data.MapDataAtChildLevel := true;
+  ASouthAmericaNode := ATreeView.Items.AddChildObject(AWorldNode, 'South America', data);
+
+  data := TcDataItem.Create;
+  data.Name := 'Oceania';
+  data.Parentname := 'World';
+  data.GeoID := -15;
+  data.MapDataLevelDist := 1;  // 1st level below world map node
+  data.MapDataAtChildLevel := true;
+  AOceaniaNode := ATreeView.Items.AddChildObject(AWorldNode, 'Oceania', data);
+
+  // We skip Antarctica because there are no Covid data for it.
 end;
 
 procedure TJohnsHopkinsDatasource.DownloadToCache;
@@ -381,7 +479,19 @@ begin
       node := node.GetNextSibling;
     end;
 
-    CalcParentCases(ATreeView.Items.GetFirstNode);  // World node
+    // Calculate continent cases and population (missing from JHU data)
+    node := ATreeView.Items.GetFirstNode.GetFirstChild;  // 1st continent node
+    while node <> nil do
+    begin
+      CalcParentCases(node);
+      CalcParentPopulation(node);
+      node := node.GetNextSibling;
+    end;
+
+    // Calculate world cases and population (missing from JHU data)
+    node := ATreeView.Items.GetFirstNode;   // World node
+    CalcParentCases(node);
+    CalcParentPopulation(node);
   end;
 end;
 
@@ -389,14 +499,18 @@ function TJohnsHopkinsDataSource.LoadLocations(ATreeView: TTreeView): Boolean;
 var
   fn: String;
   L: TStrings;
-  worldNode, countryNode, stateNode, cityNode, node: TTreeNode;
+  CCList: TStringList;
+  worldNode, continentNode, countryNode, stateNode, cityNode, node: TTreeNode;
+  africaNode, asiaNode, europeNode, northAmericaNode, southAmericaNode, oceaniaNode: TTreeNode;
   sa: TStringArray;
-  i: Integer;
+  i, j, p: Integer;
   population: Int64;
-  country, state, city: String;
+  continent, country, state, city: String;
   geoID: TGeoID;
   lon, lat: Double;
+  countryData: TcDataItem;
   data: TcDataItem;
+  stream: TResourceStream;
 begin
   Result := false;
 
@@ -406,130 +520,228 @@ begin
   if not FileExists(fn) then
     exit;
 
-  data := TcDataItem.Create;
-  data.Name := 'World';
-  data.ParentName := '';
-  data.GeoID := 0;
-  data.Population := 1;  // to be calculated later
-  data.MapResource := WorldMapResName;
-  data.UseOtherMapResource := false;
-  worldNode := ATreeView.Items.AddChildObject(nil, 'World (JHU)', data);
+  // Create "world" node as pseudo-root and continent nodes as 1st level
+  CreateTopNodes(ATreeView, worldNode,
+    africaNode, asiaNode, europeNode, northAmericaNode, southAmericaNode, oceaniaNode);
 
-  L := TStringList.Create;
+  // CCList is a list of the (sorted) country names having the associated
+  // continent tree node as an object.
+  CCList := TStringList.Create;  // CC = continent-country
   try
-    L.LoadFromFile(fn);
-    for i:=1 to L.Count-1 do begin    // skip header --> i=1
-      if L[i] = '' then
-        Continue;
-
-      sa := L[i].Split(',', '"');
-      if Length(sa) <> 12 then
-        Continue;
-
-      country := Unquote(sa[7]);
-      state := Unquote(sa[6]);
-      city := Unquote(sa[5]);
-      if not TryStrToInt64(sa[0], geoID) then geoID := -1;
-      if not TryStrToInt64(sa[11], population) then population := -1;
-      if not TryStrToFloat(sa[9], lon, cFormatSettings) then lon := 0;
-      if not TryStrToFloat(sa[8], lat, cFormatSettings) then lat := 0;
-
-      // avoid too many empty nodes in the tree vieew
-      if (state <> '') then
+    // Read contries and continents from resource
+    stream := TResourceStream.Create(HINSTANCE, COUNTRIES_CONTINENTS_RESNAME, LCLType.RT_RCDATA);
+    try
+      CCList.LoadFromStream(stream);
+    finally
+      stream.Free;
+    end;
+    CCList.Delete(0);  // Delete header
+    for i := 0 to CCList.Count-1 do begin
+      sa := CCList[i].Split(',', '"');
+      continent := sa[0];
+      country := Unquote(sa[2]);
+      if country <> 'Korea, South' then
       begin
-        // The 'US' data are contained in separate files not read by this program
-        // No data provided in the standard files for the provinces of these countries
+        p := pos(',', country);
+        if p > 0 then country := Copy(country, 1, p-1);
+      end;
+      case continent of
+        'Africa': CCList.Objects[i] := africaNode;
+        'Asia': CCList.Objects[i] := asiaNode;
+        'Europe': CCList.Objects[i] := europeNode;
+        'North America': CClist.Objects[i] := northAmericaNode;
+        'South America': CCList.Objects[i] := southAmericaNode;
+        'Oceania': CCList.Objects[i] := oceaniaNode;
+      end;
+      CCList[i] := country;
+    end;
+    CCList.Sorted := true;
+
+    L := TStringList.Create;
+    try
+      L.LoadFromFile(fn);
+      for i:=1 to L.Count-1 do begin    // skip header --> i=1
+        if L[i] = '' then
+          Continue;
+
+        sa := L[i].Split(',', '"');
+        if Length(sa) <> 12 then
+          Continue;
+
+        country := Unquote(sa[7]);
+        state := Unquote(sa[6]);
+        city := Unquote(sa[5]);
+        if not TryStrToInt64(sa[0], geoID) then geoID := -1;
+        if not TryStrToInt64(sa[11], population) then population := -1;
+        if not TryStrToFloat(sa[9], lon, cFormatSettings) then lon := 0;
+        if not TryStrToFloat(sa[8], lat, cFormatSettings) then lat := 0;
+
+        // Remove cruizing ships found in the JHU data
         case country[1] of
-          'B': if (country = 'Brazil') or (country = 'Belgium') then continue;
-          'C': if (country = 'Chile') or (country = 'Colombia') then continue;
-          'G': if (country = 'Germany') then continue;
-          'I': if (country = 'Italy') or (country = 'India') then continue;
-          'J': if (country = 'Japan') then continue;
-          'M': if (country = 'Mexico') then continue;
-          'N': if (country = 'Nigeria') then continue;
-          'P': if (country = 'Pakistan') or (country = 'Peru') then continue;
-          'R': if (country = 'Russia') then continue;
-          'S': if (country = 'Spain') or (country = 'Sweden') then continue;
-          'U': if (country = 'Ukraine') then continue;
-          else ;
+          'D': if (country = 'Diamond Princess') then continue;
+          'M': if (country = 'MS Zaandam') then continue;
         end;
-      end;
 
-      countryNode := worldNode.FindNode(country);
-      if countryNode = nil then
-      begin
-        data := TcDataItem.Create;
-        data.Name := country;
-        data.ParentName := '';
-        data.GeoID := geoID;
-        data.Population := population;
-        data.Longitude := lon;
-        data.Latitude := lat;
-        data.UseOtherMapResource := false;
-        case country of
-          'Australia':
-            data.MapResource := AustraliaMapResName;
-          'Canada':
-            data.MapResource := CanadaMapResName;
-          'China':
-            data.MapResource := ChinaMapResName;
-          'US':
-            begin
-              data.MapResource := USStatesMapResName;
-              data.OtherMapResource := USCountiesMapResName;
-            end;
-          {
-          else
-            data.MapResource := WorldMapResName;
-            }
-        end;
-        countryNode := ATreeView.Items.AddChildObject(worldNode, country, data);
-      end;
-
-      if state <> '' then
-      begin
-        stateNode := nil;
-        cityNode := nil;
-        node := countryNode.GetFirstChild;
-        while (node <> nil) do begin
-          if node.Text = state then
-          begin
-            stateNode := node;
-            break;
+        // Avoid too many empty nodes in the tree vieew
+        if (state <> '') then
+        begin
+          // The 'US' data are contained in separate files not read by this program
+          // No data provided in the standard files for the provinces of these countries
+          case country[1] of
+            'B': if (country = 'Brazil') or (country = 'Belgium') then continue;
+            'C': if (country = 'Chile') or (country = 'Colombia') then continue;
+            'G': if (country = 'Germany') then continue;
+            'I': if (country = 'Italy') or (country = 'India') then continue;
+            'J': if (country = 'Japan') then continue;
+            'M': if (country = 'Mexico') then continue;
+            'N': if (country = 'Nigeria') then continue;
+            'P': if (country = 'Pakistan') or (country = 'Peru') then continue;
+            'R': if (country = 'Russia') then continue;
+            'S': if (country = 'Spain') or (country = 'Sweden') then continue;
+            'U': if (country = 'Ukraine') then continue;
+            else ;
           end;
-          node := node.GetNextSibling;
-        end;
-        if stateNode = nil then
-        begin
-          data := TcDataItem.Create;
-          data.Name := state;
-          data.ParentName := country;
-          data.GeoID := geoID;
-          data.Population := population;
-          data.Longitude := lon;
-          data.Latitude := lat;
-          stateNode := ATreeView.Items.AddChildObject(countryNode, state, data);
         end;
 
-        if (city <> '') then
+        // Determine the continent node of the current country.
+        if CCList.Find(country, j) then
+          continentNode := TTreeNode(CCList.Objects[j])
+        else
+          continentNode := worldNode;
+
+        // Lookup the continent node
+        countryNode := continentNode.FindNode(country);
+        if countryNode = nil then
         begin
-          data := TcDataItem.Create;
-          data.Name := city;
-          data.ParentName := state;
-          data.GeoID := geoID;
-          data.Population := population;
-          data.Longitude := lon;
-          data.Latitude := lat;
-          data.UseOtherMapResource := true;
-          citynode := ATreeView.Items.AddChildObject(stateNode, city, data);
+          countryData := TcDataItem.Create;
+          countryData.Name := country;
+          countryData.ParentName := '';
+          countryData.GeoID := geoID;
+          countryData.Population := population;
+          countryData.Longitude := lon;
+          countryData.Latitude := lat;
+          case country of
+            'Australia':
+              begin
+                // Information used by child nodes
+                countryData.MapResource := AustraliaMapResName;
+                // Information used by the node itself: it is a child node of
+                // the continent node, and therefore we must define this:
+                countryData.MapDataLevelDist := 1;
+                countryData.MapDataAtChildLevel := true;
+              end;
+            'Canada':
+              begin
+                countryData.MapResource := CanadaMapResName;
+                countryData.MapDataLevelDist := 1;
+                countryData.MapDataAtChildLevel := true;
+              end;
+            'China':
+              begin
+                countryData.MapResource := ChinaMapResName;
+                countryData.MapDataLevelDist := 1;
+                countryData.MapDataAtChildLevel := true;
+              end;
+            'US':
+              begin
+                // Information for country node itself
+                countryData.MapDataLevelDist := 1;
+                countryData.MapDataAtChildLevel := true;
+                // Information for states level
+                countryData.MapResource := USStatesMapResName;
+                // Information for county level
+                countryData.OtherMapResource := USCountiesMapResName;
+              end;
+            else   // World map
+              countryData.MapDataLevelDist := 1;        // Map: Iterate through continents...
+              countryData.MapDataAtChildLevel := true;  // ... but find values in country level
+          end;
+
+          countryNode := ATreeView.Items.AddChildObject(continentNode, country, countryData);
+        end;
+
+        if state <> '' then
+        begin
+          stateNode := nil;
+          cityNode := nil;
+          node := countryNode.GetFirstChild;
+          while (node <> nil) do begin
+            if node.Text = state then
+            begin
+              stateNode := node;
+              break;
+            end;
+            node := node.GetNextSibling;
+          end;
+          if stateNode = nil then
+          begin
+            data := TcDataItem.Create;
+            data.Name := state;
+            data.ParentName := country;
+            data.GeoID := geoID;
+            data.Population := population;
+            data.Longitude := lon;
+            data.Latitude := lat;
+            data.MapDataLevelDist := 1;
+            data.MapDataAtChildLevel := true;
+            case country of
+              'Australia':
+                begin
+                  data.MapDataLevelDist := 1;
+                  data.MapDataAtChildLevel := false;
+                end;
+              'Canada':
+                begin
+                  data.MapDataLevelDist := 1;
+                  data.MapDataAtChildLevel := false;
+                end;
+              'China':
+                begin
+                  data.MapDataLevelDist := 1;
+                  data.MapDataAtChildLevel := false;
+                end;
+              'US':
+                begin
+                  data.MapDataLevelDist := 1;
+                  data.MapDataAtChildLevel := false;
+                end;
+            end;
+            stateNode := ATreeView.Items.AddChildObject(countryNode, state, data);
+          end;
+
+          if (city <> '') then
+          begin
+            data := TcDataItem.Create;
+            data.Name := city;
+            data.ParentName := state;
+            data.GeoID := geoID;
+            data.Population := population;
+            data.Longitude := lon;
+            data.Latitude := lat;
+            data.MapDataLevelDist := 2;
+            data.MapDataAtChildLevel := true;
+            if country = 'US' then
+            begin
+              data.UseOtherMapResource := true;
+              data.OtherMapDataLevelDist := 1;
+              data.OtherMapDataAtChildLevel := true;
+            end;
+//            if country = 'US' then
+
+
+            citynode := ATreeView.Items.AddChildObject(stateNode, city, data);
+          end;
         end;
       end;
+
+      worldNode.Expanded := true;
+
+    finally
+      L.Free;
     end;
 
-    worldNode.Expanded := true;
-
   finally
-    L.Free;
+    CCList.Free;
   end;
 
   Result := true;

@@ -4925,8 +4925,9 @@
     </MultiGeometry>
     </Placemark><Placemark>
       <styleUrl>#defaultStyle</styleUrl>
-      <name>Macedonia</name>
+      <name>North Macedonia</name>
       <ExtendedData>
+        <SimpleData name="GEOID">807</SimpleData>        
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -9683,7 +9684,7 @@
       <styleUrl>#defaultStyle</styleUrl>
       <name>Korea, North</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">408</SimpleData>                
       </ExtendedData>
       <MultiGeometry>
       <Polygon>
@@ -11441,9 +11442,9 @@
     </MultiGeometry>
     </Placemark><Placemark>
       <styleUrl>#defaultStyle</styleUrl>
-      <name>Swaziland</name>
+      <name>Eswatini</name>
       <ExtendedData>
-        
+        <SimpleData name="GEOID">748</SimpleData>                
       </ExtendedData>
       <MultiGeometry>
       <Polygon>

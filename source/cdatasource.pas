@@ -13,6 +13,10 @@ type
   TCaseArray = array of TCaseCount;
   TValueArray = array of Double;
 
+  { TcDataItem collects all Covid data for one global entity (country, state, etc)
+    beginning at FirstDate, one record per day following.
+    It also stores the resource name of the map which will be displayed when this
+    item is active in the applications tree view. }
   TcDataItem = class
   private
     FGeoID: TGeoID;
@@ -25,6 +29,10 @@ type
     FMapResource: String;
     FOtherMapResource: String;
     FUseOtherMapResource: Boolean;
+    FMapDataLevelDist: Integer;
+    FOtherMapDataLevelDist: Integer;
+    FMapDataAtChildLevel: Boolean;
+    FOtherMapDataAtChildLevel: Boolean;
     FRawData: array[TPrimaryCaseType] of TCaseArray;  // Cumulative cases!
     function GetCount(ACaseType: TPrimaryCaseType): Integer;
     function GetDate(AIndex: Integer): TDate;
@@ -61,6 +69,13 @@ type
     property OtherMapResource: String read FOtherMapResource write FOtherMapResource;
     // Determins that this data item needs the "other" map
     property UseOtherMapResource: boolean read FUseOtherMapResource write FUseOtherMapResource;
+    // Count of tree levels between the map node and the nodes containing the mapped data
+    property MapDataLevelDist: Integer read FMapDataLevelDist write FMapDataLevelDist;
+    property OtherMapDataLevelDist: Integer read FOtherMapDataLevelDist write FOtherMapDataLevelDist;
+    // When MapDataAtChildLevel is true the mapped data are one level below the nodes defined
+    // by MapDataLevelDist
+    property MapDataAtChildLevel: Boolean read FMapDataAtChildLevel write FMapDataAtChildLevel;
+    property OtherMapDataAtChildLevel: Boolean read FOtherMapDataAtChildLevel write FOtherMapDataAtChildLevel;
 
     // Date of the first data record. There must be no gaps in the date till the last record.
     property FirstDate: TDate read FFirstDate;
