@@ -339,6 +339,21 @@ begin
 end;
 
 
+{$IF LCL_FullVersion < 2010000}
+type
+  TTreeNodeHelper = class helper for TTreeNode
+    function GetFirstSibling: TTreeNode;
+  end;
+
+function TTreeNodeHelper.GetFirstSibling: TTreeNode;
+begin
+  if Self.Parent = nil then
+    Result := Self.Owner.Owner.Items.GetFirstNode
+  else
+    Result := self.Parent.GetFirstChild;
+end;
+{$IFEND}
+
 { TMainForm }
 
 procedure TMainForm.acAboutExecute(Sender: TObject);
