@@ -16,7 +16,7 @@ uses
   TAGraph, TAIntervalSources, TASeries, TAChartListbox, TALegend, TASources,
   TACustomSeries, TATransformations, TATools, TAFuncSeries, TADataTools,
   TAChartUtils,TADrawUtils,
-  cGlobal, cDataSource, cGeoMap, cPalette;
+  cGlobal, cDataSource, cGeoMap, cPalette, cSeries;
 
 type
   TCountArray = array of Integer;
@@ -237,6 +237,7 @@ type
       ADataType: TDataType): TBasicPointSeries;
     procedure InitShortCuts;
     function IsTimeSeries: Boolean;
+    procedure LessChartSymbols(ASeries: TcLineSeries);
     procedure LoadLocations;
     procedure PopulatePaletteListbox(AMapDataType: TMapDataType);
     procedure ReadCommandlineParams;
@@ -282,7 +283,7 @@ uses
   TATypes, TAMath, TACustomSource, TAFitLib,
   // project-specific units
   cJohnsHopkinsUniversity, {$IFDEF RKI}cRobertKochInstitut,{$ENDIF}
-  cSeries, cPolygonSeries, cGeoReaderKML, cUtils, cAbout;
+  cPolygonSeries, cGeoReaderKML, cUtils, cAbout;
 
 const
 {
@@ -1319,6 +1320,9 @@ begin
     else
       ser.Active := false;
     Chart.AddSeries(ser);
+
+    if ser is TcLineSeries then
+      LessChartSymbols(TcLineSeries(ser));
   end;  // for ct
 
   UpdateAffectedSeries;
@@ -1606,6 +1610,29 @@ begin
 end;
 }
 
+procedure TMainForm.LessChartSymbols(ASeries: TcLineSeries);
+var
+  lChart: TChart;
+  data: TcDataItem;
+  dx, interval: Integer;
+begin
+  lChart := ASeries.ParentChart;
+  data := TcDataItem(ASeries.Node.Data);
+
+  // Cannot use Chart.XGraphToImage at this early stage. So we must calculate
+  // the length of an x axis unit (1 day) in image units manually (approximately):
+  dx := round(lChart.Width / data.Count[pctConfirmed]);
+  if dx <> 0 then
+  begin
+    RandSeed := data.RandSeed;   // Avoid symbols changing their position
+    interval := round(DataSymbolDistance / dx);
+    ASeries.FirstSymbolIndex := Random(interval);
+    ASeries.SymbolInterval := interval;
+    Randomize;
+  end;
+end;
+
+
 // Populates the treeview with the locations.
 procedure TMainForm.LoadLocations;
 var
@@ -1881,6 +1908,7 @@ begin
 
   if acChartMap.Checked then
     ShowMap(ANode);
+
   if acChartTimeSeries.Checked then
     ShowTimeSeries(ANode);
 end;
@@ -2718,20 +2746,6 @@ begin
     else if ChartListbox.Series[i] is TcBarSeries then
       Result.Add(TcBarSeries(ChartListbox.Series[i]).Node);
 end;
-          (*
-procedure TMainForm.TreeViewClick(Sender: TObject);
-var
-  node: TTreeNode;
-begin
-  node := TreeView.Selected;
-  if (node = nil) or (node.Text = '') then
-    exit;
-
-  if acChartMap.Checked then
-    ShowMap(node);
-  if acChartTimeSeries.Checked then
-    ShowTimeSeries(node);
-end;        *)
 
 procedure TMainForm.TreeViewDeletion(Sender: TObject; Node: TTreeNode);
 begin

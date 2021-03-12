@@ -70,6 +70,7 @@ var
   CanadaMapResName: String = 'CANADA_MAP';
   AustraliaMapResName: String = 'AUSTRALIA_MAP';
   PortableInstallation: Boolean = false;
+  DataSymbolDistance: Integer = 16;
 
   cFormatSettings: TFormatSettings;
 

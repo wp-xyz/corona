@@ -620,6 +620,7 @@ begin
           countryData.Population := population;
           countryData.Longitude := lon;
           countryData.Latitude := lat;
+          countryData.RandSeed := Random(MaxInt);
           case country of
             'Australia':
               begin
@@ -684,6 +685,7 @@ begin
             data.Latitude := lat;
             data.MapDataLevelDist := 1;
             data.MapDataAtChildLevel := true;
+            data.RandSeed := Random(MaxInt);
             case country of
               'Australia':
                 begin
@@ -720,15 +722,13 @@ begin
             data.Latitude := lat;
             data.MapDataLevelDist := 2;
             data.MapDataAtChildLevel := true;
+            data.RandSeed := Random(MaxInt);
             if country = 'US' then
             begin
               data.UseOtherMapResource := true;
               data.OtherMapDataLevelDist := 1;
               data.OtherMapDataAtChildLevel := true;
             end;
-//            if country = 'US' then
-
-
             citynode := ATreeView.Items.AddChildObject(stateNode, city, data);
           end;
         end;
