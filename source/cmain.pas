@@ -355,6 +355,7 @@ begin
 end;
 {$IFEND}
 
+
 { TMainForm }
 
 procedure TMainForm.acAboutExecute(Sender: TObject);
@@ -1026,19 +1027,27 @@ end;
 
 procedure TMainForm.FormActivate(Sender: TObject);
 var
-  p4: Integer;
+  p4, p6: Integer;
   clr: TColor;
+  i, w, wCheckbox: Integer;
 begin
   p4 := Scale96ToForm(4);
+  p6 := Scale96ToForm(6);
+  wCheckbox := GetSystemMetrics(SM_CXMENUCHECK);
+  w := 0;
+  for i := 0 to clbCases.Items.Count-1 do
+    w := max(w, clbCases.Canvas.TextWidth(clbCases.Items[i]));
+  CasesPanel.Constraints.MinWidth := w + wCheckbox + 2*p6;
   CasesPanel.Constraints.MinHeight := clbCases.Top + clbCases.Items.Count * clbCases.ItemHeight + 2*p4;
   TimeSeriesGroup.Constraints.MinHeight := TimeseriesGroup.Height - TimeSeriesGroup.ClientHeight +
-    CasesPanel.Constraints.MinHeight + CasesPanel.BorderSpacing.Bottom;
+    CasesPanel.Constraints.MinHeight + CasesPanel.BorderSpacing.Bottom + p6;
 
   clr := ColorToRGB(Chart.BackColor);
   if Red(clr) + Green(clr) + Blue(clr) > 3*128 then
-    Chart.LeftAxis.Grid.Color := BrighterColor(clr, -0.25)
+    Chart.LeftAxis.Grid.Color := BrighterColor(clr, -0.15)
   else
-    Chart.LeftAxis.Grid.Color := BrighterColor(clr, +0.25);
+    Chart.LeftAxis.Grid.Color := BrighterColor(clr, +0.15);
+  Chart.BottomAxis.Grid.Color := Chart.LeftAxis.Grid.Color;
 end;
 
 procedure TMainForm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
