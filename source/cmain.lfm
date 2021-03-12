@@ -2056,7 +2056,6 @@ object MainForm: TMainForm
               Minors = <>
               Title.LabelBrush.Style = bsClear
             end>
-          BackColor = clWhite
           Foot.Alignment = taLeftJustify
           Foot.Brush.Color = clBtnFace
           Foot.Brush.Style = bsClear
