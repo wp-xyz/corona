@@ -1979,6 +1979,7 @@ object MainForm: TMainForm
           Align = alClient
           Anchors = [akLeft]
           Color = clWindow
+          OnResize = ChartResize
           object DateIndicatorLine: TConstantLine
             Active = False
             LineStyle = lsVertical
@@ -2068,6 +2069,7 @@ object MainForm: TMainForm
           Title.Brush.Color = clBtnFace
           Title.Brush.Style = bsClear
           Title.Font.Color = clWindowText
+          Title.Font.Height = -16
           Title.Font.Style = [fsBold]
           Title.Text.Strings = (
             'TAChart'
@@ -2075,6 +2077,7 @@ object MainForm: TMainForm
           Toolset = MapToolset
           Anchors = [akTop, akLeft, akRight, akBottom]
           Color = clWindow
+          OnResize = MapChartResize
         end
         object MapSplitter: TSplitter
           Left = 554

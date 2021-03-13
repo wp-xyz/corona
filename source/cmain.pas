@@ -175,6 +175,8 @@ type
     procedure ChartListboxAddSeries(ASender: TChartListbox;
       ASeries: TCustomChartSeries; AItems: TChartLegendItems; var ASkip: Boolean);
     procedure ChartListboxCheckboxClick(ASender: TObject; AIndex: Integer);
+    procedure ChartResize(Sender: TObject);
+
     procedure clbCasesClickCheck(Sender: TObject);
     procedure cmbDataTypeChange(Sender: TObject);
     procedure cmbDataTypeDropDown(Sender: TObject);
@@ -190,6 +192,7 @@ type
       aState: TGridDrawState);
     procedure GridPrepareCanvas(sender: TObject; aCol, aRow: Integer;
       aState: TGridDrawState);
+    procedure MapChartResize(Sender: TObject);
 
     procedure MapDateScrollbarChange(Sender: TObject);
     procedure MapToolsetDataPointClickToolPointClick(ATool: TChartTool;
@@ -261,6 +264,7 @@ type
     procedure UpdateGrid;
     procedure UpdateInfectiousPeriod;
     procedure UpdateStatusBar(ASeparator: String = ' ');
+    procedure WordwrapChart(AChart: TChart);
 
     procedure LoadIni;
     procedure SaveIni;
@@ -280,7 +284,7 @@ implementation
 uses
   LCLIntf, Math, IniFiles, DateUtils, LCLPlatformDef,
   // TAChart units
-  TATypes, TAMath, TACustomSource, TAFitLib,
+  TATypes, TAMath, TAGeometry, TACustomSource, TAFitLib,
   // project-specific units
   cJohnsHopkinsUniversity, {$IFDEF RKI}cRobertKochInstitut,{$ENDIF}
   cPolygonSeries, cGeoReaderKML, cUtils, cAbout;
@@ -759,6 +763,11 @@ begin
   UpdateAffectedSeries;
 end;
 
+procedure TMainForm.ChartResize(Sender: TObject);
+begin
+  WordwrapChart(Chart);
+end;
+
 procedure TMainForm.clbCasesClickCheck(Sender: TObject);
 var
   L: TFPList;
@@ -893,11 +902,11 @@ begin
             dtCumulative:
               lblTableHdr.Caption := 'Cumulative cases';
             dtNormalizedCumulative:
-              lblTableHdr.Caption := Format('Cumulative cases per %.0n population', [1.0 * PopulationRef]);
+              lblTableHdr.Caption := Format('Cumulative cases per population %.0n', [1.0 * PopulationRef]);
             dtNewCases:
               lblTableHdr.Caption := 'New cases per day';
             dtNormalizedNewCases:
-              lblTableHdr.Caption := Format('New cases per week and %.0n population', [1.0 * PopulationRef])
+              lblTableHdr.Caption := Format('New cases per week and population %.0n', [1.0 * PopulationRef])
             else
               raise Exception.Create('Data type not handled by cmbDataTypeChange');
           end;
@@ -951,6 +960,7 @@ begin
     acDataMovingAverageExecute(nil);
     RestoreSeriesNodesFromlist(L);
     UpdateActionStates;
+    WordwrapChart(Chart);
 
   finally
     L.Free;
@@ -1048,6 +1058,8 @@ begin
   else
     Chart.LeftAxis.Grid.Color := BrighterColor(clr, +0.15);
   Chart.BottomAxis.Grid.Color := Chart.LeftAxis.Grid.Color;
+
+  WordwrapChart(Chart);
 end;
 
 procedure TMainForm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -1506,6 +1518,11 @@ begin
   else
     ts.Alignment := taRightJustify;
   Grid.Canvas.TextStyle := ts;
+end;
+
+procedure TMainForm.MapChartResize(Sender: TObject);
+begin
+  WordwrapChart(MapChart);
 end;
 
 procedure TMainForm.MapDateScrollbarChange(Sender: TObject);
@@ -3212,6 +3229,26 @@ procedure TMainForm.ToolBarResize(Sender: TObject);
 begin
   tbAbout.Left := Toolbar.Width - tbAbout.Width;
 end;
+
+procedure TMainForm.WordwrapChart(AChart: TChart);
+var
+  s: String;
+  ext: TDoubleRect;
+  maxLen: Integer;
+begin
+  ext := AChart.LogicalExtent;
+  if ext = EmptyExtent then
+    maxLen := AChart.Height * 2 div 3
+  else
+    maxLen := AChart.ClipRect.Height;
+  s := StripLineEndings(AChart.LeftAxis.Title.Caption);
+  AChart.LeftAxis.Title.Caption := Wordwrap(s, AChart.LeftAxis.Title.LabelFont, maxLen);
+
+  maxLen := AChart.ClientWidth;
+  s := StripLineEndings(AChart.Title.Text.Text);
+  AChart.Title.Text.Text := WordWrap(s, AChart.Title.Font, maxLen);
+end;
+
 
 initialization
   BaseDate := EncodeDate(2020, 1, 1);
