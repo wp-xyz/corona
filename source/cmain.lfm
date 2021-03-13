@@ -3081,4 +3081,11 @@ object MainForm: TMainForm
       OnPointClick = MapToolsetDataPointClickToolPointClick
     end
   end
+  object ResizeTimer: TTimer
+    Enabled = False
+    Interval = 50
+    OnTimer = ResizeTimerTimer
+    Left = 390
+    Top = 137
+  end
 end

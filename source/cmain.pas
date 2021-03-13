@@ -56,6 +56,7 @@ type
     MovingAverageInfo: TLabel;
     CasesSplitter: TSplitter;
     CasesPanel: TPanel;
+    ResizeTimer: TTimer;
     TreeSplitter: TSplitter;
     TimeSeriesGroup: TGroupBox;
     MapDataGroup: TGroupBox;
@@ -192,6 +193,7 @@ type
       aState: TGridDrawState);
     procedure GridPrepareCanvas(sender: TObject; aCol, aRow: Integer;
       aState: TGridDrawState);
+
     procedure MapChartResize(Sender: TObject);
 
     procedure MapDateScrollbarChange(Sender: TObject);
@@ -207,6 +209,9 @@ type
     procedure PageControlChange(Sender: TObject);
     procedure PaletteListboxGetColors(Sender: TCustomColorListBox;
       Items: TStrings);
+
+    procedure ResizeTimerTimer(Sender: TObject);
+
     procedure ToolBarResize(Sender: TObject);
 
 //    procedure TreeViewClick(Sender: TObject);
@@ -765,7 +770,8 @@ end;
 
 procedure TMainForm.ChartResize(Sender: TObject);
 begin
-  WordwrapChart(Chart);
+  ResizeTimer.Enabled := true;
+//  WordwrapChart(Chart);
 end;
 
 procedure TMainForm.clbCasesClickCheck(Sender: TObject);
@@ -1522,7 +1528,8 @@ end;
 
 procedure TMainForm.MapChartResize(Sender: TObject);
 begin
-  WordwrapChart(MapChart);
+  ResizeTimer.Enabled := true;
+//  WordwrapChart(MapChart);
 end;
 
 procedure TMainForm.MapDateScrollbarChange(Sender: TObject);
@@ -1820,6 +1827,16 @@ begin
   end;
   Items.AddObject(Format(mask1, [nextItem.Value*m]), TObject(PtrInt(nextItem.Color)));
 end;
+
+procedure TMainForm.ResizeTimerTimer(Sender: TObject);
+begin
+  ResizeTimer.Enabled := false;
+  if acChartMap.Checked then
+    WordwrapChart(MapChart);
+  if acChartTimeSeries.Checked then
+    WordwrapChart(Chart);
+end;
+
 (*
 procedure TMainForm.PopulateCumulativeSeries(const ADates, AValues: TStringArray;
   ASeries: TChartSeries);
