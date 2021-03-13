@@ -16,7 +16,7 @@
         <DpiAware Value="True"/>
       </XPManifest>
       <Icon Value="0"/>
-      <Resources Count="7">
+      <Resources Count="8">
         <Resource_0 FileName="maps\us_states_map.kml" Type="RCDATA" ResourceName="US_STATES_MAP"/>
         <Resource_1 FileName="maps\world_map.kml" Type="RCDATA" ResourceName="WORLD_MAP"/>
         <Resource_2 FileName="maps\china_map.kml" Type="RCDATA" ResourceName="CHINA_MAP"/>
@@ -24,6 +24,7 @@
         <Resource_4 FileName="maps\us_counties_map.kml" Type="RCDATA" ResourceName="US_COUNTIES_MAP"/>
         <Resource_5 FileName="maps\australia_map.kml" Type="RCDATA" ResourceName="AUSTRALIA_MAP"/>
         <Resource_6 FileName="maps\country-and-continent-codes-list.csv" Type="RCDATA" ResourceName="COUNTRY-AND-CONTINENT-CODES-LIST"/>
+        <Resource_7 FileName="maps\europe_map.kml" Type="RCDATA" ResourceName="EUROPE_MAP"/>
       </Resources>
     </General>
     <VersionInfo>

@@ -69,6 +69,7 @@ var
   ChinaMapResName: String = 'CHINA_MAP';
   CanadaMapResName: String = 'CANADA_MAP';
   AustraliaMapResName: String = 'AUSTRALIA_MAP';
+  EuropeMapResName: String = 'EUROPE_MAP';
   PortableInstallation: Boolean = false;
   DataSymbolDistance: Integer = 16;
 

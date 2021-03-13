@@ -17,6 +17,9 @@ china_map.kml
   https://geodata.lib.utexas.edu/catalog/stanford-bw669kf8724  
   (missing Hongkong and Macau)
 
+europe_map.kml
+  https://tapiquen-sig.jimdofree.com/english-version/free-downloads/europe/
+  
 us_states_map.kml and us_counties_map.kml
   https://www.census.gov/geographies/mapping-files/time-series/geo/carto-boundary-file.html
   (two Alaskan islands beyond date boundary deleted for better symmetry of maps)

@@ -159,6 +159,7 @@ begin
   data.Name := 'Europe';
   data.Parentname := 'World';
   data.GeoID := -12;
+  data.MapResource := EuropeMapResName;
   data.MapDataLevelDist := 1;  // 1st level below world map node
   data.MapDataAtChildLevel := true;
   AEuropeNode := ATreeView.Items.AddChildObject(AWorldNode, 'Europe', data);
@@ -656,6 +657,12 @@ begin
             else   // World map
               countryData.MapDataLevelDist := 1;        // Map: Iterate through continents...
               countryData.MapDataAtChildLevel := true;  // ... but find values in country level
+          end;
+
+          if continentNode = europeNode then
+          begin
+            countryData.MapDataLevelDist := 1;
+            countryData.MapDataAtChildLevel := false;
           end;
 
           countryNode := ATreeView.Items.AddChildObject(continentNode, country, countryData);
