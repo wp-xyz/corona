@@ -5,7 +5,7 @@ unit cUtils;
 interface
 
 uses
-  Classes, SysUtils, Graphics, Math;
+  Classes, SysUtils, Graphics, Math, LclVersion;
 
 function BrighterColor(AColor: TColor; AFraction: Double): TColor;
 
@@ -20,7 +20,9 @@ function StripThousandSeparator(const AString: String; ASep: Char): String;
 
 function UnQuote(const s: String): String;
 
+{$IF LCL_FullVersion < 2010000}
 function WordWrap(const AText: String; AFont: TFont; AMaxWidth: Integer): string;
+{$IFEND}
 
 
 implementation
@@ -239,6 +241,7 @@ begin
   Move(s[i1], Result[1], Length(Result));
 end;
 
+{$IF LCL_FullVersion < 2010000}
 // Inserts LineEndings into the provided string AText such that its width after
 // writing with the provided font does not exceed the given width.
 function WordWrap(const AText: String; AFont: TFont; AMaxWidth: Integer): string;
@@ -278,5 +281,6 @@ begin
     bmp.Free;
   end;
 end;
+{$IFEND}
 
 end.

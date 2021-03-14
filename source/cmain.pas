@@ -1086,6 +1086,7 @@ begin
 
   {$IF LCL_FullVersion >= 2010000}
   Chart.LeftAxis.Title.Wordwrap := true;
+  MapChart.Title.Wordwrap := true;
   ZoomDragTool.LimitToExtent := [zdDown, zdLeft, zdRight, zdUp];
   PanDragTool.LimitToExtent := [pdDown, pdLeft, pdRight, pdUp];
   {$ENDIF}
@@ -3249,12 +3250,16 @@ begin
 end;
 
 procedure TMainForm.WordwrapChart(AChart: TChart);
+{$IF LCL_FullVersion >= 2010000}
+// In Laz 2.1+, wordwrapping of titles is provided by TAChart itself.
+begin
+end;
+{$ELSE}
 var
   s: String;
   ext: TDoubleRect;
   maxLen: Integer;
 begin
-  {$IF LCL_FullVersion < 2010000}     // AChart.LeftAxis.Title.WordWrap := true in trunk
   ext := AChart.LogicalExtent;
   if ext = EmptyExtent then
     maxLen := AChart.Height * 2 div 3
@@ -3262,12 +3267,12 @@ begin
     maxLen := AChart.ClipRect.Height;
   s := StripLineEndings(AChart.LeftAxis.Title.Caption);
   AChart.LeftAxis.Title.Caption := Wordwrap(s, AChart.LeftAxis.Title.LabelFont, maxLen);
-  {$IFEND}
 
   maxLen := AChart.ClientWidth;
   s := StripLineEndings(AChart.Title.Text.Text);
   AChart.Title.Text.Text := WordWrap(s, AChart.Title.Font, maxLen);
 end;
+{$IFEND}
 
 
 initialization
