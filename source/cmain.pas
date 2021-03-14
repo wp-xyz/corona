@@ -1965,7 +1965,7 @@ end;
 // Stategy: "small" maps require orthographic, "large" maps require Mercator
 procedure TMainForm.SelectProjection(AMapRes: string);
 begin
-  if (AMapRes = WorldMapResName) or (AMapRes = AmericasMapResName) then
+  if (AMapRes = WorldMapResName) or (AMapRes = AmericasMapResName) or (AMapRes = AsiaMapResName) then
     FGeoMap.Projection := gpMercator
   else
   begin

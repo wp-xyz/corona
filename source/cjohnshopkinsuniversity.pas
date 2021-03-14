@@ -151,6 +151,7 @@ begin
   data.ParentName := 'World';
   data.GeoID := -11;
   data.Population := 1;
+  data.MapResource := AsiaMapResName;
   data.MapDataLevelDist := 1;  // 1st level below world map node
   data.MapDataAtChildLevel := true;
   AAsiaNode := ATreeView.Items.AddChildObject(AWorldNode, 'Asia', data);
@@ -664,7 +665,7 @@ begin
           end;
 
           // Here we handle the continent nodes.
-          if continentNode = europeNode then
+          if (continentNode = asiaNode) or (continentNode = europeNode) then
           begin
             countryData.MapDataLevelDist := 1;
             countryData.MapDataAtChildLevel := false;

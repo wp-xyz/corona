@@ -6,6 +6,14 @@ country-and-codes-list.csv
   https://datahub.io/JohnSnowLabs/country-and-continent-codes-list/r/0.html
   Some countries renamed and added to be compatibile with JHU data files.
 
+americas_map.kml
+  https://tapiquen-sig.jimdofree.com/english-version/free-downloads/americas/
+  
+asia_map.kml
+  http://thematicmapping.org/downloads/world_borders.php
+  License: Creative Commons
+  Asian countries extracted from downloaded map by filtering for "Region=142"
+  
 australia_map.kml
   https://www.abs.gov.au/AUSSTATS/abs@.nsf/DetailsPage/1259.0.30.001July%202011?OpenDocument
    
@@ -27,5 +35,5 @@ us_states_map.kml and us_counties_map.kml
 All maps were 
 - reduced by https://mapshaper.org
 - converted to kml by QGIS
-- xml attributes simplified, names adapted to JHU data files.
+- xml attributes simplified, names adapted to JHU data files. Sometimes GeoID fields added.
   
