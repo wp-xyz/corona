@@ -771,7 +771,6 @@ end;
 procedure TMainForm.ChartResize(Sender: TObject);
 begin
   ResizeTimer.Enabled := true;
-//  WordwrapChart(Chart);
 end;
 
 procedure TMainForm.clbCasesClickCheck(Sender: TObject);
@@ -1086,6 +1085,7 @@ begin
   WheelZoomTool.ZoomRatio := 1.0 / WheelZoomTool.ZoomFactor;
 
   {$IF LCL_FullVersion >= 2010000}
+  Chart.LeftAxis.Title.Wordwrap := true;
   ZoomDragTool.LimitToExtent := [zdDown, zdLeft, zdRight, zdUp];
   PanDragTool.LimitToExtent := [pdDown, pdLeft, pdRight, pdUp];
   {$ENDIF}
@@ -1529,7 +1529,6 @@ end;
 procedure TMainForm.MapChartResize(Sender: TObject);
 begin
   ResizeTimer.Enabled := true;
-//  WordwrapChart(MapChart);
 end;
 
 procedure TMainForm.MapDateScrollbarChange(Sender: TObject);
@@ -1831,8 +1830,10 @@ end;
 procedure TMainForm.ResizeTimerTimer(Sender: TObject);
 begin
   ResizeTimer.Enabled := false;
+
   if acChartMap.Checked then
     WordwrapChart(MapChart);
+
   if acChartTimeSeries.Checked then
     WordwrapChart(Chart);
 end;
@@ -3253,6 +3254,7 @@ var
   ext: TDoubleRect;
   maxLen: Integer;
 begin
+  {$IF LCL_FullVersion < 2010000}     // AChart.LeftAxis.Title.WordWrap := true in trunk
   ext := AChart.LogicalExtent;
   if ext = EmptyExtent then
     maxLen := AChart.Height * 2 div 3
@@ -3260,6 +3262,7 @@ begin
     maxLen := AChart.ClipRect.Height;
   s := StripLineEndings(AChart.LeftAxis.Title.Caption);
   AChart.LeftAxis.Title.Caption := Wordwrap(s, AChart.LeftAxis.Title.LabelFont, maxLen);
+  {$IFEND}
 
   maxLen := AChart.ClientWidth;
   s := StripLineEndings(AChart.Title.Text.Text);
