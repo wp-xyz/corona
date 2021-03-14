@@ -168,6 +168,7 @@ begin
   data.Name := 'North America';
   data.Parentname := 'World';
   data.GeoID := -13;
+  data.MapResource := AmericasMapResName;
   data.MapDataLevelDist := 1;  // 1st level below world map node
   data.MapDataAtChildLevel := true;
   ANorthAmericaNode := ATreeView.Items.AddChildObject(AWorldNode, 'North America', data);
@@ -176,6 +177,7 @@ begin
   data.Name := 'South America';
   data.Parentname := 'World';
   data.GeoID := -14;
+  data.MapResource := AmericasMapResName;
   data.MapDataLevelDist := 1;  // 1st level below world map node
   data.MapDataAtChildLevel := true;
   ASouthAmericaNode := ATreeView.Items.AddChildObject(AWorldNode, 'South America', data);
@@ -622,6 +624,8 @@ begin
           countryData.Longitude := lon;
           countryData.Latitude := lat;
           countryData.RandSeed := Random(MaxInt);
+          // Some contries in the JHU files have child nodes with state/province data
+          // These are handled here:
           case country of
             'Australia':
               begin
@@ -659,10 +663,16 @@ begin
               countryData.MapDataAtChildLevel := true;  // ... but find values in country level
           end;
 
+          // Here we handle the continent nodes.
           if continentNode = europeNode then
           begin
             countryData.MapDataLevelDist := 1;
             countryData.MapDataAtChildLevel := false;
+          end else
+          if (continentNode = northAmericaNode) or (continentNode = southAmericaNode) then
+          begin
+            countryData.MapDataLevelDist := 0;
+            countryData.MapDataAtChildLevel := true;
           end;
 
           countryNode := ATreeView.Items.AddChildObject(continentNode, country, countryData);

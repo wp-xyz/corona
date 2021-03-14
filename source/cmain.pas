@@ -251,6 +251,7 @@ type
     procedure ReadCommandlineParams;
     procedure RestoreSeriesNodesFromList(AList: TFPList);
     procedure SelectNode(ANode: TTreeNode);
+    procedure SelectProjection(AMapRes: String);
     procedure SeriesToArray(ASeries: TChartSeries; out AData: TDataPointArray);
     procedure ShowCharts(VisibleCharts: TVisibleCharts);
     procedure ShowCoronaMap(ANode: TTreeNode; ADateIndex: Integer;
@@ -1960,6 +1961,20 @@ begin
     ShowTimeSeries(ANode);
 end;
 
+// Selects the projection for the map having the given name.
+// Stategy: "small" maps require orthographic, "large" maps require Mercator
+procedure TMainForm.SelectProjection(AMapRes: string);
+begin
+  if (AMapRes = WorldMapResName) or (AMapRes = AmericasMapResName) then
+    FGeoMap.Projection := gpMercator
+  else
+  begin
+    FGeoMap.Projection := gpOrthographic;
+    if (AMapRes = USStatesMapResName) or (AMapRes = USCountiesMapResName) then
+      FGeoMap.GeoIDOffset := 84000000;
+  end;
+end;
+
 procedure TMainForm.SeriesToArray(ASeries: TChartSeries; out AData: TDataPointArray);
 var
   i: Integer;
@@ -2158,14 +2173,7 @@ begin
   if ANode = nil then
     exit;
 
-  if mapRes = WorldMapResName then
-    FGeoMap.Projection := gpMercator
-  else
-  begin
-    FGeoMap.Projection := gpOrthographic;
-    if (mapRes = USStatesMapResName) or (mapRes = USCountiesMapResName) then
-      FGeoMap.GeoIDOffset := 84000000;
-  end;
+  SelectProjection(mapRes);
 
   if MapDateScrollbar.Max > 0 then
     oldScrollPos := MapDateScrollbar.Position

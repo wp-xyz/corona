@@ -73,6 +73,7 @@ var
   CanadaMapResName: String = 'CANADA_MAP';
   AustraliaMapResName: String = 'AUSTRALIA_MAP';
   EuropeMapResName: String = 'EUROPE_MAP';
+  AmericasMapResName: String = 'AMERICAS_MAP';
   PortableInstallation: Boolean = {$IFDEF PORTABLE}true{$ELSE}false{$ENDIF};
   DataSymbolDistance: Integer = 16;
 
