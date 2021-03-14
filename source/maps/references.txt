@@ -6,6 +6,11 @@ country-and-codes-list.csv
   https://datahub.io/JohnSnowLabs/country-and-continent-codes-list/r/0.html
   Some countries renamed and added to be compatibile with JHU data files.
 
+africa_map.kml
+  http://thematicmapping.org/downloads/world_borders.php
+  License: Creative Commons
+  African countries extracted from downloaded map by filtering for "Region=2"
+
 americas_map.kml
   https://tapiquen-sig.jimdofree.com/english-version/free-downloads/americas/
   

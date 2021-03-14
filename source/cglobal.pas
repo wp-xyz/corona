@@ -66,6 +66,8 @@ var
   SmoothingRange: Integer = ACCUMULATION_RANGE;
   RRange: Integer = (ACCUMULATION_RANGE - 1) div 2;           // +/- from center
   PopulationRef: Integer = 100000;         // population count for normalization
+
+  // Resource names of the maps used
   WorldMapResName: String = 'WORLD_MAP';
   USStatesMapResName: String = 'US_STATES_MAP';
   USCountiesMapResName: String = 'US_COUNTIES_MAP';
@@ -73,6 +75,7 @@ var
   CanadaMapResName: String = 'CANADA_MAP';
   AustraliaMapResName: String = 'AUSTRALIA_MAP';
   EuropeMapResName: String = 'EUROPE_MAP';
+  AfricaMapResName: String = 'AFRICA_MAP';
   AmericasMapResName: String = 'AMERICAS_MAP';
   AsiaMapResName: String = 'ASIA_MAP';
 

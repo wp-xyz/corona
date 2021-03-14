@@ -2002,10 +2002,6 @@ begin
 
   while ANode <> nil do
   begin
-    if anode.Text = 'Argentina' then
-      clr := 0;
-
-
     data := TcDataItem(ANode.Data);
     case AMapDataType of
       mdtNormalizedNewConfirmed, mdtNormalizedNewDeaths:
