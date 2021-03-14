@@ -259,6 +259,7 @@ type
       AMapDataType: TMapDataType);
     procedure ShowMap(ANode: TTreeNode);
     procedure ShowTimeSeries(ANode: TTreeNode);
+    procedure ShowVersionInfo;
     procedure StatusMsgHandler(Sender: TObject; const AMsg1, AMsg2: String);
     function StoreSeriesNodesInList: TFPList;
     procedure UpdateActionStates;
@@ -289,7 +290,7 @@ implementation
 uses
   LCLIntf, Math, IniFiles, DateUtils, LCLPlatformDef,
   // TAChart units
-  TATypes, TAMath, TAGeometry, TACustomSource, TAFitLib,
+  TATypes, TAMath, TACustomSource, TAFitLib,
   // project-specific units
   cJohnsHopkinsUniversity, {$IFDEF RKI}cRobertKochInstitut,{$ENDIF}
   cPolygonSeries, cGeoReaderKML, cUtils, cAbout;
@@ -658,6 +659,7 @@ begin
   ReadCommandlineParams;
   LoadLocations;
   LoadIni;
+  ShowVersionInfo;
 end;
 
 // It is assumed that xmin < xmax.
@@ -3242,6 +3244,11 @@ begin
 
   if acChartMap.Checked then
     ShowMap(TreeView.Selected);
+end;
+
+procedure TMainForm.ShowVersionInfo;
+begin
+  Caption := Format('%s (%s)', [APP_TITLE, GetVersionStr]);
 end;
 
 procedure TMainForm.ToolBarResize(Sender: TObject);

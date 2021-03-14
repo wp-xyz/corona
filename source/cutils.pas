@@ -11,6 +11,8 @@ function BrighterColor(AColor: TColor; AFraction: Double): TColor;
 
 function FormatBytes(AValue: Int64): String;
 
+function GetVersionStr: String;
+
 function MinimizeName(FileName: String; Canvas: TCanvas; MaxWidth: Integer;
   APathDelim: Char): String;
 
@@ -28,7 +30,7 @@ function WordWrap(const AText: String; AFont: TFont; AMaxWidth: Integer): string
 implementation
 
 uses
-  StrUtils;
+  StrUtils, fileInfo, cGlobal;
 
 function BrighterColor(AColor: TColor; AFraction: Double): TColor;
 var
@@ -80,6 +82,16 @@ begin
     dSize := AValue / 1024 / 1024 / 1024 / 1024;
     Result := FormatFloat('0.##', dSize) + ' TB';
   end;
+end;
+
+function GetVersionStr: String;
+var
+  ver: TProgramVersion;
+begin
+  GetProgramVersion(ver);
+  Result := Format('v%d.%d.%d', [ver.Major, ver.Minor, ver.Revision]);
+  if PortableInstallation then
+    Result := Result + ' [portable version]';
 end;
 
 {

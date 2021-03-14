@@ -917,16 +917,28 @@ object AboutForm: TAboutForm
   end
   object lblGeneralInfo: TLabel
     AnchorSideLeft.Control = lblTitle
+    AnchorSideTop.Control = lblVersion
     AnchorSideTop.Side = asrBottom
     AnchorSideBottom.Control = AppImage
     AnchorSideBottom.Side = asrBottom
     Left = 156
     Height = 15
-    Top = 125
+    Top = 80
     Width = 74
-    Anchors = [akLeft, akBottom]
+    BorderSpacing.Top = 8
     Caption = 'lblGeneralInfo'
     ParentColor = False
     WordWrap = True
+  end
+  object lblVersion: TLabel
+    AnchorSideLeft.Control = lblTitle
+    AnchorSideTop.Control = lblTitle
+    AnchorSideTop.Side = asrBottom
+    Left = 156
+    Height = 15
+    Top = 57
+    Width = 51
+    Caption = 'lblVersion'
+    ParentColor = False
   end
 end

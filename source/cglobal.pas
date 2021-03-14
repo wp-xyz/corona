@@ -57,6 +57,9 @@ const
   // Format for saving date
   SAVE_DATE_FORMAT = 'yyyy-mm-dd';
 
+  // Application title
+  APP_TITLE = 'corona';
+
 
 var
   InfectiousPeriod: Integer = INFECTIOUS_PERIOD;
@@ -70,10 +73,11 @@ var
   CanadaMapResName: String = 'CANADA_MAP';
   AustraliaMapResName: String = 'AUSTRALIA_MAP';
   EuropeMapResName: String = 'EUROPE_MAP';
-  PortableInstallation: Boolean = false;
+  PortableInstallation: Boolean = {$IFDEF PORTABLE}true{$ELSE}false{$ENDIF};
   DataSymbolDistance: Integer = 16;
 
   cFormatSettings: TFormatSettings;
+
 
 implementation
 
