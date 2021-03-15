@@ -3048,6 +3048,7 @@ procedure TMainForm.WordwrapChart(AChart: TChart);
 {$IF LCL_FullVersion >= 2010000}
 // In Laz 2.1+, wordwrapping of titles is provided by TAChart itself.
 begin
+  Unused(AChart);
 end;
 {$ELSE}
 var
