@@ -1912,7 +1912,6 @@ object MainForm: TMainForm
     BorderSpacing.Bottom = 6
     TabIndex = 0
     TabOrder = 2
-    OnChange = PageControlChange
     object pgChart: TTabSheet
       Caption = 'Charts'
       ClientHeight = 474

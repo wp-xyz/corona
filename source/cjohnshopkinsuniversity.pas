@@ -142,7 +142,7 @@ begin
   data.ParentName := 'World';
   data.GeoID := -10;
   data.Population := 1;
-  data.MapResource := AfricaMapResName;
+//  data.MapResource := AfricaMapResName;
   data.MapDataLevelDist := 1;  // 1st level below world map node
   data.MapDataAtChildLevel := true;
   AAfricaNode := ATreeView.Items.AddChildObject(AWorldNode, 'Africa', data);
@@ -152,7 +152,7 @@ begin
   data.ParentName := 'World';
   data.GeoID := 142;
   data.Population := 1;
-  data.MapResource := AsiaMapResName;
+//  data.MapResource := AsiaMapResName;
   data.MapDataLevelDist := 1;  // 1st level below world map node
   data.MapDataAtChildLevel := true;
   AAsiaNode := ATreeView.Items.AddChildObject(AWorldNode, 'Asia', data);
@@ -162,7 +162,7 @@ begin
   data.Parentname := 'World';
   data.GeoID := 150;
   data.Population := 1;
-  data.MapResource := EuropeMapResName;
+//  data.MapResource := EuropeMapResName;
   data.MapDataLevelDist := 1;  // 1st level below world map node
   data.MapDataAtChildLevel := true;
   AEuropeNode := ATreeView.Items.AddChildObject(AWorldNode, 'Europe', data);
@@ -172,7 +172,7 @@ begin
   data.Parentname := 'World';
   data.GeoID := 19;
   data.Population := 1;
-  data.MapResource := AmericasMapResName;
+//  data.MapResource := AmericasMapResName;
   data.MapDataLevelDist := 1;  // 1st level below world map node
   data.MapDataAtChildLevel := true;
   ANorthAmericaNode := ATreeView.Items.AddChildObject(AWorldNode, 'North America', data);
@@ -182,7 +182,7 @@ begin
   data.Parentname := 'World';
   data.GeoID := 19;
   data.Population := 1;
-  data.MapResource := AmericasMapResName;
+//  data.MapResource := AmericasMapResName;
   data.MapDataLevelDist := 1;  // 1st level below world map node
   data.MapDataAtChildLevel := true;
   ASouthAmericaNode := ATreeView.Items.AddChildObject(AWorldNode, 'South America', data);
@@ -668,19 +668,6 @@ begin
             else   // World map
               countryData.MapDataLevelDist := 1;        // Map: Iterate through continents...
               countryData.MapDataAtChildLevel := true;  // ... but find values in country level
-          end;
-
-          // Here we handle the continent nodes.
-          if (continentNode = africaNode) or (continentNode = asiaNode) or
-             (continentNode = europeNode) then //or (continentNode = oceaniaNode) then
-          begin
-            countryData.MapDataLevelDist := 1;
-            countryData.MapDataAtChildLevel := false;
-          end else
-          if (continentNode = northAmericaNode) or (continentNode = southAmericaNode) then
-          begin
-            countryData.MapDataLevelDist := 0;
-            countryData.MapDataAtChildLevel := true;
           end;
 
           countryNode := ATreeView.Items.AddChildObject(continentNode, country, countryData);

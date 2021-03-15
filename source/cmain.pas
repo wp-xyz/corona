@@ -206,7 +206,6 @@ type
       var AText: String);
     procedure MeasurementToolMeasure(ASender: TDataPointDistanceTool);
 
-    procedure PageControlChange(Sender: TObject);
     procedure PaletteListboxGetColors(Sender: TCustomColorListBox;
       Items: TStrings);
 
@@ -261,7 +260,6 @@ type
     procedure ShowMap(ANode: TTreeNode);
     procedure ShowTimeSeries(ANode: TTreeNode);
     procedure ShowVersionInfo;
-    procedure StatusMsgHandler(Sender: TObject; const AMsg1, AMsg2: String);
     function StoreSeriesNodesInList: TFPList;
     procedure UpdateActionStates;
     procedure UpdateAffectedSeries;
@@ -297,14 +295,6 @@ uses
   cPolygonSeries, cGeoReaderKML, cUtils, cAbout;
 
 const
-{
-  // DATA_DIR must end with path delimiter!
-  {$IFDEF DARWIN}
-  DATA_DIR = '../../../data/';
-  {$ELSE}
-  DATA_DIR = 'data/';
-  {$ENDIF}
-           }
   // Chart series colors
   COLORS: array[0..9] of TColor = (
     clRed, clBlue, clFuchsia, clLime, clSkyBlue,
@@ -767,7 +757,6 @@ end;
 
 procedure TMainForm.ChartListboxCheckboxClick(ASender: TObject; AIndex: Integer);
 begin
-//  LayoutBars;
   UpdateAffectedSeries;
 end;
 
@@ -1430,73 +1419,6 @@ begin
   end;
 end;
 
-  (*
-{ ANode has been clicked. Finds the map which will be displayed for this node.
-  Returns the resource name of the map, and the first data node. The calling
-  routine will extract Covid data for all sibling nodes of the returned ANode. }
-procedure TMainForm.GetMapResourceNode(var ANode: TTreeNode; out AResName: String;
-  out APlotChildNodes: Boolean);
-var
-  dataitem: TcDataItem;
-  node: TTreeNode;
-  n: Integer;
-begin
-  AResName := '';
-  APlotChildNodes := false;
-  if ANode = nil then
-    exit;
-
-  dataItem := TcDataItem(ANode.Data);
-
-  // A node at the country level always displays the world map
-  if ANode.Level = 1 then
-  begin
-    AResName := WorldMapResName;
-  //  APlotChildNodes := ANode.Haschildren and (dataItem.MapResource = '');  // this is true for countries like Denmark
-    ANode := ANode.GetFirstSibling;
-    exit;
-  end;
-
-  // Nodes using the "other map" find the map two levels up the tree.
-  if dataItem.UseOtherMapResource then
-  begin
-    node := ANode.Parent;
-    if node = nil then
-      exit;
-    node := node.Parent;
-    dataitem := TcDataItem(node.Data);
-    AResName := dataItem.OtherMapResource;
-    ANode := ANode.Parent.GetFirstSibling;
-    APlotChildNodes := true;
-    exit;
-  end;
-
-  // Nodes with the regular map can be any number of levels higher than the
-  // current node. --> move up the tree until we find the node with the map
-  node := ANode;
-  while node <> nil do begin
-    dataItem := TcDataItem(node.Data);
-    if dataItem.MapResource <> '' then
-    begin
-      AResName := dataItem.MapResource;
-      if ANode.Parent = nil then  // ANode is world node
-        ANode := ANode.GetFirstChild
-      else
-        ANode := ANode.GetFirstSibling;
-      if (ANode.Level = 1) and (ANode.Text = 'Africa') then
-        APlotChildNodes := true;
-      exit;
-    end;
-    node := node.Parent;
-  end;
-
-  // If we get here we did not find any map node. --> Select the world map and
-  // the very first node
-  ANode := TreeView.Items.GetFirstNode;
-  AResName := WorldMapResName;
-end;
-*)
-
 procedure TMainForm.GridDrawCell(Sender: TObject; aCol, aRow: Integer;
   aRect: TRect; aState: TGridDrawState);
 var
@@ -1573,9 +1495,6 @@ var
   dataitem: TcDataitem;
   dateIndex: Integer;
 begin
-//  Hint := '';
-
-//  FStatusText1 := '';
   if ATool.Series is TcPolygonSeries then
   begin
     ser := TcPolygonSeries(ATool.Series);
@@ -1590,10 +1509,6 @@ begin
         '  New cases per week and %.0n population: %.1f' + LineEnding +
         '  New deaths per week and %.0n population: %.2f' + LineEnding +
         '  R value: %.1f',  [
-                       {
-      //FStatusText1 := Format(
-        '%s: Population %.0n, new cases/deaths per week and %.0n population %.1f / %.2f; R value: %.1f', [
-      }
         dataItem.Name, dataItem.Population*1.0,
         REF_POPULATION*1.0, dataItem.CalcNormalizedNewCases(dateIndex, ctConfirmed),
         REF_POPULATION*1.0,dataItem.CalcNormalizedNewCases(dateIndex, ctDeaths),
@@ -1601,7 +1516,6 @@ begin
       ]);
     end;
   end;
-  //UpdateStatusbar;
 end;
 
 procedure TMainForm.InitShortCuts;
@@ -1619,32 +1533,6 @@ function TMainForm.IsTimeSeries: Boolean;
 begin
   Result := GetDataType() <> dtCumVsNewCases;
 end;
-
-{
-procedure TMainForm.LayoutBars;
-var
-  i, j, n: Integer;
-  ser: TBarSeries;
-begin
-  if not (GetDataType() in [dtNewCases, dtNormalizedNewCases, dtDoublingTime]) then
-    exit;
-
-  n := 0;
-  for i := 0 to Chart.SeriesCount-1 do
-    if (Chart.Series[i] is TBarSeries) and Chart.Series[i].Active then
-      inc(n);
-
-  j := 0;
-  for i:=0 to Chart.SeriesCount-1 do
-    if (Chart.Series[i] is TBarSeries) and Chart.Series[i].Active then
-    begin
-      ser := TBarSeries(Chart.Series[i]);
-      ser.BarWidthPercent := round(BARWIDTH_PERCENT / n);
-      ser.BarOffsetPercent := round((j - (n-1)/2) * ser.BarWidthPercent);
-      inc(j);
-    end;
-end;
-}
 
 procedure TMainForm.LessChartSymbols(ASeries: TcLineSeries);
 var
@@ -1769,38 +1657,6 @@ end;
 procedure TMainForm.MeasurementToolMeasure(ASender: TDataPointDistanceTool);
 begin
   FMeasurementSeries.Active := false;
-end;
-                          (*
-procedure TMainForm.NormalizeToPopulation(ASource: TListChartSource;
-  APopulation: Integer; PerWeek: Boolean);
-var
-  i, j: Integer;
-  sum: Double;
-begin
-  if APopulation <= 0 then
-    exit;
-
-  if PerWeek then
-    for i := ASource.Count-1 downto 0 do begin
-      // Calculate 1 week sum
-      sum := ASource.Item[i]^.Y;
-      for j := 1 to 6 do   // 1 week
-        if i - j >= 0 then
-          sum := sum + ASource.Item[i-j]^.Y;
-      ASource.Item[i]^.Y := sum / APopulation * PopulationRef;
-    end
-  else
-    for i := ASource.Count-1 downto 0 do
-      ASource.Item[i]^.Y := ASource.Item[i]^.Y / APopulation * PopulationRef;
-end;                        *)
-
-procedure TMainForm.PageControlChange(Sender: TObject);
-begin
-  // FIXME: Chart menu is always hidden once Table menu was shown.
-  {
-  mnuChart.Visible := PageControl.ActivePageIndex = pgChart;
-  mnuTable.Visible := PageControl.ActivePage = pgTable;
-  }
 end;
 
 procedure TMainForm.PaletteListboxGetColors(Sender: TCustomColorListBox;
@@ -1965,8 +1821,7 @@ end;
 // Stategy: "small" maps require orthographic, "large" maps require Mercator
 procedure TMainForm.SelectProjection(AMapRes: string);
 begin
-  if (AMapRes = WorldMapResName) or (AMapRes = AmericasMapResName) or
-     (AMapRes = AsiaMapResName) then //or (AMapRes = EuropeMapResName) then
+  if (AMapRes = WorldMapResName) then
     FGeoMap.Projection := gpMercator
   else
   begin
@@ -2076,70 +1931,6 @@ begin
     end
   end else
     ShowCoronaMapLevel(ANode, ADateIndex, AMapDataType);
-                                    (*
-
-
-      while node <> nil do
-      begin
-        ShowCoronaMapLevel(node,
-        data := TcDataItem(node.Data);
-        startDate := data.FirstDate;
-        case AMapDataType of
-          mdtNormalizedNewConfirmed, mdtNormalizedNewDeaths:
-            value := data.CalcNormalizedNewCases(ADateIndex, ct);
-          mdtRValue:
-            value := data.CalcRValue(ADateIndex, value, dummy);
-        end;
-        clr := FPalette.GetColor(value);
-
-        ser := nil;
-        if data.GeoID <> -1 then
-          ser := FGeoMap.SeriesByID[data.GeoID];
-        if ser = nil then
-          ser := FGeoMap.SeriesByName[data.Name];
-  while ANode <> nil do
-  begin
-    if IsSecondary then
-    begin
-      node := ANode.GetFirstChild;
-      if node <> nil then
-      begin
-        ShowCoronaMap(node, ADateIndex, AMapDataType, false);
-        data := TcDataItem(node.Data);
-        startdate := data.FirstDate;
-      end;
-    end else
-    begin
-      data := TcDataItem(ANode.Data);
-      case AMapDataType of
-        mdtNormalizedNewConfirmed, mdtNormalizedNewDeaths:
-          value := data.CalcNormalizedNewCases(ADateIndex, ct);
-        mdtRValue:
-          data.CalcRValue(ADateIndex, value, dummy);
-      end;
-      clr := FPalette.GetColor(value);
-
-      ser := nil;
-      if data.GeoID <> -1 then
-        ser := FGeoMap.SeriesByID[data.GeoID];
-      if ser = nil then
-        ser := FGeoMap.SeriesByName[data.Name];
-      if ser <> nil then
-        ser.Brush.Color := clr;
-      startdate := data.FirstDate;
-    end;
-    ANode := ANode.GetNextSibling;
-  end;
-
-  if not IsSecondary then
-  begin
-    MapChart.Title.Visible := true;
-    MapChart.Title.Text.Text := title;
-
-    MapDateLabel.Caption := DateToStr(startDate + ADateIndex);
-    UpdateDateIndicatorLine(startDate + ADateIndex);
-  end;
-  *)
 end;
 
 procedure TMainForm.ShowMap(ANode: TTreeNode);
@@ -2777,13 +2568,6 @@ begin
   end;
 end;
 
-procedure TMainForm.StatusMsgHandler(Sender: TObject; const AMsg1, AMsg2: String);
-begin
-  FStatusText1 := AMsg1;
-  FStatusText2 := AMsg2;
-  UpdateStatusbar;
-end;
-
 // Store nodes belonging to currently available series in a list
 // Can be restored by calling RestoreSeriesNodesFromList.
 function TMainForm.StoreSeriesNodesInList: TFPList;
@@ -2855,7 +2639,6 @@ begin
       Marks.Source := nil;
       Marks.Format := '%0:.0n';
       Marks.Style := smsValue;
-      //Title.Caption := 'Date';
     end else
     if IsTimeSeries() then
     begin
@@ -2916,7 +2699,6 @@ begin
   with TJohnsHopkinsDataSource.Create(DataDir) do
   try
     OnDownloadMsg := @DownloadMsgHandler;
-//    OnStatusMsg := @StatusMsgHandler;
     DownloadToCache;
   finally
     Free;
@@ -3069,7 +2851,6 @@ begin
     CasesPanel.Width := ini.ReadInteger('MainForm', 'CasesPanel', CasesPanel.Width);
     TimeSeriesGroup.Height := ini.ReadInteger('MainForm', 'TimeSeriesGroup', TimeSeriesGroup.Height);
     PageControl.ActivePageIndex := ini.ReadInteger('MainForm', 'PageControl', PageControl.ActivePageIndex);
-    PageControlChange(nil);
 
     clbCases.Checked[0] := ini.Readbool('MainForm', 'ConfirmedCases', clbCases.Checked[0]);
     clbCases.Checked[1] := ini.ReadBool('MainForm', 'DeathCases', clbCases.Checked[1]);

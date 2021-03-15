@@ -68,14 +68,9 @@ var
   PopulationRef: Integer = 100000;         // population count for normalization
 
   // Resource names of the maps used
-  AfricaMapResName: String = 'AFRICA_MAP';
-  AmericasMapResName: String = 'AMERICAS_MAP';
-  AsiaMapResName: String = 'ASIA_MAP';
   AustraliaMapResName: String = 'AUSTRALIA_MAP';
   CanadaMapResName: String = 'CANADA_MAP';
   ChinaMapResName: String = 'CHINA_MAP';
-  EuropeMapResName: String = 'EUROPE_MAP';
-  OceaniaMapResName: String = 'OCEANIA_MAP';
   USCountiesMapResName: String = 'US_COUNTIES_MAP';
   USStatesMapResName: String = 'US_STATES_MAP';
   WorldMapResName: String = 'WORLD_MAP';
