@@ -6,7 +6,6 @@ unit cMain;
 
 // Es gibt noch ein Define DEBUG_LOCATIONPARAMS in den Projekt-Optionen.
 
-
 interface
 
 uses
@@ -224,6 +223,7 @@ type
     FFitCoeffs: array[0..1] of Double;
     FStatusText1, FStatusText2: String;
     FMapLock: Integer;
+    FOldMapResource: String;
 
     function CalcFit(ASeries: TBasicChartSeries; xmin, xmax: Double): Boolean;
     procedure CalcFitCurveHandler(const AX: Double; out AY: Double);
@@ -494,7 +494,6 @@ procedure TMainForm.acInfectiousPeriodExecute(Sender: TObject);
 var
   n: Integer;
   s: String;
-  L: TFPList;
 begin
   s := IntToStr(InfectiousPeriod);
   if InputQuery('Infectious period', 'Days:', s) then
@@ -635,7 +634,7 @@ begin
   ADrawer.BrushColor := ASender.BottomAxis.Grid.Color;
   while (x <= ext.b.x) do
   begin
-    ADrawer.FillRect(ASender.XGraphToImage(x), ARect.Top+1, ASender.XGraphToImage(x+1), ARect.Bottom-1);
+    ADrawer.FillRect(ASender.XGraphToImage(x){%H-}, ARect.Top+1, ASender.XGraphToImage(x+1){%H-}, ARect.Bottom-1);
     x += 7;
   end;
 
@@ -659,10 +658,11 @@ function TMainForm.CalcFit(ASeries: TBasicChartSeries;
 const
   EPS = 1E-9;
 var
-  x, y: TArbFloatArray;
+  x: TArbFloatArray = nil;
+  y: TArbFloatArray = nil;
   n, i: Integer;
   xval, yval: Double;
-  fitParams: TFitParamArray;
+  fitParams: TFitParamArray = nil;
   fitRes: TFitResults;
   ser: TChartSeries;
 begin
@@ -1460,14 +1460,12 @@ end;
 procedure TMainForm.MapDateScrollbarChange(Sender: TObject);
 var
   node: TTreeNode;
-  data: TcDataItem;
   dummy: String;
   plotChildData: Boolean;
 begin
   node := TreeView.Selected;
   if node = nil then
     exit;
-  data := TcDataItem(node.Data);
 
   GetMapResourceParams(node, dummy, plotChildData);
   ShowCoronaMap(node, MapDateScrollbar.Position, GetMapDataType, plotChildData);
@@ -1884,14 +1882,9 @@ procedure TMainForm.ShowCoronaMap(ANode: TTreeNode;
   ADateIndex: Integer; AMapDataType: TMapDataType; PlotChildNodeData: Boolean);
 var
   data: TcDataItem;
-  value, dummy: Double;
-  clr: TColor;
-  ser: TcPolygonSeries;
   startDate: TDate;
-  ct: TCaseType = ctConfirmed;
-  dt: TDataType = dtRValue;
+  ct: TCaseType;
   title: String;
-  node: TTreeNode;
 begin
   if ANode = nil then
     exit;
@@ -1900,19 +1893,20 @@ begin
     mdtNormalizedNewConfirmed:
       begin
         ct := ctConfirmed;
-        dt := dtNormalizedNewCases;
         title := Format('Normalized new %s (per week and %.0n population)',
           [LONG_CASETYPE_NAMES[ct], REF_POPULATION*1.0]);
       end;
     mdtNormalizedNewDeaths:
       begin
         ct := ctDeaths;
-        dt := dtNormalizedNewCases;
         title := Format('Normalized new %s (per week and %.0n population)',
           [LONG_CASETYPE_NAMES[ct], REF_POPULATION*1.0]);
       end;
     mdtRValue:
-      title := 'Reproduction number R';
+      begin
+        ct := ctConfirmed;
+        title := 'Reproduction number R';
+      end;
   end;
 
   MapChart.Title.Visible := true;
@@ -1961,8 +1955,17 @@ begin
   if ANode = nil then
     exit;
 
+  // Find the best projection for the new map
   SelectProjection(mapRes);
 
+  // Undo any zoom when a new map is loaded
+  if mapRes <> FOldMapResource then
+  begin
+    MapChart.ZoomFull;
+    FOldMapResource := mapRes;
+  end;
+
+  // Set up the date scrollbar.
   if MapDateScrollbar.Max > 0 then
     oldScrollPos := MapDateScrollbar.Position
   else
@@ -2005,7 +2008,7 @@ begin
   end;
 end;
 
-{
+(*
 procedure TMainForm.ShowData(ANode: TTreeNode);
 var
   counts: array[TCaseType] of string = ('', '', '', '');
@@ -2268,18 +2271,18 @@ begin
     Screen.Cursor := crDefault;
   end;
 end;
-}
+*)
+
 procedure TMainForm.ShowTimeSeries(ANode: TTreeNode);
 var
   caseType: TCaseType;
   dt: TDataType;
   pct: TPrimaryCaseType;
-  i, j: Integer;
+  i: Integer;
   ser: TBasicPointSeries;
   country, state, city: String;
   population: Int64;
   dataSrcClass: TcDataSourceClass;
-  src: TCustomChartSource;
   values, valuesNew: TValueArray;
   item: TcDataItem;
   d: TDateTime;
@@ -2337,7 +2340,6 @@ begin
         Continue;
 
       ser := GetSeries(ANode, caseType, dt);
-      src := ser.Source;
       case dt of
         dtCumVsNewCases:
           begin
