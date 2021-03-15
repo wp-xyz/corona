@@ -22,6 +22,7 @@ type
       *)
     function InternalLoadData(ATreeView: TTreeView; ACaseType: TPrimaryCaseType;
       IsUSAFile: Boolean): Boolean;
+    procedure RemoveNoDataNodes(AStartingNode: TTreeNode);
   public
     procedure DownloadToCache; override;
     (*
@@ -478,10 +479,10 @@ begin
     InternalLoadData(ATreeView, pctConfirmed, true) and
     InternalLoadData(ATreeView, pctDeaths, true);  // no "recovered" for US
 
-  // Some JHU nodes belong to parents which are missing any case counts -->
-  // Calculate cases for "empty" parents from the sums of the children.
   if Result then
   begin
+    // Some JHU nodes belong to parents which are missing any case counts -->
+    // Calculate cases for "empty" parents from the sums of the children.
     CalcParentCases(ATreeView.Items.FindNodeWithText('Australia'));
     CalcParentCases(ATreeView.Items.FindNodeWithText('Canada'));
     CalcParentCases(ATreeView.Items.FindNodewithText('China'));
@@ -507,6 +508,9 @@ begin
     node := ATreeView.Items.GetFirstNode;   // World node
     CalcParentCases(node);
     CalcParentPopulation(node);
+
+    // Remove nodes without data from the tree
+    RemoveNoDataNodes(ATreeView.Items.GetFirstNode);
   end;
 end;
 
@@ -691,6 +695,7 @@ begin
             end;
             node := node.GetNextSibling;
           end;
+
           if stateNode = nil then
           begin
             data := TcDataItem.Create;
@@ -730,6 +735,8 @@ begin
 
           if (city <> '') then
           begin
+            if (country = 'US') and ((city = 'Unassigned') or (pos('Out of', city) > 0)) then
+              continue;
             data := TcDataItem.Create;
             data.Name := city;
             data.ParentName := state;
@@ -877,5 +884,22 @@ begin
 end;
   *)
 
-end.
+procedure TJohnsHopkinsDataSource.RemoveNoDataNodes(AStartingNode: TTreeNode);
+var
+  data: TcDataItem;
+  node, nextnode: TTreeNode;
+begin
+  node := AStartingNode;
+  while node <> nil do
+  begin
+    nextnode := node.GetNextSibling;
+    if node.HasChildren then
+      RemoveNoDataNodes(node.GetFirstChild);
+    data := TcDataItem(node.Data);
+    if data.Count[pctConfirmed] = 0 then
+      node.Delete;
+    node := nextNode;
+  end;
+end;
 
+end.

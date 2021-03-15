@@ -2745,6 +2745,8 @@ begin
       if (Chart.Series[i] is TChartSeries) and Chart.Series[i].Active then
       begin
         ser := TChartSeries(Chart.Series[i]);
+        if ser.Count = 0 then
+          Continue;
         if ser.Count > m then m := ser.Count;
         inc(n);
         FLastDate := Max(FLastDate, ser.XValue[ser.LastValueIndex]);
@@ -3055,13 +3057,19 @@ begin
   Unused(AChart);
 end;
 {$ELSE}
+function EqualExtent(X, Y: TDoubleRect): Boolean;
+begin
+  Result := (X.a.x = Y.a.x) and (X.a.y = Y.a.y) and
+            (X.b.x = Y.b.x) and (X.b.y = Y.b.y);
+end;
+
 var
   s: String;
   ext: TDoubleRect;
   maxLen: Integer;
 begin
   ext := AChart.LogicalExtent;
-  if ext = EmptyExtent then
+  if EqualExtent(ext, EmptyExtent) then
     maxLen := AChart.Height * 2 div 3
   else
     maxLen := AChart.ClipRect.Height;
