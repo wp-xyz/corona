@@ -1196,7 +1196,6 @@ procedure TMainForm.GetLocation(ANode: TTreeNode;
   out ACountry, AState, ACity: String; out APopulation: Int64);
 var
   item: TcDataItem;
-  loc: PLocationParams;
 begin
   ACountry := '';
   AState := '';
@@ -1222,12 +1221,6 @@ begin
     item := TcDataItem(ANode.Data);
     if item <> nil then
       APopulation := item.Population;
-  end else
-  begin
-    // !!!!!!!!! to be removed when TcDataItem is fully established
-    loc := PLocationParams(ANode.Data);
-    if loc <> nil then
-      APopulation := loc^.Population;
   end;
 end;
 
@@ -1431,6 +1424,13 @@ begin
       APlotChildNodes := ANodeDataItem.MapDataAtChildLevel;
     end;
     ANode := dataNode;
+  end;
+
+  if AResName = '' then
+  begin
+    AResName := WorldMapResName;
+    ANode := TreeView.Items.GetFirstNode.GetFirstChild;
+    APlotChildNodes := true;
   end;
 end;
 
@@ -2309,8 +2309,6 @@ begin
   try
     if not acChartOverlay.Checked then
       Clear(false);
-
-    //GetLocation(ANode, country, state, city, population);
 
     {$IFDEF RKI}
     // The RKI datamodule loads the data individually for each node

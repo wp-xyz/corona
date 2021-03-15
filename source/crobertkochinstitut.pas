@@ -713,7 +713,7 @@ begin
   data.ParentName := '';
   data.GeoID := 0;
   data.Population := GetPopulation('');  // '' means: population of Germany
-  data.MapResource := WorldMapResName;
+//  data.MapResource := WorldMapResName;
   data.MapDataLevelDist := 1;
   data.MapDataAtChildLevel := true;
   GermanyNode := ATreeView.Items.AddChildObject(nil, GERMANY_NODENAME, data);
@@ -725,6 +725,8 @@ begin
     data.Name := BUNDESLAND[i];
     data.ID := i;
     data.Population := GetPopulation(BUNDESLAND[i]);
+    data.MapDataLevelDist := 2;
+    data.MapDataAtChildLevel := true;
     BundeslandNodes[i] := ATreeView.Items.AddChildObject(GermanyNode, s, data);
   end;
 
@@ -737,6 +739,8 @@ begin
     data.Name := GetDisplayString(LANDKREIS[i]);
     data.ID := StrToInt(Copy(LANDKREIS[i], 1, 5));
     data.Population := GetPopulation(LANDKREIS[i]);
+    data.MapDataLevelDist := 1;
+    data.MapDataAtChildLevel := true;
     ATreeView.Items.AddChildObject(BundeslandNodes[idx], data.Name, data);
   end;
 
