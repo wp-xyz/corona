@@ -150,7 +150,7 @@ begin
   data := TcDataItem.Create;
   data.Name := 'Asia';
   data.ParentName := 'World';
-  data.GeoID := -11;
+  data.GeoID := 142;
   data.Population := 1;
   data.MapResource := AsiaMapResName;
   data.MapDataLevelDist := 1;  // 1st level below world map node
@@ -160,7 +160,8 @@ begin
   data := TcDataItem.Create;
   data.Name := 'Europe';
   data.Parentname := 'World';
-  data.GeoID := -12;
+  data.GeoID := 150;
+  data.Population := 1;
   data.MapResource := EuropeMapResName;
   data.MapDataLevelDist := 1;  // 1st level below world map node
   data.MapDataAtChildLevel := true;
@@ -169,7 +170,8 @@ begin
   data := TcDataItem.Create;
   data.Name := 'North America';
   data.Parentname := 'World';
-  data.GeoID := -13;
+  data.GeoID := 19;
+  data.Population := 1;
   data.MapResource := AmericasMapResName;
   data.MapDataLevelDist := 1;  // 1st level below world map node
   data.MapDataAtChildLevel := true;
@@ -178,7 +180,8 @@ begin
   data := TcDataItem.Create;
   data.Name := 'South America';
   data.Parentname := 'World';
-  data.GeoID := -14;
+  data.GeoID := 19;
+  data.Population := 1;
   data.MapResource := AmericasMapResName;
   data.MapDataLevelDist := 1;  // 1st level below world map node
   data.MapDataAtChildLevel := true;
@@ -187,7 +190,9 @@ begin
   data := TcDataItem.Create;
   data.Name := 'Oceania';
   data.Parentname := 'World';
-  data.GeoID := -15;
+  data.GeoID := 9;
+  data.Population := 1;
+  //data.MapResource := OceaniaMapResName;
   data.MapDataLevelDist := 1;  // 1st level below world map node
   data.MapDataAtChildLevel := true;
   AOceaniaNode := ATreeView.Items.AddChildObject(AWorldNode, 'Oceania', data);
@@ -667,7 +672,7 @@ begin
 
           // Here we handle the continent nodes.
           if (continentNode = africaNode) or (continentNode = asiaNode) or
-             (continentNode = europeNode) then
+             (continentNode = europeNode) then //or (continentNode = oceaniaNode) then
           begin
             countryData.MapDataLevelDist := 1;
             countryData.MapDataAtChildLevel := false;

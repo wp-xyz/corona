@@ -89,7 +89,7 @@ begin
         if nodeName = 'SimpleData' then
         begin
           s := GetAttrValue(childNode, 'name');
-          if s = 'GEOID' then
+          if (s = 'UN') or (s = 'GEOID') then
           begin
             s := childNode.Firstchild.NodeValue;
             if s <> '' then

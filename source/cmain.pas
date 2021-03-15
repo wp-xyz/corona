@@ -1352,7 +1352,7 @@ begin
       ser.Active := false;
     Chart.AddSeries(ser);
 
-    if ser is TcLineSeries then
+    if (ser is TcLineSeries) and (ser.Count > 0) then
       LessChartSymbols(TcLineSeries(ser));
   end;  // for ct
 
@@ -1965,7 +1965,8 @@ end;
 // Stategy: "small" maps require orthographic, "large" maps require Mercator
 procedure TMainForm.SelectProjection(AMapRes: string);
 begin
-  if (AMapRes = WorldMapResName) or (AMapRes = AmericasMapResName) or (AMapRes = AsiaMapResName) then
+  if (AMapRes = WorldMapResName) or (AMapRes = AmericasMapResName) or
+     (AMapRes = AsiaMapResName) then //or (AMapRes = EuropeMapResName) then
     FGeoMap.Projection := gpMercator
   else
   begin

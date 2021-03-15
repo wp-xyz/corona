@@ -12,12 +12,15 @@ africa_map.kml
   African countries extracted from downloaded map by filtering for "Region=2"
 
 americas_map.kml
-  https://tapiquen-sig.jimdofree.com/english-version/free-downloads/americas/
+  http://thematicmapping.org/downloads/world_borders.php
+  License: Creative Commons
+  Asian countries extracted from downloaded map by filtering for "Region=19"
   
 asia_map.kml
   http://thematicmapping.org/downloads/world_borders.php
   License: Creative Commons
   Asian countries extracted from downloaded map by filtering for "Region=142"
+  Russia added from europe_map.
   
 australia_map.kml
   https://www.abs.gov.au/AUSSTATS/abs@.nsf/DetailsPage/1259.0.30.001July%202011?OpenDocument
@@ -30,9 +33,12 @@ china_map.kml
   https://geodata.lib.utexas.edu/catalog/stanford-bw669kf8724  
   (missing Hongkong and Macau)
 
-europe_map.kml
-  https://tapiquen-sig.jimdofree.com/english-version/free-downloads/europe/
-  
+european_map.kml
+  http://thematicmapping.org/downloads/world_borders.php
+  License: Creative Commons
+  European countries extracted from downloaded map by filtering for "Region=150"
+  Russia moved to asia_map
+ 
 us_states_map.kml and us_counties_map.kml
   https://www.census.gov/geographies/mapping-files/time-series/geo/carto-boundary-file.html
   (two Alaskan islands beyond date boundary deleted for better symmetry of maps)

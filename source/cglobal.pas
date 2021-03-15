@@ -68,16 +68,17 @@ var
   PopulationRef: Integer = 100000;         // population count for normalization
 
   // Resource names of the maps used
-  WorldMapResName: String = 'WORLD_MAP';
-  USStatesMapResName: String = 'US_STATES_MAP';
-  USCountiesMapResName: String = 'US_COUNTIES_MAP';
-  ChinaMapResName: String = 'CHINA_MAP';
-  CanadaMapResName: String = 'CANADA_MAP';
-  AustraliaMapResName: String = 'AUSTRALIA_MAP';
-  EuropeMapResName: String = 'EUROPE_MAP';
   AfricaMapResName: String = 'AFRICA_MAP';
   AmericasMapResName: String = 'AMERICAS_MAP';
   AsiaMapResName: String = 'ASIA_MAP';
+  AustraliaMapResName: String = 'AUSTRALIA_MAP';
+  CanadaMapResName: String = 'CANADA_MAP';
+  ChinaMapResName: String = 'CHINA_MAP';
+  EuropeMapResName: String = 'EUROPE_MAP';
+  OceaniaMapResName: String = 'OCEANIA_MAP';
+  USCountiesMapResName: String = 'US_COUNTIES_MAP';
+  USStatesMapResName: String = 'US_STATES_MAP';
+  WorldMapResName: String = 'WORLD_MAP';
 
   PortableInstallation: Boolean = {$IFDEF PORTABLE}true{$ELSE}false{$ENDIF};
   DataSymbolDistance: Integer = 16;
