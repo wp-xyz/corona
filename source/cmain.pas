@@ -2343,6 +2343,7 @@ begin
             ser.ListSource.YCount := 1;
             ser.BeginUpdate;
             try
+              ser.Clear;
               for i := 0 to High(values) do
                 if (values[i] > 0) and (valuesNew[i] > 0) then  // avoid issues with log axes
                   ser.AddXY(values[i], valuesNew[i], DateToStr(d+i, cFormatSettings));
@@ -2366,6 +2367,7 @@ begin
               end;
             ser.BeginUpdate;
             try
+              ser.Clear;
               if caseType = ctSick then
                 pct := pctConfirmed
               else
@@ -2389,6 +2391,7 @@ begin
           ser.ListSource.YCount := 1;
           ser.BeginUpdate;
           try
+            ser.Clear;
             for i := 0 to High(values) do
               ser.AddXY(d + i, values[i]);
           finally
