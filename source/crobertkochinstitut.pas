@@ -15,16 +15,17 @@ type
   TRobertKochDatasource = class(TcDataSource)
   private
     function BuildURL(const ID: String): String;
-//    procedure ExtractData(AData: String; out AHeader, AConfirmed, ADeaths: String);
     procedure ExtractData(AStream: TStream; out AHeader, AConfirmed, ADeaths: String);
+    function GetDataString(const AState, ACounty: String;
+      ACaseType: TPrimaryCaseType; out AHeader, ACounts: String): Boolean;
   protected
   public
     procedure ClearCache;
     procedure DownloadToCache; override;
-    function GetDataString(const ACountry, AState, ACity: String; ACaseType: TCaseType;
-      out AHeader, ACounts: String): Boolean; override;
     class function GetDisplayString(const AText: String): String;
     class function GetPopulation(const AText: String): Integer;
+    class function IsRKINode(ANode: TTreeNode): Boolean;
+    function LoadData(ATreeView: TTreeView; ANode: TTreeNode): Boolean; override;
     function LoadLocations(ATreeView: TTreeView): Boolean; override;
   end;
 
@@ -42,7 +43,9 @@ const
 
   POPULATION_GERMANY = 83149300;  // Sept 30, 2019; wikipedia.
 
-  Bundesland: array[1..16] of string = (
+  GERMANY_NODENAME = 'Germany (RKI)';
+
+  BUNDESLAND: array[1..16] of string = (
     'Schleswig-Holstein|2897000',      // 1
     'Hamburg|1841000',                 // 2
     'Niedersachsen|7982000',           // 3
@@ -61,7 +64,7 @@ const
     'Thüringen|2143000'                // 16
   );
 
-  const Landkreis: array[0..411] of string = (
+  const LANDKREIS: array[0..411] of string = (
     // 0..9
     '01001=Flensburg|89504',                  '01002=Kiel|247548',
     '01003=Lübeck|217198',                    '01004=Neumünster|79487',
@@ -474,8 +477,8 @@ begin
   end;
 end;
 
-function TRobertKochDataSource.GetDataString(const ACountry, AState, ACity: String;
-  ACaseType: TCaseType; out AHeader, ACounts: String): Boolean;
+function TRobertKochDataSource.GetDataString(const AState, ACounty: String;
+  ACaseType: TPrimaryCaseType; out AHeader, ACounts: String): Boolean;
 var
   url: String;
   stream: TStream;
@@ -491,10 +494,9 @@ begin
   ACounts := '';
 
   case ACaseType of
-    ctConfirmed: fn := FCacheDir + FILENAME_CONFIRMED;
-    ctDeaths: fn := FCacheDir + FILENAME_DEATHS;
-    ctRecovered: exit;
-    ctSick: exit;
+    pctConfirmed: fn := FCacheDir + FILENAME_CONFIRMED;
+    pctDeaths: fn := FCacheDir + FILENAME_DEATHS;
+    pctRecovered: exit;
   end;
 
   L := TStringList.Create;
@@ -505,7 +507,7 @@ begin
       for i:=1 to L.Count-1 do
       begin
         sa := L[i].Split(',', '"');
-        if (sa[0] = AState) and (sa[1] = ACountry) then begin
+        if (sa[0] = ACounty) and (sa[1] = AState) then begin
           // Dataset exists in cache --> use it
           AHeader := L[0];
           ACounts := L[i];
@@ -518,43 +520,45 @@ begin
     // Dataset does not yet exist --> Read from RKI server and add to cache
     stream := TMemoryStream.Create;
     try
-      if (ACountry = RKI_CAPTION) then
-        url := BuildURL('')             // Total
-      else
-      if AState <> '' then
-        url := BuildURL(AState)        // Landkreis
-      else
-        url := BuildURL(ACountry);     // Bundesland
+      if ACounty <> '' then      // Landkreis
+        url := BuildURL(ACounty)
+      else if AState <> '' then  // Bundesland
+        url := BuildURL(AState)
+      else                       // Germany total
+        url := BuildURL('');
+
       Result := DownloadFile(url, stream);
       if Result then
       begin
-        TMemoryStream(stream).SaveToFile('test.txt');
-
         ExtractData(stream, AHeader, sConfirmed, sDeaths);
-        AHeader := 'state,country,lat,long' + AHeader;
-        sConfirmed := AState + ',' + ACountry + ',0,0' + sConfirmed;
-        sDeaths := AState + ',' + ACountry + ',0,0' + sDeaths;
+        AHeader := 'county,state,lat,long' + AHeader;
+        sConfirmed := ACounty + ',' + AState + ',0,0' + sConfirmed;
+        sDeaths := ACounty + ',' + AState + ',0,0' + sDeaths;
         if L.Count = 0 then
           L.Add(AHeader);
-        if ACaseType = ctConfirmed then begin
-          ACounts := sConfirmed;
-          L.Add(sConfirmed);
-        end else
-        if ACaseType = ctDeaths then begin
-          ACounts := sDeaths;
-          L.Add(sDeaths);
+        case ACaseType of
+          pctConfirmed:
+            begin
+              ACounts := sConfirmed;
+              L.Add(sConfirmed);
+            end;
+          pctDeaths:
+            begin
+              ACounts := sDeaths;
+              L.Add(sDeaths);
+            end;
         end;
         L.SaveToFile(fn);
 
         // Cache the "other" data contained in downloaded file.
         L.Clear;
         case ACaseType of
-          ctConfirmed:
+          pctConfirmed:
             begin
               fn := FCacheDir + FILENAME_DEATHS;
               s := sDeaths;
             end;
-          ctDeaths:
+          pctDeaths:
             begin
               fn := FCacheDir + FILENAME_CONFIRMED;
               s := sConfirmed;
@@ -566,7 +570,7 @@ begin
           for i:=1 to L.Count-1 do
           begin
             sa := L[i].Split(',', '"');
-            if (sa[0] = AState) and (sa[1] = ACountry) then
+            if (sa[0] = ACounty) and (sa[1] = AState) then
               exit;
           end;
         end;
@@ -583,6 +587,8 @@ begin
   end;
 end;
 
+{ Bundesland 'Schleswig-Holstein|2897000'  --> 'Schleswig-Holstein'; population 2897000
+  Landkreis  '01001=Flensburg|89504' ---> 'Flensburg'; population 89504  }
 class function TRobertKochDataSource.GetDisplayString(const AText: String): String;
 var
   p: Integer;
@@ -603,13 +609,145 @@ class function TRobertKochDataSource.GetPopulation(const AText: String): Integer
 var
   p: Integer;
 begin
-  p := pos('|', AText);
-  if p > 0 then
-    Result := StrToIntDef(Copy(AText, p+1, MaxInt), 0)
+  if AText = '' then
+    Result := POPULATION_GERMANY
   else
-    Result := 0;
+  begin
+    p := pos('|', AText);
+    if p > 0 then
+      Result := StrToIntDef(Copy(AText, p+1, MaxInt), 0)
+    else
+      Result := 0;
+  end;
 end;
 
+class function TRobertKochDataSource.IsRKINode(ANode: TTreeNode): Boolean;
+begin
+  while ANode <> nil do begin
+    if ANode.Text = RKI_CAPTION then begin
+      Result := true;
+      exit;
+    end;
+    ANode := ANode.Parent;
+  end;
+  Result := false;
+end;
+
+function TRobertKochDataSource.LoadData(ATreeView: TTreeView; ANode: TTreeNode): Boolean;
+var
+  data: TcDataItem;
+  state, county: String;
+  pct: TPrimaryCaseType;
+  hdr, counts: String;
+  L: TStringList;
+  cases: TCaseArray = nil;
+  firstDate: TDate;
+  i, j: Integer;
+  fs: TFormatSettings;
+begin
+  Result := false;
+  if not IsRKINode(ANode) then
+    exit;
+
+  fs := FormatSettings;
+  fs.DateSeparator := '/';
+  fs.ShortDateformat := 'm/d/yy';
+
+  data := TcDataItem(ANode.Data);
+  if ANode.Level = 1 then
+  begin
+    state := IntToStr(data.ID);
+    county := '';
+  end else
+  if ANode.Level = 2 then
+  begin
+    county := FormatFloat('00000', data.ID);
+    state := IntToStr(TcDataItem(ANode.Parent.Data).ID);
+  end;
+
+  for pct in TPrimaryCaseType do
+  begin
+    if GetDataString(state, county, pct, hdr, counts) then
+    begin
+      L := TStringList.Create;
+      try
+        L.CommaText := hdr;
+        // Read the date of the first data value
+        // Skip the first 4 entries (state, county, longitude, latitude)
+        firstDate := StrToDate(L[4], fs);
+        // Read the data values
+        L.CommaText := counts;
+        SetLength(cases, L.Count - 4);
+        j := 0;
+        for i := 4 to L.Count-1 do
+        begin
+          if not TryStrToInt64(L[i], cases[j]) then
+            cases[j] := -1;
+          inc(j);
+        end;
+        // Store the data values in the TcDataItem object.
+        data.SetCases(firstDate, cases, pct);
+      finally
+        L.Free;
+      end;
+    end;
+  end;
+
+  Result := true;
+end;
+
+function TRobertKochDataSource.LoadLocations(ATreeView: TTreeView): Boolean;
+var
+  data: TcDataItem;
+  GermanyNode: TTreeNode;
+  BundeslandNodes: array[1..16] of TTreeNode;
+  node: TTreeNode;
+  i: Integer;
+  s: String;
+  idx: Integer;
+begin
+  Result := false;
+
+  data := TcDataItem.Create;
+  data.Name := GERMANY_NODENAME;
+  data.ParentName := '';
+  data.GeoID := 0;
+  data.Population := GetPopulation('');  // '' means: population of Germany
+  data.MapResource := WorldMapResName;
+  data.MapDataLevelDist := 1;
+  data.MapDataAtChildLevel := true;
+  GermanyNode := ATreeView.Items.AddChildObject(nil, GERMANY_NODENAME, data);
+
+  for i := Low(BUNDESLAND) to High(BUNDESLAND) do
+  begin
+    s := GetDisplayString(BUNDESLAND[i]);
+    data := TcDataItem.Create;
+    data.Name := BUNDESLAND[i];
+    data.ID := i;
+    data.Population := GetPopulation(BUNDESLAND[i]);
+    BundeslandNodes[i] := ATreeView.Items.AddChildObject(GermanyNode, s, data);
+  end;
+
+  for i := Low(LANDKREIS) to High(LANDKREIS) do
+  begin
+    s := Copy(LANDKREIS[i], 1, 2);
+    idx := StrToIntDef(s, -1);
+
+    data := TcDataItem.Create;
+    data.Name := GetDisplayString(LANDKREIS[i]);
+    data.ID := StrToInt(Copy(LANDKREIS[i], 1, 5));
+    data.Population := GetPopulation(LANDKREIS[i]);
+    ATreeView.Items.AddChildObject(BundeslandNodes[idx], data.Name, data);
+  end;
+
+  GermanyNode.AlphaSort;
+  for node in BundeslandNodes do
+    node.AlphaSort;
+
+  Result := true;
+end;
+
+    (*
 function TRobertKochDataSource.LoadLocations(ATreeView: TTreeView): Boolean;
 var
   topnode, landnode: TTreeNode;
@@ -664,6 +802,7 @@ begin
 
   Result := true;
 end;
+*)
 
 end.
 

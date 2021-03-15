@@ -20,6 +20,7 @@ type
   TcDataItem = class
   private
     FGeoID: TGeoID;
+    FID: Integer; // Needed by RKI
     FName: String;
     FParentName: String;
     FLongitude: Double;
@@ -57,6 +58,8 @@ type
 
     // Unique ID of the country/state/county assigned to this data item.
     property GeoID: TGeoID read FGeoID write FGeoID;
+    // ID needed by RKI
+    property ID: Integer read FID write FID;
     // Name of the country/state/county
     property Name: String read FName write FName;
     property ParentName: String read FParentName write FParentName;
@@ -106,14 +109,15 @@ type
 
     // Downloads the data files from the primary online site to a local cache.
     procedure DownloadToCache; virtual; abstract;
-
+                             (*
     { Extracts the line with the data value from the cache file associated with
       the clicked tree node }
     function GetDataString(const ACountry, AState, ACity: String; ACaseType: TCaseType;
       out AHeader, ACounts: String): Boolean; virtual; abstract;
-
-    { Loads the case count data for each location in the tree view from the data file }
-    function LoadData(ATreeView: TTreeView): Boolean; virtual; abstract;
+                              *)
+    { Loads the case count data for each location in the tree view from the data file
+      When ANode is nil all data are read, otherwise only those for the given node. }
+    function LoadData(ATreeView: TTreeView; ANode: TTreeNode): Boolean; virtual; abstract;
 
     { Loads the locations from the specified cache directory into a treeview.
       Clearing, Begin/EndUpdate is done by the calling routine. }

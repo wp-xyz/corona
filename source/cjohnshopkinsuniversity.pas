@@ -16,15 +16,19 @@ type
     procedure CreateTopNodes(ATreeView: TTreeView;
       out AWorldNode, AAfricaNode, AAsiaNode, AEuropeNode, ANorthAmericaNode,
       ASouthAmericaNode, AOceaniaNode: TTreeNode);
+    (*
     function GetDataString_Sick(const ACountry, AState, ACity: String;
       out AHeader, ACounts: String): Boolean;
+      *)
     function InternalLoadData(ATreeView: TTreeView; ACaseType: TPrimaryCaseType;
       IsUSAFile: Boolean): Boolean;
   public
     procedure DownloadToCache; override;
+    (*
     function GetDataString(const ACountry, AState, ACity: String;
       ACaseType: TCaseType; out AHeader, ACounts: String): Boolean; override;
-    function LoadData(ATreeView: TTreeView): Boolean; override;
+      *)
+    function LoadData(ATreeView: TTreeView; ANode: TTreeNode): Boolean; override;
     function LoadLocations(ATreeView: TTreeView): Boolean; override;
   end;
 
@@ -224,7 +228,7 @@ begin
     F.Free;
   end;
 end;
-
+                                 (*
 function TJohnsHopkinsDataSource.GetDataString(const ACountry, AState, ACity: String;
   ACaseType: TCaseType; out AHeader, ACounts: String): Boolean;
 var
@@ -342,7 +346,7 @@ begin
     end;
   end;
 end;
-
+        *)
 function TJohnsHopkinsDataSource.InternalLoadData(ATreeView: TTreeView;
   ACaseType: TPrimaryCaseType; IsUSAFile: Boolean): Boolean;
 var
@@ -460,7 +464,8 @@ begin
   end;
 end;
 
-function TJohnsHopkinsDataSource.LoadData(ATreeView: TTreeView): Boolean;
+function TJohnsHopkinsDataSource.LoadData(ATreeView: TTreeView;
+  ANode: TTreeNode): Boolean;
 var
   node: TTreeNode;
 begin
@@ -747,6 +752,7 @@ begin
       end;
 
       worldNode.Expanded := true;
+      worldNode.AlphaSort;
 
     finally
       L.Free;

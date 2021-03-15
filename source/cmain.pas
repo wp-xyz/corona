@@ -1,7 +1,7 @@
 unit cMain;
 
 {$mode objfpc}{$H+}
-{.$define RKI}
+{$define RKI}
 {$define USE_BARSERIES}
 
 // Es gibt noch ein Define DEBUG_LOCATIONPARAMS in den Projekt-Optionen.
@@ -222,6 +222,7 @@ type
     FMeasurementSeries: TFuncSeries;
     FFitCoeffs: array[0..1] of Double;
     FStatusText1, FStatusText2: String;
+    FLastDate: TDate;
     FMapLock: Integer;
     FOldMapResource: String;
 
@@ -1122,8 +1123,10 @@ function TMainForm.GetCellText(ACol, ARow: Integer): String;
 var
   col: TGridColumn;
   ser: TChartSeries;
+  n: Integer;
   r: Integer;
-  dt: TDateTime;
+  dt: TDate;
+  lastDateOfSeries: TDate;
 begin
   if (ACol = 0) and (ARow = 0) then
     Result := 'Date'
@@ -1132,37 +1135,49 @@ begin
     Result := '';
     if Grid.Columns.Count = 0 then
       exit;
+    dt := FLastDate - (ARow - Grid.FixedRows);
     if (ACol = 0) then
     begin
+      Result := DateToStr(dt);
+      {
       col := Grid.Columns[0];
       ser := TChartSeries(col.Tag);
-      r := ser.Count - ARow;
-      if IsTimeSeries() then
-        dt := ser.XValue[r]
-      else
-        dt := ScanDateTime('mm"/"dd"/"yyyy', ser.Source.Item[r]^.Text);
-      Result := DateToStr(dt);
+      n := ser.Count;
+      r := n - ARow;
+      if (r > -1) and (r < n) then
+      begin
+        if IsTimeSeries() then
+          dt := ser.XValue[r]
+        else
+          dt := ScanDateTime('mm"/"dd"/"yyyy', ser.Source.Item[r]^.Text);
+        Result := DateToStr(dt);
+      end;
+      }
     end else
     if ARow > 0 then
     begin
       col := Grid.Columns[ACol - 1];
       ser := TChartSeries(col.Tag);
-      r := ser.Count - ARow;
-      if not IsNan(ser.YValue[r]) then
-        case GetDataType() of
-          dtCumulativeCasesDoublingTime,
-          dtNewCasesDoublingTime:
-            Result := Format('%.1f', [ser.YValue[r]]);
-          dtCumVsNewCases:
-            if odd(ACol) then
-              Result := Format('%.0n', [ser.YValue[r]])
+      lastDateOfSeries := ser.XValue[ser.LastValueIndex];
+      r := ARow - Grid.FixedRows - round(FLastDate - lastDateOfSeries);
+      n := ser.Count;
+//      r := n - ARow;
+      if (r > -1) and (r < n) then
+        if not IsNan(ser.YValue[r]) then
+          case GetDataType() of
+            dtCumulativeCasesDoublingTime,
+            dtNewCasesDoublingTime:
+              Result := Format('%.1f', [ser.YValue[r]]);
+            dtCumVsNewCases:
+              if odd(ACol) then
+                Result := Format('%.0n', [ser.YValue[r]])
+              else
+                Result := Format('%.0n', [ser.XValue[r]]);
+            dtRValue:
+              Result := Format('%.2f', [ser.YValue[r]]);
             else
-              Result := Format('%.0n', [ser.XValue[r]]);
-          dtRValue:
-            Result := Format('%.2f', [ser.YValue[r]]);
-          else
-            Result := Format('%.0n', [ser.YValue[r]]);
-        end;
+              Result := Format('%.0n', [ser.YValue[r]]);
+          end;
     end;
   end;
 end;
@@ -1574,7 +1589,7 @@ begin
 
     with TJohnsHopkinsDatasource.Create(DataDir) do
     try
-      ok := LoadLocations(TreeView) and LoadData(TreeView);
+      ok := LoadLocations(TreeView) and LoadData(TreeView, nil);
       if not ok then
       begin
         MessageDlg('Local data files not found. Please click "Update files".', mtError, [mbOk], 0);
@@ -1596,7 +1611,6 @@ begin
     if acChartMap.Checked then ShowMap(nil);
 
   finally
-    TreeView.AlphaSort;
     TreeView.Items.EndUpdate;
     UpdateActionStates;
     Screen.Cursor := crDefault;
@@ -2282,9 +2296,9 @@ var
   ser: TBasicPointSeries;
   country, state, city: String;
   population: Int64;
-  dataSrcClass: TcDataSourceClass;
+  dataSrc: TcDataSource;
   values, valuesNew: TValueArray;
-  item: TcDataItem;
+  data: TcDataItem;
   d: TDateTime;
   R, dR: Double;
 begin
@@ -2296,43 +2310,25 @@ begin
     if not acChartOverlay.Checked then
       Clear(false);
 
-    dataSrcClass := TJohnsHopkinsDataSource;
-    GetLocation(ANode, country, state, city, population);
+    //GetLocation(ANode, country, state, city, population);
 
     {$IFDEF RKI}
-    (*
-
-      !!!!!!!!!! DO NOT DELETE THIS FOR THE MOMEMENT !!!!!!!!!!!!
-
-      Must download RKI data file and create a TcDataItem for the current node
-
-    if ((ANode.Level = 0) and (ANode.Text = RKI_CAPTION)) or
-       ((ANode.Level = 1) and (ANode.Parent.Text = RKI_CAPTION)) or
-       ((ANode.Level = 2) and (ANode.Parent.Parent.Text = RKI_CAPTION))
-    then begin
-      dataSrcClass := TRobertKochDataSource;
-      loc := PLocationParams(ANode.Data);
-      if loc = nil then
-        raise Exception.Create('Location cannot be nil.');
-
-      if (ANode.Level = 1) then
-      begin
-        country := IntToStr(loc^.ID);
-        state := '';
-      end else
-      if ANode.Level = 2 then
-      begin
-        state := FormatFloat('00000', loc^.ID);
-        loc := PLocationParams(ANode.Parent.Data);
-        country := IntToStr(loc^.ID);
+    // The RKI datamodule loads the data individually for each node
+    // The JHU datamodule, on the other hand, already has all data ready.
+    if TRobertKochDataSource.IsRKINode(ANode) then
+    begin
+      dataSrc := TRobertKochDatasource.Create(DataDir);
+      try
+        dataSrc.LoadData(TreeView, ANode);
+      finally
+        dataSrc.Free;
       end;
     end;
-    *)
     {$ENDIF}
 
     dt := GetDataType();
-    item := GetDataItem(ANode);
-    d := item.FirstDate;
+    data := GetDataItem(ANode);
+    d := data.FirstDate;
 
     for caseType in TCaseType do
     begin
@@ -2343,8 +2339,8 @@ begin
       case dt of
         dtCumVsNewCases:
           begin
-            values := item.GetSmoothedDataArray(caseType, dtCumulative, SmoothingRange);
-            valuesNew := item.GetSmoothedDataArray(caseType, dtNewCases, SmoothingRange);
+            values := data.GetSmoothedDataArray(caseType, dtCumulative, SmoothingRange);
+            valuesNew := data.GetSmoothedDataArray(caseType, dtNewCases, SmoothingRange);
             ser.Source := nil;
             ser.ListSource.YCount := 1;
             ser.BeginUpdate;
@@ -2376,9 +2372,9 @@ begin
                 pct := pctConfirmed
               else
                 pct := TPrimaryCaseType(caseType);
-              for i := 0 to item.Count[pct]-1 do
+              for i := 0 to data.Count[pct]-1 do
               begin
-                item.CalcRValue(i, R, dR);
+                data.CalcRValue(i, R, dR);
                 if (not IsNaN(R)) and (dR/R < 0.5) then
                   ser.AddXY(d + i, R, [dR])
                 else
@@ -2390,7 +2386,7 @@ begin
           end;
 
         else
-          values := item.GetDataArray(caseType, dt);
+          values := data.GetDataArray(caseType, dt);
           ser.Source := nil;
           ser.ListSource.YCount := 1;
           ser.BeginUpdate;
@@ -2730,21 +2726,28 @@ end;
 
 procedure TMainForm.UpdateGrid;
 var
-  n: Integer;
+  n, m: Integer;
   i: Integer;
   ser: TChartSeries;
   s: String;
+  firstDate: TDate;
 begin
   Grid.BeginUpdate;
   try
     Grid.Columns.Clear;
     n := 0;
+    m := 0;
+    FLastDate := -1;
+    FirstDate := MaxInt;
     for i:=0 to Chart.SeriesCount-1 do
     begin
       if (Chart.Series[i] is TChartSeries) and Chart.Series[i].Active then
       begin
         ser := TChartSeries(Chart.Series[i]);
+        if ser.Count > m then m := ser.Count;
         inc(n);
+        FLastDate := Max(FLastDate, ser.XValue[ser.LastValueIndex]);
+        firstDate := Min(firstDate, ser.XValue[0]);
         with Grid.Columns.Add do
         begin
           s := StringReplace(ser.Title, ' ', LineEnding, []);
@@ -2766,7 +2769,7 @@ begin
       Grid.RowCount := 2;
       exit;
     end;
-    Grid.RowCount := ser.Count + Grid.FixedRows;
+    Grid.RowCount := round(FLastDate - firstDate + 1) + Grid.FixedRows;
   finally
     Grid.EndUpdate;
   end;
