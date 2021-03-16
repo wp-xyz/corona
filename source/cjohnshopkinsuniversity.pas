@@ -639,7 +639,6 @@ begin
           countryData.Population := population;
           countryData.Longitude := lon;
           countryData.Latitude := lat;
-          countryData.RandSeed := Random(MaxInt);
           // Some contries in the JHU files have child nodes with state/province data
           // These are handled here:
           case country of
@@ -707,7 +706,6 @@ begin
             data.Latitude := lat;
             data.MapDataLevelDist := 1;
             data.MapDataAtChildLevel := true;
-            data.RandSeed := Random(MaxInt);
             case country of
               'Australia':
                 begin
@@ -746,7 +744,6 @@ begin
             data.Latitude := lat;
             data.MapDataLevelDist := 2;
             data.MapDataAtChildLevel := true;
-            data.RandSeed := Random(MaxInt);
             if country = 'US' then
             begin
               data.UseOtherMapResource := true;

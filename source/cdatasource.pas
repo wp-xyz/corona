@@ -34,7 +34,6 @@ type
     FOtherMapDataLevelDist: Integer;
     FMapDataAtChildLevel: Boolean;
     FOtherMapDataAtChildLevel: Boolean;
-    FRandSeed: Integer;
     FRawData: array[TPrimaryCaseType] of TCaseArray;  // Cumulative cases!
     function GetCount(ACaseType: TPrimaryCaseType): Integer;
     function GetDate(AIndex: Integer): TDate;
@@ -88,9 +87,6 @@ type
 
     property Count[ACaseType: TPrimaryCaseType]: Integer read GetCount;
     property RawData[ACaseType: TPrimaryCaseType]: TCaseArray read GetRawData;
-
-    // Seed of random number generator for positioning of first data point symbol in series
-    property RandSeed: Integer read FRandSeed write FRandSeed;
   end;
 
   TStatusbarEvent = procedure (Sender: TObject; const AMsg1, AMsg2: String) of object;

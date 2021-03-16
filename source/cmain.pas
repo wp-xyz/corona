@@ -245,6 +245,7 @@ type
       ADataType: TDataType): TBasicPointSeries;
     procedure InitShortCuts;
     function IsTimeSeries: Boolean;
+    procedure LessChartSymbols;
     procedure LessChartSymbols(ASeries: TcLineSeries);
     procedure LoadLocations;
     procedure PopulatePaletteListbox(AMapDataType: TMapDataType);
@@ -763,6 +764,7 @@ end;
 
 procedure TMainForm.ChartResize(Sender: TObject);
 begin
+  LessChartSymbols;
   ResizeTimer.Enabled := true;
 end;
 
@@ -1349,7 +1351,7 @@ begin
       ser.Active := false;
     Chart.AddSeries(ser);
 
-    if (ser is TcLineSeries) and (ser.Count > 0) then
+    if (ser is TcLineSeries) then
       LessChartSymbols(TcLineSeries(ser));
   end;  // for ct
 
@@ -1547,25 +1549,38 @@ begin
   Result := GetDataType() <> dtCumVsNewCases;
 end;
 
+procedure TMainForm.LessChartSymbols;
+var
+  i: Integer;
+begin
+  for i := 0 to Chart.SeriesCount-1 do
+  begin
+    if (Chart.Series[i] is TcLineSeries) then
+      LessChartSymbols(TcLineSeries(Chart.Series[i]));
+  end;
+end;
+
 procedure TMainForm.LessChartSymbols(ASeries: TcLineSeries);
 var
   lChart: TChart;
   data: TcDataItem;
   dx, interval: Integer;
 begin
+  ASeries.SymbolInterval := 0;
+  if ASeries.Count = 0 then
+    exit;
+
   lChart := ASeries.ParentChart;
   data := TcDataItem(ASeries.Node.Data);
 
   // Cannot use Chart.XGraphToImage at this early stage. So we must calculate
   // the length of an x axis unit (1 day) in image units manually (approximately):
-  dx := round(lChart.Width / data.Count[pctConfirmed]);
+  dx := round(lChart.Width / ASeries.Count);
   if dx <> 0 then
   begin
-    RandSeed := data.RandSeed;   // Avoid symbols changing their position
     interval := round(DataSymbolDistance / dx);
     ASeries.FirstSymbolIndex := Random(interval);
     ASeries.SymbolInterval := interval;
-    Randomize;
   end;
 end;
 
@@ -2562,6 +2577,8 @@ begin
     UpdateActionStates;
     if acChartMap.Checked and acChartTimeSeries.Checked then
       DateIndicatorLine.Position := d + MapDateScrollbar.Position;
+
+    LessChartSymbols;
   finally
     Screen.Cursor := crDefault;
   end;
