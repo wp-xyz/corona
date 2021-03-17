@@ -1,7 +1,7 @@
 object MainForm: TMainForm
-  Left = 297
+  Left = 249
   Height = 601
-  Top = 214
+  Top = 179
   Width = 973
   Caption = 'corona'
   ClientHeight = 581
@@ -1965,6 +1965,7 @@ object MainForm: TMainForm
               Title.Caption = 'Date'
               Title.LabelBrush.Style = bsClear
             end>
+          BackColor = clForm
           Foot.Brush.Color = clBtnFace
           Foot.Font.Color = clBlue
           Frame.Color = clWindowText
@@ -2056,6 +2057,7 @@ object MainForm: TMainForm
               Minors = <>
               Title.LabelBrush.Style = bsClear
             end>
+          BackColor = clForm
           Foot.Alignment = taLeftJustify
           Foot.Brush.Color = clBtnFace
           Foot.Brush.Style = bsClear
