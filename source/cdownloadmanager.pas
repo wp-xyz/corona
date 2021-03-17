@@ -11,7 +11,11 @@ unit cDownloadManager;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ComCtrls;
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ComCtrls
+{$IF FPC_FULLVERSION < 30200}
+  , ssockets, sslsockets
+{$ENDIF}
+;
 
 type
   { TShowStatusEvent }
@@ -25,6 +29,10 @@ type
     FURL: String;
     FFilename: String;
     FOnShowStatus: TShowStatusEvent;
+{$IF FPC_FULLVERSION < 30200}
+    procedure GetSocketHandler(Sender: TObject; const UseSSL: Boolean;
+      out AHandler: TSocketHandler);
+{$ENDIF}
     procedure DataReceived(Sender : TObject; const {%H-}ContentLength, CurrentPos : Int64);
     procedure ShowStatus;
   protected
@@ -72,7 +80,12 @@ implementation
 
 uses
   fphttpclient,
-  {$IF FPC_FullVersion >= 30200}opensslsockets{$else}openssl{$ENDIF},
+  {$IF FPC_FULLVERSION >= 30200}
+  opensslsockets,
+  {$ELSE}
+  fpopenssl,
+  openssl,
+  {$ENDIF}
   cUtils;
 
 { TDownloadThread }
@@ -87,6 +100,15 @@ destructor TDownloadThread.Destroy;
 begin
   inherited Destroy;
 end;
+
+{$IF FPC_FULLVERSION < 30200}
+procedure TDownloadThread.GetSocketHandler(Sender: TObject;
+  const UseSSL: Boolean; out AHandler: TSocketHandler);
+begin
+  AHandler := TSSLSocketHandler.Create;
+  TSSLSocketHandler(AHandler).SSLType := stTLSv1_2;
+end;
+{$ENDIF}
 
 procedure TDownloadThread.DataReceived(Sender: TObject; const ContentLength,
   CurrentPos: Int64);
@@ -106,33 +128,29 @@ end;
 procedure TDownloadThread.Execute;
 var
   http: TFPHTTPClient;
-  headers: TStringList;
   index: Integer;
-  ms: TMemoryStream;
 begin
+{$IF FPC_FULLVERSION < 30200}
+  InitSSLInterface;
+{$ENDIF}
   http:= TFPHTTPClient.Create(nil);
+{$IF FPC_FULLVERSION < 30200}
+  http.OnGetSocketHandler:=@GetSocketHandler;
+{$ENDIF}
   http.AllowRedirect:= True;
   try
     try
-      headers:= TStringList.Create;
-      headers.Delimiter := ':';
-      TFPHTTPClient.Head(FURL, headers);
+      http.HTTPMethod('HEAD', FURL, nil, []);
       FSize := 0;
-      for index := 0 to Pred(headers.Count) do
+      for index := 0 to Pred(http.ResponseHeaders.Count) do
       begin
-        if LowerCase(headers.Names[index]) = 'content-length' then
+        if LowerCase(http.ResponseHeaders.Names[index]) = 'content-length' then
         begin
-          FSize:= StrToInt64(headers.ValueFromIndex[index]);
+          FSize:= StrToInt64(http.ResponseHeaders.ValueFromIndex[index]);
         end;
       end;
       http.OnDataReceived:= @DataReceived;
-      ms := TMemoryStream.Create;
-      try
-        http.Get(FURL, ms);
-        ms.SaveToFile(FFileName);
-      finally
-        ms.Free;
-      end;
+      http.Get(FURL, FFileName);
     except
       on E: Exception do
       begin
@@ -144,7 +162,6 @@ begin
       end;
     end;
   finally
-    headers.Free;
     http.Free;
   end;
 end;
