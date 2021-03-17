@@ -258,20 +258,23 @@ end;
 // writing with the provided font does not exceed the given width.
 function WordWrap(const AText: String; AFont: TFont; AMaxWidth: Integer): string;
 var
-  sa: TStringArray;
   Line: String;
+  words: TStrings;
   s: String;
   bmp: TBitmap;
 begin
   Result := '';
   bmp := TBitmap.Create;
+  words := TStringList.Create;
   try
     bmp.SetSize(1, 1);
     bmp.Canvas.Font.Assign(AFont);
 
-    sa := SplitString(AText, ' ');
+    words.Delimiter := ' ';
+    words.DelimitedText := AText;
+
     Line := '';
-    for s in sa do begin
+    for s in words do begin
       if bmp.Canvas.TextWidth(Line + s) <= AMaxWidth then
         Line := IfThen(Line='', s, Line + ' ' + s)
       else begin
@@ -290,6 +293,7 @@ begin
     if Line <> '' then
       Result := IfThen(Result='', Line, Result + LineEnding + Line);
   finally
+    words.Free;
     bmp.Free;
   end;
 end;
