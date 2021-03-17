@@ -28,6 +28,7 @@ type
     FPos: Int64;
     FURL: String;
     FFilename: String;
+    FStream: TStream;
     FOnShowStatus: TShowStatusEvent;
 {$IF FPC_FULLVERSION < 30200}
     procedure GetSocketHandler(Sender: TObject; const UseSSL: Boolean;
@@ -42,6 +43,7 @@ type
     destructor Destroy; override;
     property URL: String read FURL write FURL;
     property Filename: String read FFilename write FFilename;
+    property Stream: TStream read FStream write FStream;
     property OnShowStatus: TShowStatusEvent read FOnShowStatus write FOnShowStatus;
   end;
 
@@ -49,6 +51,7 @@ type
   TDownload = record
     URL: String;
     FileName: String;
+    Stream: TStream;
   end;
 
   { TDownloadForm }
@@ -67,12 +70,15 @@ type
     FDownloads: array of TDownload;
     FFinished: Boolean;
   public
-    procedure AddDownload(const AURL, AFilename: String);
+    procedure AddDownload(const AURL, AFilename: String; AStream: TStream = nil);
     procedure ShowStatus(const ALen, APos: Int64);
   end;
 
 var
   DownloadForm: TDownloadForm;
+
+function DownloadToStream(const URL, AFileName: String; AStream: TStream): Boolean;
+
 
 implementation
 
@@ -87,6 +93,20 @@ uses
   openssl,
   {$ENDIF}
   cUtils;
+
+function DownloadToStream(const URL, AFileName: String; AStream: TStream): Boolean;
+var
+  F: TDownloadForm;
+begin
+  F := TDownloadForm.Create(nil);
+  try
+    F.AddDownload(URL, AFileName, AStream);
+    F.ShowModal;
+  finally
+    F.Free;
+  end;
+end;
+
 
 { TDownloadThread }
 
@@ -150,7 +170,10 @@ begin
         end;
       end;
       http.OnDataReceived:= @DataReceived;
-      http.Get(FURL, FFileName);
+      if FStream <> nil then
+        http.Get(FURL, FStream)
+      else
+        http.Get(FURL, FFileName);
     except
       on E: Exception do
       begin
@@ -169,7 +192,11 @@ end;
 
 { TDownloadForm }
 
-procedure TDownloadForm.AddDownload(const AURL, AFilename: String);
+{ When AFilename is given AND AStream then the url id downloaded into the stream
+  but the filename is displayed in the progress bar. This is for RKI download
+  where data is needed in a memory stream and will later be saved to the file. }
+procedure TDownloadForm.AddDownload(const AURL, AFilename: String;
+  AStream: TStream = nil);
 var
   len: Integer;
 begin
@@ -178,6 +205,7 @@ begin
   SetLength(FDownloads, len + 1);
   FDownloads[len].URL:= AURL;
   FDownloads[len].Filename:= AFilename;
+  FDownloads[len].Stream := AStream;
 end;
 
 procedure TDownloadForm.FormActivate(Sender: TObject);
@@ -186,6 +214,7 @@ var
   dlThread: TDownloadThread;
   url: String;
   fn: String;
+  stream: TStream;
 begin
   Height := pbBytes.Top + pbBytes.Height + pbBytes.BorderSpacing.Bottom;
 
@@ -206,6 +235,7 @@ begin
       dlThread.OnShowStatus:= @ShowStatus;
       dlThread.URL:= FDownloads[index].URL;
       dlThread.Filename:= FDownloads[index].Filename;
+      dlThread.Stream := FDownloads[index].Stream;
       dlThread.Start;
       dlThread.WaitFor;
     except

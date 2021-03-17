@@ -4,8 +4,6 @@ unit cMain;
 {$define RKI}
 {$define USE_BARSERIES}
 
-// Es gibt noch ein Define DEBUG_LOCATIONPARAMS in den Projekt-Optionen.
-
 interface
 
 uses
@@ -2714,7 +2712,6 @@ procedure TMainForm.UpdateData;
 begin
   with TJohnsHopkinsDataSource.Create(DataDir) do
   try
-    OnDownloadMsg := @DownloadMsgHandler;
     DownloadToCache;
   finally
     Free;

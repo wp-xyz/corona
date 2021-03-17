@@ -210,7 +210,7 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="15">
+    <Units Count="14">
       <Unit0>
         <Filename Value="corona.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -232,68 +232,63 @@
         <UnitName Value="cAbout"/>
       </Unit2>
       <Unit3>
-        <Filename Value="cdownloader.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="cDownloader"/>
-      </Unit3>
-      <Unit4>
         <Filename Value="crobertkochinstitut.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="cRobertKochInstitut"/>
-      </Unit4>
-      <Unit5>
+      </Unit3>
+      <Unit4>
         <Filename Value="cdatasource.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="cDataSource"/>
-      </Unit5>
-      <Unit6>
+      </Unit4>
+      <Unit5>
         <Filename Value="cjohnshopkinsuniversity.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="cJohnsHopkinsUniversity"/>
-      </Unit6>
-      <Unit7>
+      </Unit5>
+      <Unit6>
         <Filename Value="cglobal.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="cGlobal"/>
-      </Unit7>
-      <Unit8>
+      </Unit6>
+      <Unit7>
         <Filename Value="cseries.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="cSeries"/>
-      </Unit8>
-      <Unit9>
+      </Unit7>
+      <Unit8>
         <Filename Value="cutils.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="cUtils"/>
-      </Unit9>
-      <Unit10>
+      </Unit8>
+      <Unit9>
         <Filename Value="cdownloadmanager.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="DownloadForm"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="cDownloadManager"/>
-      </Unit10>
-      <Unit11>
+      </Unit9>
+      <Unit10>
         <Filename Value="cpolygonseries.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="cPolygonSeries"/>
-      </Unit11>
-      <Unit12>
+      </Unit10>
+      <Unit11>
         <Filename Value="cgeomap.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="cGeoMap"/>
-      </Unit12>
-      <Unit13>
+      </Unit11>
+      <Unit12>
         <Filename Value="cgeoreaderkml.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="cGeoReaderKML"/>
-      </Unit13>
-      <Unit14>
+      </Unit12>
+      <Unit13>
         <Filename Value="cpalette.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="cPalette"/>
-      </Unit14>
+      </Unit13>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

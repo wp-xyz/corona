@@ -34,7 +34,7 @@ implementation
 uses
   DateUtils,
   fpJson, JSONParser, JSONScanner,
-  cDownloader;
+  cDownloadManager;
 
 const
   FILENAME_CONFIRMED = 'RKI_confirmed.csv';
@@ -527,7 +527,7 @@ begin
       else                       // Germany total
         url := BuildURL('');
 
-      Result := DownloadFile(url, stream);
+      Result := DownloadToStream(url, fn, stream);
       if Result then
       begin
         ExtractData(stream, AHeader, sConfirmed, sDeaths);
