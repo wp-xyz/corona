@@ -6,20 +6,23 @@ unit cMain;
 
 // Es gibt noch ein Define DEBUG_LOCATIONPARAMS in den Projekt-Optionen.
 
-
 interface
 
 uses
   LCLType, Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls,
   ExtCtrls, StdCtrls, Buttons, Grids, Types, LCLVersion, Menus, ActnList,
-  StdActns, CheckLst, TAGraph, TAIntervalSources, TASeries, TAChartListbox,
-  TALegend, TASources, TACustomSeries, TATransformations, TATools, TAFuncSeries,
-  TADataTools, cGlobal, TADrawUtils;
+  StdActns, CheckLst, ColorBox,
+  TAGraph, TAIntervalSources, TASeries, TAChartListbox, TALegend, TASources,
+  TACustomSeries, TATransformations, TATools, TAFuncSeries, TADataTools,
+  TAChartUtils,TADrawUtils,
+  cGlobal, cDataSource, cGeoMap, cPalette, cSeries;
 
 type
-
   TCountArray = array of Integer;
   TDateArray = array of TDate;
+  TDataPointArray = array of TDoublePoint;
+
+  TVisibleCharts = (vcMap, vcTimeSeries, vcBoth);
 
   { TMainForm }
 
@@ -30,7 +33,7 @@ type
     acChartLogarithmic: TAction;
     acConfigHint: TAction;
     acTableSave: TAction;
-    acConfigAuto: TAction;
+    acConfigAutoLoad: TAction;
     acChartLinear: TAction;
     acChartCopyToClipboard: TAction;
     acChartOverlay: TAction;
@@ -39,10 +42,34 @@ type
     acInfectiousPeriod: TAction;
     acSmoothingRange: TAction;
     acChartHighlightWeekends: TAction;
+    acChartMap: TAction;
+    acChartTimeSeries: TAction;
+    acConfigAutoSave: TAction;
     ActionList: TActionList;
     Chart: TChart;
     BottomAxisTransformations: TChartAxisTransformations;
     BottomAxisLogTransform: TLogarithmAxisTransform;
+    cmbMapDataType: TComboBox;
+    DateIndicatorLine: TConstantLine;
+    MenuItem15: TMenuItem;
+    MovingAverageInfo: TLabel;
+    CasesSplitter: TSplitter;
+    CasesPanel: TPanel;
+    ResizeTimer: TTimer;
+    TreeSplitter: TSplitter;
+    TimeSeriesGroup: TGroupBox;
+    MapDataGroup: TGroupBox;
+    MapToolset: TChartToolset;
+    MapDateLabel: TLabel;
+    MapToolsetDataPointClickTool: TDataPointClickTool;
+    MapToolsetDataPointHintTool: TDataPointHintTool;
+    MapToolsetPanDragTool: TPanDragTool;
+    MapToolsetZoomDragTool: TZoomDragTool;
+    MenuItem12: TMenuItem;
+    MenuItem14: TMenuItem;
+    MenuItem9: TMenuItem;
+    PaletteListbox: TColorListBox;
+    MapChart: TChart;
     ChartToolset: TChartToolset;
     acFileExit: TFileExit;
     cbMovingAverage: TCheckBox;
@@ -78,13 +105,20 @@ type
     mnuChart: TMenuItem;
     mnuFileQuit: TMenuItem;
     mnuFile: TMenuItem;
-    Panel1: TPanel;
-    ProgressBar: TProgressBar;
+    ChartSplitter: TSplitter;
+    MapChartPanel: TPanel;
+    MapDateScrollbar: TScrollBar;
+    MapSplitter: TSplitter;
+    PaletteListboxPanel: TPanel;
+    TimeSeriesChartPanel: TPanel;
     ToolBar: TToolBar;
     ToolButton1: TToolButton;
     ToolButton10: TToolButton;
     ToolButton11: TToolButton;
     ToolButton12: TToolButton;
+    ToolButton13: TToolButton;
+    ToolButton14: TToolButton;
+    ToolButton15: TToolButton;
     ToolButton2: TToolButton;
     ToolButton3: TToolButton;
     ToolButton4: TToolButton;
@@ -112,7 +146,6 @@ type
     ChartListbox: TChartListbox;
     DateTimeIntervalChartSource: TDateTimeIntervalChartSource;
     LeftPanel: TPanel;
-    RightPanel: TPanel;
     LeftSplitter: TSplitter;
     RightSplitter: TSplitter;
     StatusBar: TStatusBar;
@@ -122,8 +155,11 @@ type
     procedure acChartHighlightWeekendsExecute(Sender: TObject);
     procedure acChartLinearExecute(Sender: TObject);
     procedure acChartLogarithmicExecute(Sender: TObject);
+    procedure acChartMapExecute(Sender: TObject);
     procedure acChartOverlayExecute(Sender: TObject);
-    procedure acConfigAutoExecute(Sender: TObject);
+    procedure acChartTimeSeriesExecute(Sender: TObject);
+    procedure acConfigAutoLoadExecute(Sender: TObject);
+    procedure acConfigAutoSaveExecute(Sender: TObject);
     procedure acConfigHintExecute(Sender: TObject);
     procedure acDataClearExecute(Sender: TObject);
     procedure acDataCommonStartExecute(Sender: TObject);
@@ -133,65 +169,109 @@ type
     procedure acNormalizeToPopulationExecute(Sender: TObject);
     procedure acSmoothingRangeExecute(Sender: TObject);
     procedure acTableSaveExecute(Sender: TObject);
+
     procedure ChartBeforeCustomDrawBackWall(ASender: TChart;
       ADrawer: IChartDrawer; const ARect: TRect; var ADoDefaultDrawing: Boolean);
     procedure ChartListboxAddSeries(ASender: TChartListbox;
       ASeries: TCustomChartSeries; AItems: TChartLegendItems; var ASkip: Boolean);
     procedure ChartListboxCheckboxClick(ASender: TObject; AIndex: Integer);
+    procedure ChartResize(Sender: TObject);
+
     procedure clbCasesClickCheck(Sender: TObject);
     procedure cmbDataTypeChange(Sender: TObject);
+    procedure cmbDataTypeDropDown(Sender: TObject);
+    procedure cmbMapDataTypeChange(Sender: TObject);
     procedure CrossHairToolDraw(ASender: TDataPointDrawTool);
+
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
+
     procedure GridDrawCell(Sender: TObject; aCol, aRow: Integer; aRect: TRect;
       aState: TGridDrawState);
     procedure GridPrepareCanvas(sender: TObject; aCol, aRow: Integer;
       aState: TGridDrawState);
+
+    procedure MapChartResize(Sender: TObject);
+
+    procedure MapDateScrollbarChange(Sender: TObject);
+    procedure MapToolsetDataPointClickToolPointClick(ATool: TChartTool;
+      APoint: TPoint);
+    procedure MapToolsetDataPointHintToolHint(ATool: TDataPointHintTool;
+      const APoint: TPoint; var AHint: String);
     procedure MeasurementToolAfterMouseUp(ATool: TChartTool; APoint: TPoint);
     procedure MeasurementToolGetDistanceText(ASender: TDataPointDistanceTool;
       var AText: String);
     procedure MeasurementToolMeasure(ASender: TDataPointDistanceTool);
-    procedure PageControlChange(Sender: TObject);
+
+    procedure PaletteListboxGetColors(Sender: TCustomColorListBox;
+      Items: TStrings);
+
+    procedure ResizeTimerTimer(Sender: TObject);
+
     procedure ToolBarResize(Sender: TObject);
-    procedure TreeViewClick(Sender: TObject);
+
+//    procedure TreeViewClick(Sender: TObject);
     procedure TreeViewDeletion(Sender: TObject; Node: TTreeNode);
+    procedure TreeViewSelectionChanged(Sender: TObject);
 
   private
+    FGeoMap: TcGeoMap;
+    FPalette: TPalette;
     FMeasurementSeries: TFuncSeries;
     FFitCoeffs: array[0..1] of Double;
     FStatusText1, FStatusText2: String;
+    FLastDate: TDate;
+    FMapLock: Integer;
+    FOldMapResource: String;
 
     function CalcFit(ASeries: TBasicChartSeries; xmin, xmax: Double): Boolean;
     procedure CalcFitCurveHandler(const AX: Double; out AY: Double);
     procedure Clear(UnselectTree: Boolean = true);
+    procedure ClearAllSeries;
     procedure CreateMeasurementSeries;
     procedure DownloadMsgHandler(Sender: TObject; const AMsg1, AMsg2: String; APercentage: Integer);
     procedure EnableMovingAverage(ASeries: TChartSeries; AEnabled, AStrict: Boolean);
     function GetCellText(ACol, ARow: Integer): String;
+    function GetDataItem(ANode: TTreeNode): TcDataItem;
     function GetDataType: TDataType;
     function GetLocation(ANode: TTreeNode): String;
-    procedure GetLocation(ANode: TTreeNode; out ACountry, AState, ACity: String; out APopulation: Integer);
-    function GetSeries(ANode: TTreeNode; ACaseType: TCaseType; ADataType: TDataType): TBasicPointSeries;
+    procedure GetLocation(ANode: TTreeNode; out ACountry, AState, ACity: String; out APopulation: Int64);
+    function GetMapDataType: TMapDataType;
+    procedure GetMapResourceParams(var ANode: TTreeNode; out AResName: String;
+      out APlotChildNodes: Boolean);
+    function GetSeries(ANode: TTreeNode; ACaseType: TCaseType;
+      ADataType: TDataType): TBasicPointSeries;
     procedure InitShortCuts;
     function IsTimeSeries: Boolean;
-//    procedure LayoutBars;
+    procedure LessChartSymbols;
+    procedure LessChartSymbols(ASeries: TcLineSeries);
     procedure LoadLocations;
-    procedure NormalizeToPopulation(ASource: TListChartSource; APopulation: Integer; PerWeek: Boolean);
-    procedure PopulateCumulativeSeries(const ADates, AValues: TStringArray; ASeries: TChartSeries);
-    procedure PopulateNewCasesSeries(const ADates, AValues: TStringArray; ASeries: TChartSeries);
+    procedure PopulatePaletteListbox(AMapDataType: TMapDataType);
+    procedure ReadCommandlineParams;
     procedure RestoreSeriesNodesFromList(AList: TFPList);
+    procedure SelectNode(ANode: TTreeNode);
+    procedure SelectProjection(AMapRes: String);
     procedure SeriesToArray(ASeries: TChartSeries; out AData: TDataPointArray);
-    procedure ShowData(ANode: TTreeNode);
-    procedure StatusMsgHandler(Sender: TObject; const AMsg1, AMsg2: String);
+    procedure ShowCharts(VisibleCharts: TVisibleCharts);
+    procedure ShowCoronaMap(ANode: TTreeNode; ADateIndex: Integer;
+      AMapDataType: TMapDataType; PlotChildNodeData: Boolean);
+    procedure ShowCoronaMapLevel(ANode: TTreeNode; ADateIndex: Integer;
+      AMapDataType: TMapDataType);
+    procedure ShowMap(ANode: TTreeNode);
+    procedure ShowTimeSeries(ANode: TTreeNode);
+    procedure ShowVersionInfo;
     function StoreSeriesNodesInList: TFPList;
     procedure UpdateActionStates;
     procedure UpdateAffectedSeries;
     procedure UpdateAxes(LogarithmicX, LogarithmicY: Boolean);
     procedure UpdateData;
+    procedure UpdateDateIndicatorLine(ADate: TDate);
     procedure UpdateGrid;
+    procedure UpdateInfectiousPeriod;
     procedure UpdateStatusBar(ASeparator: String = ' ');
+    procedure WordwrapChart(AChart: TChart);
 
     procedure LoadIni;
     procedure SaveIni;
@@ -209,27 +289,18 @@ implementation
 {$R *.lfm}
 
 uses
-  LCLIntf, Math, IniFiles, DateUtils, InterfaceBase, LCLPlatformDef,
+  LCLIntf, Math, IniFiles, DateUtils, LCLPlatformDef,
   // TAChart units
-  TATypes, TAMath, TAChartUtils, TACustomSource, TAFitLib,
+  TATypes, TAMath, TACustomSource, TAFitLib,
   // project-specific units
-  cDataSource, cJohnsHopkinsUniversity, {$IFDEF RKI}cRobertKochInstitut,{$ENDIF}
-  cUtils, cSeries, cAbout;
+  cJohnsHopkinsUniversity, {$IFDEF RKI}cRobertKochInstitut,{$ENDIF}
+  cPolygonSeries, cGeoReaderKML, cUtils, cAbout;
 
 const
-  // DATA_DIR must end with path delimiter!
-  {$IFDEF DARWIN}
-  DATA_DIR = '../../../data/';
-  {$ELSE}
-  DATA_DIR = 'data/';
-  {$ENDIF}
-
   // Chart series colors
   COLORS: array[0..9] of TColor = (
     clRed, clBlue, clFuchsia, clLime, clSkyBlue,
     clTeal, clPurple, clBlack, clMedGray, clMoneyGreen);
-
-  BARWIDTH_PERCENT = 80;
 
   START_COUNT = 100;
 
@@ -243,6 +314,49 @@ var
 
   // DataDir is the directory in which the downloaded csv files are found.
   DataDir: String;
+
+function GetDataDir: String;
+begin
+  if PortableInstallation then
+   {$IFDEF DARWIN}
+    Result := Application.Location + '../../../data/'
+   {$ELSE}
+    Result := Application.Location + 'data/'
+   {$ENDIF}
+  else
+    {$IFDEF Windows}
+    Result := GetUserDir + 'CoronaData\';
+    {$ELSE}
+    Result := GetUserDir + '.coronadata/';
+    {$ENDIF}
+end;
+
+function CreateIni: TCustomIniFile;
+var
+  fn: String;
+begin
+  if PortableInstallation then
+    fn := ChangeFileExt(Application.ExeName, '.cfg')
+  else
+    fn := GetAppConfigFile(false);
+  Result := TMemIniFile.Create(fn);
+end;
+
+
+{$IF LCL_FullVersion < 2010000}
+type
+  TTreeNodeHelper = class helper for TTreeNode
+    function GetFirstSibling: TTreeNode;
+  end;
+
+function TTreeNodeHelper.GetFirstSibling: TTreeNode;
+begin
+  if Self.Parent = nil then
+    Result := Self.Owner.Owner.Items.GetFirstNode
+  else
+    Result := self.Parent.GetFirstChild;
+end;
+{$IFEND}
 
 
 { TMainForm }
@@ -279,12 +393,45 @@ begin
   UpdateAxes(not IsTimeSeries(), true);
 end;
 
+procedure TMainForm.acChartMapExecute(Sender: TObject);
+var
+  vc: TVisibleCharts;
+begin
+  if acChartMap.Checked and acChartTimeSeries.Checked then
+    vc := vcBoth
+  else if acChartMap.Checked then
+    vc := vcMap
+  else if acChartTimeSeries.Checked then
+    vc := vcTimeSeries
+  else
+  begin // Make sure that at least one of the two is checked
+    if Sender = acChartMap then
+      vc := vcMap
+    else if sender = acChartTimeSeries then
+      vc := vcTimeSeries
+    else
+      exit;
+  end;
+
+  ShowCharts(vc);
+end;
+
 procedure TMainForm.acChartOverlayExecute(Sender: TObject);
 begin
   // Checked state is evaluated when adding curves.
 end;
 
-procedure TMainForm.acConfigAutoExecute(Sender: TObject);
+procedure TMainForm.acChartTimeSeriesExecute(Sender: TObject);
+begin
+  //
+end;
+
+procedure TMainForm.acConfigAutoLoadExecute(Sender: TObject);
+begin
+  // Checked state is evaluated when reading ini.
+end;
+
+procedure TMainForm.acConfigAutoSaveExecute(Sender: TObject);
 begin
   // Checked state is evaluated when writing ini.
 end;
@@ -318,9 +465,9 @@ begin
 
   for i := 0 to Chart.SeriesCount-1 do
     if Chart.Series[i] is TcLineSeries then
-      ShowData(TcLineSeries(Chart.Series[i]).Node)
+      ShowTimeSeries(TcLineSeries(Chart.Series[i]).Node)
     else if Chart.Series[i] is TcBarSeries then
-      ShowData(TcBarSeries(Chart.Series[i]).Node);
+      ShowTimeSeries(TcBarSeries(Chart.Series[i]).Node);
 end;
 
 procedure TMainForm.acDataMovingAverageExecute(Sender: TObject);
@@ -335,22 +482,20 @@ begin
     if Chart.Series[i] is TChartSeries then
       EnableMovingAverage(TChartSeries(Chart.Series[i]), isMovingAverage, false);
 
-  cbMovingAverage.Caption := Format('Moving average (%d days)', [SmoothingRange]);
+  MovingAverageInfo.Caption := Format('(%d days)', [SmoothingRange]);
+  MovingAverageInfo.Enabled := acDataMovingAverage.Enabled;
   UpdateGrid;
 end;
 
 procedure TMainForm.acDataUpdateExecute(Sender: TObject);
 begin
-  Progressbar.Show;
   UpdateData;
-  Progressbar.Hide;
 end;
 
 procedure TMainForm.acInfectiousPeriodExecute(Sender: TObject);
 var
   n: Integer;
   s: String;
-  L: TFPList;
 begin
   s := IntToStr(InfectiousPeriod);
   if InputQuery('Infectious period', 'Days:', s) then
@@ -358,15 +503,7 @@ begin
     if TryStrToInt(s, n) and (n > 0) then
     begin
       InfectiousPeriod := n;
-      cmbDataType.Items[ord(dtRValue)] := Format('Reproduction number (%d d)', [InfectiousPeriod]);
-
-      // Recalculate the currently loaded data
-      L := StoreSeriesNodesInList();
-      try
-        RestoreSeriesNodesFromList(L);
-      finally
-        L.Free;
-      end;
+      UpdateInfectiousPeriod;
     end else
       MessageDlg('No valid number.', mtError, [mbOk], 0);
   end;
@@ -400,7 +537,7 @@ begin
         SmoothingRange := n;
         RRange := (n - 1) div 2;
 
-        cbMovingAverage.Caption := Format('Moving average (%d days)', [SmoothingRange]);
+        MovingAverageInfo.Caption := Format('(%d days)', [SmoothingRange]);
 
         // Recalculate the currently loaded data
         L := StoreSeriesNodesInList();
@@ -418,11 +555,16 @@ begin
 end;
 
 procedure TMainForm.acTableSaveExecute(Sender: TObject);
+const
+  ASCENDING = false;
 var
   r, c: Integer;
+  r_start, r_end, r_delta: Integer;
   F: TextFile;
   col: TGridColumn;
   ser: TChartSeries;
+  dt: TDateTime;
+  n: Integer;
 begin
   SaveDialog.Filename := '';
   if SaveDialog.Execute then
@@ -439,12 +581,31 @@ begin
     end;
     WriteLn(F);
 
-    for r := 1 to Grid.RowCount-1 do
+    if ASCENDING then
     begin
-      Write(F, GetCellText(0, r));
+      r_start := 1;
+      r_end := Grid.RowCount;
+      r_delta := +1;
+    end else
+    begin
+      r_start := Grid.RowCount-1;
+      r_end := 0;
+      r_delta := -1;
+    end;
+
+    r := r_start;
+    while r <> r_end do begin
+//    for r := 1 to Grid.RowCount-1 do
+//    begin
+      dt := StrToDateTime(GetCellText(0, r));
+      Write(F, FormatDateTime(SAVE_DATE_FORMAT, dt));
       for c := 1 to Grid.ColCount-1 do
-        Write(F, #9, GetCellText(c, r));
+      begin
+        n := StrToInt(StripThousandSeparator(GetCellText(c, r), FormatSettings.ThousandSeparator));
+        Write(F, #9, n);
+      end;
       WriteLn(F);
+      inc(r, r_delta);
     end;
     CloseFile(F);
   end;
@@ -475,7 +636,7 @@ begin
   ADrawer.BrushColor := ASender.BottomAxis.Grid.Color;
   while (x <= ext.b.x) do
   begin
-    ADrawer.FillRect(ASender.XGraphToImage(x), ARect.Top+1, ASender.XGraphToImage(x+1), ARect.Bottom-1);
+    ADrawer.FillRect(ASender.XGraphToImage(x){%H-}, ARect.Top+1, ASender.XGraphToImage(x+1){%H-}, ARect.Bottom-1);
     x += 7;
   end;
 
@@ -487,7 +648,10 @@ begin
   LeftPanel.Constraints.MinWidth := LeftPanel.Width;
   LeftPanel.AutoSize := false;
 
+  ReadCommandlineParams;
+  LoadLocations;
   LoadIni;
+  ShowVersionInfo;
 end;
 
 // It is assumed that xmin < xmax.
@@ -496,10 +660,11 @@ function TMainForm.CalcFit(ASeries: TBasicChartSeries;
 const
   EPS = 1E-9;
 var
-  x, y: TArbFloatArray;
+  x: TArbFloatArray = nil;
+  y: TArbFloatArray = nil;
   n, i: Integer;
   xval, yval: Double;
-  fitParams: TFitParamArray;
+  fitParams: TFitParamArray = nil;
   fitRes: TFitResults;
   ser: TChartSeries;
 begin
@@ -567,12 +732,22 @@ procedure TMainForm.ChartListboxAddSeries(ASender: TChartListbox;
 var
   ct: TCaseType;
 begin
-  if ASeries is TFuncSeries then begin
+  if ((ASeries = DateIndicatorLine) and not acChartMap.Checked) or
+     (ASeries is TFuncSeries)
+  then
+  begin
     ASkip := true;
     exit;
   end;
-
-  if (not ASeries.Active) and (TChartSeries(ASeries).Count = 0) then
+{
+  if ((ASeries = DateIndicatorLine) and not (acChartMap.Checked and acChartTimeSeries.Checked)) or
+     (ASeries is TFuncSeries) then
+  begin
+    ASkip := true;
+    exit;
+  end;
+}
+  if (not ASeries.Active) and (ASeries is TChartSeries) and (TChartSeries(ASeries).Count = 0) then
     for ct in TCaseType do
       if (pos(CASETYPE_NAMES[ct], ASeries.Title) > 0) or
          (pos(R_NUMBER_STR, ASeries.Title) > 0) then
@@ -584,8 +759,13 @@ end;
 
 procedure TMainForm.ChartListboxCheckboxClick(ASender: TObject; AIndex: Integer);
 begin
-//  LayoutBars;
   UpdateAffectedSeries;
+end;
+
+procedure TMainForm.ChartResize(Sender: TObject);
+begin
+  LessChartSymbols;
+  ResizeTimer.Enabled := true;
 end;
 
 procedure TMainForm.clbCasesClickCheck(Sender: TObject);
@@ -594,7 +774,7 @@ var
 begin
   L := StoreSeriesNodesInList();
   try
-    TreeViewClick(nil);
+    SelectNode(TreeView.Selected);
     RestoreSeriesNodesFromlist(L);
   finally
     L.Free;
@@ -611,60 +791,66 @@ var
   sx, sy: String;
   dt: TDataType;
   d: TDate;
+  idx: Integer;
 begin
-  if ASender.Series = nil then
-    FStatusText1 := ''
-  else
+  if ASender = nil then
+    exit;
+
+  FStatusText1 := '';
   if ASender.Series is TChartSeries then
   begin
     dt := GetDataType();
     ser := TChartSeries(ASender.Series);
-    x := ser.GetXValue(ASender.PointIndex);
-    y := ser.GetYValue(ASender.PointIndex);
-    case dt of
-      dtCumulative, dtNormalizedCumulative:
-        begin
-          sx := FormatDateTime('dddddd', x);
-          if y < 0.5 then sy := '0 cases'
-            else if y < 1.5 then sy := '1 case'
-            else sy := Format('%.*n cases', [DECS[(y < 100) and (dt = dtNormalizedCumulative)], y]);
-          if dt = dtNormalizedCumulative then
-            sy := sy + ' per 100 000 inhabitants and per week';
-          FStatusText1 := Format('%s, %s', [sx, sy]);
-        end;
-      dtNewCases, dtNormalizedNewCases:
-        begin
-          sx := FormatDateTime('dddddd', x);
-          if y = 1.0 then
-            sy := '1 new case'
-          else
-            sy := Format('%.*n new cases', [DECS[(y < 100) and (dt = dtNormalizedNewCases)], y]);
-          if dt = dtNormalizedNewCases then
-            sy := sy + ' per 100 000 inhabitants and per week';
-          FStatusText1 := Format('%s, %s', [sx, sy]);
-        end;
-      dtCumulativeCasesDoublingTime, dtNewCasesDoublingTime:
-        begin
-          sx := FormatDateTime('dddddd', x);
-          sy := Format('Doubling time %.1f', [y]);
-          FStatusText1 := Format('%s, %s', [sx, sy]);
-        end;
-      dtCumVsNewCases:
-        begin
-          sx := ser.Source.Item[ASender.PointIndex]^.Text;
-          d := ScanDateTime('mm"/"dd"/"yyyy', ser.Source.Item[ASender.PointIndex]^.Text, cFormatSettings);
-          if x = 1 then sx := '1 case' else sx := Format('%.0n cases', [x]);
-          if y = 1 then sy := '1 new case' else sy := Format('%.0n new cases', [y]);
-          FStatusText1 := Format('%s - %s, %s', [DateToStr(d), sx, sy]);
-        end;
-      dtRValue:
-        begin
-          sx := FormatDateTime('dddddd', x);
-          sy := Format('Reproduction number: %.1f', [y]);
-          FStatusText1 := Format('%s, %s', [sx, sy]);
-        end;
+    idx := ASender.PointIndex;
+    if idx > -1 then
+    begin
+      x := ser.GetXValue(idx);
+      y := ser.GetYValue(idx);
+      case dt of
+        dtCumulative, dtNormalizedCumulative:
+          begin
+            sx := FormatDateTime('dddddd', x);
+            if y < 0.5 then sy := '0 cases'
+              else if y < 1.5 then sy := '1 case'
+              else sy := Format('%.*n cases', [DECS[(y < 100) and (dt = dtNormalizedCumulative)], y]);
+            if dt = dtNormalizedCumulative then
+              sy := sy + ' per 100 000 inhabitants and per week';
+            FStatusText1 := Format('%s, %s', [sx, sy]);
+          end;
+        dtNewCases, dtNormalizedNewCases:
+          begin
+            sx := FormatDateTime('dddddd', x);
+            if y = 1.0 then
+              sy := '1 new case'
+            else
+              sy := Format('%.*n new cases', [DECS[(y < 100) and (dt = dtNormalizedNewCases)], y]);
+            if dt = dtNormalizedNewCases then
+              sy := sy + ' per 100 000 inhabitants and per week';
+            FStatusText1 := Format('%s, %s', [sx, sy]);
+          end;
+        dtCumulativeCasesDoublingTime, dtNewCasesDoublingTime:
+          begin
+            sx := FormatDateTime('dddddd', x);
+            sy := Format('Doubling time %.1f', [y]);
+            FStatusText1 := Format('%s, %s', [sx, sy]);
+          end;
+        dtCumVsNewCases:
+          begin
+            sx := ser.Source.Item[ASender.PointIndex]^.Text;
+            d := ScanDateTime('mm"/"dd"/"yy', ser.Source.Item[ASender.PointIndex]^.Text, cFormatSettings);
+            if x = 1 then sx := '1 case' else sx := Format('%.0n cases', [x]);
+            if y = 1 then sy := '1 new case' else sy := Format('%.0n new cases', [y]);
+            FStatusText1 := Format('%s - %s, %s', [DateToStr(d), sx, sy]);
+          end;
+        dtRValue:
+          begin
+            sx := FormatDateTime('dddddd', x);
+            sy := Format('Reproduction number: %.1f', [y]);
+            FStatusText1 := Format('%s, %s', [sx, sy]);
+          end;
+      end;
+      FStatusText1 := ser.Title + ': ' + FStatusText1;
     end;
-    FStatusText1 := ser.Title + ': ' + FStatusText1;
     ASender.Handled;
   end;
   UpdateStatusBar;
@@ -674,10 +860,28 @@ procedure TMainForm.Clear(UnselectTree: Boolean = true);
 begin
   if UnselectTree then
     TreeView.Selected := nil;
-  Chart.ClearSeries;
+
+  ClearAllSeries;
   CreateMeasurementSeries;
+
   UpdateGrid;
   UpdateActionStates;
+end;
+
+procedure TMainForm.ClearAllSeries;
+begin
+  // Be careful here: DateIndicatorLine is destroyed in Chart.ClearSeries but it
+  // is still accessed by the ChartListBox. Better to prevent TChartListbox from
+  // updating itself during the clearing steps.
+  ChartListbox.Chart := nil;
+  try
+    // Another safety measure: make sure that DateIndicatorLine is nil while
+    // Chart.ClearSeries is executing
+    FreeAndNil(DateIndicatorLine);
+    Chart.ClearSeries;
+  finally
+    ChartListBox.Chart := Chart;
+  end;
 end;
 
 procedure TMainForm.cmbDataTypeChange(Sender: TObject);
@@ -698,11 +902,11 @@ begin
             dtCumulative:
               lblTableHdr.Caption := 'Cumulative cases';
             dtNormalizedCumulative:
-              lblTableHdr.Caption := Format('Cumulative cases per %.0n persons', [1.0 * PopulationRef]);
+              lblTableHdr.Caption := Format('Cumulative cases per population %.0n', [1.0 * PopulationRef]);
             dtNewCases:
               lblTableHdr.Caption := 'New cases per day';
             dtNormalizedNewCases:
-              lblTableHdr.Caption := Format('New cases per %.0n persons and week', [1.0 * PopulationRef])
+              lblTableHdr.Caption := Format('New cases per week and population %.0n', [1.0 * PopulationRef])
             else
               raise Exception.Create('Data type not handled by cmbDataTypeChange');
           end;
@@ -756,10 +960,27 @@ begin
     acDataMovingAverageExecute(nil);
     RestoreSeriesNodesFromlist(L);
     UpdateActionStates;
+    WordwrapChart(Chart);
 
   finally
     L.Free;
   end;
+end;
+
+procedure TMainForm.cmbDataTypeDropDown(Sender: TObject);
+var
+  i, w: Integer;
+begin
+  w := 0;
+  for i := 0 to cmbDataType.Items.Count-1 do
+    w := Max(w, cmbDataType.Canvas.TextWidth(cmbDataType.Items[i]));
+  cmbDataType.ItemWidth := w + Scale96ToForm(10);
+end;
+
+procedure TMainForm.cmbMapDataTypeChange(Sender: TObject);
+begin
+  PopulatePaletteListbox(GetMapDataType);
+  ShowMap(TreeView.Selected);
 end;
 
 procedure TMainForm.CreateMeasurementSeries;
@@ -772,12 +993,22 @@ begin
   FMeasurementseries.AxisIndexY := 0;
   FMeasurementSeries.Pen.Width := 3;
   FMeasurementSeries.Pen.Color := clGreen;
+  FMeasurementSeries.ZPosition := 99;
   Chart.AddSeries(FMeasurementSeries);
+
+  DateIndicatorLine := TConstantLine.Create(Chart);
+  DateIndicatorLine.Active := false;
+  DateIndicatorLine.LineStyle := lsVertical;
+  DateIndicatorLine.Pen.Width := 2;
+  DateIndicatorLine.Pen.Color := clFuchsia;
+  DateIndicatorLine.Title := 'Date indicator';
+  Chart.AddSeries(DateIndicatorLine);
 end;
 
 procedure TMainForm.DownloadMsgHandler(Sender: TObject; const AMsg1, AMsg2: String;
   APercentage: Integer);
 begin
+  {
   Progressbar.Position := APercentage;
   Progressbar.Update;
 
@@ -787,6 +1018,7 @@ begin
 
   // Make sure that status msg is painted in Linux
   Application.ProcessMessages;
+  }
 end;
 
 procedure TMainForm.EnableMovingAverage(ASeries: TChartSeries;
@@ -805,26 +1037,29 @@ end;
 
 procedure TMainForm.FormActivate(Sender: TObject);
 var
-  p3: Integer;
+  p4, p6: Integer;
   clr: TColor;
+  i, w, wCheckbox: Integer;
 begin
-  // Workaround for gtk2 issue: Listbox.ItemHeight is 0 only after FormShow.
-  if GetDefaultLCLWidgetType = lpGtk2 then
-  begin
-    p3 := Scale96ToForm(3);
-    clbCases.Height := clbCases.Items.Count * clbCases.ItemHeight + 2*p3;
-  end;
+  p4 := Scale96ToForm(4);
+  p6 := Scale96ToForm(6);
+  wCheckbox := GetSystemMetrics(SM_CXMENUCHECK);
+  w := 0;
+  for i := 0 to clbCases.Items.Count-1 do
+    w := max(w, clbCases.Canvas.TextWidth(clbCases.Items[i]));
+  CasesPanel.Constraints.MinWidth := w + wCheckbox + 2*p6;
+  CasesPanel.Constraints.MinHeight := clbCases.Top + clbCases.Items.Count * clbCases.ItemHeight + 2*p4;
+  TimeSeriesGroup.Constraints.MinHeight := TimeseriesGroup.Height - TimeSeriesGroup.ClientHeight +
+    CasesPanel.Constraints.MinHeight + CasesPanel.BorderSpacing.Bottom + p6;
 
-  clr := ColorToRGB(Chart.Color);
+  clr := ColorToRGB(Chart.BackColor);
   if Red(clr) + Green(clr) + Blue(clr) > 3*128 then
-  begin
-    Chart.LeftAxis.Grid.Color := BrighterColor(clr, -0.25);
-    Chart.BottomAxis.Grid.Color := BrighterColor(clr, -0.25);
-  end else
-  begin
-    Chart.LeftAxis.Grid.Color := BrighterColor(clr, +0.25);
-    Chart.BottomAxis.Grid.Color := BrighterColor(clr, +0.25);
-  end;
+    Chart.LeftAxis.Grid.Color := BrighterColor(clr, -0.15)
+  else
+    Chart.LeftAxis.Grid.Color := BrighterColor(clr, +0.15);
+  Chart.BottomAxis.Grid.Color := Chart.LeftAxis.Grid.Color;
+
+  WordwrapChart(Chart);
 end;
 
 procedure TMainForm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -838,13 +1073,15 @@ begin
   // Narrower input box
   cInputQueryEditSizePercents := 0;
 
-  DataDir := Application.Location + DATA_DIR;  // DATA_DIR ends with a path delimiter
+  DataDir := GetDataDir; // ends with a path delimiter
   DateOffset := BaseDate;
 
   WheelZoomTool.ZoomFactor := 1.05;
   WheelZoomTool.ZoomRatio := 1.0 / WheelZoomTool.ZoomFactor;
 
   {$IF LCL_FullVersion >= 2010000}
+  Chart.LeftAxis.Title.Wordwrap := true;
+  MapChart.Title.Wordwrap := true;
   ZoomDragTool.LimitToExtent := [zdDown, zdLeft, zdRight, zdUp];
   PanDragTool.LimitToExtent := [pdDown, pdLeft, pdRight, pdUp];
   {$ENDIF}
@@ -853,13 +1090,12 @@ begin
   Grid.RowHeights[0] := 3 * Grid.Canvas.TextHeight('Tg') + 2* varCellPadding;
 
   PageControl.ActivePageIndex := 0;
-  Progressbar.Parent := Statusbar;
-  Progressbar.Align := alRight;
-
   CreateMeasurementSeries;
   InitShortCuts;
 
-  LoadLocations;
+  FreeAndNil(DateIndicatorLine);  // needed at designtime, will be recreated
+
+  PopulatePaletteListbox(GetMapDataType);
 end;
 
 procedure TMainForm.FormShow(Sender: TObject);
@@ -889,8 +1125,10 @@ function TMainForm.GetCellText(ACol, ARow: Integer): String;
 var
   col: TGridColumn;
   ser: TChartSeries;
+  n: Integer;
   r: Integer;
-  dt: TDateTime;
+  dt: TDate;
+  lastDateOfSeries: TDate;
 begin
   if (ACol = 0) and (ARow = 0) then
     Result := 'Date'
@@ -899,39 +1137,56 @@ begin
     Result := '';
     if Grid.Columns.Count = 0 then
       exit;
+    dt := FLastDate - (ARow - Grid.FixedRows);
     if (ACol = 0) then
     begin
+      Result := DateToStr(dt);
+      {
       col := Grid.Columns[0];
       ser := TChartSeries(col.Tag);
-      r := ser.Count - ARow;
-      if IsTimeSeries() then
-        dt := ser.XValue[r]
-      else
-        dt := ScanDateTime('mm"/"dd"/"yyyy', ser.Source.Item[r]^.Text);
-      Result := DateToStr(dt);
+      n := ser.Count;
+      r := n - ARow;
+      if (r > -1) and (r < n) then
+      begin
+        if IsTimeSeries() then
+          dt := ser.XValue[r]
+        else
+          dt := ScanDateTime('mm"/"dd"/"yyyy', ser.Source.Item[r]^.Text);
+        Result := DateToStr(dt);
+      end;
+      }
     end else
     if ARow > 0 then
     begin
       col := Grid.Columns[ACol - 1];
       ser := TChartSeries(col.Tag);
-      r := ser.Count - ARow;
-      if not IsNan(ser.YValue[r]) then
-        case GetDataType() of
-          dtCumulativeCasesDoublingTime,
-          dtNewCasesDoublingTime:
-            Result := Format('%.1f', [ser.YValue[r]]);
-          dtCumVsNewCases:
-            if odd(ACol) then
-              Result := Format('%.0n', [ser.YValue[r]])
+      lastDateOfSeries := ser.XValue[ser.LastValueIndex];
+      r := ARow - Grid.FixedRows - round(FLastDate - lastDateOfSeries);
+      n := ser.Count;
+//      r := n - ARow;
+      if (r > -1) and (r < n) then
+        if not IsNan(ser.YValue[r]) then
+          case GetDataType() of
+            dtCumulativeCasesDoublingTime,
+            dtNewCasesDoublingTime:
+              Result := Format('%.1f', [ser.YValue[r]]);
+            dtCumVsNewCases:
+              if odd(ACol) then
+                Result := Format('%.0n', [ser.YValue[r]])
+              else
+                Result := Format('%.0n', [ser.XValue[r]]);
+            dtRValue:
+              Result := Format('%.2f', [ser.YValue[r]]);
             else
-              Result := Format('%.0n', [ser.XValue[r]]);
-          dtRValue:
-            Result := Format('%.2f', [ser.YValue[r]]);
-          else
-            Result := Format('%.0n', [ser.YValue[r]]);
-        end;
+              Result := Format('%.0n', [ser.YValue[r]]);
+          end;
     end;
   end;
+end;
+
+function TMainForm.GetDataItem(ANode: TTreeNode): TcDataItem;
+begin
+  Result := TcDataItem(ANode.Data);
 end;
 
 function TMainForm.GetDataType: TDataType;
@@ -940,47 +1195,41 @@ begin
 end;
 
 procedure TMainForm.GetLocation(ANode: TTreeNode;
-  out ACountry, AState, ACity: String; out APopulation: Integer);
+  out ACountry, AState, ACity: String; out APopulation: Int64);
 var
-  loc: PLocationParams;
+  item: TcDataItem;
 begin
   ACountry := '';
   AState := '';
   ACity := '';
 
   case ANode.Level of
-    0: ACountry := ANode.Text;
-    1: begin
+    0,
+    1,
+    2: ACountry := ANode.Text;
+    3: begin
          AState := ANode.Text;
          ACountry := ANode.Parent.Text;
        end;
-    2: begin
+    4: begin
          ACity := ANode.Text;
          AState := ANode.Parent.Text;
          ACountry := ANode.Parent.Parent.Text;
        end;
   end;
-  {
-  if ANode.Parent = nil then begin
-    ACountry := ANode.Text;
-    AState := '';
-    ACity := '';
-  end else
-  begin
-    ACountry := ANode.Parent.Text;
-    AState := ANode.Text;
 
+  if TObject(ANode.Data) is TcDataItem then
+  begin
+    item := TcDataItem(ANode.Data);
+    if item <> nil then
+      APopulation := item.Population;
   end;
-  }
-  loc := PLocationParams(ANode.Data);
-  if loc <> nil then
-    APopulation := loc^.Population;
 end;
 
 function TMainForm.GetLocation(ANode: TTreeNode): String;
 var
   country, state, city: String;
-  population: Integer;
+  population: Int64;
 begin
   GetLocation(ANode, country, state, city, population);
   Result := country;
@@ -989,6 +1238,11 @@ begin
     if city <> '' then
       Result := Result + ' / ' + city;
   end;
+end;
+
+function TMainForm.GetMapDataType: TMapDataType;
+begin
+  Result := TMapDataType(cmbMapDataType.ItemIndex);
 end;
 
 function TMainForm.GetSeries(ANode: TTreeNode; ACaseType: TCaseType;
@@ -1096,9 +1350,90 @@ begin
     else
       ser.Active := false;
     Chart.AddSeries(ser);
+
+    if (ser is TcLineSeries) then
+      LessChartSymbols(TcLineSeries(ser));
   end;  // for ct
 
   UpdateAffectedSeries;
+end;
+
+{ The specified node has been clicked.
+  If the node's parent data contain a specification of the map to be displayed the
+  name of its resource is returned. If there is no map specification then
+  the parents are checked upwards until a node with a map resource name is found.
+  The clicked node's data contain also information at which tree level the
+  data to be mapped are found relative to the map node. }
+procedure TMainForm.GetMapResourceParams(var ANode: TTreeNode; out AResName: String;
+  out APlotChildNodes: Boolean);
+var
+  dataItem: TcDataItem;
+  ANodeDataItem: TcDataItem;
+  datanode: TTreeNode;
+  mapNode: TTreeNode;
+  i: Integer;
+begin
+  AResName := '';
+  APlotChildNodes := false;
+  if ANode = nil then
+    exit;
+
+  ANodeDataItem := TcDataItem(ANode.Data);
+  mapNode := ANode.Parent;
+  if mapNode = nil then
+    mapNode := ANode.GetFirstSibling;
+  repeat
+    dataItem := TcDataItem(mapNode.Data);
+    if ANodeDataItem.UseOtherMapResource and (dataItem.OtherMapResource <> '') then
+    begin
+      AResName := dataItem.OtherMapResource;
+      break;
+    end else
+    if not ANodeDataItem.UseOtherMapResource and (dataItem.MapResource <> '') then
+    begin
+      AResName := dataItem.MapResource;
+      break;
+    end else
+      mapNode := mapNode.Parent;
+  until (mapnode = nil);
+
+  if mapNode <> nil then
+  begin
+    dataNode := mapNode;
+    if ANodeDataItem.UseOtherMapResource then
+    begin
+      if ANodeDataItem.OtherMapDataLevelDist = 0 then
+        dataNode := dataNode.GetFirstSibling
+      else
+        for i := 1 to ANodeDataItem.OtherMapDataLevelDist do
+        begin
+          if dataNode = nil then
+            raise Exception.Create('Incorret map information');
+          dataNode := datanode.GetFirstChild;
+        end;
+      APlotChildNodes := ANodeDataItem.OtherMapDataAtChildLevel;
+    end else
+    begin
+      if ANodeDataItem.MapDataLevelDist = 0 then
+        dataNode := dataNode.GetFirstSibling
+      else
+        for i := 1 to ANodeDataItem.MapDataLevelDist do
+        begin
+          if dataNode = nil then
+            raise Exception.Create('Incorrect map information');
+          dataNode := datanode.GetFirstChild;
+        end;
+      APlotChildNodes := ANodeDataItem.MapDataAtChildLevel;
+    end;
+    ANode := dataNode;
+  end;
+
+  if AResName = '' then
+  begin
+    AResName := WorldMapResName;
+    ANode := TreeView.Items.GetFirstNode.GetFirstChild;
+    APlotChildNodes := true;
+  end;
 end;
 
 procedure TMainForm.GridDrawCell(Sender: TObject; aCol, aRow: Integer;
@@ -1134,6 +1469,70 @@ begin
   Grid.Canvas.TextStyle := ts;
 end;
 
+procedure TMainForm.MapChartResize(Sender: TObject);
+begin
+  ResizeTimer.Enabled := true;
+end;
+
+procedure TMainForm.MapDateScrollbarChange(Sender: TObject);
+var
+  node: TTreeNode;
+  dummy: String;
+  plotChildData: Boolean;
+begin
+  node := TreeView.Selected;
+  if node = nil then
+    exit;
+
+  GetMapResourceParams(node, dummy, plotChildData);
+  ShowCoronaMap(node, MapDateScrollbar.Position, GetMapDataType, plotChildData);
+end;
+
+procedure TMainForm.MapToolsetDataPointClickToolPointClick(ATool: TChartTool;
+  APoint: TPoint);
+var
+  ser: TChartSeries;
+  node: TTreeNode;
+begin
+  if (ATool is TDataPointClickTool) and ((TDataPointClickTool(ATool).Series) is TChartSeries) then
+  begin
+    ser := TChartSeries(TDataPointClickTool(ATool).Series);
+    node := TreeView.Items.FindNodeWithText(ser.Title);
+    TreeView.Selected := node;
+  end;
+end;
+
+procedure TMainForm.MapToolsetDataPointHintToolHint(ATool: TDataPointHintTool;
+  const APoint: TPoint; var AHint: String);
+var
+  ser: TcPolygonSeries;
+  node: TTreeNode;
+  dataitem: TcDataitem;
+  dateIndex: Integer;
+begin
+  if ATool.Series is TcPolygonSeries then
+  begin
+    ser := TcPolygonSeries(ATool.Series);
+    node := TreeView.Items.FindNodeWithText(ser.Title);
+    if node <> nil then
+    begin
+      dataItem := TcDataItem(node.Data);
+      dateIndex := MapDateScrollbar.Position;
+      AHint := Format(
+        '%s' + LineEnding +
+        '  Population: %.0n' + LineEnding +
+        '  New cases per week and %.0n population: %.1f' + LineEnding +
+        '  New deaths per week and %.0n population: %.2f' + LineEnding +
+        '  R value: %.1f',  [
+        dataItem.Name, dataItem.Population*1.0,
+        REF_POPULATION*1.0, dataItem.CalcNormalizedNewCases(dateIndex, ctConfirmed),
+        REF_POPULATION*1.0,dataItem.CalcNormalizedNewCases(dateIndex, ctDeaths),
+        dataItem.CalcRValue(dateIndex)
+      ]);
+    end;
+  end;
+end;
+
 procedure TMainForm.InitShortCuts;
 begin
  {$IFDEF LINUX}
@@ -1150,31 +1549,41 @@ begin
   Result := GetDataType() <> dtCumVsNewCases;
 end;
 
-{
-procedure TMainForm.LayoutBars;
+procedure TMainForm.LessChartSymbols;
 var
-  i, j, n: Integer;
-  ser: TBarSeries;
+  i: Integer;
 begin
-  if not (GetDataType() in [dtNewCases, dtNormalizedNewCases, dtDoublingTime]) then
+  for i := 0 to Chart.SeriesCount-1 do
+  begin
+    if (Chart.Series[i] is TcLineSeries) then
+      LessChartSymbols(TcLineSeries(Chart.Series[i]));
+  end;
+end;
+
+procedure TMainForm.LessChartSymbols(ASeries: TcLineSeries);
+var
+  lChart: TChart;
+  data: TcDataItem;
+  dx, interval: Integer;
+begin
+  ASeries.SymbolInterval := 0;
+  if ASeries.Count = 0 then
     exit;
 
-  n := 0;
-  for i := 0 to Chart.SeriesCount-1 do
-    if (Chart.Series[i] is TBarSeries) and Chart.Series[i].Active then
-      inc(n);
+  lChart := ASeries.ParentChart;
+  data := TcDataItem(ASeries.Node.Data);
 
-  j := 0;
-  for i:=0 to Chart.SeriesCount-1 do
-    if (Chart.Series[i] is TBarSeries) and Chart.Series[i].Active then
-    begin
-      ser := TBarSeries(Chart.Series[i]);
-      ser.BarWidthPercent := round(BARWIDTH_PERCENT / n);
-      ser.BarOffsetPercent := round((j - (n-1)/2) * ser.BarWidthPercent);
-      inc(j);
-    end;
+  // Cannot use Chart.XGraphToImage at this early stage. So we must calculate
+  // the length of an x axis unit (1 day) in image units manually (approximately):
+  dx := round(lChart.Width / ASeries.Count);
+  if dx <> 0 then
+  begin
+    interval := round(DataSymbolDistance / dx);
+    ASeries.FirstSymbolIndex := Random(interval);
+    ASeries.SymbolInterval := interval;
+  end;
 end;
-}
+
 
 // Populates the treeview with the locations.
 procedure TMainForm.LoadLocations;
@@ -1195,10 +1604,10 @@ begin
 
     with TJohnsHopkinsDatasource.Create(DataDir) do
     try
-      ok := LoadLocations(TreeView);
+      ok := LoadLocations(TreeView) and LoadData(TreeView, nil);
       if not ok then
       begin
-        MessageDlg('Data files not found. Please click "Update files".', mtError, [mbOk], 0);
+        MessageDlg('Local data files not found. Please click "Update files".', mtError, [mbOk], 0);
         exit;
       end;
     finally
@@ -1214,8 +1623,9 @@ begin
     end;
     {$ENDIF}
 
+    if acChartMap.Checked then ShowMap(nil);
+
   finally
-    TreeView.AlphaSort;
     TreeView.Items.EndUpdate;
     UpdateActionStates;
     Screen.Cursor := crDefault;
@@ -1276,38 +1686,46 @@ begin
   FMeasurementSeries.Active := false;
 end;
 
-procedure TMainForm.NormalizeToPopulation(ASource: TListChartSource;
-  APopulation: Integer; PerWeek: Boolean);
+procedure TMainForm.PaletteListboxGetColors(Sender: TCustomColorListBox;
+  Items: TStrings);
 var
-  i, j: Integer;
-  sum: Double;
+  i: Integer;
+  item, nextItem: TPaletteItem;
+  m: Double;
+  msk, mask1, mask2: String;
 begin
-  if APopulation <= 0 then
-    exit;
+  m := FPalette.Multiplier;
+  case GetMapDataType of
+    mdtNormalizedNewConfirmed: msk := '%.0f';
+    mdtNormalizedNewDeaths: msk := '%.2g';
+    mdtRValue: msk := '%.2f';
+  end;
+  mask1 := '>' + msk;
+  mask2 := msk + '-' + msk;
 
-  if PerWeek then
-    for i := ASource.Count-1 downto 0 do begin
-      // Calculate 1 week sum
-      sum := ASource.Item[i]^.Y;
-      for j := 1 to 6 do   // 1 week
-        if i - j >= 0 then
-          sum := sum + ASource.Item[i-j]^.Y;
-      ASource.Item[i]^.Y := sum / APopulation * PopulationRef;
-    end
-  else
-    for i := ASource.Count-1 downto 0 do
-      ASource.Item[i]^.Y := ASource.Item[i]^.Y / APopulation * PopulationRef;
+  Items.Clear;
+  Items.AddObject('(no data)', TObject(PtrInt(FPalette.BaseColor)));
+  for i := 0 to High(FPalette.Items)-1 do
+  begin
+    item := FPalette.Items[i];
+    nextItem := FPalette.Items[i+1];
+    Items.AddObject(Format(mask2, [item.Value*m, nextitem.Value*m]), TObject(PtrInt(item.Color)));
+  end;
+  Items.AddObject(Format(mask1, [nextItem.Value*m]), TObject(PtrInt(nextItem.Color)));
 end;
 
-procedure TMainForm.PageControlChange(Sender: TObject);
+procedure TMainForm.ResizeTimerTimer(Sender: TObject);
 begin
-  // FIXME: Chart menu is always hidden once Table menu was shown.
-  {
-  mnuChart.Visible := PageControl.ActivePageIndex = pgChart;
-  mnuTable.Visible := PageControl.ActivePage = pgTable;
-  }
+  ResizeTimer.Enabled := false;
+
+  if acChartMap.Checked then
+    WordwrapChart(MapChart);
+
+  if acChartTimeSeries.Checked then
+    WordwrapChart(Chart);
 end;
 
+(*
 procedure TMainForm.PopulateCumulativeSeries(const ADates, AValues: TStringArray;
   ASeries: TChartSeries);
 var
@@ -1366,24 +1784,260 @@ begin
     Y0 := Y;
   end;
 end;
+*)
+
+procedure TMainForm.PopulatePaletteListbox(AMapDataType: TMapDataType);
+begin
+  case AMapDataType of
+    mdtNormalizedNewConfirmed: FPalette.Init(clWhite, INCIDENCE_PALETTE_ITEMS, 1.0);
+    mdtNormalizedNewDeaths: FPalette.Init(clWhite, INCIDENCE_PALETTE_ITEMS, 0.01);
+    mdtRValue: FPalette.Init(clWhite, RVALUE_PALETTE_ITEMS, 1.0);
+  end;
+
+  PaletteListbox.Style := PaletteListbox.Style - [cbCustomColors];
+  PaletteListbox.Style := PaletteListbox.Style + [cbCustomColors];
+  PaletteListBox.Selected := clNone;
+end;
+
+procedure TMainForm.ReadCommandlineParams;
+var
+  i: Integer;
+  s: String;
+begin
+  for i := 1 to ParamCount do
+  begin
+    s := ParamStr(i);
+    if s[1] in ['-', '/'] then
+    begin
+      s := lowercase(Copy(s, 2, MaxInt));
+      if s = 'portable' then
+      begin
+        PortableInstallation := true;
+        DataDir := GetDataDir;
+      end;
+    end;
+  end;
+end;
 
 procedure TMainForm.RestoreSeriesNodesFromList(AList: TFPList);
 var
   i: Integer;
+  node: TTreeNode;
 begin
   for i := 0 to AList.Count-1 do
-    ShowData(TTreeNode(AList[i]));
+  begin
+    node := TTreeNode(AList[i]);
+    if not ((node.Text <> '') and (node.Text[1] = '(')) then
+      ShowTimeSeries(TTreeNode(AList[i]));
+  end;
+end;
+
+procedure TMainForm.SelectNode(ANode: TTreeNode);
+begin
+  if (ANode = nil) or (ANode.Text = '') then
+    exit;
+
+  if acChartMap.Checked then
+    ShowMap(ANode);
+
+  if acChartTimeSeries.Checked then
+    ShowTimeSeries(ANode);
+end;
+
+// Selects the projection for the map having the given name.
+// Stategy: "small" maps require orthographic, "large" maps require Mercator
+procedure TMainForm.SelectProjection(AMapRes: string);
+begin
+  if (AMapRes = WorldMapResName) then
+    FGeoMap.Projection := gpMercator
+  else
+  begin
+    FGeoMap.Projection := gpOrthographic;
+    if (AMapRes = USStatesMapResName) or (AMapRes = USCountiesMapResName) then
+      FGeoMap.GeoIDOffset := 84000000;
+  end;
 end;
 
 procedure TMainForm.SeriesToArray(ASeries: TChartSeries; out AData: TDataPointArray);
 var
   i: Integer;
 begin
+  AData := nil;
   SetLength(AData, ASeries.Count);
   for i := 0 to ASeries.Count-1 do
     AData[i] := ASeries.Source.Item[i]^.Point;
 end;
 
+procedure TMainForm.ShowCoronaMapLevel(ANode: TTreeNode; ADateIndex: Integer;
+  AMapDataType: TMapDataType);
+var
+  data: TcDataItem;
+  value, dummy: Double;
+  clr: TColor;
+  ser: TcPolygonSeries;
+  ct: TCaseType = ctConfirmed;
+begin
+  case AMapDataType of
+    mdtNormalizedNewConfirmed: ct := ctConfirmed;
+    mdtNormalizedNewDeaths: ct := ctDeaths;
+    mdtRValue: ct := ctConfirmed;
+  end;
+
+  while ANode <> nil do
+  begin
+    data := TcDataItem(ANode.Data);
+    case AMapDataType of
+      mdtNormalizedNewConfirmed, mdtNormalizedNewDeaths:
+        value := data.CalcNormalizedNewCases(ADateIndex, ct);
+      mdtRValue:
+        data.CalcRValue(ADateIndex, value, dummy);
+    end;
+    clr := FPalette.GetColor(value);
+
+    ser := nil;
+    if data.GeoID <> -1 then
+      ser := FGeoMap.SeriesByID[data.GeoID];
+    if ser = nil then
+      ser := FGeoMap.SeriesByName[data.Name];
+    if ser <> nil then
+      ser.Brush.Color := clr;
+
+    ANode := ANode.GetNextSibling;
+  end;
+end;
+
+
+procedure TMainForm.ShowCoronaMap(ANode: TTreeNode;
+  ADateIndex: Integer; AMapDataType: TMapDataType; PlotChildNodeData: Boolean);
+var
+  data: TcDataItem;
+  startDate: TDate;
+  ct: TCaseType;
+  title: String;
+begin
+  if ANode = nil then
+    exit;
+
+  case AMapDataType of
+    mdtNormalizedNewConfirmed:
+      begin
+        ct := ctConfirmed;
+        title := Format('Normalized new %s (per week and %.0n population)',
+          [LONG_CASETYPE_NAMES[ct], REF_POPULATION*1.0]);
+      end;
+    mdtNormalizedNewDeaths:
+      begin
+        ct := ctDeaths;
+        title := Format('Normalized new %s (per week and %.0n population)',
+          [LONG_CASETYPE_NAMES[ct], REF_POPULATION*1.0]);
+      end;
+    mdtRValue:
+      begin
+        ct := ctConfirmed;
+        title := 'Reproduction number R';
+      end;
+  end;
+
+  MapChart.Title.Visible := true;
+  MapChart.Title.Text.Text := title;
+
+  data := TcDataItem(ANode.Data);
+  startDate := data.firstDate;
+  MapDateLabel.Caption := DateToStr(startDate + ADateIndex);
+  UpdateDateIndicatorLine(startDate + ADateIndex);
+
+  if PlotChildNodeData then begin
+    while ANode <> nil do
+    begin
+      ShowCoronaMapLevel(ANode.GetFirstChild, ADateIndex, AMapDataType);
+      ANode := ANode.GetNextSibling;
+    end
+  end else
+    ShowCoronaMapLevel(ANode, ADateIndex, AMapDataType);
+end;
+
+procedure TMainForm.ShowMap(ANode: TTreeNode);
+var
+  mapRes: String = '';
+  stream: TStream;
+  reader: TcGeoReader;
+  data: TcDataItem;
+  oldScrollPos: Integer;
+  plotChildData: Boolean;
+  n: Integer;
+begin
+  if FMapLock > 0 then
+    exit;
+
+  if FGeoMap = nil then
+  begin
+    FGeoMap := TcGeoMap.Create(self);
+    FGeoMap.Chart := MapChart;
+    FGeoMap.DefaultPenColor := clGray;
+  end else
+    FGeoMap.Clear;
+
+  if ANode = nil then
+    ANode := TreeView.Items.GetFirstNode;
+
+  GetMapResourceParams(ANode, mapRes, plotChildData);
+  if ANode = nil then
+    exit;
+
+  // Find the best projection for the new map
+  SelectProjection(mapRes);
+
+  // Undo any zoom when a new map is loaded
+  if mapRes <> FOldMapResource then
+  begin
+    MapChart.ZoomFull;
+    FOldMapResource := mapRes;
+  end;
+
+  // Set up the date scrollbar.
+  if MapDateScrollbar.Max > 0 then
+    oldScrollPos := MapDateScrollbar.Position
+  else
+    oldScrollPos := -1;
+
+  stream := TResourceStream.Create(HINSTANCE, mapRes, LCLType.RT_RCDATA);
+  try
+    reader := TKMLReader.Create;
+    try
+      if not reader.Check(stream) then
+        raise Exception.Create('Resource ' + mapRes + ' is not a valid KML file.');
+      reader.ReadFromStream(stream, FGeoMap);
+      FGeoMap.Plot;
+
+      // Prepare date scrollbar
+      data := TcDataItem(ANode.Data);
+      if data <> nil then
+      begin
+        n := data.Count[pctConfirmed];
+        if n > 0 then
+        begin
+          MapDateScrollbar.Max := n - 1;
+          MapDateScrollbar.Min := 0;
+          if oldScrollPos > -1 then
+            MapDateScrollBar.Position := oldScrollPos
+          else
+            MapDateScrollbar.Position := MapDateScrollbar.Max;
+        end;
+      end;
+
+      UpdateDateIndicatorLine(data.GetLastDate);
+
+      // Display the map
+      ShowCoronaMap(ANode, MapDateScrollbar.Position, GetMapDataType, plotChildData);
+    finally
+      reader.Free;
+    end;
+  finally
+    stream.Free;
+  end;
+end;
+
+(*
 procedure TMainForm.ShowData(ANode: TTreeNode);
 var
   counts: array[TCaseType] of string = ('', '', '', '');
@@ -1646,12 +2300,288 @@ begin
     Screen.Cursor := crDefault;
   end;
 end;
+*)
 
-procedure TMainForm.StatusMsgHandler(Sender: TObject; const AMsg1, AMsg2: String);
+procedure TMainForm.ShowTimeSeries(ANode: TTreeNode);
+var
+  caseType: TCaseType;
+  dt: TDataType;
+  pct: TPrimaryCaseType;
+  i: Integer;
+  ser: TBasicPointSeries;
+  country, state, city: String;
+  population: Int64;
+  dataSrc: TcDataSource;
+  values, valuesNew: TValueArray;
+  data: TcDataItem;
+  d: TDateTime;
+  R, dR: Double;
 begin
-  FStatusText1 := AMsg1;
-  FStatusText2 := AMsg2;
-  UpdateStatusbar;
+  if ANode = nil then
+    exit;
+
+  Screen.Cursor := crHourglass;
+  try
+    if not acChartOverlay.Checked then
+      Clear(false);
+
+    {$IFDEF RKI}
+    // The RKI datamodule loads the data individually for each node
+    // The JHU datamodule, on the other hand, already has all data ready.
+    if TRobertKochDataSource.IsRKINode(ANode) then
+    begin
+      dataSrc := TRobertKochDatasource.Create(DataDir);
+      try
+        dataSrc.LoadData(TreeView, ANode);
+      finally
+        dataSrc.Free;
+      end;
+    end;
+    {$ENDIF}
+
+    dt := GetDataType();
+    data := GetDataItem(ANode);
+    d := data.FirstDate;
+
+    for caseType in TCaseType do
+    begin
+      if not clbCases.Checked[ord(caseType)] then
+        Continue;
+
+      ser := GetSeries(ANode, caseType, dt);
+      case dt of
+        dtCumVsNewCases:
+          begin
+            values := data.GetSmoothedDataArray(caseType, dtCumulative, SmoothingRange);
+            valuesNew := data.GetSmoothedDataArray(caseType, dtNewCases, SmoothingRange);
+            ser.Source := nil;
+            ser.ListSource.YCount := 1;
+            ser.BeginUpdate;
+            try
+              ser.Clear;
+              for i := 0 to High(values) do
+                if (values[i] > 0) and (valuesNew[i] > 0) then  // avoid issues with log axes
+                  ser.AddXY(values[i], valuesNew[i], DateToStr(d+i, cFormatSettings));
+            finally
+              ser.EndUpdate;
+            end;
+          end;
+
+        dtRValue:
+          begin
+            ser.Source := nil;
+            ser.ListSource.YCount := 2;
+            ser.ListSource.YErrorBarData.Kind := ebkChartSource;
+            ser.ListSource.YErrorBarData.IndexPlus := 1;
+            ser.ListSource.YErrorBarData.IndexMinus := -1;
+            if (ser is TLineseries) then
+              with TLineSeries(ser) do
+              begin
+                YErrorBars.Visible := true;
+                YErrorBars.Pen.Color := LinePen.Color;
+              end;
+            ser.BeginUpdate;
+            try
+              ser.Clear;
+              if caseType = ctSick then
+                pct := pctConfirmed
+              else
+                pct := TPrimaryCaseType(caseType);
+              for i := 0 to data.Count[pct]-1 do
+              begin
+                data.CalcRValue(i, R, dR);
+                if (not IsNaN(R)) and (dR/R < 0.5) then
+                  ser.AddXY(d + i, R, [dR])
+                else
+                  ser.AddXY(d + i, NaN);
+              end;
+            finally
+              ser.EndUpdate;
+            end;
+          end;
+
+        else
+          values := data.GetDataArray(caseType, dt);
+          ser.Source := nil;
+          ser.ListSource.YCount := 1;
+          ser.BeginUpdate;
+          try
+            ser.Clear;
+            for i := 0 to High(values) do
+              ser.AddXY(d + i, values[i]);
+          finally
+            ser.EndUpdate;
+            if not (dt in [dtCumulativeCasesDoublingTime, dtNewCasesDoublingTime]) then
+              EnableMovingAverage(ser, acDataMovingAverage.Checked, true);
+          end;
+      end;
+        (*
+        dtNewCases, dtNormalizedNewCases:
+          begin
+            ser.Source := nil;
+            ser.ListSource.YCount := 1;
+            ser.BeginUpdate;
+            try
+              PopulateNewCasesSeries(saX, saY, ser);
+              if dt = dtNormalizedNewCases then
+                NormalizeToPopulation(ser.ListSource, population, true);
+            finally
+              ser.EndUpdate;
+              ser.Source := src;
+            end;
+          end;
+
+        dtCumulativeCasesDoublingTime,
+        dtNewCasesDoublingTime:
+          begin
+            ser.Source := nil;
+            ser.ListSource.YCount := 1;
+            ser.BeginUpdate;
+            try
+              if dt = dtCumulativeCasesDoublingTime then
+                PopulateCumulativeSeries(saX, saY, ser)
+              else
+                PopulateNewCasesSeries(saX, saY, ser);
+              EnableMovingAverage(ser, true, true);
+              SeriesToArray(ser, dataArr);
+              EnableMovingAverage(ser, false, true);
+
+              for i := High(dataArr) downto 0 do
+              begin
+                Y := dataArr[i].Y;
+                Y0 := Y;
+                if Y < 100 then
+                  Y := NaN
+                else
+                begin
+                  Yhalf := Y0 * 0.5;
+                  Y := NaN;
+                  nDesc := 0;  // Data points found on descending part
+                  for j := i-1 downto 0 do
+                  begin
+                    if (dataArr[j].Y <= Y0) then      // use ascending part only
+                    begin
+                      if (dataArr[j].Y <= Yhalf) then  // half value found
+                      begin
+                        Y := dataArr[i].X - dataArr[j].X;
+                        break;
+                      end
+                      else
+                        nDesc := 0;
+                    end else
+                      // Count values on descending part.
+                      inc(nDesc);
+                    // If there is a certaining number of points on descending part --> ignore point
+                    if nDesc > 10 then
+                    begin
+                      Y := NaN;
+                      break;
+                    end;
+                  end;
+                end;
+                ser.YValue[i] := Y;
+              end;
+            finally
+              ser.EndUpdate;
+            end;
+          end;
+
+        dtCumVsNewCases:
+          begin
+            ser.Source := nil;
+            ser.ListSource.YCount := 1;
+            ser.BeginUpdate;
+            try
+              // Get cumulative cases, smooth curve, store values in temp array
+              PopulateCumulativeSeries(saX, saY, ser);
+              EnableMovingAverage(ser, true, true);
+              SeriesToArray(ser, dataArr);
+
+              // Get new cases, do not smooth yet
+              ser.Source := nil;
+              PopulateNewCasesSeries(saX, saY, ser);
+
+              // Replace x by cumulative data from temp array
+              j := High(dataArr);
+              for i := ser.Count-1 downto 0 do
+              begin
+                ser.ListSource.Item[i]^.X := dataArr[j].Y;
+                ser.ListSource.item[i]^.Text := DateToStr(dataArr[j].X, cFormatSettings);
+                dec(j);
+              end;
+            finally
+              ser.EndUpdate;
+              // Smooth new case data
+              EnableMovingAverage(ser, true, true);
+            end;
+          end;
+
+        dtRValue:
+          begin
+            ser.Source := nil;
+            ser.BeginUpdate;
+            try
+              // Get new cases, smooth, store in temp array
+              PopulateNewCasesSeries(saX, saY, ser);
+              EnableMovingAverage(ser, true, true);
+              SeriesToArray(ser, dataArr);
+              ser.Source := nil;  // Make source writable again
+
+              // Calculate R as ratio NewCases/NewCases(5 days earlier)
+              ser.ListSource.YCount := 2;
+              ser.ListSource.YErrorBarData.Kind := ebkChartSource;
+              ser.ListSource.YErrorBarData.IndexPlus := 1;
+              ser.ListSource.YErrorBarData.IndexMinus := -1;
+              if (ser is TLineseries) then
+                with TLineSeries(ser) do
+                begin
+                  YErrorBars.Visible := true;
+                  YErrorBars.Pen.Color := LinePen.Color;
+                end;
+              for i:=ser.Count-1 downto 0 do
+              begin
+                ser.YValue[i] := NaN;
+                if i >= InfectiousPeriod then
+                begin
+                  Y0 := dataArr[i - InfectiousPeriod].Y;
+                  Y := dataArr[i].Y;
+                  if (Y0 > 0) and (Y > 0) then
+                  begin
+                    dY0 := sqrt(Y0);
+                    dY := sqrt(Y);
+                    dY := dY0/Y0 + dY/Y;
+                    if dY < 0.5 then begin
+                      ser.YValues[i, 0] := Y / Y0;                     // R value
+                      ser.YValues[i, 1] := ser.YValues[i, 0] * dY;     // error of R
+                    end;
+                  end;
+                end;
+              end;
+              RValueDone := true;
+            finally
+              ser.EndUpdate;
+            end;
+          end;
+      end;
+    *)
+    end;
+
+    //LayoutBars;
+    UpdateAffectedSeries;
+    UpdateGrid;
+    if population > 0 then
+      FStatusText1 := Format('%s loaded (population %.0n)', [GetLocation(ANode), 1.0*population])
+    else
+      FStatusText1 := Format('%s loaded.', [GetLocation(ANode)]);
+    UpdateStatusBar;
+    UpdateActionStates;
+    if acChartMap.Checked and acChartTimeSeries.Checked then
+      DateIndicatorLine.Position := d + MapDateScrollbar.Position;
+
+    LessChartSymbols;
+  finally
+    Screen.Cursor := crDefault;
+  end;
 end;
 
 // Store nodes belonging to currently available series in a list
@@ -1669,22 +2599,20 @@ begin
       Result.Add(TcBarSeries(ChartListbox.Series[i]).Node);
 end;
 
-procedure TMainForm.TreeViewClick(Sender: TObject);
+procedure TMainForm.TreeViewDeletion(Sender: TObject; Node: TTreeNode);
 begin
-  ShowData(TreeView.Selected);
+  // This node contains the name of the resource with the map polygons.
+  // --> nothing to free
+  if (Node.Text <> '') and (Node.Text[1] = '(') then
+    exit;
+
+  if TObject(Node.Data) is TcDataItem then
+    TcDataItem(Node.Data).Free;
 end;
 
-procedure TMainForm.TreeViewDeletion(Sender: TObject; Node: TTreeNode);
-var
-  loc: PLocationParams;
+procedure TMainForm.TreeViewSelectionChanged(Sender: TObject);
 begin
-  if (Node <> nil) then
-  begin
-    loc := PLocationParams(Node.Data);
-    if loc <> nil then
-      Dispose(loc);
-    Node.Data := nil;
-  end;
+  SelectNode(TreeView.Selected);
 end;
 
 procedure TMainForm.UpdateActionStates;
@@ -1727,7 +2655,6 @@ begin
       Marks.Source := nil;
       Marks.Format := '%0:.0n';
       Marks.Style := smsValue;
-      //Title.Caption := 'Date';
     end else
     if IsTimeSeries() then
     begin
@@ -1788,7 +2715,6 @@ begin
   with TJohnsHopkinsDataSource.Create(DataDir) do
   try
     OnDownloadMsg := @DownloadMsgHandler;
-//    OnStatusMsg := @StatusMsgHandler;
     DownloadToCache;
   finally
     Free;
@@ -1810,23 +2736,38 @@ begin
   UpdateStatusbar;
 end;
 
+procedure TMainForm.UpdateDateIndicatorLine(ADate: TDate);
+begin
+  if Assigned(DateIndicatorLine) then
+    DateIndicatorLine.Position := ADate;
+end;
+
 procedure TMainForm.UpdateGrid;
 var
-  n: Integer;
+  n, m: Integer;
   i: Integer;
   ser: TChartSeries;
   s: String;
+  firstDate: TDate;
 begin
   Grid.BeginUpdate;
   try
     Grid.Columns.Clear;
     n := 0;
+    m := 0;
+    FLastDate := -1;
+    FirstDate := MaxInt;
     for i:=0 to Chart.SeriesCount-1 do
     begin
       if (Chart.Series[i] is TChartSeries) and Chart.Series[i].Active then
       begin
         ser := TChartSeries(Chart.Series[i]);
+        if ser.Count = 0 then
+          Continue;
+        if ser.Count > m then m := ser.Count;
         inc(n);
+        FLastDate := Max(FLastDate, ser.XValue[ser.LastValueIndex]);
+        firstDate := Min(firstDate, ser.XValue[0]);
         with Grid.Columns.Add do
         begin
           s := StringReplace(ser.Title, ' ', LineEnding, []);
@@ -1848,9 +2789,25 @@ begin
       Grid.RowCount := 2;
       exit;
     end;
-    Grid.RowCount := ser.Count + Grid.FixedRows;
+    Grid.RowCount := round(FLastDate - firstDate + 1) + Grid.FixedRows;
   finally
     Grid.EndUpdate;
+  end;
+end;
+
+procedure TMainForm.UpdateInfectiousPeriod;
+var
+  L: TFPList;
+begin
+  cmbDataType.Items[ord(dtRValue)] := Format('Reproduction number (R, %d d)', [InfectiousPeriod]);
+  cmbMapDataType.Items[ord(mdtRValue)] := Format('Reproduction number (R, %d days)', [InfectiousPeriod]);
+
+  // Recalculate the currently loaded data
+  L := StoreSeriesNodesInList();
+  try
+    RestoreSeriesNodesFromList(L);
+  finally
+    L.Free;
   end;
 end;
 
@@ -1867,11 +2824,6 @@ begin
   Statusbar.Update;
 end;
 
-function CreateIni: TCustomIniFile;
-begin
-  Result := TMemIniFile.Create(GetAppConfigFile(false));
-end;
-
 procedure TMainForm.LoadIni;
 var
   ini: TCustomIniFile;
@@ -1883,9 +2835,21 @@ var
 begin
   ini := CreateIni;
   try
-    acConfigAuto.Checked := ini.ReadBool('MainForm', 'Automatic', acConfigAuto.Checked);
-    if not acConfigAuto.Checked then
+    acConfigAutoLoad.Checked := ini.ReadBool('MainForm', 'AutoLoad', acConfigAutoLoad.Checked);
+    if not acConfigAutoLoad.Checked then
+    begin
+      cmbMapDataType.ItemIndex := ord(mdtNormalizedNewConfirmed);
+      cmbMapDataTypeChange(nil);
+      cmbDataType.ItemIndex := ord(dtNormalizedNewCases);
+      cmbDataTypeChange(nil);
+      ShowCharts(vcBoth);
       exit;
+    end;
+
+    // Avoid unnecessary repainting the maps
+    inc(FMapLock);
+
+    acConfigAutoSave.Checked := ini.ReadBool('MainForm', 'AutoSave', acConfigAutoSave.Checked);
 
     ws := TWindowState(ini.ReadInteger('MainForm', 'WindowState', ord(WindowState)));
     if ws = wsMaximized then
@@ -1907,23 +2871,40 @@ begin
     end;
 
     LeftPanel.Width := ini.ReadInteger('MainForm', 'LeftPanel', LeftPanel.Width);
-    RightPanel.Width := ini.ReadInteger('MainForm', 'RightPanel', RightPanel.Width);
+    ChartListbox.Width := ini.ReadInteger('MainForm', 'RightPanel', ChartListBox.Width);
+    PaletteListboxPanel.Width := ini.ReadInteger('MainForm', 'PaletteListbox', PaletteListboxPanel.Width);
+    CasesPanel.Width := ini.ReadInteger('MainForm', 'CasesPanel', CasesPanel.Width);
+    TimeSeriesGroup.Height := ini.ReadInteger('MainForm', 'TimeSeriesGroup', TimeSeriesGroup.Height);
     PageControl.ActivePageIndex := ini.ReadInteger('MainForm', 'PageControl', PageControl.ActivePageIndex);
-    PageControlChange(nil);
 
     clbCases.Checked[0] := ini.Readbool('MainForm', 'ConfirmedCases', clbCases.Checked[0]);
     clbCases.Checked[1] := ini.ReadBool('MainForm', 'DeathCases', clbCases.Checked[1]);
     clbCases.Checked[2] := ini.ReadBool('MainForm', 'RecoveredCases', clbCases.Checked[2]);
     clbCases.Checked[3] := ini.ReadBool('MainForm', 'SickCases', clbCases.Checked[3]);
 
+    n := 0;
+    if ini.ReadBool('MainForm', 'ShowMap', acChartMap.Checked) then n := n or 1;
+    if ini.ReadBool('MainForm', 'ShowTimeSeries', acChartTimeSeries.Checked) then n := n or 2;
+    if n = 0 then n := 3;
+    ShowCharts(TVisibleCharts(n-1));
+    acChartMapExecute(nil);
     acDataMovingAverage.Checked := ini.ReadBool('MainForm', 'MovingAverage', acDataMovingAverage.Checked);
     acChartOverlay.Checked := ini.ReadBool('MainForm', 'Overlay', acChartOverlay.Checked);
     acChartHighlightWeekends.Checked := ini.ReadBool('MainForm', 'HighlightWeekends', acChartHighlightWeekends.Checked);
 
+    n := ini.ReadInteger('MainForm', 'MapDataType', cmbMapDataType.ItemIndex);
+    if (n >= 0) and (n < cmbMapDataType.Items.Count) then
+    begin
+      cmbMapDataType.ItemIndex := n;
+      cmbMapDataTypeChange(nil);
+    end;
+
     n := ini.ReadInteger('MainForm', 'DataType', cmbDataType.ItemIndex);
     if (n >= 0) and (n <= ord(High(TDataType))) then
       cmbDataType.ItemIndex := n;
+
     isLog := ini.ReadBool('MainForm', 'Logarithmic', acChartLogarithmic.Checked);
+
     case GetDataType() of
       dtCumulative, dtNormalizedCumulative:
         begin
@@ -1948,8 +2929,10 @@ begin
 
     cmbDataType.Items[ord(dtRValue)] := Format('Reproduction number (%d d)', [InfectiousPeriod]);
     cmbDataTypeChange(nil);
-    cbMovingAverage.Caption := Format('Moving average (%d days)', [SmoothingRange]);
+    MovingAverageInfo.Caption := Format('(%d days)', [SmoothingRange]);
 
+    // Release painting of map. Repainting itself is done by the caller.
+    dec(FMapLock);
   finally
     UpdateActionStates;
     ini.Free;
@@ -1962,9 +2945,11 @@ var
 begin
   ini := CreateIni;
   try
-    ini.WriteBool('MainForm', 'Automatic', acConfigAuto.Checked);
-    if not acConfigAuto.Checked then
+    ini.WriteBool('MainForm', 'AutoSave', acConfigAutoSave.Checked);
+    if not acConfigAutoSave.Checked then
       exit;
+
+    ini.WriteBool('MainForm', 'AutoLoad', acConfigAutoLoad.Checked);
 
     ini.WriteInteger('MainForm', 'WindowState', ord(WindowState));
     if WindowState = wsNormal then
@@ -1976,15 +2961,23 @@ begin
     end;
 
     ini.WriteInteger('MainForm', 'LeftPanel', LeftPanel.Width);
-    ini.WriteInteger('MainForm', 'RightPanel', RightPanel.Width);
-    ini.WriteInteger('MainForm', 'PageControl', PageControl.ActivePageIndex);
+    if acChartMap.Checked then
+      ini.WriteInteger('MainForm', 'PaletteListbox', PaletteListboxPanel.Width);
+    if acChartTimeSeries.Checked then
+      ini.WriteInteger('MainForm', 'RightPanel', ChartListBox.Width);
+  ini.WriteInteger('MainForm', 'CasesPanel', CasesPanel.Width);
+  ini.WriteInteger('MainForm', 'TimeSeriesGroup', TimeSeriesGroup.Height);
+  ini.WriteInteger('MainForm', 'PageControl', PageControl.ActivePageIndex);
 
     ini.WriteBool('MainForm', 'ConfirmedCases', clbCases.Checked[0]);
     ini.WriteBool('MainForm', 'DeathCases', clbCases.Checked[1]);
     ini.WriteBool('MainForm', 'RecoveredCases', clbCases.Checked[2]);
     ini.WriteBool('MainForm', 'SickCases', clbCases.Checked[3]);
     ini.WriteInteger('MainForm', 'DataType', cmbDataType.ItemIndex);
+    ini.WriteInteger('MainForm', 'MapDataType', cmbMapDataType.ItemIndex);
 
+    ini.WriteBool('MainForm', 'ShowMap', acChartMap.Checked);
+    ini.WriteBool('MainForm', 'ShowTimeSeries', acChartTimeSeries.Checked);
     ini.WriteBool('MainForm', 'MovingAverage', acDataMovingAverage.Checked);
     ini.WriteBool('MainForm', 'Overlay', acChartOverlay.Checked);
     ini.WriteBool('MainForm', 'HighlightWeekends', acChartHighlightWeekends.Checked);
@@ -2001,10 +2994,111 @@ begin
   end;
 end;
 
+procedure TMainForm.ShowCharts(VisibleCharts: TVisibleCharts);
+var
+  idx: Integer;
+begin
+  case VisibleCharts of
+    vcMap:
+      begin   // Map chart only
+        acChartMap.Checked := true;
+        acChartTimeSeries.Checked := false;
+        MapChartPanel.Align := alClient;
+        MapChartPanel.Visible := true;
+        ChartSplitter.Visible := false;
+        TimeSeriesChartPanel.Visible := false;
+        if Assigned(DateIndicatorLine) then
+          DateIndicatorLine.Active := false;
+        MapDataGroup.Visible := true;
+        TimeSeriesGroup.Visible := false;
+        TreeSplitter.Visible := false;
+        TreeView.Visible := false;
+      end;
+    vcTimeSeries:
+      begin  // Time series chart only
+        acChartMap.Checked := false;
+        acChartTimeSeries.Checked := true;
+        MapChartPanel.Visible := false;
+        ChartSplitter.Visible := false;
+        TimeSeriesChartPanel.Visible := true;
+        TimeSeriesChartPanel.Align := alClient;
+        if Assigned(DateIndicatorLine) then
+          DateIndicatorLine.Active := false;
+        MapDataGroup.Visible := false;
+        TimeSeriesGroup.Visible := true;
+        TreeView.Visible := true;
+        TreeSplitter.Visible := true;
+        TreeSplitter.Top := Height;
+//        ChartListbox.Populate;
+      end;
+    vcBoth:
+      begin  // Map chart at top (client) + Time series chart at bottom
+        acChartMap.Checked := true;
+        acChartTimeSeries.Checked := true;
+        MapChartPanel.Align := alClient;
+        TimeSeriesChartPanel.Align := alBottom;
+        MapChartPanel.Visible := true;
+        ChartSplitter.Visible := true;
+        TimeSeriesChartPanel.Visible := true;
+        ChartSplitter.Top := 0;
+        MapDataGroup.Visible := true;
+        TimeSeriesGroup.Visible := true;
+        TimeSeriesGroup.Top := Height;
+        TreeView.Visible := true;
+        TreeSplitter.Visible := true;
+        TreeSplitter.Top := TimeSeriesGroup.Top + TimeSeriesGroup.Height;
+        idx := ChartListbox.Items.IndexOf('Date indicator');
+        if (idx > -1) and Assigned(DateIndicatorLine) then
+          DateIndicatorLine.Active := ChartListbox.Checked[idx];
+      end;
+  end;
+
+  if acChartMap.Checked then
+    ShowMap(TreeView.Selected);
+end;
+
+procedure TMainForm.ShowVersionInfo;
+begin
+  Caption := Format('%s (%s)', [APP_TITLE, GetVersionStr]);
+end;
+
 procedure TMainForm.ToolBarResize(Sender: TObject);
 begin
   tbAbout.Left := Toolbar.Width - tbAbout.Width;
 end;
+
+procedure TMainForm.WordwrapChart(AChart: TChart);
+{$IF LCL_FullVersion >= 2010000}
+// In Laz 2.1+, wordwrapping of titles is provided by TAChart itself.
+begin
+  Unused(AChart);
+end;
+{$ELSE}
+function EqualExtent(X, Y: TDoubleRect): Boolean;
+begin
+  Result := (X.a.x = Y.a.x) and (X.a.y = Y.a.y) and
+            (X.b.x = Y.b.x) and (X.b.y = Y.b.y);
+end;
+
+var
+  s: String;
+  ext: TDoubleRect;
+  maxLen: Integer;
+begin
+  ext := AChart.LogicalExtent;
+  if EqualExtent(ext, EmptyExtent) then
+    maxLen := AChart.Height * 2 div 3
+  else
+    maxLen := AChart.ClipRect.Height;
+  s := StripLineEndings(AChart.LeftAxis.Title.Caption);
+  AChart.LeftAxis.Title.Caption := Wordwrap(s, AChart.LeftAxis.Title.LabelFont, maxLen);
+
+  maxLen := AChart.ClientWidth;
+  s := StripLineEndings(AChart.Title.Text.Text);
+  AChart.Title.Text.Text := WordWrap(s, AChart.Title.Font, maxLen);
+end;
+{$IFEND}
+
 
 initialization
   BaseDate := EncodeDate(2020, 1, 1);

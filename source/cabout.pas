@@ -13,10 +13,18 @@ type
   { TAboutForm }
 
   TAboutForm = class(TForm)
+    Bevel1: TBevel;
     BitBtn1: TBitBtn;
     AppImage: TImage;
     imgRKI: TImage;
     imgJHU: TImage;
+    lblCountryContinentsList: TLabel;
+    lblUSMaps: TLabel;
+    lblChinaMap: TLabel;
+    lblCanadaMap: TLabel;
+    lblWorldMap: TLabel;
+    lblAustraliaMap: TLabel;
+    lblVersion: TLabel;
     lblGeneralInfo: TLabel;
     lblDataSources: TLabel;
     lblAcknowledgements: TLabel;
@@ -51,7 +59,8 @@ implementation
 {$R *.lfm}
 
 uses
-  LCLIntf, Types, IntfGraphics, LazCanvas, FPCanvas, InterfaceBase;
+  LCLIntf, Types, IntfGraphics, LazCanvas, FPCanvas, InterfaceBase,
+  cUtils;
 
 const
   URL_FPC = 'https://www.freepascal.org/';
@@ -61,6 +70,12 @@ const
   URL_JHU_git = 'https://github.com/CSSEGISandData/COVID-19/';
   URL_RKI = 'https://www.rki.de/EN/Home/homepage_node.html';
   URL_NPGeo = 'https://npgeo-corona-npgeo-de.hub.arcgis.com/';
+  URL_World_Map = 'http://thematicmapping.org/downloads/world_borders.php';
+  URL_US_Maps = 'https://www.census.gov/geographies/mapping-files/time-series/geo/carto-boundary-file.html';
+  URL_Canada_Map = 'https://open.canada.ca/data/en/dataset/bab06e04-e6d0-41f1-a595-6cff4d71bedf';
+  URL_China_Map = 'https://geodata.lib.utexas.edu/catalog/stanford-bw669kf8724';
+  URL_Australia_Map = 'https://www.abs.gov.au/AUSSTATS/abs@.nsf/DetailsPage/1259.0.30.001July%202011?OpenDocument';
+  URL_CountryContinent_List = 'https://datahub.io/JohnSnowLabs/country-and-continent-codes-list/r/0.html';
 
 procedure ScaleBitmap(BM: TBitmap; W, H: Integer);
 var
@@ -95,6 +110,8 @@ begin
     Picture.Icon.Current := Picture.Icon.GetBestIndexForSize(Size(256, 256));
   end;
 
+  lblVersion.Caption := GetVersionStr;
+
   lblGeneralInfo.Caption := Format(
     'Operating system: %s' + LineEnding +
     'Widgetset: %s', [
@@ -108,7 +125,14 @@ begin
   imgJHU.Hint := URL_JHU;
   lblJHUgit.Hint := URL_JHU_git;
   imgRKI.Hint := URL_RKI;
-  lblNPGeo.Hint := URL_NPGeo
+  lblNPGeo.Hint := URL_NPGeo;
+
+  lblWorldMap.Hint := URL_World_Map;
+  lblAustraliaMap.Hint := URL_Australia_Map;
+  lblCanadaMap.Hint := URL_Canada_Map;
+  lblChinaMap.Hint := URL_China_Map;
+  lblUSMaps.Hint := URL_US_Maps;
+  lblCountryContinentsList.Hint := URL_CountryContinent_List;
 end;
 
 procedure TAboutForm.FormShow(Sender: TObject);
@@ -120,6 +144,9 @@ end;
 
 procedure TAboutForm.LabelClick(Sender: TObject);
 begin
+  if Sender is TLabel then
+    OpenURL(TLabel(Sender).Hint);
+  {
   if Sender = lblFPC then
     OpenURL(URL_FPC)
   else if Sender = lblLazarus then
@@ -133,7 +160,9 @@ begin
   else if (Sender = imgRKI) then
     OpenURL(URL_RKI)
   else if (Sender = lblNPGeo) then
-    OpenURL(URL_NPGeo);
+    OpenURL(URL_NPGeo)
+  else if
+  }
 end;
 
 procedure TAboutForm.LabelMouseEnter(Sender: TObject);

@@ -5,21 +5,32 @@ unit cUtils;
 interface
 
 uses
-  Classes, SysUtils, Graphics, Math;
+  Classes, SysUtils, Graphics, Math, LclVersion;
 
 function BrighterColor(AColor: TColor; AFraction: Double): TColor;
 
 function FormatBytes(AValue: Int64): String;
 
+function GetVersionStr: String;
+
 function MinimizeName(FileName: String; Canvas: TCanvas; MaxWidth: Integer;
   APathDelim: Char): String;
 
 procedure Split(AString: String; ADest: TStrings; ADelimiter: Char = ',');
+function StripLineEndings(const AString: String): String;
+function StripThousandSeparator(const AString: String; ASep: Char): String;
 
 function UnQuote(const s: String): String;
 
+{$IF LCL_FullVersion < 2010000}
+function WordWrap(const AText: String; AFont: TFont; AMaxWidth: Integer): string;
+{$IFEND}
+
 
 implementation
+
+uses
+  StrUtils, fileInfo, cGlobal;
 
 function BrighterColor(AColor: TColor; AFraction: Double): TColor;
 var
@@ -32,7 +43,6 @@ begin
     EnsureRange(Round(Blue(AColor) * f), 0, 255)
   );
 end;
-
 
 { Creates a nicely formatted string for a bytes value.
 
@@ -72,6 +82,16 @@ begin
     dSize := AValue / 1024 / 1024 / 1024 / 1024;
     Result := FormatFloat('0.##', dSize) + ' TB';
   end;
+end;
+
+function GetVersionStr: String;
+var
+  ver: TProgramVersion;
+begin
+  GetProgramVersion(ver);
+  Result := Format('v%d.%d.%d', [ver.Major, ver.Minor, ver.Revision]);
+  if PortableInstallation then
+    Result := Result + ' [portable version]';
 end;
 
 {
@@ -174,6 +194,51 @@ begin
   end;
 end;
 
+// Replaces LineEndings by a space character to make a multi-line text single-lined
+function StripLineEndings(const AString: String): String;
+var
+  i, j: Integer;
+begin
+  SetLength(Result, Length(AString));
+  i := 1;
+  j := 0;
+  while i <= Length(AString) do
+  begin
+    inc(j);
+    if AString[i] = #13 then
+    begin
+      Result[j] := ' ';
+      if (i < Length(AString)) and (AString[i+1] = #10) then
+        inc(i);
+    end else
+    if AString[i] = #10 then
+      Result[j] := ' '
+    else
+      Result[j] := AString[i];
+    inc(i);
+  end;
+  SetLength(Result, j);
+end;
+
+
+// Removes the specified thousand separator from a string }
+function StripThousandSeparator(const AString: String; ASep: Char): String;
+var
+  i, j: Integer;
+begin
+  SetLength(Result, Length(AString));
+  j := 0;
+  for i := 1 to Length(AString) do begin
+    if AString[i] <> ASep then
+    begin
+      inc(j);
+      Result[j] := AString[i];
+    end;
+  end;
+  SetLength(Result, j);
+end;
+
+
 // Replaces AnsiDeQuoteStr because it crashes in FPC 3.04 when the input string
 // is empty. And this version is a bit faster...
 function UnQuote(const s: String): String;
@@ -188,5 +253,46 @@ begin
   Move(s[i1], Result[1], Length(Result));
 end;
 
-end.
+{$IF LCL_FullVersion < 2010000}
+// Inserts LineEndings into the provided string AText such that its width after
+// writing with the provided font does not exceed the given width.
+function WordWrap(const AText: String; AFont: TFont; AMaxWidth: Integer): string;
+var
+  sa: TStringArray;
+  Line: String;
+  s: String;
+  bmp: TBitmap;
+begin
+  Result := '';
+  bmp := TBitmap.Create;
+  try
+    bmp.SetSize(1, 1);
+    bmp.Canvas.Font.Assign(AFont);
 
+    sa := SplitString(AText, ' ');
+    Line := '';
+    for s in sa do begin
+      if bmp.Canvas.TextWidth(Line + s) <= AMaxWidth then
+        Line := IfThen(Line='', s, Line + ' ' + s)
+      else begin
+        if Line = '' then
+        begin
+          Line := s;
+          Result := IfThen(Result='', Line, Result + LineEnding + Line);
+          Line := '';
+        end else
+        begin
+          Result := IfThen(Result='', Line, Result + LineEnding + Line);
+          Line := s;
+        end;
+      end;
+    end;
+    if Line <> '' then
+      Result := IfThen(Result='', Line, Result + LineEnding + Line);
+  finally
+    bmp.Free;
+  end;
+end;
+{$IFEND}
+
+end.

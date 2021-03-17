@@ -6,7 +6,7 @@ uses
   {$IFDEF UNIX}
   cthreads,
   {$ENDIF}
-  Interfaces, Forms, cmain, cDownloadManager;
+  Interfaces, Forms, cmain;
 
 {$R *.res}
 
@@ -16,7 +16,6 @@ begin
   Application.Initialize;
   Application.CreateForm(TMainForm, MainForm);
   MainForm.BeforeRun;
-  Application.CreateForm(TDownloadForm, DownloadForm);
   Application.Run;
 end.
 

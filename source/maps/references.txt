@@ -1,0 +1,32 @@
+These are the sources of auxiliary files used in addition to the 
+Covid-19 data files:
+--------------------------------------------------------------------------------
+
+country-and-codes-list.csv
+  https://datahub.io/JohnSnowLabs/country-and-continent-codes-list/r/0.html
+  Some countries renamed and added to be compatibile with JHU data files.
+ 
+australia_map.kml
+  https://www.abs.gov.au/AUSSTATS/abs@.nsf/DetailsPage/1259.0.30.001July%202011?OpenDocument
+   
+canada_map.kml
+  https://open.canada.ca/data/en/dataset/bab06e04-e6d0-41f1-a595-6cff4d71bedf
+  missing: Diamond Princess, Recovered 
+
+china_map.kml
+  https://geodata.lib.utexas.edu/catalog/stanford-bw669kf8724  
+  missing: Hongkong and Macau
+
+us_states_map.kml and us_counties_map.kml
+  https://www.census.gov/geographies/mapping-files/time-series/geo/carto-boundary-file.html
+  (two Alaskan islands beyond date boundary deleted for better symmetry of maps)
+
+world_map.kml
+  http://thematicmapping.org/downloads/world_borders.php
+  License: Creative Commons
+
+All maps were 
+- reduced by https://mapshaper.org
+- converted to kml by QGIS
+- xml attributes simplified, names adapted to match names in JHU data files. Sometimes "GeoID" field added.
+  
