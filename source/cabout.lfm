@@ -1,12 +1,12 @@
 object AboutForm: TAboutForm
   Left = 477
-  Height = 424
+  Height = 505
   Top = 207
   Width = 395
   AutoSize = True
   BorderStyle = bsDialog
   Caption = 'About Corona'
-  ClientHeight = 424
+  ClientHeight = 505
   ClientWidth = 395
   OnCreate = FormCreate
   OnShow = FormShow
@@ -60,7 +60,7 @@ object AboutForm: TAboutForm
     AnchorSideTop.Side = asrBottom
     AnchorSideRight.Side = asrBottom
     Left = 12
-    Height = 187
+    Height = 255
     Top = 175
     Width = 368
     Anchors = [akTop, akLeft, akRight]
@@ -70,7 +70,7 @@ object AboutForm: TAboutForm
     BorderSpacing.Right = 12
     BevelOuter = bvNone
     BorderStyle = bsSingle
-    ClientHeight = 183
+    ClientHeight = 251
     ClientWidth = 364
     Color = clWindow
     ParentColor = False
@@ -491,7 +491,7 @@ object AboutForm: TAboutForm
       Width = 162
       BorderSpacing.Top = 8
       BorderSpacing.Right = 24
-      BorderSpacing.Bottom = 8
+      BorderSpacing.Bottom = 4
       OnClick = LabelClick
       Picture.Data = {
         1754506F727461626C654E6574776F726B47726170686963A42B000089504E47
@@ -894,6 +894,117 @@ object AboutForm: TAboutForm
       ParentFont = False
       OnClick = LabelClick
     end
+    object lblWorldMap: TLabel
+      AnchorSideLeft.Control = imgRKI
+      AnchorSideTop.Control = Bevel1
+      AnchorSideTop.Side = asrBottom
+      Left = 122
+      Height = 15
+      Top = 183
+      Width = 59
+      Caption = 'World map'
+      Font.Color = clBlue
+      ParentColor = False
+      ParentFont = False
+      OnClick = LabelClick
+      OnMouseEnter = LabelMouseEnter
+      OnMouseLeave = LabelMouseLeave
+    end
+    object lblAustraliaMap: TLabel
+      AnchorSideLeft.Control = lblWorldMap
+      AnchorSideLeft.Side = asrBottom
+      AnchorSideTop.Control = lblWorldMap
+      Left = 197
+      Height = 15
+      Top = 183
+      Width = 73
+      BorderSpacing.Left = 16
+      Caption = 'Australia map'
+      Font.Color = clBlue
+      ParentColor = False
+      ParentFont = False
+      OnClick = LabelClick
+      OnMouseEnter = LabelMouseEnter
+      OnMouseLeave = LabelMouseLeave
+    end
+    object lblCanadaMap: TLabel
+      AnchorSideLeft.Control = imgRKI
+      AnchorSideTop.Control = lblAustraliaMap
+      AnchorSideTop.Side = asrBottom
+      Left = 122
+      Height = 15
+      Top = 198
+      Width = 67
+      Caption = 'Canada map'
+      Font.Color = clBlue
+      ParentColor = False
+      ParentFont = False
+      OnClick = LabelClick
+      OnMouseEnter = LabelMouseEnter
+      OnMouseLeave = LabelMouseLeave
+    end
+    object lblChinaMap: TLabel
+      AnchorSideLeft.Control = lblCanadaMap
+      AnchorSideLeft.Side = asrBottom
+      AnchorSideTop.Control = lblCanadaMap
+      Left = 205
+      Height = 15
+      Top = 198
+      Width = 58
+      BorderSpacing.Left = 16
+      Caption = 'China map'
+      Font.Color = clBlue
+      ParentColor = False
+      ParentFont = False
+      OnClick = LabelClick
+      OnMouseEnter = LabelMouseEnter
+      OnMouseLeave = LabelMouseLeave
+    end
+    object lblUSMaps: TLabel
+      AnchorSideLeft.Control = imgRKI
+      AnchorSideTop.Control = lblChinaMap
+      AnchorSideTop.Side = asrBottom
+      Left = 122
+      Height = 15
+      Top = 213
+      Width = 96
+      Caption = 'United States map'
+      Font.Color = clBlue
+      ParentColor = False
+      ParentFont = False
+      OnClick = LabelClick
+      OnMouseEnter = LabelMouseEnter
+      OnMouseLeave = LabelMouseLeave
+    end
+    object lblCountryContinentsList: TLabel
+      AnchorSideLeft.Control = imgRKI
+      AnchorSideTop.Control = lblUSMaps
+      AnchorSideTop.Side = asrBottom
+      Left = 122
+      Height = 15
+      Top = 228
+      Width = 151
+      BorderSpacing.Bottom = 8
+      Caption = 'Countries and continents list'
+      Font.Color = clBlue
+      ParentColor = False
+      ParentFont = False
+      OnClick = LabelClick
+      OnMouseEnter = LabelMouseEnter
+      OnMouseLeave = LabelMouseLeave
+    end
+    object Bevel1: TBevel
+      AnchorSideLeft.Control = imgRKI
+      AnchorSideTop.Control = imgRKI
+      AnchorSideTop.Side = asrBottom
+      AnchorSideRight.Control = lblNPGeo
+      AnchorSideRight.Side = asrBottom
+      Left = 122
+      Height = 4
+      Top = 179
+      Width = 223
+      Anchors = [akTop, akLeft, akRight]
+    end
   end
   object BitBtn1: TBitBtn
     AnchorSideTop.Control = Panel1
@@ -902,7 +1013,7 @@ object AboutForm: TAboutForm
     AnchorSideRight.Side = asrBottom
     Left = 325
     Height = 25
-    Top = 370
+    Top = 438
     Width = 55
     Anchors = [akTop, akRight]
     AutoSize = True
