@@ -2093,11 +2093,13 @@ object MainForm: TMainForm
           AnchorSideRight.Control = MapSplitter
           AnchorSideBottom.Control = MapChartPanel
           AnchorSideBottom.Side = asrBottom
-          Left = 0
+          Left = 4
           Height = 17
           Top = 227
-          Width = 554
+          Width = 546
           Anchors = [akLeft, akRight, akBottom]
+          BorderSpacing.Left = 4
+          BorderSpacing.Right = 4
           Max = 0
           PageSize = 0
           TabOrder = 2

@@ -59,7 +59,10 @@ implementation
 {$R *.lfm}
 
 uses
-  LCLIntf, Types, IntfGraphics, LazCanvas, FPCanvas, InterfaceBase,
+  LCLIntf, LCLPlatformDef, Types, IntfGraphics, LazCanvas, FPCanvas, InterfaceBase,
+  {$IFDEF MSWINDOWS}
+  win32Proc,
+  {$ENDIF}
   cUtils;
 
 const
@@ -76,6 +79,47 @@ const
   URL_China_Map = 'https://geodata.lib.utexas.edu/catalog/stanford-bw669kf8724';
   URL_Australia_Map = 'https://www.abs.gov.au/AUSSTATS/abs@.nsf/DetailsPage/1259.0.30.001July%202011?OpenDocument';
   URL_CountryContinent_List = 'https://datahub.io/JohnSnowLabs/country-and-continent-codes-list/r/0.html';
+
+// https://forum.lazarus.freepascal.org/index.php/topic,15390.msg82563.html#msg82563
+function GetOSVersion: String;
+begin
+  Result := 'Unknown';
+
+ {$IFDEF WINDOWS}
+  case WindowsVersion of
+    wv95: Result := ' 95';
+    wvNT4: Result := ' NT v.4';
+    wv98: Result := ' 98';
+    wvMe: Result := ' ME';
+    wv2000: Result := ' 2000';
+    wvXP: Result := ' XP';
+    wvServer2003: Result := ' Server 2003';
+    wvVista: Result := ' Vista';
+    wv7: Result := ' 7';
+    wv8: Result := ' 8';
+    wv8_1: Result := ' 8.1';
+    wv10: Result := ' 10';
+    else Result:= '';
+  end;
+  Result := 'Windows' + Result;
+ {$ENDIF}
+
+ {$IFDEF UNIX}
+  Result := 'Unix ';
+ {$ENDIF}
+
+  {$IFDEF LCLcarbon}
+  Result := 'Mac OS X';
+ {$ENDIF}
+
+ {$IFDEF LCLcocoa}
+  Result := 'macOS';
+ {$ENDIF}
+
+ {$IFDEF Linux}
+  Result := 'Linux';
+ {$ENDIF}
+end;
 
 procedure ScaleBitmap(BM: TBitmap; W, H: Integer);
 var
@@ -100,6 +144,7 @@ begin
   end;
 end;
 
+
 { TAboutForm }
 
 procedure TAboutForm.FormCreate(Sender: TObject);
@@ -111,12 +156,15 @@ begin
   end;
 
   lblVersion.Caption := GetVersionStr;
-
   lblGeneralInfo.Caption := Format(
     'Operating system: %s' + LineEnding +
-    'Widgetset: %s', [
-    {$I %FPCTARGETOS%},
-    GetLCLWidgetTypeName
+    'Target CPU: %s' + LineEnding +
+    'Target OS: %s' + LineEnding +
+    'Platform: %s', [
+    GetOSVersion,
+    lowerCase({$I %FPCTARGETCPU%}),
+    lowerCase({$I %FPCTARGETOS%}),
+    LCLPlatformDisplayNames[GetDefaultLCLWidgetType]
   ]);
 
   lblFPC.Hint := URL_FPC;
