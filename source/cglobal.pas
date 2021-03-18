@@ -35,6 +35,8 @@ type
   end;
   PLocationParams = ^TLocationParams;
 
+  TDisplayMode = (dmMap, dmTimeSeries, dmBoth);
+
 const
   CASETYPE_NAMES: array [TCaseType] of string = (
     'confirmed', 'deaths', 'recovered', 'sick'

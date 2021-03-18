@@ -210,7 +210,7 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="14">
+    <Units Count="17">
       <Unit0>
         <Filename Value="corona.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -289,6 +289,30 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="cPalette"/>
       </Unit13>
+      <Unit14>
+        <Filename Value="cbasicframe.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="BasicFrame"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Frame"/>
+        <UnitName Value="cBasicFrame"/>
+      </Unit14>
+      <Unit15>
+        <Filename Value="cmapframe.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="MapFrame"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Frame"/>
+        <UnitName Value="cMapFrame"/>
+      </Unit15>
+      <Unit16>
+        <Filename Value="ctimeseriesframe.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="TimeSeriesFrame"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Frame"/>
+        <UnitName Value="cTimeSeriesFrame"/>
+      </Unit16>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

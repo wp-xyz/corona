@@ -15,7 +15,7 @@ type
 
   TcGeoItem = record
     Name: String;
-    GeoID: Int64;
+    GeoID: TGeoID;
     Polygon: array of TDoublePoint;
     RingStart: array of Integer;
   end;

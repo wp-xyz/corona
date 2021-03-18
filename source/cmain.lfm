@@ -1,10 +1,10 @@
 object MainForm: TMainForm
-  Left = 249
-  Height = 601
-  Top = 179
+  Left = 379
+  Height = 848
+  Top = 118
   Width = 973
   Caption = 'corona'
-  ClientHeight = 581
+  ClientHeight = 828
   ClientWidth = 973
   Icon.Data = {
     E8CE000000000100070000000000010020001269000076000000303000000100
@@ -1673,7 +1673,7 @@ object MainForm: TMainForm
   LCLVersion = '2.1.0.0'
   object LeftSplitter: TSplitter
     Left = 259
-    Height = 514
+    Height = 455
     Top = 44
     Width = 5
     ResizeStyle = rsPattern
@@ -1681,13 +1681,13 @@ object MainForm: TMainForm
   object StatusBar: TStatusBar
     Left = 0
     Height = 23
-    Top = 558
+    Top = 805
     Width = 973
     Panels = <>
   end
   object LeftPanel: TPanel
     Left = 6
-    Height = 502
+    Height = 449
     Top = 50
     Width = 253
     Align = alLeft
@@ -1695,12 +1695,12 @@ object MainForm: TMainForm
     BorderSpacing.Top = 6
     BorderSpacing.Bottom = 6
     BevelOuter = bvNone
-    ClientHeight = 502
+    ClientHeight = 449
     ClientWidth = 253
     TabOrder = 0
     object TreeView: TTreeView
       Left = 0
-      Height = 304
+      Height = 251
       Hint = 'Click on the country to display'
       Top = 198
       Width = 253
@@ -1901,37 +1901,38 @@ object MainForm: TMainForm
     end
   end
   object PageControl: TPageControl
-    Left = 264
-    Height = 502
-    Top = 50
-    Width = 703
+    Left = 0
+    Height = 294
+    Top = 505
+    Width = 967
     ActivePage = pgChart
-    Align = alClient
+    Align = alBottom
     BorderSpacing.Top = 6
     BorderSpacing.Right = 6
     BorderSpacing.Bottom = 6
     TabIndex = 0
     TabOrder = 2
+    Visible = False
     object pgChart: TTabSheet
       Caption = 'Charts'
-      ClientHeight = 474
-      ClientWidth = 695
+      ClientHeight = 266
+      ClientWidth = 959
       object TimeSeriesChartPanel: TPanel
         Left = 0
-        Height = 225
-        Top = 249
-        Width = 695
+        Height = 125
+        Top = 141
+        Width = 959
         Align = alBottom
         BevelOuter = bvNone
-        ClientHeight = 225
-        ClientWidth = 695
+        ClientHeight = 125
+        ClientWidth = 959
         TabOrder = 0
         object Chart: TChart
           Left = 0
-          Height = 225
+          Height = 125
           Hint = 'Zoom: drag a rectangle from left-top to bottom-right corner with left mouse button down'#13#10'    or: use mouse wheel (zoom center is mouse position).'#13#10'Pan: drag with the right mouse button down'#13#10'Restore view: click'#13#10'Read data value: move mouse over data point (no key pressed)'#13#10'Measure doubling time: CTRL-drag over data points of interest with left mouse button down.'
           Top = 0
-          Width = 555
+          Width = 819
           AxisList = <          
             item
               Grid.Color = 14540253
@@ -1989,8 +1990,8 @@ object MainForm: TMainForm
           end
         end
         object ChartListbox: TChartListbox
-          Left = 565
-          Height = 225
+          Left = 829
+          Height = 125
           Hint = 'Uncheck to remove a curve temporarily.'
           Top = 0
           Width = 130
@@ -2003,8 +2004,8 @@ object MainForm: TMainForm
           TabOrder = 1
         end
         object RightSplitter: TSplitter
-          Left = 555
-          Height = 225
+          Left = 819
+          Height = 125
           Top = 0
           Width = 5
           Align = alRight
@@ -2016,21 +2017,21 @@ object MainForm: TMainForm
         Cursor = crVSplit
         Left = 0
         Height = 5
-        Top = 244
-        Width = 695
+        Top = 136
+        Width = 959
         Align = alBottom
         ResizeAnchor = akBottom
         ResizeStyle = rsPattern
       end
       object MapChartPanel: TPanel
         Left = 0
-        Height = 244
+        Height = 136
         Top = 0
-        Width = 695
+        Width = 959
         Align = alClient
         BevelOuter = bvNone
-        ClientHeight = 244
-        ClientWidth = 695
+        ClientHeight = 136
+        ClientWidth = 959
         TabOrder = 2
         Visible = False
         object MapChart: TChart
@@ -2039,9 +2040,9 @@ object MainForm: TMainForm
           AnchorSideRight.Control = MapSplitter
           AnchorSideBottom.Control = MapDateScrollbar
           Left = 0
-          Height = 227
+          Height = 119
           Top = 0
-          Width = 554
+          Width = 818
           AxisList = <          
             item
               Visible = False
@@ -2081,8 +2082,8 @@ object MainForm: TMainForm
           OnResize = MapChartResize
         end
         object MapSplitter: TSplitter
-          Left = 554
-          Height = 244
+          Left = 818
+          Height = 136
           Top = 0
           Width = 5
           Align = alRight
@@ -2095,8 +2096,8 @@ object MainForm: TMainForm
           AnchorSideBottom.Side = asrBottom
           Left = 4
           Height = 17
-          Top = 227
-          Width = 546
+          Top = 119
+          Width = 810
           Anchors = [akLeft, akRight, akBottom]
           BorderSpacing.Left = 4
           BorderSpacing.Right = 4
@@ -2106,14 +2107,14 @@ object MainForm: TMainForm
           OnChange = MapDateScrollbarChange
         end
         object PaletteListboxPanel: TPanel
-          Left = 565
-          Height = 244
+          Left = 829
+          Height = 136
           Top = 0
           Width = 130
           Align = alRight
           BorderSpacing.Left = 6
           BevelOuter = bvNone
-          ClientHeight = 244
+          ClientHeight = 136
           ClientWidth = 130
           TabOrder = 3
           object PaletteListbox: TColorListBox
@@ -2123,7 +2124,7 @@ object MainForm: TMainForm
             AnchorSideRight.Side = asrBottom
             AnchorSideBottom.Control = MapDateLabel
             Left = 0
-            Height = 223
+            Height = 115
             Top = 0
             Width = 130
             Style = []
@@ -2136,7 +2137,7 @@ object MainForm: TMainForm
           object MapDateLabel: TLabel
             Left = 0
             Height = 15
-            Top = 229
+            Top = 121
             Width = 130
             Align = alBottom
             Anchors = [akLeft, akBottom]
@@ -2308,6 +2309,15 @@ object MainForm: TMainForm
       Top = 2
       Action = acChartTimeSeries
     end
+  end
+  object DisplayPanel: TPanel
+    Left = 264
+    Height = 455
+    Top = 44
+    Width = 709
+    Align = alClient
+    BevelOuter = bvNone
+    TabOrder = 5
   end
   object DateTimeIntervalChartSource: TDateTimeIntervalChartSource
     Params.MaxLength = 120

@@ -13,7 +13,7 @@ uses
   TAGraph, TAIntervalSources, TASeries, TAChartListbox, TALegend, TASources,
   TACustomSeries, TATransformations, TATools, TAFuncSeries, TADataTools,
   TAChartUtils,TADrawUtils,
-  cGlobal, cDataSource, cGeoMap, cPalette, cSeries;
+  cGlobal, cDataSource, cGeoMap, cPalette, cSeries, cMapFrame, cTimeSeriesFrame;
 
 type
   TCountArray = array of Integer;
@@ -53,6 +53,7 @@ type
     MovingAverageInfo: TLabel;
     CasesSplitter: TSplitter;
     CasesPanel: TPanel;
+    DisplayPanel: TPanel;
     ResizeTimer: TTimer;
     TreeSplitter: TSplitter;
     TimeSeriesGroup: TGroupBox;
@@ -215,6 +216,12 @@ type
     procedure TreeViewSelectionChanged(Sender: TObject);
 
   private
+    FDisplayMode: TDisplayMode;
+    FMapFrame: TMapFrame;
+    FTimeSeriesFrame: TTimeSeriesFrame;
+    FDisplaySplitter: TSplitter;
+    FDisplaySplitterPos: Integer;
+
     FGeoMap: TcGeoMap;
     FPalette: TPalette;
     FMeasurementSeries: TFuncSeries;
@@ -252,6 +259,7 @@ type
     procedure SelectNode(ANode: TTreeNode);
     procedure SelectProjection(AMapRes: String);
     procedure SeriesToArray(ASeries: TChartSeries; out AData: TDataPointArray);
+    procedure SetDisplayMode(AMode: TDisplayMode);
     procedure ShowCharts(VisibleCharts: TVisibleCharts);
     procedure ShowCoronaMap(ANode: TTreeNode; ADateIndex: Integer;
       AMapDataType: TMapDataType; PlotChildNodeData: Boolean);
@@ -393,23 +401,41 @@ end;
 
 procedure TMainForm.acChartMapExecute(Sender: TObject);
 var
+  dm: TDisplayMode;
   vc: TVisibleCharts;
 begin
   if acChartMap.Checked and acChartTimeSeries.Checked then
-    vc := vcBoth
+  begin
+    dm := dmBoth;
+    vc := vcBoth;
+  end
   else if acChartMap.Checked then
-    vc := vcMap
+  begin
+    dm := dmMap;
+    vc := vcMap;
+  end
   else if acChartTimeSeries.Checked then
-    vc := vcTimeSeries
+  begin
+    dm := dmTimeSeries;
+    vc := vcTimeSeries;
+  end
   else
   begin // Make sure that at least one of the two is checked
     if Sender = acChartMap then
-      vc := vcMap
+    begin
+      dm := dmMap;
+      vc := vcMap;
+    end
     else if sender = acChartTimeSeries then
-      vc := vcTimeSeries
+    begin
+      dm := dmTimeSeries;
+      vc := vcTimeSeries;
+    end
     else
       exit;
   end;
+
+  SetDisplayMode(dm);
 
   ShowCharts(vc);
 end;
@@ -1074,6 +1100,7 @@ begin
   DataDir := GetDataDir; // ends with a path delimiter
   DateOffset := BaseDate;
 
+  FDisplaySplitterPos := 200;
   WheelZoomTool.ZoomFactor := 1.05;
   WheelZoomTool.ZoomRatio := 1.0 / WheelZoomTool.ZoomFactor;
 
@@ -1834,6 +1861,9 @@ procedure TMainForm.SelectNode(ANode: TTreeNode);
 begin
   if (ANode = nil) or (ANode.Text = '') then
     exit;
+
+  if FDisplayMode in [dmMap, dmBoth] then
+    FMapFrame.ShowMap(ANode);
 
   if acChartMap.Checked then
     ShowMap(ANode);
@@ -2988,6 +3018,70 @@ begin
 
   finally
     ini.Free;
+  end;
+end;
+
+procedure TMainForm.SetDisplayMode(AMode: TDisplayMode);
+begin
+  if FDisplayMode = dmBoth then
+    FDisplaySplitterPos := FTimeSeriesFrame.Height;
+
+  FDisplayMode := AMode;
+  if (FDisplayMode in [dmMap, dmBoth]) and (FMapFrame = nil) then
+  begin
+    FMapFrame := TMapFrame.Create(self);
+    FMapFrame.DataTree := TreeView;
+  end;
+
+  if (FDisplayMode in [dmTimeSeries, dmBoth]) and (FTimeSeriesFrame = nil) then
+  begin
+    FTimeSeriesFrame := TTimeSeriesFrame.Create(self);
+    FTimeSeriesFrame.DataTree := TreeView;
+  end;
+
+  if (FDisplayMode = dmBoth) and (FDisplaySplitter = nil) then
+  begin
+    FDisplaySplitter := TSplitter.Create(self);
+    FDisplaySplitter.Align := alBottom;
+    FDisplaySplitter.Parent := DisplayPanel;
+    FDisplaySplitter.ResizeStyle := rsPattern;
+  end;
+
+  case FDisplayMode of
+    dmMap:
+      begin
+        if Assigned(FTimeSeriesFrame) then FTimeSeriesFrame.Hide;
+        if Assigned(FDisplaySplitter) then FDisplaySplitter.Hide;
+        FMapFrame.Align := alClient;
+        FMapFrame.Show;
+        FMapFrame.Parent := DisplayPanel;
+        FMapFrame.OnDateSelect := nil;
+      end;
+    dmTimeSeries:
+      begin
+        if Assigned(FMapFrame) then FMapFrame.Hide;
+        if Assigned(FDisplaySplitter) then FDisplaySplitter.Hide;
+        FTimeSeriesFrame.Show;
+        FTimeSeriesFrame.Align := alClient;
+        FTimeSeriesFrame.Parent := DisplayPanel;
+        FTimeSeriesFrame.DateIndicatorLine.Active := false;
+      end;
+    dmBoth:
+      begin
+        FMapFrame.Parent := DisplayPanel;
+        FMapFrame.Show;
+        FTimeSeriesFrame.Parent := DisplayPanel;
+        FTimeSeriesFrame.Show;
+        FTimeSeriesFrame.DateIndicatorLine.Active := true;
+        FDisplaySplitter.Parent := DisplayPanel;
+        FDisplaySplitter.Show;
+        FTimeSeriesFrame.Align := alBottom;
+        FTimeSeriesFrame.Height := FDisplaySplitterPos;
+        FDisplaySplitter.Align := alBottom;
+        FDisplaySplitter.Top := 0;
+        FMapFrame.Align := alClient;
+        FMapFrame.OnDateSelect := @FTimeSeriesFrame.UpdateDateIndicatorLine;
+      end;
   end;
 end;
 
