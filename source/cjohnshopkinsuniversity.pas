@@ -756,7 +756,7 @@ begin
       end;
 
       worldNode.Expanded := true;
-      worldNode.AlphaSort;
+      ATreeView.CustomSort(nil);
 
     finally
       L.Free;
@@ -768,118 +768,6 @@ begin
 
   Result := true;
 end;
-
-(*
-function TJohnsHopkinsDataSource.LoadLocations(ATreeView: TTreeView): Boolean;
-var
-  fn: String;
-  L: TStrings;
-  countryNode, stateNode, cityNode, node: TTreeNode;
-  sa: TStringArray;
-  i: Integer;
-  population: Integer;
-  country, state, city: String;
-  loc: PLocationParams;
-begin
-  Result := false;
-
-  // all locations (countries, states) are listed also in the measurement files
-  // but the FILENAME_POPULATION contains also meta data, such as population.
-  fn := FCacheDir + FILENAME_POPULATION;
-  if not FileExists(fn) then
-    exit;
-
-  L := TStringList.Create;
-  try
-    L.LoadFromFile(fn);
-    for i:=1 to L.Count-1 do begin
-      if L[i] = '' then
-        Continue;
-
-      sa := L[i].Split(',', '"');
-      if Length(sa) <> 12 then
-        Continue;
-
-      country := Unquote(sa[7]);
-      state := Unquote(sa[6]);
-      city := Unquote(sa[5]);
-      population := StrToIntDef(sa[11], 0);
-
-      // avoid too many empty nodes in the tree vieew
-      if (state <> '') then
-      begin
-        // The 'US' data are contained in separate files not read by this program
-        // No data provided in the standard files for the provinces of these countries
-        case country[1] of
-          'B': if (country = 'Brazil') then continue;
-          'C': if (country = 'Chile') or (country = 'Colombia') then continue;
-          'G': if (country = 'Germany') then continue;
-          'I': if (country = 'Italy') or (country = 'India') then continue;
-          'J': if (country = 'Japan') then continue;
-          'M': if (country = 'Mexico') then continue;
-          'P': if (country = 'Pakistan') or (country = 'Peru') then continue;
-          'R': if (country = 'Russia') then continue;
-          'S': if (country = 'Spain') or (country = 'Sweden') then continue;
-          'U': if (country = 'Ukraine') then continue;
-          else ;
-        end;
-      end;
-
-      countryNode := ATreeView.Items.FindTopLvlNode(country);
-      if countryNode = nil then
-      begin
-        New(loc);
-        loc^.ID := -1;  // not used by JHU
-        loc^.Population := population;
-        {$IFDEF DEBUG_LOCATIONPARAMS}
-        loc^.Name := country;
-        {$ENDIF}
-        countryNode := ATreeView.Items.AddChildObject(nil, country, loc)
-      end;
-
-      if state <> '' then
-      begin
-        stateNode := nil;
-        cityNode := nil;
-        node := countryNode.GetFirstChild;
-        while (node <> nil) do begin
-          if node.Text = state then
-          begin
-            stateNode := node;
-            break;
-          end;
-          node := node.GetNextSibling;
-        end;
-        if stateNode = nil then
-        begin
-          New(loc);
-          loc^.ID := -1;  // not used by JHU
-          loc^.Population := population;
-          {$IFDEF DEBUG_LOCATIONPARAMS}
-          loc^.Name := state;
-          {$ENDIF}
-          stateNode := ATreeView.Items.AddChildObject(countryNode, state, loc);
-        end;
-
-        if (city <> '') then
-        begin
-          New(loc);
-          loc^.ID := -1;  // not used by JHU
-          loc^.Population := population;
-          {$IFDEF DEBUG_LOCATIONPARAMS}
-          loc^.Name = city;
-          {$ENDIF}
-          citynode := ATreeView.Items.AddChildObject(stateNode, city, loc);
-        end;
-      end;
-    end;
-  finally
-    L.Free;
-  end;
-
-  Result := true;
-end;
-  *)
 
 procedure TJohnsHopkinsDataSource.RemoveNoDataNodes(AStartingNode: TTreeNode);
 var

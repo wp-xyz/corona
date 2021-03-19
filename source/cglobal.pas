@@ -11,6 +11,7 @@ type
   TPrimaryCaseType = (pctConfirmed, pctDeaths, pctRecovered);
 
   TCaseType = (ctConfirmed, ctDeaths, ctRecovered, ctSick);
+  TCaseTypes = set of TCaseType;
 
   TDataType = (
     dtCumulative, dtNewCases,
@@ -37,7 +38,12 @@ type
 
   TDisplayMode = (dmMap, dmTimeSeries, dmBoth);
 
+  TMapSettings = record
+    DataType: TMapDataType;
+  end;
+
   TTimeSeriesSettings = record
+    DataType: TDataType;
     OverlayMode: Boolean;
     Logarithmic: Boolean;
     CommonStart: Boolean;
@@ -87,7 +93,11 @@ var
   PortableInstallation: Boolean = {$IFDEF PORTABLE}true{$ELSE}false{$ENDIF};
   DataSymbolDistance: Integer = 16;
 
+  MapSettings: TMapSettings = (
+    DataType: mdtNormalizedNewConfirmed
+  );
   TimeSeriesSettings: TTimeSeriesSettings = (
+    DataType: dtCumulative;
     OverlayMode: false;
     Logarithmic: false;
     CommonStart: false;

@@ -47,17 +47,10 @@ type
     Chart: TChart;
     BottomAxisTransformations: TChartAxisTransformations;
     BottomAxisLogTransform: TLogarithmAxisTransform;
-    cmbMapDataType: TComboBox;
     DateIndicatorLine: TConstantLine;
     MenuItem15: TMenuItem;
-    MovingAverageInfo: TLabel;
-    CasesSplitter: TSplitter;
-    CasesPanel: TPanel;
     DisplayPanel: TPanel;
     ResizeTimer: TTimer;
-    TreeSplitter: TSplitter;
-    TimeSeriesGroup: TGroupBox;
-    MapDataGroup: TGroupBox;
     MapToolset: TChartToolset;
     MapDateLabel: TLabel;
     MapToolsetDataPointClickTool: TDataPointClickTool;
@@ -71,11 +64,6 @@ type
     MapChart: TChart;
     ChartToolset: TChartToolset;
     acFileExit: TFileExit;
-    cbMovingAverage: TCheckBox;
-    clbCases: TCheckListBox;
-    cmbDataType: TComboBox;
-    lblCases: TLabel;
-    lblDataType: TLabel;
     lblTableHint: TLabel;
     MainMenu: TMainMenu;
     MenuItem1: TMenuItem;
@@ -145,7 +133,7 @@ type
     ChartListbox: TChartListbox;
     DateTimeIntervalChartSource: TDateTimeIntervalChartSource;
     LeftPanel: TPanel;
-    LeftSplitter: TSplitter;
+    TreeSplitter: TSplitter;
     RightSplitter: TSplitter;
     StatusBar: TStatusBar;
     TreeView: TTreeView;
@@ -259,14 +247,13 @@ type
     procedure SelectNode(ANode: TTreeNode);
     procedure SelectProjection(AMapRes: String);
     procedure SeriesToArray(ASeries: TChartSeries; out AData: TDataPointArray);
-    procedure SetDisplayMode(AMode: TDisplayMode);
     procedure ShowCharts(VisibleCharts: TVisibleCharts);
     procedure ShowCoronaMap(ANode: TTreeNode; ADateIndex: Integer;
       AMapDataType: TMapDataType; PlotChildNodeData: Boolean);
     procedure ShowCoronaMapLevel(ANode: TTreeNode; ADateIndex: Integer;
       AMapDataType: TMapDataType);
     procedure ShowMap(ANode: TTreeNode);
-    procedure ShowTimeSeries(ANode: TTreeNode);
+//    procedure ShowTimeSeries(ANode: TTreeNode);
     procedure ShowVersionInfo;
     function StoreSeriesNodesInList: TFPList;
     procedure UpdateActionStates;
@@ -279,6 +266,9 @@ type
     procedure UpdateStatusBar(ASeparator: String = ' ');
     procedure UpdateTimeSeriesActions(Sender: TObject);
     procedure WordwrapChart(AChart: TChart);
+
+    procedure SetDisplayMode(AMode: TDisplayMode);
+    procedure TimeSeriesFrameResize(Sender: TObject);
 
     procedure LoadIni;
     procedure SaveIni;
@@ -490,7 +480,7 @@ begin
   TimeSeriesSettings.CommonStart := acDataCommonStart.Checked;
   if Assigned(FTimeSeriesFrame) then
     FTimeSeriesFrame.SetCommonStart(TimeSeriesSettings.CommonStart);
-
+                {
   if acDataCommonStart.Checked then
   begin
     DateOffset := 0;
@@ -508,6 +498,7 @@ begin
       ShowTimeSeries(TcLineSeries(Chart.Series[i]).Node)
     else if Chart.Series[i] is TcBarSeries then
       ShowTimeSeries(TcBarSeries(Chart.Series[i]).Node);
+      }
 end;
 
 procedure TMainForm.acDataMovingAverageExecute(Sender: TObject);
@@ -526,9 +517,11 @@ begin
     if Chart.Series[i] is TChartSeries then
       EnableMovingAverage(TChartSeries(Chart.Series[i]), isMovingAverage, false);
 
+  {
   MovingAverageInfo.Caption := Format('(%d days)', [SmoothingRange]);
   MovingAverageInfo.Enabled := acDataMovingAverage.Enabled;
   UpdateGrid;
+  }
 end;
 
 procedure TMainForm.acDataUpdateExecute(Sender: TObject);
@@ -581,8 +574,10 @@ begin
         SmoothingRange := n;
         RRange := (n - 1) div 2;
 
-        MovingAverageInfo.Caption := Format('(%d days)', [SmoothingRange]);
+        //MovingAverageInfo.Caption := Format('(%d days)', [SmoothingRange]);
 
+        FTimeSeriesFrame.UpdateData
+        {
         // Recalculate the currently loaded data
         L := StoreSeriesNodesInList();
         try
@@ -590,6 +585,7 @@ begin
         finally
           L.Free;
         end;
+         }
 
       end else
         MessageDlg('Only odd number of days allowed (i.e. center day is included).', mtError, [mbOk], 0);
@@ -689,8 +685,8 @@ end;
 
 procedure TMainForm.BeforeRun;
 begin
-  LeftPanel.Constraints.MinWidth := LeftPanel.Width;
-  LeftPanel.AutoSize := false;
+//  LeftPanel.Constraints.MinWidth := LeftPanel.Width;
+//  LeftPanel.AutoSize := false;
 
   ReadCommandlineParams;
   LoadLocations;
@@ -960,7 +956,7 @@ begin
           UpdateAxes(false, acChartLogarithmic.Checked);
           MeasurementTool.Enabled := true;
           acDataMovingAverage.Enabled := true;
-          clbCases.Enabled := true;
+          //clbCases.Enabled := true;
         end;
       dtCumulativeCasesDoublingTime,
       dtNewCasesDoublingTime:
@@ -972,7 +968,7 @@ begin
           UpdateAxes(false, false);
           MeasurementTool.Enabled := false;
           acDataMovingAverage.Enabled := false;
-          clbCases.Enabled := true;
+          //clbCases.Enabled := true;
         end;
       dtCumVsNewCases:
         begin
@@ -984,7 +980,7 @@ begin
           UpdateAxes(true, true);
           MeasurementTool.Enabled := false;
           acDataMovingAverage.Enabled := false;
-          clbCases.Enabled := true;
+          //clbCases.Enabled := true;
         end;
       dtRValue:
         begin
@@ -995,7 +991,7 @@ begin
           UpdateAxes(false, false);
           MeasurementTool.Enabled := false;
           acDataMovingAverage.Enabled := false;
-          clbCases.Enabled := false;
+          //clbCases.Enabled := false;
         end;
       else
         raise Exception.Create('Data type unsupported.');
@@ -1015,16 +1011,18 @@ procedure TMainForm.cmbDataTypeDropDown(Sender: TObject);
 var
   i, w: Integer;
 begin
+  {
   w := 0;
   for i := 0 to cmbDataType.Items.Count-1 do
     w := Max(w, cmbDataType.Canvas.TextWidth(cmbDataType.Items[i]));
   cmbDataType.ItemWidth := w + Scale96ToForm(10);
+  }
 end;
 
 procedure TMainForm.cmbMapDataTypeChange(Sender: TObject);
 begin
-  PopulatePaletteListbox(GetMapDataType);
-  ShowMap(TreeView.Selected);
+  //PopulatePaletteListbox(GetMapDataType);
+  //ShowMap(TreeView.Selected);
 end;
 
 procedure TMainForm.CreateMeasurementSeries;
@@ -1085,6 +1083,7 @@ var
   clr: TColor;
   i, w, wCheckbox: Integer;
 begin
+  {
   p4 := Scale96ToForm(4);
   p6 := Scale96ToForm(6);
   wCheckbox := GetSystemMetrics(SM_CXMENUCHECK);
@@ -1095,7 +1094,7 @@ begin
   CasesPanel.Constraints.MinHeight := clbCases.Top + clbCases.Items.Count * clbCases.ItemHeight + 2*p4;
   TimeSeriesGroup.Constraints.MinHeight := TimeseriesGroup.Height - TimeSeriesGroup.ClientHeight +
     CasesPanel.Constraints.MinHeight + CasesPanel.BorderSpacing.Bottom + p6;
-
+  }
   clr := ColorToRGB(Chart.BackColor);
   if Red(clr) + Green(clr) + Blue(clr) > 3*128 then
     Chart.LeftAxis.Grid.Color := BrighterColor(clr, -0.15)
@@ -1114,6 +1113,29 @@ end;
 
 procedure TMainForm.FormCreate(Sender: TObject);
 begin
+  FMapFrame := TMapFrame.Create(self);
+  FMapFrame.DataTree := TreeView;
+  FMapFrame.Align := alClient;
+  FMapFrame.Hide;
+  FMapFrame.Parent := DisplayPanel;
+
+  FTimeSeriesFrame := TTimeSeriesFrame.Create(self);
+  FTimeSeriesFrame.Height := DisplayPanel.Height div 2;
+  FTimeSeriesFrame.Align := alBottom;
+  FTimeSeriesFrame.DataTree := TreeView;
+  FTimeSeriesFrame.OnResize := @TimeSeriesFrameResize;
+  FTimeSeriesFrame.OnUpdateActions := @UpdateTimeSeriesActions;
+  FTimeSeriesFrame.Hide;
+  FTimeSeriesFrame.Parent := DisplayPanel;
+
+  FDisplaySplitter := TSplitter.Create(self);
+  FDisplaySplitter.Align := alBottom;
+  FDisplaySplitter.Parent := DisplayPanel;
+  FDisplaySplitter.ResizeStyle := rsPattern;
+  FDisplaySplitterPos := FTimeSeriesFrame.Height;
+
+  SetDisplayMode(dmBoth);
+
   // Narrower input box
   cInputQueryEditSizePercents := 0;
 
@@ -1131,7 +1153,7 @@ begin
   PanDragTool.LimitToExtent := [pdDown, pdLeft, pdRight, pdUp];
   {$ENDIF}
 
-  clbCases.Checked[0] := true;
+  //clbCases.Checked[0] := true;
   Grid.RowHeights[0] := 3 * Grid.Canvas.TextHeight('Tg') + 2* varCellPadding;
 
   PageControl.ActivePageIndex := 0;
@@ -1156,6 +1178,7 @@ begin
   tbAbout.Align := alRight;
   tbAbout.Left := Toolbar.Width - tbAbout.Width;
 
+  {
   w := 0;
   for s in clbCases.Items do
     w := Max(w, clbCases.Canvas.TextWidth(s));
@@ -1164,6 +1187,7 @@ begin
     clbCases.Height := clbCases.Items.Count * clbCases.ItemHeight + 2*p3;
 
   LeftPanel.Constraints.MinWidth := cbMovingAverage.Width + clbCases.Width + p24;
+  }
 end;
 
 function TMainForm.GetCellText(ACol, ARow: Integer): String;
@@ -1236,8 +1260,10 @@ end;
 
 function TMainForm.GetDataType: TDataType;
 begin
-  Result := TDataType(cmbDataType.ItemIndex);
+  Result := TimeSeriesSettings.DataType;
+//  Result := TDataType(cmbDataType.ItemIndex);
 end;
+
 
 procedure TMainForm.GetLocation(ANode: TTreeNode;
   out ACountry, AState, ACity: String; out APopulation: Int64);
@@ -1287,7 +1313,8 @@ end;
 
 function TMainForm.GetMapDataType: TMapDataType;
 begin
-  Result := TMapDataType(cmbMapDataType.ItemIndex);
+  Result := MapSettings.DataType;
+//  Result := TMapDataType(cmbMapDataType.ItemIndex);
 end;
 
 function TMainForm.GetSeries(ANode: TTreeNode; ACaseType: TCaseType;
@@ -1869,12 +1896,14 @@ var
   i: Integer;
   node: TTreeNode;
 begin
+  {
   for i := 0 to AList.Count-1 do
   begin
     node := TTreeNode(AList[i]);
     if not ((node.Text <> '') and (node.Text[1] = '(')) then
       ShowTimeSeries(TTreeNode(AList[i]));
   end;
+  }
 end;
 
 procedure TMainForm.SelectNode(ANode: TTreeNode);
@@ -1888,12 +1917,13 @@ begin
   if FDisplayMode in [dmTimeSeries, dmBoth] then
     FTimeSeriesFrame.ShowTimeSeries(ANode);
 
-
+  {
   if acChartMap.Checked then
     ShowMap(ANode);
 
   if acChartTimeSeries.Checked then
     ShowTimeSeries(ANode);
+  }
 end;
 
 // Selects the projection for the map having the given name.
@@ -2354,6 +2384,7 @@ begin
 end;
 *)
 
+{
 procedure TMainForm.ShowTimeSeries(ANode: TTreeNode);
 var
   caseType: TCaseType;
@@ -2635,7 +2666,7 @@ begin
     Screen.Cursor := crDefault;
   end;
 end;
-
+ }
 // Store nodes belonging to currently available series in a list
 // Can be restored by calling RestoreSeriesNodesFromList.
 function TMainForm.StoreSeriesNodesInList: TFPList;
@@ -2847,6 +2878,11 @@ begin
 end;
 
 procedure TMainForm.UpdateInfectiousPeriod;
+begin
+  FMapFrame.UpdateInfectiousPeriod;
+  FTimeSeriesFrame.UpdateInfectiousPeriod;
+end;
+{
 var
   L: TFPList;
 begin
@@ -2861,6 +2897,7 @@ begin
     L.Free;
   end;
 end;
+}
 
 procedure TMainForm.UpdateStatusbar(ASeparator: String = ' ');
 begin
@@ -2897,16 +2934,19 @@ begin
     acConfigAutoLoad.Checked := ini.ReadBool('MainForm', 'AutoLoad', acConfigAutoLoad.Checked);
     if not acConfigAutoLoad.Checked then
     begin
+      {
       cmbMapDataType.ItemIndex := ord(mdtNormalizedNewConfirmed);
       cmbMapDataTypeChange(nil);
       cmbDataType.ItemIndex := ord(dtNormalizedNewCases);
       cmbDataTypeChange(nil);
       ShowCharts(vcBoth);
+      }
+      // <--------- FIX ME
       exit;
     end;
 
     // Avoid unnecessary repainting the maps
-    inc(FMapLock);
+   // inc(FMapLock);
 
     acConfigAutoSave.Checked := ini.ReadBool('MainForm', 'AutoSave', acConfigAutoSave.Checked);
 
@@ -2928,7 +2968,20 @@ begin
       if T < R.Top then T := R.Top;
       SetBounds(L, T, W, H);
     end;
+    acConfigHint.Checked := ini.ReadBool('MainForm', 'ShowHints', acConfigHint.Checked);
+    acConfigHintExecute(nil);
 
+    LeftPanel.Width := ini.ReadInteger('MainForm', 'LeftPanel', LeftPanel.Width);
+    FDisplaySplitterPos := ini.ReadInteger('MainForm', 'DisplaySplitterPos', FDisplaySplitterPos);
+    FTimeSeriesFrame.Height := FDisplaySplitterPos;
+
+    n := ini.ReadInteger('MainForm', 'DisplayMode', ord(FDisplayMode));
+    if (n >= ord(Low(TDisplayMode))) and (n <= ord(High(TDisplayMode))) then
+      SetDisplayMode(TDisplayMode(n));
+
+    FMapFrame.LoadFromIni(ini);
+    FTimeSeriesFrame.LoadFromIni(ini);
+(*
     LeftPanel.Width := ini.ReadInteger('MainForm', 'LeftPanel', LeftPanel.Width);
     ChartListbox.Width := ini.ReadInteger('MainForm', 'RightPanel', ChartListBox.Width);
     PaletteListboxPanel.Width := ini.ReadInteger('MainForm', 'PaletteListbox', PaletteListboxPanel.Width);
@@ -2979,9 +3032,6 @@ begin
         UpdateAxes(false, false);
     end;
 
-    acConfigHint.Checked := ini.ReadBool('MainForm', 'ShowHints', acConfigHint.Checked);
-    acConfigHintExecute(nil);
-
     InfectiousPeriod := ini.ReadInteger('Params', 'InfectiousPeriod', InfectiousPeriod);
     SmoothingRange := ini.ReadInteger('Params', 'SmoothingRange', SmoothingRange);
     RRange := (SmoothingRange - 1) div 2;
@@ -2992,6 +3042,7 @@ begin
 
     // Release painting of map. Repainting itself is done by the caller.
     dec(FMapLock);
+    *)
   finally
     UpdateActionStates;
     ini.Free;
@@ -3019,7 +3070,14 @@ begin
       ini.WriteInteger('MainForm', 'Height', Height);
     end;
 
+    ini.WriteBool('MainForm', 'ShowHints', acConfigHint.Checked);
     ini.WriteInteger('MainForm', 'LeftPanel', LeftPanel.Width);
+    ini.WriteInteger('MainForm', 'DisplayMode', ord(FDisplayMode));
+    ini.WriteInteger('MainForm', 'DisplaySplitterPos', FDisplaySplitterPos);
+
+    FMapFrame.SaveToIni(ini);
+    FTimeSeriesFrame.SaveToIni(ini);
+                         (*
     if acChartMap.Checked then
       ini.WriteInteger('MainForm', 'PaletteListbox', PaletteListboxPanel.Width);
     if acChartTimeSeries.Checked then
@@ -3042,8 +3100,7 @@ begin
     ini.WriteBool('MainForm', 'HighlightWeekends', acChartHighlightWeekends.Checked);
     if GetDataType() in [dtCumulative, dtNormalizedCumulative] then
       ini.WriteBool('MainForm', 'Logarithmic', acChartLogarithmic.Checked);
-
-    ini.WriteBool('MainForm', 'ShowHints', acConfigHint.Checked);
+                          *)
 
     ini.WriteInteger('Params', 'InfectiousPeriod', InfectiousPeriod);
     ini.WriteInteger('Params', 'SmoothingRange', SmoothingRange);
@@ -3055,58 +3112,35 @@ end;
 
 procedure TMainForm.SetDisplayMode(AMode: TDisplayMode);
 begin
+  {
   if FDisplayMode = dmBoth then
     FDisplaySplitterPos := FTimeSeriesFrame.Height;
-
+  }
   FDisplayMode := AMode;
-  if (FDisplayMode in [dmMap, dmBoth]) and (FMapFrame = nil) then
-  begin
-    FMapFrame := TMapFrame.Create(self);
-    FMapFrame.DataTree := TreeView;
-  end;
-
-  if (FDisplayMode in [dmTimeSeries, dmBoth]) and (FTimeSeriesFrame = nil) then
-  begin
-    FTimeSeriesFrame := TTimeSeriesFrame.Create(self);
-    FTimeSeriesFrame.DataTree := TreeView;
-    FTimeSeriesFrame.OnUpdateActions := @UpdateTimeSeriesActions;
-  end;
-
-  if (FDisplayMode = dmBoth) and (FDisplaySplitter = nil) then
-  begin
-    FDisplaySplitter := TSplitter.Create(self);
-    FDisplaySplitter.Align := alBottom;
-    FDisplaySplitter.Parent := DisplayPanel;
-    FDisplaySplitter.ResizeStyle := rsPattern;
-  end;
 
   case FDisplayMode of
     dmMap:
       begin
-        if Assigned(FTimeSeriesFrame) then FTimeSeriesFrame.Hide;
-        if Assigned(FDisplaySplitter) then FDisplaySplitter.Hide;
+        FTimeSeriesFrame.Hide;
+        FDisplaySplitter.Hide;
         FMapFrame.Align := alClient;
         FMapFrame.Show;
-        FMapFrame.Parent := DisplayPanel;
         FMapFrame.OnDateSelect := nil;
       end;
     dmTimeSeries:
       begin
-        if Assigned(FMapFrame) then FMapFrame.Hide;
-        if Assigned(FDisplaySplitter) then FDisplaySplitter.Hide;
+        FMapFrame.Hide;
+        FDisplaySplitter.Hide;
         FTimeSeriesFrame.Show;
         FTimeSeriesFrame.Align := alClient;
-        FTimeSeriesFrame.Parent := DisplayPanel;
         FTimeSeriesFrame.ShowDateIndicatorLine(false);
       end;
     dmBoth:
       begin
         FMapFrame.Parent := DisplayPanel;
         FMapFrame.Show;
-        FTimeSeriesFrame.Parent := DisplayPanel;
         FTimeSeriesFrame.Show;
         FTimeSeriesFrame.ShowDateIndicatorLine(true);
-        FDisplaySplitter.Parent := DisplayPanel;
         FDisplaySplitter.Show;
         FTimeSeriesFrame.Align := alBottom;
         FTimeSeriesFrame.Height := FDisplaySplitterPos;
@@ -3122,6 +3156,7 @@ procedure TMainForm.ShowCharts(VisibleCharts: TVisibleCharts);
 var
   idx: Integer;
 begin
+  (*
   case VisibleCharts of
     vcMap:
       begin   // Map chart only
@@ -3179,11 +3214,18 @@ begin
 
   if acChartMap.Checked then
     ShowMap(TreeView.Selected);
+    *)
 end;
 
 procedure TMainForm.ShowVersionInfo;
 begin
   Caption := Format('%s (%s)', [APP_TITLE, GetVersionStr]);
+end;
+
+procedure TMainForm.TimeSeriesFrameResize(Sender: TObject);
+begin
+  if FDisplayMode = dmBoth then
+    FDisplaySplitterPos := FTimeSeriesFrame.Height;
 end;
 
 procedure TMainForm.ToolBarResize(Sender: TObject);

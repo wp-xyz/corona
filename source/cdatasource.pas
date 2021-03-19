@@ -198,7 +198,8 @@ begin
   // Sum of new cases one generation time earlier (--> InfectiousPeriod)
   if AIndex < InfectiousPeriod + SmoothingRange then
     exit;
-  sum_earlier := FRawData[pctConfirmed, AIndex - InfectiousPeriod] - FRawData[pctConfirmed, AIndex - InfectiousPeriod - SmoothingRange];
+  sum_earlier := FRawData[pctConfirmed, AIndex - InfectiousPeriod] -
+                 FRawData[pctConfirmed, AIndex - InfectiousPeriod - SmoothingRange];
 
   // The formula for R is sum_now / sum_earlier.
 
