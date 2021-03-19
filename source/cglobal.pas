@@ -37,6 +37,13 @@ type
 
   TDisplayMode = (dmMap, dmTimeSeries, dmBoth);
 
+  TTimeSeriesSettings = record
+    OverlayMode: Boolean;
+    Logarithmic: Boolean;
+    CommonStart: Boolean;
+    MovingAverage: Boolean;
+  end;
+
 const
   CASETYPE_NAMES: array [TCaseType] of string = (
     'confirmed', 'deaths', 'recovered', 'sick'
@@ -79,6 +86,13 @@ var
 
   PortableInstallation: Boolean = {$IFDEF PORTABLE}true{$ELSE}false{$ENDIF};
   DataSymbolDistance: Integer = 16;
+
+  TimeSeriesSettings: TTimeSeriesSettings = (
+    OverlayMode: false;
+    Logarithmic: false;
+    CommonStart: false;
+    MovingAverage: false;
+  );
 
   cFormatSettings: TFormatSettings;
 

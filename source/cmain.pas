@@ -277,6 +277,7 @@ type
     procedure UpdateGrid;
     procedure UpdateInfectiousPeriod;
     procedure UpdateStatusBar(ASeparator: String = ' ');
+    procedure UpdateTimeSeriesActions(Sender: TObject);
     procedure WordwrapChart(AChart: TChart);
 
     procedure LoadIni;
@@ -391,11 +392,19 @@ end;
 
 procedure TMainForm.acChartLinearExecute(Sender: TObject);
 begin
+  TimeSeriesSettings.Logarithmic := false;
+  if Assigned(FTimeSeriesFrame) then
+    FTimeSeriesFrame.UpdateAxes(false, false);
+
   UpdateAxes(false, false);
 end;
 
 procedure TMainForm.acChartLogarithmicExecute(Sender: TObject);
 begin
+  TimeSeriesSettings.Logarithmic := true;
+  if Assigned(FTimeSeriesFrame) then
+    FTimeSeriesFrame.UpdateAxes(not FTimeSeriesFrame.IsTimeSeries(), true);
+
   UpdateAxes(not IsTimeSeries(), true);
 end;
 
@@ -442,6 +451,7 @@ end;
 
 procedure TMainForm.acChartOverlayExecute(Sender: TObject);
 begin
+  TimeSeriesSettings.OverlayMode := acChartOverlay.Checked;
   // Checked state is evaluated when adding curves.
 end;
 
@@ -468,6 +478,8 @@ end;
 procedure TMainForm.acDataClearExecute(Sender: TObject);
 begin
   Clear;
+  if Assigned(FTimeSeriesFrame) then
+    FTimeSeriesFrame.Clear;
 end;
 
 procedure TMainForm.acDataCommonStartExecute(Sender: TObject);
@@ -475,6 +487,10 @@ var
   logX, logY: Boolean;
   i: Integer;
 begin
+  TimeSeriesSettings.CommonStart := acDataCommonStart.Checked;
+  if Assigned(FTimeSeriesFrame) then
+    FTimeSeriesFrame.SetCommonStart(TimeSeriesSettings.CommonStart);
+
   if acDataCommonStart.Checked then
   begin
     DateOffset := 0;
@@ -499,6 +515,10 @@ var
   i: Integer;
   isMovingAverage: Boolean;
 begin
+  if Assigned(FTimeSeriesFrame) then
+    FTimeSeriesFrame.EnableMovingAverage(acDataMovingAverage.Checked, false);
+
+  // to be removed
   isMovingAverage := acDataMovingAverage.Checked and
     ( GetDataType in [dtCumulative, dtNormalizedCumulative, dtNormalizedNewCases, dtNewCases] );
 
@@ -1865,6 +1885,10 @@ begin
   if FDisplayMode in [dmMap, dmBoth] then
     FMapFrame.ShowMap(ANode);
 
+  if FDisplayMode in [dmTimeSeries, dmBoth] then
+    FTimeSeriesFrame.ShowTimeSeries(ANode);
+
+
   if acChartMap.Checked then
     ShowMap(ANode);
 
@@ -2851,6 +2875,14 @@ begin
   Statusbar.Update;
 end;
 
+procedure TMainForm.UpdateTimeSeriesActions(Sender: TObject);
+begin
+  acChartOverlay.Checked := TimeSeriesSettings.OverlayMode;
+  acChartLogarithmic.Checked := TimeSeriesSettings.Logarithmic;
+  acChartLinear.Checked := not TimeSeriesSettings.Logarithmic;
+  acDataMovingAverage.Checked := TimeSeriesSettings.MovingAverage;
+end;
+
 procedure TMainForm.LoadIni;
 var
   ini: TCustomIniFile;
@@ -3037,6 +3069,7 @@ begin
   begin
     FTimeSeriesFrame := TTimeSeriesFrame.Create(self);
     FTimeSeriesFrame.DataTree := TreeView;
+    FTimeSeriesFrame.OnUpdateActions := @UpdateTimeSeriesActions;
   end;
 
   if (FDisplayMode = dmBoth) and (FDisplaySplitter = nil) then
@@ -3064,7 +3097,7 @@ begin
         FTimeSeriesFrame.Show;
         FTimeSeriesFrame.Align := alClient;
         FTimeSeriesFrame.Parent := DisplayPanel;
-        FTimeSeriesFrame.DateIndicatorLine.Active := false;
+        FTimeSeriesFrame.ShowDateIndicatorLine(false);
       end;
     dmBoth:
       begin
@@ -3072,7 +3105,7 @@ begin
         FMapFrame.Show;
         FTimeSeriesFrame.Parent := DisplayPanel;
         FTimeSeriesFrame.Show;
-        FTimeSeriesFrame.DateIndicatorLine.Active := true;
+        FTimeSeriesFrame.ShowDateIndicatorLine(true);
         FDisplaySplitter.Parent := DisplayPanel;
         FDisplaySplitter.Show;
         FTimeSeriesFrame.Align := alBottom;

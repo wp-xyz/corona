@@ -1905,12 +1905,12 @@ object MainForm: TMainForm
     Height = 294
     Top = 505
     Width = 967
-    ActivePage = pgChart
+    ActivePage = pgTable
     Align = alBottom
     BorderSpacing.Top = 6
     BorderSpacing.Right = 6
     BorderSpacing.Bottom = 6
-    TabIndex = 0
+    TabIndex = 1
     TabOrder = 2
     Visible = False
     object pgChart: TTabSheet
@@ -2149,8 +2149,8 @@ object MainForm: TMainForm
     end
     object pgTable: TTabSheet
       Caption = 'Table'
-      ClientHeight = 474
-      ClientWidth = 695
+      ClientHeight = 266
+      ClientWidth = 959
       object Grid: TDrawGrid
         AnchorSideLeft.Control = pgTable
         AnchorSideTop.Control = lblTableHint
@@ -2160,9 +2160,9 @@ object MainForm: TMainForm
         AnchorSideBottom.Control = pgTable
         AnchorSideBottom.Side = asrBottom
         Left = 6
-        Height = 416
+        Height = 208
         Top = 52
-        Width = 683
+        Width = 947
         Anchors = [akTop, akLeft, akRight, akBottom]
         BorderSpacing.Around = 6
         ColCount = 2
