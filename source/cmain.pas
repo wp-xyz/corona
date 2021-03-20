@@ -1,7 +1,7 @@
 unit cMain;
 
 {$mode objfpc}{$H+}
-{$define RKI}
+// {$define RKI}  -- this define is in the project options
 {$define USE_BARSERIES}
 
 interface
@@ -309,8 +309,6 @@ var
   BaseDate: TDate;
   DateOffset: TDate;
 
-  // DataDir is the directory in which the downloaded csv files are found.
-  DataDir: String;
 
 function GetDataDir: String;
 begin

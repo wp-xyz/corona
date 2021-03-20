@@ -350,6 +350,12 @@
         </Win32>
       </Options>
     </Linking>
+    <Other>
+      <CustomOptions Value="-dRKI"/>
+      <OtherDefines Count="1">
+        <Define0 Value="RKI"/>
+      </OtherDefines>
+    </Other>
   </CompilerOptions>
   <Debugging>
     <Exceptions Count="3">
