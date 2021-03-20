@@ -1952,7 +1952,6 @@ object MainForm: TMainForm
           Max = 0
           PageSize = 0
           TabOrder = 2
-          OnChange = MapDateScrollbarChange
         end
         object PaletteListboxPanel: TPanel
           Left = 829

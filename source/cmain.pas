@@ -178,7 +178,6 @@ type
     procedure GridPrepareCanvas(sender: TObject; aCol, aRow: Integer;
       aState: TGridDrawState);
 
-    procedure MapDateScrollbarChange(Sender: TObject);
     procedure MapToolsetDataPointClickToolPointClick(ATool: TChartTool;
       APoint: TPoint);
     procedure MapToolsetDataPointHintToolHint(ATool: TDataPointHintTool;
@@ -1503,20 +1502,6 @@ begin
   else
     ts.Alignment := taRightJustify;
   Grid.Canvas.TextStyle := ts;
-end;
-
-procedure TMainForm.MapDateScrollbarChange(Sender: TObject);
-var
-  node: TTreeNode;
-  dummy: String;
-  plotChildData: Boolean;
-begin
-  node := TreeView.Selected;
-  if node = nil then
-    exit;
-
-  GetMapResourceParams(node, dummy, plotChildData);
-  ShowCoronaMap(node, MapDateScrollbar.Position, GetMapDataType, plotChildData);
 end;
 
 procedure TMainForm.MapToolsetDataPointClickToolPointClick(ATool: TChartTool;

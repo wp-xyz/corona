@@ -176,17 +176,22 @@ inherited MapFrame: TMapFrame
     end
   end
   object ChartToolset: TChartToolset[2]
-    left = 179
-    top = 155
+    Left = 179
+    Top = 155
     object InfoTool: TUserDefinedTool
       OnAfterMouseMove = InfoToolAfterMouseMove
     end
     object ZoomDragTool: TZoomDragTool
       Shift = [ssLeft]
       Brush.Style = bsClear
+      RestoreExtentOn = [zreDifferentDrag]
     end
     object PanDragTool: TPanDragTool
       Shift = [ssRight]
+    end
+    object DataPointClickTool: TDataPointClickTool
+      Shift = [ssLeft, ssDouble]
+      OnPointClick = DataPointClickToolPointClick
     end
   end
 end

@@ -17,6 +17,7 @@ type
 
   TMapFrame = class(TBasicFrame)
     ChartToolset: TChartToolset;
+    DataPointClickTool: TDataPointClickTool;
     InfoTool: TUserDefinedTool;
     PanDragTool: TPanDragTool;
     RightPanel: TPanel;
@@ -29,10 +30,10 @@ type
     DatePanel: TPanel;
     Splitter: TSplitter;
     procedure cmbDataTypeChange(Sender: TObject);
-    procedure InfoToolAfterMouseMove(ATool: TChartTool; APoint: TPoint);
+    procedure DataPointClickToolPointClick(ATool: TChartTool; {%H-}APoint: TPoint);
+    procedure InfoToolAfterMouseMove({%H-}ATool: TChartTool; APoint: TPoint);
     procedure MapDateScrollBarChange(Sender: TObject);
-    procedure PaletteListboxGetColors(Sender: TCustomColorListBox;
-      Items: TStrings);
+    procedure PaletteListboxGetColors(Sender: TCustomColorListBox; Items: TStrings);
 
   private
     FGeoMap: TcGeoMap;
@@ -70,7 +71,7 @@ implementation
 {$R *.lfm}
 
 uses
-  LCLType, Math,
+  LCLType,
   TAChartUtils, TAGeometry, TACustomSeries,
   {$IF LCL_FullVersion < 2010000}
   cFixes,
@@ -92,6 +93,20 @@ begin
   ShowMap(DataTree.Selected);
 end;
 
+procedure TMapFrame.DataPointClickToolPointClick(ATool: TChartTool;
+  APoint: TPoint);
+var
+  ser: TcGeoMapSeries;
+  node: TTreeNode;
+begin
+  if (ATool is TDataPointClickTool) and ((TDataPointClickTool(ATool).Series) is TcGeoMapSeries) then
+  begin
+    ser := TcGeoMapSeries(TDataPointClickTool(ATool).Series);
+    node := FindNodeWithGeoID(ser.GeoID);
+    DataTree.Selected := node;
+  end;
+end;
+
 procedure TMapFrame.InfoToolAfterMouseMove(ATool: TChartTool; APoint: TPoint);
 var
   ser: TcGeoMapSeries;
@@ -102,8 +117,6 @@ var
   d: TDate;
   i: Integer;
   dateIdx: Integer;
-  sR: String;
-  R: Double;
 begin
   params.FDistFunc := @PointDist;
   params.FOptimizeX := false;
@@ -123,27 +136,6 @@ begin
           dateIdx := data.GetDateIndex(MapDateScrollbar.Position + data.FirstDate);
           d := data.Date[dateIdx];
           ShowInfo(GetInfoTitle(node, d), GetInfoText(node, d));
-          {
-          R := data.CalcRValue(dateIdx);
-          if Math.IsNaN(R) then sR := '-' else sR := Format('%.1f',[R]);
-          DoShowInfo(
-            GetLocation(node) + LineEnding + FormatDateTime('dddddd', data.Date[dateIdx]),
-            Format(
-              'Total infected: %.0n' + LineEnding +
-              'Total deaths: %.0n' + LineEnding +
-              'New infected: %.0n' + LineEnding +
-              'New deaths: %.0n' + LineEnding +
-              'Incidence: %.1f' + LineEnding +
-              'R value: %s', [
-              data.RawData[pctConfirmed][dateIdx]*1.0,
-              data.RawData[pctDeaths][dateIdx]*1.0,
-              data.CalcNewCases(dateIdx, ctConfirmed)*1.0,
-              data.CalcNewCases(dateIdx, ctDeaths)*1.0,
-              data.CalcNormalizedNewCases(dateIdx, ctConfirmed),
-              sR  // R value
-            ])
-          );
-          }
           exit;
         end;
       end;
@@ -167,9 +159,6 @@ var
   plotChildData: Boolean;
 begin
   node := DataTree.Selected;
-{  if node = nil then
-    node := DataTree.Items.GetFirstNode;  // !!! Assuming that world is the first node
- }
   GetMapResourceParams(node, dummy, plotChildData);
   ShowCoronaMap(node, MapDateScrollbar.Position, GetMapDataType, plotChildData);
   DoDateSelect(GetDataItem(node).FirstDate + MapDateScrollbar.Position);
@@ -343,7 +332,6 @@ procedure TMapFrame.ShowCoronaMap(ADataNode: TTreeNode;
   ADateIndex: Integer; AMapDataType: TMapDataType; PlotChildNodeData: Boolean);
 var
   data: TcDataItem;
-  startDate: TDate;
   ct: TCaseType;
   title: String;
 begin
