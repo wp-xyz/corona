@@ -1755,12 +1755,12 @@ object MainForm: TMainForm
     Height = 294
     Top = 505
     Width = 967
-    ActivePage = pgChart
+    ActivePage = pgTable
     Align = alBottom
     BorderSpacing.Top = 6
     BorderSpacing.Right = 6
     BorderSpacing.Bottom = 6
-    TabIndex = 0
+    TabIndex = 1
     TabOrder = 2
     Visible = False
     object pgChart: TTabSheet
@@ -1846,7 +1846,6 @@ object MainForm: TMainForm
           Width = 130
           Chart = Chart
           OnAddSeries = ChartListboxAddSeries
-          OnCheckboxClick = ChartListboxCheckboxClick
           Align = alRight
           BorderSpacing.Left = 5
           ItemHeight = 0
@@ -2020,7 +2019,6 @@ object MainForm: TMainForm
         RowCount = 2
         TabOrder = 0
         OnDrawCell = GridDrawCell
-        OnPrepareCanvas = GridPrepareCanvas
       end
       object lblTableHdr: TLabel
         AnchorSideLeft.Control = pgTable
@@ -2932,13 +2930,11 @@ object MainForm: TMainForm
       Shift = [ssRight]
     end
     object MapToolsetDataPointHintTool: TDataPointHintTool
-      OnHint = MapToolsetDataPointHintToolHint
       UseApplicationHint = True
       UseDefaultHintText = False
     end
     object MapToolsetDataPointClickTool: TDataPointClickTool
       Shift = [ssLeft, ssDouble]
-      OnPointClick = MapToolsetDataPointClickToolPointClick
     end
   end
 end

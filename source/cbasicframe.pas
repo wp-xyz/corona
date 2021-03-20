@@ -39,6 +39,7 @@ type
  {$IFEND}
 
   protected
+    procedure CreateHandle; override;
     function GetCellText(ACol, ARow: Integer): String; virtual;
     function GetDataItem(ADataNode: TTreeNode): TcDataitem;
     function GetInfoText(ADataNode: TTreeNode; ADate: TDate): String; virtual;
@@ -83,6 +84,12 @@ begin
  {$IF LCL_FullVersion < 2010000}
   FResizeTimer.Enabled := true;
  {$IFEND}
+end;
+
+procedure TBasicFrame.CreateHandle;
+begin
+  inherited;
+  Grid.RowHeights[0] := 3 * Grid.Canvas.TextHeight('Tg') + 2* varCellPadding;
 end;
 
 function TBasicFrame.FindNodeWithGeoID(AGeoID: TGeoID): TTreeNode;

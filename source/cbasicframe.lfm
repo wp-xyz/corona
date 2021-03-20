@@ -14,9 +14,9 @@ object BasicFrame: TBasicFrame
     Height = 313
     Top = 26
     Width = 598
-    ActivePage = pgChart
+    ActivePage = pgTable
     Align = alClient
-    TabIndex = 0
+    TabIndex = 1
     TabOrder = 0
     object pgChart: TTabSheet
       Caption = 'Chart'
@@ -60,6 +60,7 @@ object BasicFrame: TBasicFrame
         Height = 200
         Top = 24
         Width = 438
+        DefaultColWidth = 80
         ExtendedSelect = False
         TabOrder = 0
         OnDrawCell = GridDrawCell
