@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
-    <Version Value="12"/>
+    <Version Value="11"/>
     <PathDelim Value="\"/>
     <General>
-      <Flags>
-        <CompatibilityMode Value="True"/>
-      </Flags>
       <SessionStorage Value="InProjectDir"/>
+      <MainUnit Value="0"/>
       <Title Value="corona"/>
       <Scaled Value="True"/>
       <ResourceType Value="res"/>
@@ -201,6 +199,7 @@
     </PublishOptions>
     <RunParams>
       <FormatVersion Value="2"/>
+      <Modes Count="0"/>
     </RunParams>
     <RequiredPackages Count="2">
       <Item1>
@@ -210,7 +209,7 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="17">
+    <Units Count="18">
       <Unit0>
         <Filename Value="corona.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -313,6 +312,11 @@
         <ResourceBaseClass Value="Frame"/>
         <UnitName Value="cTimeSeriesFrame"/>
       </Unit16>
+      <Unit17>
+        <Filename Value="cfixes.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="cFixes"/>
+      </Unit17>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

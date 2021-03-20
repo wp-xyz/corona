@@ -6,7 +6,7 @@ uses
   {$IFDEF UNIX}
   cthreads,
   {$ENDIF}
-  Interfaces, Forms, cmain, cBasicFrame, cMapFrame, cTimeSeriesFrame;
+  Interfaces, Forms, cmain, cBasicFrame, cMapFrame, cTimeSeriesFrame, cFixes;
 
 {$R *.res}
 

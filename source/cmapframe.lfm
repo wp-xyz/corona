@@ -38,9 +38,11 @@ inherited MapFrame: TMapFrame
             Title.LabelBrush.Style = bsClear
           end>
         BackColor = clForm
+        Foot.Font.Color = clWindowText
         Frame.Visible = False
         Proportional = True
         Title.Brush.Color = clWindow
+        Title.Font.Color = clWindowText
         Title.Font.Height = -13
         Title.Font.Style = [fsBold]
         Toolset = ChartToolset

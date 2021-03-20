@@ -7,7 +7,7 @@ interface
 uses
   Graphics, Classes, SysUtils, Forms, Controls, ExtCtrls, ComCtrls, Grids,
   LCLVersion, IniFiles,
-  TAGraph,
+  TAChartUtils, TAGraph,
   cGlobal, cDataSource, Types;
 
 type

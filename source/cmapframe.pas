@@ -6,7 +6,8 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ColorBox, IniFiles,
-  StdCtrls, ExtCtrls, ComCtrls, TATools,
+  StdCtrls, ExtCtrls, ComCtrls, LCLVersion,
+  TATools,
   cBasicFrame, cGlobal, cDataSource, cPalette, cGeoMap, Types;
 
 type
@@ -71,6 +72,9 @@ implementation
 uses
   LCLType, Math,
   TAChartUtils, TAGeometry, TACustomSeries,
+  {$IF LCL_FullVersion < 3020000}
+  cFixes,
+  {$IFEND}
   cGeoReaderKML, cPolygonSeries;
 
 constructor TMapFrame.Create(AOwner: TComponent);

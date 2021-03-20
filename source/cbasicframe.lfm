@@ -41,7 +41,9 @@ object BasicFrame: TBasicFrame
             Title.LabelBrush.Style = bsClear
           end>
         Foot.Brush.Color = clForm
+        Foot.Font.Color = clBlue
         Title.Brush.Color = clForm
+        Title.Font.Color = clBlue
         Title.Text.Strings = (
           'TAChart'
         )

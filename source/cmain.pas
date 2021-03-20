@@ -12,7 +12,7 @@ uses
   StdActns, ColorBox,
   TAGraph, TAIntervalSources, TASeries, TAChartListbox, TALegend,
   TACustomSeries, TATransformations, TATools, TAFuncSeries, TADataTools,
-  TAChartUtils,TADrawUtils,
+  TAChartUtils, TADrawUtils,
   cGlobal, cDataSource, cGeoMap, cPalette, cSeries, cMapFrame, cTimeSeriesFrame;
 
 type
@@ -290,10 +290,13 @@ implementation
 {$R *.lfm}
 
 uses
-  LCLIntf, Math, IniFiles, DateUtils, LCLPlatformDef,      strUtils,
+  LCLIntf, Math, IniFiles, DateUtils, LCLPlatformDef,
   // TAChart units
   TATypes, TAMath, TACustomSource, TAFitLib,
   // project-specific units
+  {$IF LCL_FullVersion < 3020000}
+  cFixes,
+  {$IFEND}
   cJohnsHopkinsUniversity, {$IFDEF RKI}cRobertKochInstitut,{$ENDIF}
   cPolygonSeries, cGeoReaderKML, cUtils, cAbout;
 
@@ -340,22 +343,6 @@ begin
     fn := GetAppConfigFile(false);
   Result := TMemIniFile.Create(fn);
 end;
-
-
-{$IF LCL_FullVersion < 2010000}
-type
-  TTreeNodeHelper = class helper for TTreeNode
-    function GetFirstSibling: TTreeNode;
-  end;
-
-function TTreeNodeHelper.GetFirstSibling: TTreeNode;
-begin
-  if Self.Parent = nil then
-    Result := Self.Owner.Owner.Items.GetFirstNode
-  else
-    Result := self.Parent.GetFirstChild;
-end;
-{$IFEND}
 
 
 { TMainForm }
