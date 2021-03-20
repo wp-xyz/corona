@@ -72,7 +72,7 @@ implementation
 uses
   LCLType, Math,
   TAChartUtils, TAGeometry, TACustomSeries,
-  {$IF LCL_FullVersion < 3020000}
+  {$IF LCL_FullVersion < 2010000}
   cFixes,
   {$IFEND}
   cGeoReaderKML, cPolygonSeries;

@@ -5,7 +5,7 @@ unit cTimeSeriesFrame;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Types, IniFiles,
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Types, IniFiles, LCLVersion,
   StdCtrls, ExtCtrls, ComCtrls, Grids,
   TAGraph, TACustomSeries, TASeries, TAFuncSeries, TAChartListbox, TAIntervalSources,
   TALegend, TATransformations, TATools, TADataTools,
@@ -41,6 +41,7 @@ type
     procedure ChartListboxAddSeries(ASender: TChartListbox;
       ASeries: TCustomChartSeries; AItems: TChartLegendItems; var ASkip: Boolean);
     procedure ChartListboxClick(Sender: TObject);
+    procedure ChartResize(Sender: TObject);
     procedure CheckedCasesChange(Sender: TObject);
     procedure cmbDataTypeChange(Sender: TObject);
     procedure CrossHairToolDraw(ASender: TDataPointDrawTool);
@@ -140,6 +141,11 @@ begin
 
   CreateMeasurementSeries;
   FixChartColors;
+
+  {$IF LCL_FullVersion >= 2010000}
+  ZoomDragTool.LimitToExtent := [zdDown, zdLeft, zdRight, zdUp];
+  PanDragTool.LimitToExtent := [pdDown, pdLeft, pdRight, pdUp];
+  {$IFEND}
 end;
 
 procedure TTimeSeriesFrame.cmbDataTypeChange(Sender: TObject);
@@ -472,6 +478,12 @@ end;
 procedure TTimeSeriesFrame.ChartListboxClick(Sender: TObject);
 begin
   UpdateAffectedSeries;
+end;
+
+procedure TTimeSeriesFrame.ChartResize(Sender: TObject);
+begin
+  inherited;
+  LessChartSymbols;
 end;
 
 procedure TTimeSeriesFrame.CheckCases(ACaseTypes: TCaseTypes);
@@ -1030,14 +1042,9 @@ end;
 procedure TTimeSeriesFrame.RestoreSeriesNodesFromList(AList: TFPList);
 var
   i: Integer;
-  node: TTreeNode;
 begin
   for i := 0 to AList.Count-1 do
-  begin
-//    node := TTreeNode(AList[i]);
-//    if not ((node.Text <> '') and (node.Text[1] = '(')) then   // <--------- FIX ME: can be skipped?
-      ShowTimeSeries(TTreeNode(AList[i]));
-  end;
+    ShowTimeSeries(TTreeNode(AList[i]));
 end;
 
 // Store nodes belonging to currently available series in a list

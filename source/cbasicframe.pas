@@ -32,6 +32,12 @@ type
     FDataTree: TTreeView;
     FOnShowInfo: TShowInfoEvent;
 
+ {$IF LCL_FullVersion < 2010000}
+  private
+    FResizeTimer: TTimer;
+    procedure ResizeTimerHandler(Sender: TObject);
+ {$IFEND}
+
   protected
     function GetCellText(ACol, ARow: Integer): String; virtual;
     function GetDataItem(ADataNode: TTreeNode): TcDataitem;
@@ -41,6 +47,7 @@ type
     procedure ShowInfo(const ATitle, AText: String); virtual;
 
   public
+    constructor Create(AOwner: TComponent); override;
     function FindNodeWithGeoID(AGeoID: TGeoID): TTreeNode;
     procedure LoadFromIni(ini: TCustomIniFile); virtual;
     procedure SaveToIni(ini: TCustomIniFile); virtual;
@@ -59,9 +66,23 @@ uses
   Math,
   cUtils;
 
+constructor TBasicFrame.Create(AOwner: TComponent);
+begin
+  inherited;
+
+ {$IF LCL_FullVersion < 2010000}
+  FResizeTimer := TTimer.Create(self);
+  FResizeTimer.Enabled := false;
+  FResizeTimer.Interval := 50;
+  FResizeTimer.OnTimer := @ResizeTimerHandler;
+ {$IFEND}
+end;
+
 procedure TBasicFrame.ChartResize(Sender: TObject);
 begin
-  WordwrapChart(Chart);
+ {$IF LCL_FullVersion < 2010000}
+  FResizeTimer.Enabled := true;
+ {$IFEND}
 end;
 
 function TBasicFrame.FindNodeWithGeoID(AGeoID: TGeoID): TTreeNode;
@@ -146,10 +167,15 @@ begin
 end;
 
 function TBasicFrame.GetInfoTitle(ADataNode: TTreeNode; ADate: TDate): String;
+var
+  fmt: String;
 begin
   Result := '';
   if Assigned(ADataNode) then
-    Result := GetLocation(ADataNode) + LineEnding + FormatDateTime('dddddd', ADate);
+  begin
+    fmt := 'ddd, ddddd';  // weekday (abbrev) + short date format
+    Result := GetLocation(ADataNode) + LineEnding + FormatDateTime(fmt, ADate);
+  end;
 end;
 
 function TBasicFrame.GetLocation(ADataNode: TTreeNode): String;
@@ -201,6 +227,15 @@ procedure TBasicFrame.LoadFromIni(ini: TCustomIniFile);
 begin
   // to be overridden by descendants
 end;
+
+{$IF LCL_FullVersion < 2010000}
+procedure TBasicFrame.ResizeTimerHandler(Sender: TObject);
+begin
+  FResizeTimer.Enabled := false;
+  WordwrapChart(Chart);
+end;
+{$IFEND}
+
 
 procedure TBasicFrame.SaveToIni(ini: TCustomIniFile);
 begin

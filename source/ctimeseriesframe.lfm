@@ -2,8 +2,6 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
   DesignLeft = 358
   DesignTop = 130
   inherited PageControl: TPageControl
-    ActivePage = pgChart
-    TabIndex = 0
     inherited pgChart: TTabSheet
       inherited Chart: TChart
         Height = 285
@@ -40,6 +38,7 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
           end>
         Toolset = ChartToolset
         Align = alClient
+        OnResize = ChartResize
       end
       object ChartListbox: TChartListbox[1]
         Left = 460
@@ -215,26 +214,26 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
   object DateTimeIntervalChartSource: TDateTimeIntervalChartSource[2]
     Params.MaxLength = 120
     Params.MinLength = 30
-    Left = 336
-    Top = 240
+    left = 336
+    top = 240
   end
   object LeftAxisTransformations: TChartAxisTransformations[3]
-    Left = 112
-    Top = 88
+    left = 112
+    top = 88
     object LeftAxisLogTransform: TLogarithmAxisTransform
       Base = 10
     end
   end
   object BottomAxisTransformations: TChartAxisTransformations[4]
-    Left = 160
-    Top = 240
+    left = 160
+    top = 240
     object BottomAxisLogTransform: TLogarithmAxisTransform
       Base = 10
     end
   end
   object ChartToolset: TChartToolset[5]
-    Left = 240
-    Top = 144
+    left = 240
+    top = 144
     object MeasurementTool: TDataPointDistanceTool
       Shift = [ssCtrl, ssLeft]
       OnAfterMouseUp = MeasurementToolAfterMouseUp

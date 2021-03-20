@@ -53,7 +53,6 @@ type
     MenuItem15: TMenuItem;
     DisplayPanel: TPanel;
     NameLabel: TLabel;
-    ResizeTimer: TTimer;
     MapToolset: TChartToolset;
     MapDateLabel: TLabel;
     MapToolsetDataPointClickTool: TDataPointClickTool;
@@ -165,12 +164,8 @@ type
     procedure ChartListboxAddSeries(ASender: TChartListbox;
       ASeries: TCustomChartSeries; AItems: TChartLegendItems; var ASkip: Boolean);
     procedure ChartListboxCheckboxClick(ASender: TObject; AIndex: Integer);
-    procedure ChartResize(Sender: TObject);
-
     procedure clbCasesClickCheck(Sender: TObject);
-    procedure cmbDataTypeChange(Sender: TObject);
     procedure cmbDataTypeDropDown(Sender: TObject);
-    procedure cmbMapDataTypeChange(Sender: TObject);
     procedure CrossHairToolDraw(ASender: TDataPointDrawTool);
 
     procedure FormActivate(Sender: TObject);
@@ -182,8 +177,6 @@ type
       aState: TGridDrawState);
     procedure GridPrepareCanvas(sender: TObject; aCol, aRow: Integer;
       aState: TGridDrawState);
-
-    procedure MapChartResize(Sender: TObject);
 
     procedure MapDateScrollbarChange(Sender: TObject);
     procedure MapToolsetDataPointClickToolPointClick(ATool: TChartTool;
@@ -197,8 +190,6 @@ type
 
     procedure PaletteListboxGetColors(Sender: TCustomColorListBox;
       Items: TStrings);
-
-    procedure ResizeTimerTimer(Sender: TObject);
 
     procedure ToolBarResize(Sender: TObject);
 
@@ -268,7 +259,6 @@ type
     procedure UpdateInfectiousPeriod;
     procedure UpdateStatusBar(ASeparator: String = ' ');
     procedure UpdateTimeSeriesActions(Sender: TObject);
-    procedure WordwrapChart(AChart: TChart);
 
     procedure SetDisplayMode(AMode: TDisplayMode);
     procedure ShowInfoHandler(Sender: TObject; const ATitle, AInfos: String);
@@ -791,12 +781,6 @@ begin
   UpdateAffectedSeries;
 end;
 
-procedure TMainForm.ChartResize(Sender: TObject);
-begin
-  LessChartSymbols;
-  ResizeTimer.Enabled := true;
-end;
-
 procedure TMainForm.clbCasesClickCheck(Sender: TObject);
 var
   L: TFPList;
@@ -912,7 +896,7 @@ begin
     ChartListBox.Chart := Chart;
   end;
 end;
-
+                       (*
 procedure TMainForm.cmbDataTypeChange(Sender: TObject);
 var
   L: TFPList;
@@ -995,7 +979,7 @@ begin
     L.Free;
   end;
 end;
-
+           *)
 procedure TMainForm.cmbDataTypeDropDown(Sender: TObject);
 var
   i, w: Integer;
@@ -1008,11 +992,6 @@ begin
   }
 end;
 
-procedure TMainForm.cmbMapDataTypeChange(Sender: TObject);
-begin
-  //PopulatePaletteListbox(GetMapDataType);
-  //ShowMap(TreeView.Selected);
-end;
 
 procedure TMainForm.CreateMeasurementSeries;
 begin
@@ -1091,7 +1070,7 @@ begin
     Chart.LeftAxis.Grid.Color := BrighterColor(clr, +0.15);
   Chart.BottomAxis.Grid.Color := Chart.LeftAxis.Grid.Color;
 
-  WordwrapChart(Chart);
+//  WordwrapChart(Chart);
 end;
 
 procedure TMainForm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -1136,13 +1115,6 @@ begin
   FDisplaySplitterPos := 200;
   WheelZoomTool.ZoomFactor := 1.05;
   WheelZoomTool.ZoomRatio := 1.0 / WheelZoomTool.ZoomFactor;
-
-  {$IF LCL_FullVersion >= 2010000}
-  Chart.LeftAxis.Title.Wordwrap := true;
-  MapChart.Title.Wordwrap := true;
-  ZoomDragTool.LimitToExtent := [zdDown, zdLeft, zdRight, zdUp];
-  PanDragTool.LimitToExtent := [pdDown, pdLeft, pdRight, pdUp];
-  {$ENDIF}
 
   //clbCases.Checked[0] := true;
   Grid.RowHeights[0] := 3 * Grid.Canvas.TextHeight('Tg') + 2* varCellPadding;
@@ -1533,11 +1505,6 @@ begin
   Grid.Canvas.TextStyle := ts;
 end;
 
-procedure TMainForm.MapChartResize(Sender: TObject);
-begin
-  ResizeTimer.Enabled := true;
-end;
-
 procedure TMainForm.MapDateScrollbarChange(Sender: TObject);
 var
   node: TTreeNode;
@@ -1778,16 +1745,6 @@ begin
   Items.AddObject(Format(mask1, [nextItem.Value*m]), TObject(PtrInt(nextItem.Color)));
 end;
 
-procedure TMainForm.ResizeTimerTimer(Sender: TObject);
-begin
-  ResizeTimer.Enabled := false;
-
-  if acChartMap.Checked then
-    WordwrapChart(MapChart);
-
-  if acChartTimeSeries.Checked then
-    WordwrapChart(Chart);
-end;
 
 (*
 procedure TMainForm.PopulateCumulativeSeries(const ADates, AValues: TStringArray;
@@ -3260,39 +3217,6 @@ procedure TMainForm.ToolBarResize(Sender: TObject);
 begin
   tbAbout.Left := Toolbar.Width - tbAbout.Width;
 end;
-
-procedure TMainForm.WordwrapChart(AChart: TChart);
-{$IF LCL_FullVersion >= 2010000}
-// In Laz 2.1+, wordwrapping of titles is provided by TAChart itself.
-begin
-  Unused(AChart);
-end;
-{$ELSE}
-function EqualExtent(X, Y: TDoubleRect): Boolean;
-begin
-  Result := (X.a.x = Y.a.x) and (X.a.y = Y.a.y) and
-            (X.b.x = Y.b.x) and (X.b.y = Y.b.y);
-end;
-
-var
-  s: String;
-  ext: TDoubleRect;
-  maxLen: Integer;
-begin
-  ext := AChart.LogicalExtent;
-  if EqualExtent(ext, EmptyExtent) then
-    maxLen := AChart.Height * 2 div 3
-  else
-    maxLen := AChart.ClipRect.Height;
-  s := StripLineEndings(AChart.LeftAxis.Title.Caption);
-  AChart.LeftAxis.Title.Caption := Wordwrap(s, AChart.LeftAxis.Title.LabelFont, maxLen);
-
-  maxLen := AChart.ClientWidth;
-  s := StripLineEndings(AChart.Title.Text.Text);
-  AChart.Title.Text.Text := WordWrap(s, AChart.Title.Font, maxLen);
-end;
-{$IFEND}
-
 
 initialization
   BaseDate := EncodeDate(2020, 1, 1);
