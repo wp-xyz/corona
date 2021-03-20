@@ -1702,7 +1702,7 @@ object MainForm: TMainForm
     TabOrder = 0
     object TreeView: TTreeView
       Left = 0
-      Height = 449
+      Height = 351
       Hint = 'Click on the country to display'
       Top = 0
       Width = 229
@@ -1714,18 +1714,53 @@ object MainForm: TMainForm
       OnSelectionChanged = TreeViewSelectionChanged
       Options = [tvoAutoItemHeight, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
     end
+    object InfoPanel: TPanel
+      Left = 0
+      Height = 94
+      Top = 355
+      Width = 229
+      Align = alBottom
+      AutoSize = True
+      BorderSpacing.Top = 4
+      BevelOuter = bvNone
+      ClientHeight = 94
+      ClientWidth = 229
+      TabOrder = 1
+      object InfoLabel: TLabel
+        Left = 0
+        Height = 60
+        Top = 34
+        Width = 229
+        Align = alTop
+        Caption = #13#10#13#10#13#10
+        ParentColor = False
+      end
+      object NameLabel: TLabel
+        Left = 0
+        Height = 30
+        Top = 0
+        Width = 229
+        Align = alTop
+        BorderSpacing.Bottom = 4
+        Caption = '     '#13#10'   '
+        Font.Style = [fsBold]
+        ParentColor = False
+        ParentFont = False
+        WordWrap = True
+      end
+    end
   end
   object PageControl: TPageControl
     Left = 0
     Height = 294
     Top = 505
     Width = 967
-    ActivePage = pgTable
+    ActivePage = pgChart
     Align = alBottom
     BorderSpacing.Top = 6
     BorderSpacing.Right = 6
     BorderSpacing.Bottom = 6
-    TabIndex = 1
+    TabIndex = 0
     TabOrder = 2
     Visible = False
     object pgChart: TTabSheet
@@ -2194,8 +2229,7 @@ object MainForm: TMainForm
   end
   object ImageList: TImageList
     Scaled = True
-    Left = 480
-    Top = 24
+    Left = 592
     Bitmap = {
       4C7A0B0000001000000010000000F10900000000000078DAED5A7B5053571A87
       767676F6CF9DD99D4EF7D5EEB69DE98CEE1F3BEECC4EFFD9A910A0152D04A4BA
@@ -2640,8 +2674,7 @@ object MainForm: TMainForm
   end
   object MainMenu: TMainMenu
     Images = ImageList
-    Left = 640
-    Top = 24
+    Left = 744
     object mnuFile: TMenuItem
       Caption = 'File'
       object mnuFileQuit: TMenuItem
@@ -2747,8 +2780,7 @@ object MainForm: TMainForm
   end
   object ActionList: TActionList
     Images = ImageList
-    Left = 560
-    Top = 24
+    Left = 672
     object acFileExit: TFileExit
       Category = 'File'
       Caption = 'Quit'

@@ -1,0 +1,76 @@
+object BasicFrame: TBasicFrame
+  Left = 0
+  Height = 339
+  Top = 0
+  Width = 598
+  BorderSpacing.Around = 4
+  ClientHeight = 339
+  ClientWidth = 598
+  TabOrder = 0
+  DesignLeft = 256
+  DesignTop = 127
+  object PageControl: TPageControl
+    Left = 0
+    Height = 313
+    Top = 26
+    Width = 598
+    ActivePage = pgTable
+    Align = alClient
+    TabIndex = 1
+    TabOrder = 0
+    object pgChart: TTabSheet
+      Caption = 'Chart'
+      ClientHeight = 285
+      ClientWidth = 590
+      object Chart: TChart
+        Left = 0
+        Height = 224
+        Top = 0
+        Width = 414
+        AxisList = <        
+          item
+            Marks.LabelBrush.Style = bsClear
+            Minors = <>
+            Title.LabelFont.Orientation = 900
+            Title.LabelBrush.Style = bsClear
+          end        
+          item
+            Alignment = calBottom
+            Marks.LabelBrush.Style = bsClear
+            Minors = <>
+            Title.LabelBrush.Style = bsClear
+          end>
+        Foot.Brush.Color = clForm
+        Title.Brush.Color = clForm
+        Title.Text.Strings = (
+          'TAChart'
+        )
+        Color = clWindow
+        OnResize = ChartResize
+      end
+    end
+    object pgTable: TTabSheet
+      Caption = 'Table'
+      ClientHeight = 285
+      ClientWidth = 590
+      object Grid: TDrawGrid
+        Left = 56
+        Height = 200
+        Top = 24
+        Width = 438
+        ExtendedSelect = False
+        TabOrder = 0
+        OnDrawCell = GridDrawCell
+        OnPrepareCanvas = GridPrepareCanvas
+      end
+    end
+  end
+  object ToolBar: TToolBar
+    Left = 0
+    Height = 26
+    Top = 0
+    Width = 598
+    Caption = 'ToolBar'
+    TabOrder = 1
+  end
+end

@@ -48,6 +48,7 @@ type
     function GetDataArray(ACaseType: TCaseType; ADataType: TDataType): TValueArray;
     function GetSmoothedDataArray(ACaseType: TCaseType; ADataType: TDataType; SmoothingInterval: Integer): TValueArray;
 
+    function CalcNewCases(AIndex: Integer; ACaseType: TCaseType): TCaseCount;
     function CalcNormalizedNewCases(AIndex: Integer; ACaseType: TCaseType): Double;
     function CalcRValue(AIndex: Integer; out R, dR: Double): Boolean; overload;
     function CalcRValue(AIndex: Integer): Double; overload;
@@ -137,6 +138,36 @@ const
   REFERENCE_POPULATION = 100000;
 
 { TcDataItem }
+
+function TcDataItem.CalcNewCases(AIndex: Integer; ACaseType: TCaseType): TCaseCount;
+var
+  j: Integer;
+  accum_Today, accum_Yesterday: TCaseCount;
+begin
+  Result := 0;
+
+  if Length(FRawData[pctConfirmed]) = 0 then
+    exit;
+
+  if AIndex < 0 then
+    AIndex := 0;
+  if AIndex > High(FRawData[pctConfirmed]) then
+    AIndex := High(FRawData[pctConfirmed]);
+  j := AIndex - 1;
+  if j < 0 then j := 0;
+
+  if ACaseType = ctSick then
+  begin
+    accum_Today := FRawData[pctConfirmed,AIndex] - FRawData[pctDeaths, AIndex] - FRawData[pctRecovered, AIndex];
+    accum_Yesterday := FRawData[pctConfirmed, j] - FRawData[pctDeaths, j] - FRawData[pctRecovered, j];
+  end else
+  begin
+    accum_Today := FRawData[TPrimaryCaseType(ACaseType), AIndex];
+    accum_Yesterday := FRawdata[TPrimaryCaseType(ACaseType), j];
+  end;
+
+  Result := accum_Today - accum_Yesterday;
+end;
 
 function TcDataItem.CalcNormalizedNewCases(AIndex: Integer; ACaseType: TCaseType): Double;
 var

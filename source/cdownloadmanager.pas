@@ -271,6 +271,8 @@ procedure TDownloadForm.ShowStatus(const ALen, APos: Int64);
 var
   currentPercent: Double;
 begin
+  if ALen = 0 then
+    exit;
   currentPercent:= (APos*100)/ALen;
   pbBytes.Position:= round(currentPercent);
   lblBytes.Caption:= Format('%s of %s', [FormatBytes(APos), FormatBytes(ALen)]);

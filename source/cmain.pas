@@ -9,8 +9,8 @@ interface
 uses
   LCLType, Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls,
   ExtCtrls, StdCtrls, Buttons, Grids, Types, LCLVersion, Menus, ActnList,
-  StdActns, CheckLst, ColorBox,
-  TAGraph, TAIntervalSources, TASeries, TAChartListbox, TALegend, TASources,
+  StdActns, ColorBox,
+  TAGraph, TAIntervalSources, TASeries, TAChartListbox, TALegend,
   TACustomSeries, TATransformations, TATools, TAFuncSeries, TADataTools,
   TAChartUtils,TADrawUtils,
   cGlobal, cDataSource, cGeoMap, cPalette, cSeries, cMapFrame, cTimeSeriesFrame;
@@ -48,8 +48,11 @@ type
     BottomAxisTransformations: TChartAxisTransformations;
     BottomAxisLogTransform: TLogarithmAxisTransform;
     DateIndicatorLine: TConstantLine;
+    InfoLabel: TLabel;
+    InfoPanel: TPanel;
     MenuItem15: TMenuItem;
     DisplayPanel: TPanel;
+    NameLabel: TLabel;
     ResizeTimer: TTimer;
     MapToolset: TChartToolset;
     MapDateLabel: TLabel;
@@ -268,6 +271,7 @@ type
     procedure WordwrapChart(AChart: TChart);
 
     procedure SetDisplayMode(AMode: TDisplayMode);
+    procedure ShowInfoHandler(Sender: TObject; const ATitle, AInfos: String);
     procedure TimeSeriesFrameResize(Sender: TObject);
 
     procedure LoadIni;
@@ -286,7 +290,7 @@ implementation
 {$R *.lfm}
 
 uses
-  LCLIntf, Math, IniFiles, DateUtils, LCLPlatformDef,
+  LCLIntf, Math, IniFiles, DateUtils, LCLPlatformDef,      strUtils,
   // TAChart units
   TATypes, TAMath, TACustomSource, TAFitLib,
   // project-specific units
@@ -1114,6 +1118,7 @@ begin
   FMapFrame := TMapFrame.Create(self);
   FMapFrame.DataTree := TreeView;
   FMapFrame.Align := alClient;
+  FMapFrame.OnShowInfo := @ShowInfoHandler;
   FMapFrame.Hide;
   FMapFrame.Parent := DisplayPanel;
 
@@ -1122,6 +1127,7 @@ begin
   FTimeSeriesFrame.Align := alBottom;
   FTimeSeriesFrame.DataTree := TreeView;
   FTimeSeriesFrame.OnResize := @TimeSeriesFrameResize;
+  FTimeSeriesFrame.OnShowInfo := @ShowInfoHandler;
   FTimeSeriesFrame.OnUpdateActions := @UpdateTimeSeriesActions;
   FTimeSeriesFrame.Hide;
   FTimeSeriesFrame.Parent := DisplayPanel;
@@ -1161,6 +1167,7 @@ begin
   FreeAndNil(DateIndicatorLine);  // needed at designtime, will be recreated
 
   PopulatePaletteListbox(GetMapDataType);
+  ShowInfoHandler(nil, '', '');
 end;
 
 procedure TMainForm.FormShow(Sender: TObject);
@@ -2810,10 +2817,11 @@ begin
   {$ENDIF}
 
   LoadLocations;
-
+                                   {
   FStatusText1 := 'Locations loaded.';
   FStatusText2 := '';
   UpdateStatusbar;
+  }
 end;
 
 procedure TMainForm.UpdateDateIndicatorLine(ADate: TDate);
@@ -3213,6 +3221,41 @@ begin
   if acChartMap.Checked then
     ShowMap(TreeView.Selected);
     *)
+end;
+
+procedure TMainForm.ShowInfoHandler(Sender: TObject; const ATitle, AInfos: String);
+var
+  s: String;
+  L: TStrings;
+begin
+  if ATitle = '' then
+    NameLabel.Caption := ' ' + LineEnding + ' '
+  else
+    NameLabel.Caption := ATitle;
+
+  if AInfos = '' then
+    InfoLabel.Caption := LineEnding + LineEnding + LineEnding + LineEnding + LineEnding
+  else
+    InfoLabel.Caption := AInfos;
+{
+  L := TStringList.Create;
+  try
+   // L.SkipLastLineBreak := true;
+
+    if ATitle = '' then
+      L.Text := Atitle;
+
+    L.Text := ATitle;
+    while L.Count < 2 do L.Add('');
+    NameLabel.Caption := ATitle;
+
+    L.Text := AInfos;
+    while L.Count < 6 do L.Add('');
+    InfoLabel.Caption := L.Text;
+  finally
+    L.Free;
+  end;
+  }
 end;
 
 procedure TMainForm.ShowVersionInfo;
