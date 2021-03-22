@@ -36,6 +36,7 @@ type
     PanDragTool: TPanDragTool;
     Panel1: TPanel;
     Splitter1: TSplitter;
+    StatusBar: TStatusBar;
     WheelZoomTool: TZoomMouseWheelTool;
     ZoomDragTool: TZoomDragTool;
     procedure ChartListboxAddSeries(ASender: TChartListbox;
@@ -51,8 +52,8 @@ type
     procedure MeasurementToolMeasure(ASender: TDataPointDistanceTool);
 
   private
-    FMeasurementSeries: TFuncSeries;
     FDateIndicatorLine: TConstantLine;
+    FMeasurementSeries: TFuncSeries;
     FFitCoeffs: array[0..1] of Double;
     FCheckedCases: array[TCaseType] of TCheckbox;
     FLastDate: TDate;
@@ -97,6 +98,7 @@ type
     procedure UpdateData;
     procedure UpdateDateIndicatorLine(Sender: TObject; ADate: TDate);
     procedure UpdateInfectiousPeriod;
+    procedure UpdateStatusbar(AText: String);
 
     property OnUpdateActions: TUpdateTimeSeriesActions read FOnUpdateActions write FOnUpdateActions;
 
@@ -133,6 +135,8 @@ var
 constructor TTimeSeriesFrame.Create(AOwner: TComponent);
 begin
   inherited;
+
+  DateOffset := BaseDate;
 
   FCheckedCases[ctConfirmed] := cbInfected;
   FCheckedCases[ctDeaths] := cbDeaths;
@@ -393,9 +397,9 @@ begin
   n := 0;
   for i := 0 to ser.Count-1 do begin
     xval := ser.XValue[i];
-    if not SameValue(xval, xmax, EPS) and (xval > xmax) then
+    if GreaterThan(xval, xmax) then
       break;
-    if not SameValue(xval, xmin) and (xval < xmin) then
+    if LessThan(xval, xmin) then
       continue;
     yval := ser.YValue[i];
     if yval <= 0 then
@@ -806,9 +810,7 @@ end;
 procedure TTimeSeriesFrame.MeasurementToolAfterMouseUp(ATool: TChartTool; APoint: TPoint);
 begin
   FMeasurementSeries.Active := false;
-
-  //FStatusText2 := '';  <------------ FIX ME
-  //UpdateStatusbar;     <------------ FIX ME
+  UpdateStatusbar('');
 end;
 
 procedure TTimeSeriesFrame.MeasurementToolGetDistanceText(
@@ -838,7 +840,7 @@ begin
       FFitCoeffs[0] := exp(FFitCoeffs[0]);
       FMeasurementSeries.Active := false;
       ser := TChartSeries(ASender.PointStart.Series);
-      s := Format('Daily growth: %.0f %% / Doubles every %.1f days --> %.0n cases in 1 week --> %.0n cases in 2 weeks / Reproduction number R0: %.1f', [
+      s := Format('Daily growth: %.0f %% / Doubles every %.1f days --> %.0n cases in 1 week --> %.0n cases in 2 weeks / Reproduction number R: %.1f', [
         (exp(FFitCoeffs[1]) - 1)*100,
         -ln(0.5) / FFitCoeffs[1],
         exp(FFitCoeffs[1] * 7) * ser.YValue[ser.Count-1],
@@ -848,8 +850,7 @@ begin
       ok := true;
     end;
   FMeasurementSeries.Active := ok;
-  //FStatusText2 := s;       // <----------- FIX ME
-  //UpdateStatusbar('. ');   // <----------- FIX ME
+  UpdateStatusbar(s);
 end;
 
 procedure TTimeSeriesFrame.MeasurementToolMeasure(ASender: TDataPointDistanceTool);
@@ -1231,6 +1232,12 @@ procedure TTimeSeriesFrame.UpdateInfectiousPeriod;
 begin
   cmbDataType.Items[7] := Format('Reproduction number (R, % days)', [InfectiousPeriod]);
   UpdateData;
+end;
+
+procedure TTimeSeriesFrame.UpdateStatusbar(AText: String);
+begin
+  Statusbar.SimpleText := AText;
+  Statusbar.Update;
 end;
 
 initialization

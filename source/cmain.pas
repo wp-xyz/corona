@@ -137,7 +137,6 @@ type
     LeftPanel: TPanel;
     TreeSplitter: TSplitter;
     RightSplitter: TSplitter;
-    StatusBar: TStatusBar;
     TreeView: TTreeView;
     procedure acAboutExecute(Sender: TObject);
     procedure acChartCopyToClipboardExecute(Sender: TObject);
@@ -2351,6 +2350,7 @@ end;
 
 procedure TMainForm.UpdateStatusbar(ASeparator: String = ' ');
 begin
+  (*
   if (FStatusText1 <> '') and (FStatusText2 <> '') then
     Statusbar.SimpleText := FStatusText1 + ASeparator + FStatusText2
   else if (FStatusText1 <> '') then
@@ -2360,6 +2360,7 @@ begin
   else
     Statusbar.SimpleText := '';
   Statusbar.Update;
+  *)
 end;
 
 procedure TMainForm.UpdateTimeSeriesActions(Sender: TObject);

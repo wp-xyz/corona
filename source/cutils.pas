@@ -26,6 +26,10 @@ function UnQuote(const s: String): String;
 function WordWrap(const AText: String; AFont: TFont; AMaxWidth: Integer): string;
 {$IFEND}
 
+function GreaterEqual(a, b: Double; Epsilon:Double = 0.0): Boolean;
+function GreaterThan(a, b: Double; Epsilon:Double = 0.0): Boolean;
+function LessEqual(a, b: Double; Epsilon:Double = 0.0): Boolean;
+function LessThan(a, b: Double; Epsilon:Double = 0.0): Boolean;
 
 implementation
 
@@ -298,5 +302,25 @@ begin
   end;
 end;
 {$IFEND}
+
+function GreaterEqual(a, b: Double; Epsilon: Double = 0.0): Boolean;
+begin
+  Result := (a > b) or SameValue(a, b, Epsilon);
+end;
+
+function GreaterThan(a, b: Double; Epsilon: Double = 0.0): Boolean;
+begin
+  Result := (a > b) and not SameValue(a, b, Epsilon);
+end;
+
+function LessEqual(a, b: Double; Epsilon: Double = 0.0): Boolean;
+begin
+  Result := (a < b) or SameValue(a, b, Epsilon);
+end;
+
+function LessThan(a, b: Double; Epsilon: Double = 0.0): Boolean;
+begin
+  Result := (a < b) and not SameValue(a, b, Epsilon);
+end;
 
 end.

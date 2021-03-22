@@ -1673,21 +1673,14 @@ object MainForm: TMainForm
   LCLVersion = '2.1.0.0'
   object TreeSplitter: TSplitter
     Left = 238
-    Height = 455
+    Height = 478
     Top = 44
     Width = 5
     ResizeStyle = rsPattern
   end
-  object StatusBar: TStatusBar
-    Left = 0
-    Height = 23
-    Top = 805
-    Width = 973
-    Panels = <>
-  end
   object LeftPanel: TPanel
     Left = 6
-    Height = 449
+    Height = 472
     Top = 50
     Width = 229
     Align = alLeft
@@ -1696,13 +1689,13 @@ object MainForm: TMainForm
     BorderSpacing.Right = 3
     BorderSpacing.Bottom = 6
     BevelOuter = bvNone
-    ClientHeight = 449
+    ClientHeight = 472
     ClientWidth = 229
     Constraints.MinWidth = 120
     TabOrder = 0
     object TreeView: TTreeView
       Left = 0
-      Height = 351
+      Height = 374
       Hint = 'Click on the country to display'
       Top = 0
       Width = 229
@@ -1717,7 +1710,7 @@ object MainForm: TMainForm
     object InfoPanel: TPanel
       Left = 0
       Height = 94
-      Top = 355
+      Top = 378
       Width = 229
       Align = alBottom
       AutoSize = True
@@ -1753,14 +1746,14 @@ object MainForm: TMainForm
   object PageControl: TPageControl
     Left = 0
     Height = 294
-    Top = 505
+    Top = 528
     Width = 967
-    ActivePage = pgTable
+    ActivePage = pgChart
     Align = alBottom
     BorderSpacing.Top = 6
     BorderSpacing.Right = 6
     BorderSpacing.Bottom = 6
-    TabIndex = 1
+    TabIndex = 0
     TabOrder = 2
     Visible = False
     object pgChart: TTabSheet
@@ -2059,7 +2052,7 @@ object MainForm: TMainForm
     EdgeBorders = [ebTop, ebBottom]
     Images = ImageList
     ShowCaptions = True
-    TabOrder = 4
+    TabOrder = 3
     OnResize = ToolBarResize
     object ToolButton1: TToolButton
       Left = 1
@@ -2157,7 +2150,7 @@ object MainForm: TMainForm
   end
   object DisplayPanel: TPanel
     Left = 246
-    Height = 449
+    Height = 472
     Top = 50
     Width = 721
     Align = alClient
@@ -2165,7 +2158,7 @@ object MainForm: TMainForm
     BorderSpacing.Top = 6
     BorderSpacing.Right = 6
     BevelOuter = bvNone
-    TabOrder = 5
+    TabOrder = 4
   end
   object DateTimeIntervalChartSource: TDateTimeIntervalChartSource
     Params.MaxLength = 120

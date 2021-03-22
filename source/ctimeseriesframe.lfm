@@ -2,9 +2,11 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
   DesignLeft = 358
   DesignTop = 130
   inherited PageControl: TPageControl
+    ActivePage = pgChart
+    TabIndex = 0
     inherited pgChart: TTabSheet
       inherited Chart: TChart
-        Height = 285
+        Height = 262
         Width = 451
         AxisList = <        
           item
@@ -42,7 +44,7 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
       end
       object ChartListbox: TChartListbox[1]
         Left = 460
-        Height = 285
+        Height = 262
         Hint = 'Uncheck to remove a curve temporarily.'
         Top = 0
         Width = 130
@@ -56,11 +58,18 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
       end
       object Splitter1: TSplitter[2]
         Left = 451
-        Height = 285
+        Height = 262
         Top = 0
         Width = 5
         Align = alRight
         ResizeAnchor = akRight
+      end
+      object StatusBar: TStatusBar[3]
+        Left = 0
+        Height = 23
+        Top = 262
+        Width = 590
+        Panels = <>
       end
     end
     inherited pgTable: TTabSheet
@@ -78,14 +87,6 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
         Width = 578
         Anchors = [akTop, akLeft, akRight, akBottom]
         BorderSpacing.Around = 6
-        DefaultColWidth = 80
-        ColWidths = (
-          80
-          80
-          80
-          80
-          80
-        )
       end
       object lblTableHdr: TLabel[1]
         AnchorSideLeft.Control = pgTable
@@ -214,26 +215,26 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
   object DateTimeIntervalChartSource: TDateTimeIntervalChartSource[2]
     Params.MaxLength = 120
     Params.MinLength = 30
-    left = 336
-    top = 240
+    Left = 336
+    Top = 240
   end
   object LeftAxisTransformations: TChartAxisTransformations[3]
-    left = 112
-    top = 88
+    Left = 112
+    Top = 88
     object LeftAxisLogTransform: TLogarithmAxisTransform
       Base = 10
     end
   end
   object BottomAxisTransformations: TChartAxisTransformations[4]
-    left = 160
-    top = 240
+    Left = 160
+    Top = 240
     object BottomAxisLogTransform: TLogarithmAxisTransform
       Base = 10
     end
   end
   object ChartToolset: TChartToolset[5]
-    left = 240
-    top = 144
+    Left = 240
+    Top = 144
     object MeasurementTool: TDataPointDistanceTool
       Shift = [ssCtrl, ssLeft]
       OnAfterMouseUp = MeasurementToolAfterMouseUp
