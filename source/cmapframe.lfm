@@ -8,6 +8,8 @@ inherited MapFrame: TMapFrame
   inherited PageControl: TPageControl
     Height = 331
     Width = 580
+    ActivePage = pgChart
+    TabIndex = 0
     inherited pgChart: TTabSheet
       ClientHeight = 303
       ClientWidth = 572
@@ -17,6 +19,7 @@ inherited MapFrame: TMapFrame
         AnchorSideRight.Control = Splitter
         AnchorSideBottom.Control = MapDateScrollBar
         Height = 286
+        Hint = 'Zoom: '#13#10'  drag a rectangle from left-top to bottom-right corner with left mouse button down'#13#10'  or: use mouse wheel (zoom center is mouse position).'#13#10'Pan: '#13#10'  drag with the right mouse button down'#13#10'Restore view: '#13#10'  drag in opposite direction to zoom-in'#13#10'Read data values: '#13#10'  move mouse over data point (no key pressed)'#13#10'Select country in time-series: '#13#10'  double-click on country'
         Width = 393
         AxisList = <        
           item

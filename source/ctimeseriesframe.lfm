@@ -7,6 +7,7 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
     inherited pgChart: TTabSheet
       inherited Chart: TChart
         Height = 262
+        Hint = 'Zoom: '#13#10'  drag a rectangle from left-top to bottom-right corner with left mouse button down'#13#10'  or: use mouse wheel (zoom center is mouse position).'#13#10'Pan: '#13#10'  drag with the right mouse button down'#13#10'Restore view: '#13#10'  click'#13#10'Read data value: '#13#10'  move mouse over data point (no key pressed)'#13#10'Measure doubling time: '#13#10'  CTRL-drag over data points of interest with left mouse button down.'
         Width = 451
         AxisList = <        
           item
