@@ -17,6 +17,7 @@ type
 
   TMapFrame = class(TBasicFrame)
     ChartToolset: TChartToolset;
+    MouseWheelZoomtool: TZoomMouseWheelTool;
     DataPointClickTool: TDataPointClickTool;
     InfoTool: TUserDefinedTool;
     PanDragTool: TPanDragTool;
