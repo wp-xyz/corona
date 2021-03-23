@@ -76,12 +76,12 @@ type
     procedure RestoreSeriesNodesFromList(AList: TFPList);
     procedure StoreSeriesNodesInList(AList: TFPList);
     procedure UpdateAffectedSeries;
-    procedure UpdateGrid;
 
   protected
     procedure DoUpdateActions; virtual;
 //    function GetCellText(ACol, ARow: Integer): String; override;
     procedure UpdateAxes;
+    procedure UpdateGrid;
 
   public
     constructor Create(AOwner: TComponent); override;
@@ -136,6 +136,7 @@ begin
   inherited;
 
   DateOffset := BaseDate;
+  FFixedColAlignment := taCenter;
 
   FCheckedCases[ctConfirmed] := cbInfected;
   FCheckedCases[ctDeaths] := cbDeaths;

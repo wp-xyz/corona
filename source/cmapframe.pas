@@ -17,6 +17,7 @@ type
 
   TMapFrame = class(TBasicFrame)
     ChartToolset: TChartToolset;
+    lblTableHdr: TLabel;
     MouseWheelZoomtool: TZoomMouseWheelTool;
     DataPointClickTool: TDataPointClickTool;
     InfoTool: TUserDefinedTool;
@@ -56,6 +57,7 @@ type
     procedure DoDateSelect(ADate: TDate); virtual;
     procedure PopulatePaletteListbox(ADataType: TMapDataType); virtual;
     procedure SelectProjection(AMapRes: string); virtual;
+    procedure UpdateGrid;
 
   public
     constructor Create(AOwner: TComponent); override;
@@ -85,6 +87,7 @@ begin
   FCurrentDate := Now;
   MapDateLabel.Caption := '';
   PopulatePaletteListbox(GetMapDataType);
+  UpdateGrid;
 end;
 
 procedure TMapFrame.cmbDataTypeChange(Sender: TObject);
@@ -327,6 +330,7 @@ begin
   FOnDateSelect := AValue;
   MapDateScrollbar.Visible := Assigned(FOnDateSelect);
   DatePanel.Visible := Assigned(FOnDateSelect);
+  UpdateGrid;
 end;
 
 procedure TMapFrame.ShowCoronaMap(ADataNode: TTreeNode;
@@ -381,7 +385,7 @@ var
   data: TcDataItem;
   value, dummy: Double;
   clr: TColor;
-  ser: TcPolygonSeries;
+  ser: TcGeoMapSeries;
   ct: TCaseType = ctConfirmed;
 begin
   case AMapDataType of
@@ -406,8 +410,10 @@ begin
       ser := FGeoMap.SeriesByID[data.GeoID];
     if ser = nil then
       ser := FGeoMap.SeriesByName[data.Name];
-    if ser <> nil then
+    if ser <> nil then begin
       ser.Brush.Color := clr;
+      ser.Node := ADataNode;
+    end;
 
     ADataNode := ADataNode.GetNextSibling;
   end;
@@ -449,12 +455,6 @@ begin
     Chart.ZoomFull;
     FOldMapResource := mapRes;
   end;
-                                (*
-  // Set up the date scrollbar.
-  if MapDateScrollbar.Max > 0 then
-    oldScrollPos := MapDateScrollbar.Position
-  else
-    oldScrollPos := -1;           *)
 
   stream := TResourceStream.Create(HINSTANCE, mapRes, LCLType.RT_RCDATA);
   try
@@ -488,8 +488,68 @@ begin
     finally
       reader.Free;
     end;
+
+    UpdateGrid;
   finally
     stream.Free;
+  end;
+end;
+
+procedure TMapFrame.UpdateGrid;
+var
+  i, idx, n, r: Integer;
+  ser: TcGeoMapSeries;
+  data: TcDataItem;
+begin
+  lblTableHdr.Caption := FormatDateTime('dddddd', FCurrentDate);
+
+  n := 0;
+  for i := 0 to Chart.SeriesCount-1 do
+    if Chart.Series[i] is TcGeoMapSeries then
+    begin
+      ser := TcGeoMapSeries(Chart.Series[i]);
+      data := GetDataItem(ser.Node);
+      if data <> nil then
+        inc(n);
+    end;
+
+  if n = 0 then
+  begin
+    Grid.RowCount := 2;
+    Grid.ColCount := 2;
+    Grid.Clear;
+    exit;
+  end;
+  Grid.RowCount := Grid.FixedRows + n + 1;
+  Grid.ColCount := Grid.FixedCols + 6;
+  Grid.ColWidths[0] := 120;
+  Grid.Cells[1, 0] := 'Total infected';
+  Grid.Cells[2, 0] := 'Total deaths';
+  Grid.Cells[3, 0] := 'New infected';
+  Grid.Cells[4, 0] := 'New deaths';
+  Grid.Cells[5, 0] := 'Incicence';
+  Grid.Cells[6, 0] := 'R value';
+
+  r := Grid.FixedRows;
+  for i := 0 to Chart.SeriesCount-1 do
+  begin
+    if Chart.Series[i] is TcGeoMapSeries then
+    begin
+      ser := TcGeoMapSeries(Chart.Series[i]);
+      data := GetDataItem(ser.Node);
+      if (data <> nil) then
+      begin
+        Grid.Cells[0, r] := ser.Title;
+        idx := data.GetDateIndex(FCurrentDate);
+        Grid.Cells[1, r] := Format('%.0n', [data.RawData[pctConfirmed][idx]*1.0]);
+        Grid.Cells[2, r] := Format('%.0n', [data.RawData[pctDeaths][idx]*1.0]);
+        Grid.Cells[3, r] := Format('%.0n', [data.CalcNewCases(idx, ctConfirmed)*1.0]);
+        Grid.Cells[4, r] := Format('%.0n', [data.CalcNewCases(idx, ctDeaths)*1.0]);
+        Grid.Cells[5, r] := Format('%.1n', [data.CalcNormalizedNewCases(idx, ctConfirmed)]);
+        Grid.Cells[6, r] := Format('%.1f', [data.CalcRValue(idx)]);
+        inc(r);
+      end;
+    end;
   end;
 end;
 

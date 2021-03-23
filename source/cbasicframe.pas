@@ -39,6 +39,7 @@ type
  {$IFEND}
 
   protected
+    FFixedColAlignment: TAlignment;
     procedure CreateHandle; override;
     function GetCellText(ACol, ARow: Integer): String; virtual;
     function GetDataItem(ADataNode: TTreeNode): TcDataitem;
@@ -70,7 +71,6 @@ uses
 constructor TBasicFrame.Create(AOwner: TComponent);
 begin
   inherited;
-
  {$IF LCL_FullVersion < 2010000}
   FResizeTimer := TTimer.Create(self);
   FResizeTimer.Enabled := false;
@@ -89,7 +89,8 @@ end;
 procedure TBasicFrame.CreateHandle;
 begin
   inherited;
-  Grid.RowHeights[0] := 3 * Grid.Canvas.TextHeight('Tg') + 2* varCellPadding;
+  if Grid.RowCount > 0 then
+    Grid.RowHeights[0] := 3 * Grid.Canvas.TextHeight('Tg') + 2* varCellPadding;
 end;
 
 function TBasicFrame.FindNodeWithGeoID(AGeoID: TGeoID): TTreeNode;
@@ -139,7 +140,10 @@ end;
 
 function TBasicFrame.GetDataItem(ADataNode: TTreeNode): TcDataItem;
 begin
-  Result := TcDataItem(ADataNode.Data);
+  if ADataNode <> nil then
+    Result := TcDataItem(ADataNode.Data)
+  else
+    Result := nil;
 end;
 
 function TBasicFrame.GetInfoText(ADataNode: TTreeNode; ADate: TDate): String;
@@ -224,7 +228,7 @@ begin
     ts.Layout := tlTop;
   end else
   if ACol = 0 then
-    ts.Alignment := taCenter
+    ts.Alignment := FFixedColAlignment
   else
     ts.Alignment := taRightJustify;
   Grid.Canvas.TextStyle := ts;

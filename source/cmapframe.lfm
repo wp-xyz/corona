@@ -128,16 +128,33 @@ inherited MapFrame: TMapFrame
       ClientWidth = 572
       inherited Grid: TStringGrid
         AnchorSideLeft.Control = pgTable
-        AnchorSideTop.Control = pgTable
+        AnchorSideTop.Control = lblTableHdr
+        AnchorSideTop.Side = asrBottom
         AnchorSideRight.Control = pgTable
         AnchorSideRight.Side = asrBottom
         AnchorSideBottom.Control = pgTable
         AnchorSideBottom.Side = asrBottom
         Left = 0
-        Height = 303
-        Top = 0
+        Height = 266
+        Top = 37
         Width = 572
         Anchors = [akTop, akLeft, akRight, akBottom]
+        Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing, goThumbTracking, goSmoothScroll, goFixedColSizing]
+      end
+      object lblTableHdr: TLabel[1]
+        AnchorSideLeft.Control = pgTable
+        AnchorSideTop.Control = pgTable
+        Left = 6
+        Height = 25
+        Top = 6
+        Width = 39
+        BorderSpacing.Left = 6
+        BorderSpacing.Top = 6
+        BorderSpacing.Bottom = 6
+        Caption = 'Date'
+        Font.Height = -19
+        ParentColor = False
+        ParentFont = False
       end
     end
   end

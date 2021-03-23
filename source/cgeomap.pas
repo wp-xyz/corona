@@ -5,7 +5,7 @@ unit cGeoMap;
 interface
 
 uses
-  Classes, SysUtils, Graphics, Contnrs,
+  Classes, SysUtils, Graphics, Contnrs, ComCtrls,
   TAGraph, TAChartUtils, cGlobal, cPolygonSeries;
 
 type
@@ -48,6 +48,9 @@ type
     Points: TDoublePointArray;
   end;
 
+  TcGeoMapSeries = class;
+
+
   { TcGeoMap }
 
   TcGeoMap = class(TComponent)
@@ -64,8 +67,8 @@ type
     FOnProjection: TcGeoProjectionEvent;
     FOnProjectionInv: TcGeoProjectionInvEvent;
 
-    function GetSeriesByID(const AGeoID: TGeoID): TcPolygonSeries;
-    function GetSeriesByName(const AName: String): TcPolygonSeries;
+    function GetSeriesByID(const AGeoID: TGeoID): TcGeoMapSeries;
+    function GetSeriesByName(const AName: String): TcGeoMapSeries;
     function GetProjection: TcGeoProjection;
     procedure SetActive(AValue: Boolean);
     procedure SetChart(AValue: TChart);
@@ -86,8 +89,8 @@ type
     procedure ClearSeries;
     procedure ListUniquePolygonNames(AList: TStrings);
     procedure Plot;
-    property SeriesByID[const AGeoID: Int64]: TcPolygonSeries read GetSeriesByID;
-    property SeriesByName[const AName: String]: TcPolygonSeries read GetSeriesByName;
+    property SeriesByID[const AGeoID: Int64]: TcGeoMapSeries read GetSeriesByID;
+    property SeriesByName[const AName: String]: TcGeoMapSeries read GetSeriesByName;
 
   published
     property Active: Boolean read FActive write SetActive default false;
@@ -105,9 +108,11 @@ type
   protected
     FGeoMap: TcGeoMap;
     FGeoID: TGeoID;
+    FNode: TTreeNode;
   public
     property GeoMap: TcGeoMap read FGeoMap write FGeoMap;
     property GeoID: TGeoID read FGeoID write FGeoID;
+    property Node: TTreeNode read FNode write FNode;
   end;
 
   TcGeoReader = class
@@ -540,7 +545,7 @@ begin
       FChart.Series[i].Free;
 end;
 
-function TcGeoMap.GetSeriesByID(const AGeoID: TGeoID): TcPolygonSeries;
+function TcGeoMap.GetSeriesByID(const AGeoID: TGeoID): TcGeoMapSeries;
 var
   i: Integer;
 begin
@@ -558,7 +563,7 @@ begin
   Result := nil;
 end;
 
-function TcGeoMap.GetSeriesByName(const AName: String): TcPolygonSeries;
+function TcGeoMap.GetSeriesByName(const AName: String): TcGeoMapSeries;
 var
   i: Integer;
 begin
