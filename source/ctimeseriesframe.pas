@@ -56,7 +56,6 @@ type
     FMeasurementSeries: TFuncSeries;
     FFitCoeffs: array[0..1] of Double;
     FCheckedCases: array[TCaseType] of TCheckbox;
-    FLastDate: TDate;
     FCurrentDate: TDate; // Date displayed by the DateIndicatorLine
     FOnUpdateActions: TUpdateTimeSeriesActions;
 
@@ -81,7 +80,7 @@ type
 
   protected
     procedure DoUpdateActions; virtual;
-    function GetCellText(ACol, ARow: Integer): String; override;
+//    function GetCellText(ACol, ARow: Integer): String; override;
     procedure UpdateAxes;
 
   public
@@ -619,6 +618,7 @@ begin
   Chart.BottomAxis.Grid.Color := Chart.LeftAxis.Grid.Color;
 end;
 
+(*
 function TTimeSeriesFrame.GetCellText(ACol, ARow: Integer): String;
 var
   col: TGridColumn;
@@ -667,6 +667,7 @@ begin
     end;
   end;
 end;
+*)
 
 function TTimeSeriesFrame.GetDataType: TDataType;
 begin
@@ -1177,30 +1178,41 @@ end;
 
 procedure TTimeSeriesFrame.UpdateGrid;
 var
-  n, m: Integer;
-  i: Integer;
-  ser: TChartSeries;
+  n: Integer;
+  i, j: Integer;
+  ser: TcLineSeries;
   s: String;
-  firstDate: TDate;
+  firstDate, lastDate, d, serLastDate: TDate;
+  r, c: Integer;
+  data: TcDataItem;
+  dt: TDataType;
 begin
+  dt := GetDataType();
   Grid.BeginUpdate;
   try
     Grid.Columns.Clear;
     n := 0;
-    m := 0;
-    FLastDate := -1;
-    FirstDate := MaxInt;
+    lastDate := -1;
+    firstDate := MaxInt;
     for i:=0 to Chart.SeriesCount-1 do
     begin
-      if (Chart.Series[i] is TChartSeries) and Chart.Series[i].Active then
+      if (Chart.Series[i] is TcLineSeries) and Chart.Series[i].Active then
       begin
-        ser := TChartSeries(Chart.Series[i]);
+        ser := TcLineSeries(Chart.Series[i]);
         if ser.Count = 0 then
           Continue;
-        if ser.Count > m then m := ser.Count;
-        inc(n);
-        FLastDate := Max(FLastDate, ser.XValue[ser.LastValueIndex]);
-        firstDate := Min(firstDate, ser.XValue[0]);
+        if dt = dtCumVsNewCases then
+        begin
+          inc(n, 2);
+          data := GetDataItem(ser.Node);
+          lastDate := Max(lastDate, data.GetLastDate);
+          firstDate := Min(firstDate, data.GetFirstDate);
+        end else
+        begin
+          inc(n);
+          lastDate := Max(lastDate, ser.XValue[ser.LastValueIndex]);
+          firstDate := Min(firstDate, ser.XValue[0]);
+        end;
         with Grid.Columns.Add do
         begin
           s := StringReplace(ser.Title, ' ', LineEnding, []);
@@ -1209,7 +1221,7 @@ begin
           Title.Caption := s;
           Tag := PtrInt(Chart.Series[i]);
         end;
-        if not IsTimeSeries() then
+        if dt = dtCumVsNewCases then
           with Grid.Columns.Add do
           begin
             Title.Caption := StringReplace(ser.Title, ' ', LineEnding , []) + LineEnding + 'Total';
@@ -1217,12 +1229,61 @@ begin
           end;
       end;
     end;
+
+    // Set number of rows
     if n = 0 then
     begin
       Grid.RowCount := 2;
+      Grid.Cells[0, 1] := '';
       exit;
     end;
-    Grid.RowCount := round(FLastDate - firstDate + 1) + Grid.FixedRows;
+    Grid.RowCount := round(lastDate - firstDate + 1) + Grid.FixedRows;
+
+    // Fill date column
+    d := lastDate;
+    for r := Grid.FixedRows to Grid.RowCount-1 do
+    begin
+      Grid.Cells[0, r] := DateToStr(d);
+      d := d - 1;
+    end;
+
+    // Fill series columns
+    c := Grid.FixedCols;
+    for i := 0 to Chart.SeriesCount-1 do begin
+      if (Chart.Series[i] is TcLineSeries) and Chart.Series[i].Active then
+      begin
+        ser := TcLineSeries(Chart.Series[i]);
+        data := GetDataItem(ser.Node);
+        serLastDate := data.GetLastDate;
+        r := Grid.FixedRows + round(serLastDate - lastDate);
+        for j := ser.Count-1 downto 0 do
+        begin
+          if not IsNan(ser.YValue[j]) then
+            case dt of
+              dtCumulativeCasesDoublingTime,
+              dtNewCasesDoublingTime:
+                Grid.Cells[c, r] := Format('%.1f', [ser.YValue[j]]);
+              dtCumVsNewCases:
+                begin
+                  Grid.Cells[c, r] := Format('%.0n', [ser.YValue[j]]);
+                  Grid.Cells[c+1, r] := Format('%.0n', [ser.XValue[j]]);
+                end;
+              dtRValue:
+                Grid.Cells[c, r] := Format('%.2f', [ser.YValue[j]]);
+              else
+                Grid.Cells[c, r] := Format('%.0n', [ser.YValue[j]]);
+            end
+          else
+            Grid.Cells[c, r] := '';
+          inc(r);
+        end;
+        if dt = dtCumVsNewCases then
+          inc(c, 2)
+        else
+          inc(c);
+      end;
+    end;
+
   finally
     Grid.EndUpdate;
   end;

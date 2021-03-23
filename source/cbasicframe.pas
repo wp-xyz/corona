@@ -18,7 +18,7 @@ type
 
   TBasicFrame = class(TFrame)
     Chart: TChart;
-    Grid: TDrawGrid;
+    Grid: TStringGrid;
     PageControl: TPageControl;
     pgChart: TTabSheet;
     pgTable: TTabSheet;

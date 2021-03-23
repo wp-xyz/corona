@@ -55,15 +55,16 @@ object BasicFrame: TBasicFrame
       Caption = 'Table'
       ClientHeight = 285
       ClientWidth = 590
-      object Grid: TDrawGrid
+      object Grid: TStringGrid
         Left = 56
         Height = 200
         Top = 24
         Width = 438
         DefaultColWidth = 80
         ExtendedSelect = False
+        MouseWheelOption = mwGrid
+        Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing, goThumbTracking, goSmoothScroll]
         TabOrder = 0
-        OnDrawCell = GridDrawCell
         OnPrepareCanvas = GridPrepareCanvas
       end
     end

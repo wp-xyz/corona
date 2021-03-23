@@ -8,8 +8,6 @@ inherited MapFrame: TMapFrame
   inherited PageControl: TPageControl
     Height = 331
     Width = 580
-    ActivePage = pgChart
-    TabIndex = 0
     inherited pgChart: TTabSheet
       ClientHeight = 303
       ClientWidth = 572
@@ -128,7 +126,7 @@ inherited MapFrame: TMapFrame
     inherited pgTable: TTabSheet
       ClientHeight = 303
       ClientWidth = 572
-      inherited Grid: TDrawGrid
+      inherited Grid: TStringGrid
         AnchorSideLeft.Control = pgTable
         AnchorSideTop.Control = pgTable
         AnchorSideRight.Control = pgTable

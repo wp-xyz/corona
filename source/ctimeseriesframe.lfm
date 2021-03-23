@@ -2,8 +2,6 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
   DesignLeft = 358
   DesignTop = 130
   inherited PageControl: TPageControl
-    ActivePage = pgChart
-    TabIndex = 0
     inherited pgChart: TTabSheet
       inherited Chart: TChart
         Height = 262
@@ -74,7 +72,7 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
       end
     end
     inherited pgTable: TTabSheet
-      inherited Grid: TDrawGrid
+      inherited Grid: TStringGrid
         AnchorSideLeft.Control = pgTable
         AnchorSideTop.Control = lblTableHint
         AnchorSideTop.Side = asrBottom
