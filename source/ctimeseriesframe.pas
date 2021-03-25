@@ -22,12 +22,12 @@ type
     acOverlayMode: TAction;
     acLinear: TAction;
     acLogarithmic: TAction;
+    acInfected: TAction;
+    acDeaths: TAction;
+    acRecovered: TAction;
+    acSick: TAction;
     BottomAxisLogTransform: TLogarithmAxisTransform;
     BottomAxisTransformations: TChartAxisTransformations;
-    cbInfected: TCheckBox;
-    cbDeaths: TCheckBox;
-    cbRecovered: TCheckBox;
-    cbSick: TCheckBox;
     ChartListbox: TChartListbox;
     ChartToolset: TChartToolset;
     cmbDataType: TComboBox;
@@ -39,22 +39,27 @@ type
     LeftAxisTransformations: TChartAxisTransformations;
     MeasurementTool: TDataPointDistanceTool;
     PanDragTool: TPanDragTool;
-    Panel1: TPanel;
+    DataTypePanel: TPanel;
     Splitter1: TSplitter;
     StatusBar: TStatusBar;
-    ToolButton1: TToolButton;
-    ToolButton2: TToolButton;
+    tbDivider2: TToolButton;
+    tbSick: TToolButton;
+    tbDivider4: TToolButton;
     tbHighlightWeekends: TToolButton;
     tbClear: TToolButton;
     tbOverlay: TToolButton;
     ToolButton3: TToolButton;
-    ToolButton4: TToolButton;
+    tbDivider1: TToolButton;
     ToolButton5: TToolButton;
-    ToolButton6: TToolButton;
+    tbDivider3: TToolButton;
+    tbInfected: TToolButton;
+    tbDeaths: TToolButton;
+    tbRecovered: TToolButton;
     WheelZoomTool: TZoomMouseWheelTool;
     ZoomDragTool: TZoomDragTool;
     procedure acClearExecute(Sender: TObject);
     procedure acHighlightWeekendsExecute(Sender: TObject);
+    procedure acCasesExecute(Sender: TObject);
     procedure acLinearExecute(Sender: TObject);
     procedure acLogarithmicExecute(Sender: TObject);
     procedure acOverlayModeExecute(Sender: TObject);
@@ -76,7 +81,7 @@ type
     FDateIndicatorLine: TConstantLine;
     FMeasurementSeries: TFuncSeries;
     FFitCoeffs: array[0..1] of Double;
-    FCheckedCases: array[TCaseType] of TCheckbox;
+    FCheckedCases: TCaseTypes;
     FCurrentDate: TDate; // Date displayed by the DateIndicatorLine
     FOnUpdateActions: TUpdateTimeSeriesActions;
 
@@ -99,6 +104,7 @@ type
     procedure UpdateAffectedSeries;
 
   protected
+    procedure CreateHandle; override;
     procedure DoUpdateActions; virtual;
 //    function GetCellText(ACol, ARow: Integer): String; override;
     procedure UpdateAxes;
@@ -110,11 +116,12 @@ type
     procedure EnableMovingAverage(AEnable, AStrict: Boolean);
     procedure HighlightWeekends(AEnable: Boolean);
     function IsTimeSeries: Boolean;
-    procedure ShowDateIndicatorLine(AEnable: Boolean);
-    procedure ShowTimeSeries(ADataNode: TTreeNode);
     procedure SetCommonStart(AEnable: Boolean);
+    procedure SetDataType(ADataType: TDataType);
     procedure SetLogarithmic(AEnable: Boolean);
     procedure SetOverlayMode(AEnable: Boolean);
+    procedure ShowDateIndicatorLine(AEnable: Boolean);
+    procedure ShowTimeSeries(ADataNode: TTreeNode);
     procedure UpdateAxes(LogarithmicX, LogarithmicY: Boolean);
     procedure UpdateCmdStates; override;
     procedure UpdateData;
@@ -164,11 +171,13 @@ begin
   DateOffset := BaseDate;
   FFixedColAlignment := taCenter;
 
+  FCheckedCases := [ctConfirmed];
+  {
   FCheckedCases[ctConfirmed] := cbInfected;
   FCheckedCases[ctDeaths] := cbDeaths;
   FCheckedCases[ctRecovered] := cbRecovered;
   FCheckedCases[ctSick] := cbSick;
-
+   }
   CreateMeasurementSeries;
   FixChartColors;
 
@@ -188,6 +197,21 @@ begin
   HighlightWeekends(acHighlightWeekends.Checked);
 end;
 
+procedure TTimeSeriesFrame.acCasesExecute(Sender: TObject);
+var
+  L: TFPList;
+begin
+  FCheckedCases := CasesChecked();
+  L := TFPList.Create;
+  try
+    StoreSeriesNodesInList(L);
+    ShowTimeSeries(DataTree.Selected);
+    RestoreSeriesNodesFromlist(L);
+  finally
+    L.Free;
+  end;
+end;
+
 procedure TTimeSeriesFrame.acLinearExecute(Sender: TObject);
 begin
   SetLogarithmic(false);
@@ -204,95 +228,8 @@ begin
 end;
 
 procedure TTimeSeriesFrame.cmbDataTypeChange(Sender: TObject);
-var
-  L: TFPList;
 begin
-  TimeSeriesSettings.DataType := GetDataType();
-
-  // Store currently available series in a list
-  L := TFPList.Create;
-  try
-    StoreSeriesNodesInList(L);
-    Clear;
-    case TimeseriesSettings.DataType of
-      dtCumulative, dtNormalizedCumulative,
-      dtNewCases, dtNormalizedNewCases:
-        begin
-          case TimeSeriesSettings.DataType of
-            dtCumulative:
-              lblTableHdr.Caption := 'Cumulative cases';
-            dtNormalizedCumulative:
-              lblTableHdr.Caption := Format('Cumulative cases per population %.0n', [1.0 * PopulationRef]);
-            dtNewCases:
-              lblTableHdr.Caption := 'New cases per day';
-            dtNormalizedNewCases:
-              lblTableHdr.Caption := Format('New cases per week and population %.0n', [1.0 * PopulationRef])
-            else
-              raise Exception.Create('Data type not handled by cmbDataTypeChange');
-          end;
-          lblTableHint.Caption := '';
-          Chart.LeftAxis.Title.Caption := lblTableHdr.Caption;
-          Chart.BottomAxis.Title.Caption := 'Date';
-          UpdateAxes(false, TimeSeriesSettings.Logarithmic);
-          MeasurementTool.Enabled := true;
-          { <-------- FIX ME
-          acDataMovingAverage.Enabled := true;
-          clbCases.Enabled := true;
-          }
-        end;
-      dtCumulativeCasesDoublingTime,
-      dtNewCasesDoublingTime:
-        begin
-          Chart.LeftAxis.Title.Caption := 'Doubling time (days)';
-          Chart.BottomAxis.Title.Caption := 'Date';
-          lblTableHdr.Caption := 'Doubling time (days, calculated by lookup from previous days)';
-          lblTableHint.Caption := ''; //Note: Strictly speaking, this value requires exponential growth which is valid only during the initial phase of the outbreak.';
-          UpdateAxes(false, false);
-          MeasurementTool.Enabled := false;
-          { <---------- FIX ME
-          acDataMovingAverage.Enabled := false;
-          clbCases.Enabled := true;
-          }
-        end;
-      dtCumVsNewCases:
-        begin
-          lblTableHdr.Caption := 'New cases vs. cumulative cases';
-          lblTableHint.Caption := '';
-          Chart.LeftAxis.Title.Caption := 'New cases';
-          Chart.BottomAxis.title.Caption := 'Cumulative cases';
-          MeasurementTool.Enabled := false;
-          { <--------- FIX ME
-          acChartLogarithmic.Checked := true;
-          UpdateAxes(true, true);
-          acDataMovingAverage.Enabled := false;
-          clbCases.Enabled := true;
-          }
-        end;
-      dtRValue:
-        begin
-          Chart.LeftAxis.Title.Caption := 'Reproduction number';
-          Chart.BottomAxis.Title.Caption := 'Date';
-          lblTableHdr.Caption := 'Reproduction number';
-          lblTableHint.Caption := 'Calculated as ratio of new case count at a date and ' + IntToStr(InfectiousPeriod) + ' days earlier.';
-          UpdateAxes(false, false);
-          MeasurementTool.Enabled := false;
-          { <----------- FIX ME
-          acDataMovingAverage.Enabled := false;
-          clbCases.Enabled := false;
-          }
-        end;
-      else
-        raise Exception.Create('Data type unsupported.');
-    end;
-
-    //acDataMovingAverageExecute(nil);   // <------ FIX ME
-    RestoreSeriesNodesFromlist(L);
-    DoUpdateActions;
-    WordwrapChart(Chart);
-
-  finally
-    L.Free;
-  end;
+  SetDataType(GetDataType());
 end;
 
 procedure TTimeSeriesFrame.CrossHairToolDraw(ASender: TDataPointDrawTool);
@@ -492,12 +429,12 @@ begin
 end;
 
 function TTimeSeriesFrame.CasesChecked: TCaseTypes;
-var
-  ct: TCaseType;
 begin
   Result := [];
-  for ct in TCaseType do
-    if FCheckedCases[ct].Checked then Include(Result, ct);
+  if acInfected.Checked then Include(Result, ctConfirmed);
+  if acDeaths.Checked then Include(Result, ctDeaths);
+  if acRecovered.Checked then Include(Result, ctRecovered);
+  if acSick.Checked then Include(Result, ctSick);
 end;
 
 procedure TTimeSeriesFrame.ChartListboxAddSeries(ASender: TChartListbox;
@@ -575,11 +512,12 @@ begin
 end;
 
 procedure TTimeSeriesFrame.CheckCases(ACaseTypes: TCaseTypes);
-var
-  ct: TCaseType;
 begin
-  for ct in TCaseType do
-    FCheckedCases[ct].Checked := (ct in ACaseTypes);
+  FCheckedCases := ACaseTypes;
+  acInfected.Checked := ctConfirmed in FCheckedCases;
+  acDeaths.Checked := ctDeaths in FCheckedCases;
+  acRecovered.Checked := ctRecovered in FCheckedCases;
+  acSick.Checked := ctSick in FCheckedCases;
 end;
 
 procedure TTimeSeriesFrame.CheckedCasesChange(Sender: TObject);
@@ -623,6 +561,18 @@ begin
   finally
     ChartListBox.Chart := Chart;
   end;
+end;
+
+procedure TTimeSeriesFrame.CreateHandle;
+var
+  w: Integer;
+  s: String;
+begin
+  inherited;
+  w := 0;
+  for s in cmbDataType.Items do
+    w := Max(w, cmbDataType.Canvas.TextWidth(s));
+  cmbDataType.Width := w + 16;
 end;
 
 procedure TTimeSeriesFrame.CreateMeasurementSeries;
@@ -835,19 +785,12 @@ begin
 end;
 
 procedure TTimeSeriesFrame.LoadFromIni(ini: TCustomIniFile);
-var
-  ct: Integer;
 begin
   PageControl.ActivePageIndex := ini.ReadInteger('TimeSeries', 'PageControl', PageControl.ActivePageIndex);
   ChartListbox.Width := ini.ReadInteger('TimeSeries', 'ListboxWidth', ChartListbox.Width);
 
-  TimeSeriesSettings.DataType := TDataType(ini.ReadInteger('TimeSeries', 'DataType', ord(TimeSeriesSettings.DataType)));
-  cmbDataType.ItemIndex := ord(TimeSeriesSettings.DataType);
-  cmbDataTypeChange(nil);
-
-  ct := ini.ReadInteger('TimeSeries', 'CaseTypes', integer(CasesChecked));
-  CheckCases(TCaseTypes(ct));
-
+  SetDataType(TDataType(ini.ReadInteger('TimeSeries', 'DataType', ord(TimeSeriesSettings.DataType))));
+  CheckCases(TCaseTypes(ini.ReadInteger('TimeSeries', 'CaseTypes', integer(CasesChecked))));;
   SetOverlayMode(ini.ReadBool('TimeSeries', 'OverlayMode', TimeSeriesSettings.OverlayMode));
   SetLogarithmic(ini.ReadBool('TimeSeries', 'Logarithmic', TimeSeriesSettings.Logarithmic));
   HighlightWeekends(ini.ReadBool('TimeSeries', 'HighlightWeekends', TimeSeriesSettings.HighlightWeekends));
@@ -912,7 +855,6 @@ procedure TTimeSeriesFrame.SaveToIni(ini: TCustomIniFile);
 begin
   ini.WriteInteger('TimeSeries', 'DataType', ord(TimeSeriesSettings.DataType));
   ini.WriteInteger('TimeSeries', 'CaseTypes', integer(CasesChecked));
-
   ini.WriteBool('TimeSeries', 'OverlayMode', TimeSeriesSettings.OverlayMode);
   ini.WriteBool('TimeSeries', 'Logarithmic', TimeSeriesSettings.Logarithmic);
   ini.WriteBool('TimeSeries', 'HighlightWeekends', TimeSeriesSettings.HighlightWeekends);
@@ -943,6 +885,100 @@ begin
   for i := 0 to Chart.SeriesCount-1 do
     if Chart.Series[i] is TcLineSeries then
       ShowTimeSeries(TcLineSeries(Chart.Series[i]).Node);
+end;
+
+procedure TTimeSeriesFrame.SetDataType(ADataType: TDataType);
+var
+  L: TFPList;
+begin
+  TimeSeriesSettings.DataType := ADataType;
+  cmbDataType.ItemIndex := ord(ADataType);
+
+  // Store currently available series in a list
+  L := TFPList.Create;
+  try
+    StoreSeriesNodesInList(L);
+    Clear;
+    case TimeseriesSettings.DataType of
+      dtCumulative, dtNormalizedCumulative,
+      dtNewCases, dtNormalizedNewCases:
+        begin
+          case TimeSeriesSettings.DataType of
+            dtCumulative:
+              lblTableHdr.Caption := 'Cumulative cases';
+            dtNormalizedCumulative:
+              lblTableHdr.Caption := Format('Cumulative cases per population %.0n', [1.0 * PopulationRef]);
+            dtNewCases:
+              lblTableHdr.Caption := 'New cases per day';
+            dtNormalizedNewCases:
+              lblTableHdr.Caption := Format('New cases per week and population %.0n', [1.0 * PopulationRef])
+            else
+              raise Exception.Create('Data type not handled by cmbDataTypeChange');
+          end;
+          lblTableHint.Caption := '';
+          Chart.LeftAxis.Title.Caption := lblTableHdr.Caption;
+          Chart.BottomAxis.Title.Caption := 'Date';
+          UpdateAxes(false, TimeSeriesSettings.Logarithmic);
+          MeasurementTool.Enabled := true;
+          { <-------- FIX ME
+          acDataMovingAverage.Enabled := true;
+          clbCases.Enabled := true;
+          }
+        end;
+      dtCumulativeCasesDoublingTime,
+      dtNewCasesDoublingTime:
+        begin
+          Chart.LeftAxis.Title.Caption := 'Doubling time (days)';
+          Chart.BottomAxis.Title.Caption := 'Date';
+          lblTableHdr.Caption := 'Doubling time (days, calculated by lookup from previous days)';
+          lblTableHint.Caption := ''; //Note: Strictly speaking, this value requires exponential growth which is valid only during the initial phase of the outbreak.';
+          UpdateAxes(false, false);
+          MeasurementTool.Enabled := false;
+          { <---------- FIX ME
+          acDataMovingAverage.Enabled := false;
+          clbCases.Enabled := true;
+          }
+        end;
+      dtCumVsNewCases:
+        begin
+          lblTableHdr.Caption := 'New cases vs. cumulative cases';
+          lblTableHint.Caption := '';
+          Chart.LeftAxis.Title.Caption := 'New cases';
+          Chart.BottomAxis.title.Caption := 'Cumulative cases';
+          MeasurementTool.Enabled := false;
+          { <--------- FIX ME
+          acChartLogarithmic.Checked := true;
+          UpdateAxes(true, true);
+          acDataMovingAverage.Enabled := false;
+          clbCases.Enabled := true;
+          }
+        end;
+      dtRValue:
+        begin
+          Chart.LeftAxis.Title.Caption := 'Reproduction number';
+          Chart.BottomAxis.Title.Caption := 'Date';
+          lblTableHdr.Caption := 'Reproduction number';
+          lblTableHint.Caption := 'Calculated as ratio of new case count at a date and ' + IntToStr(InfectiousPeriod) + ' days earlier.';
+          UpdateAxes(false, false);
+          MeasurementTool.Enabled := false;
+          { <----------- FIX ME
+          acDataMovingAverage.Enabled := false;
+          clbCases.Enabled := false;
+          }
+        end;
+      else
+        raise Exception.Create('Data type unsupported.');
+    end;
+
+    //acDataMovingAverageExecute(nil);   // <------ FIX ME
+    RestoreSeriesNodesFromlist(L);
+    DoUpdateActions;
+    WordwrapChart(Chart);
+
+  finally
+    L.Free;
+  end;
+
 end;
 
 procedure TTimeSeriesFrame.SetLogarithmic(AEnable: Boolean);
@@ -1010,9 +1046,16 @@ begin
     data := GetDataItem(ADataNode);
     firstDate := data.FirstDate;
 
+    acRecovered.Enabled := data.Count[pctRecovered] > 0;
+    acSick.Enabled := acRecovered.Enabled;
+
     for caseType in TCaseType do
     begin
-      if not FCheckedCases[caseType].Checked then
+      if not (caseType in FCheckedCases) then
+        Continue;
+
+      // Ignore RKI data which do not contain recovered case values.
+      if (caseType in [ctRecovered, ctSick]) and (data.Count[pctRecovered] = 0) then
         Continue;
 
       ser := GetSeries(ADataNode, caseType, dt);

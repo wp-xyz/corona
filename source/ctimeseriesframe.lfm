@@ -1,21 +1,21 @@
 inherited TimeSeriesFrame: TTimeSeriesFrame
-  Width = 698
-  ClientWidth = 698
+  Width = 959
+  ClientWidth = 959
   DesignLeft = 392
   DesignTop = 190
   inherited PageControl: TPageControl
     Height = 316
     Top = 23
-    Width = 698
+    Width = 959
     ActivePage = pgChart
     TabIndex = 0
     inherited pgChart: TTabSheet
       ClientHeight = 288
-      ClientWidth = 690
+      ClientWidth = 951
       inherited Chart: TChart
         Height = 265
         Hint = 'Zoom: '#13#10'  drag a rectangle from left-top to bottom-right corner with left mouse button down'#13#10'  or: use mouse wheel (zoom center is mouse position).'#13#10'Pan: '#13#10'  drag with the right mouse button down'#13#10'Restore view: '#13#10'  click'#13#10'Read data value: '#13#10'  move mouse over data point (no key pressed)'#13#10'Measure doubling time: '#13#10'  CTRL-drag over data points of interest with left mouse button down.'
-        Width = 551
+        Width = 812
         AxisList = <        
           item
             Grid.Color = clSilver
@@ -53,7 +53,7 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
         OnResize = ChartResize
       end
       object ChartListbox: TChartListbox[1]
-        Left = 560
+        Left = 821
         Height = 265
         Hint = 'Uncheck to remove a curve temporarily.'
         Top = 0
@@ -67,7 +67,7 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
         TabOrder = 1
       end
       object Splitter1: TSplitter[2]
-        Left = 551
+        Left = 812
         Height = 265
         Top = 0
         Width = 5
@@ -78,7 +78,7 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
         Left = 0
         Height = 23
         Top = 265
-        Width = 690
+        Width = 951
         Panels = <>
       end
     end
@@ -127,35 +127,40 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
   end
   inherited ToolBar: TToolBar
     Height = 23
-    Width = 698
+    Width = 959
     AutoSize = True
     EdgeBorders = []
+    List = True
+    ShowCaptions = True
     inherited tbSaveToFile: TToolButton
-      Left = 615
+      Left = 473
       Top = 0
+      ShowCaption = False
     end
     inherited tbCopyToClipboard: TToolButton
-      Left = 638
+      Left = 496
       Top = 0
+      ShowCaption = False
     end
-    object Panel1: TPanel[2]
+    object DataTypePanel: TPanel[2]
       Left = 1
       Height = 23
       Top = 0
-      Width = 507
+      Width = 160
       AutoSize = True
       BevelOuter = bvNone
       ClientHeight = 23
-      ClientWidth = 507
+      ClientWidth = 160
       TabOrder = 0
       object cmbDataType: TComboBox
-        AnchorSideLeft.Control = Panel1
-        AnchorSideTop.Control = Panel1
+        AnchorSideLeft.Control = DataTypePanel
+        AnchorSideTop.Control = DataTypePanel
         AnchorSideTop.Side = asrCenter
         Left = 0
         Height = 23
         Top = 0
-        Width = 240
+        Width = 160
+        DropDownCount = 16
         ItemHeight = 15
         ItemIndex = 0
         Items.Strings = (
@@ -173,118 +178,85 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
         TabOrder = 0
         Text = 'Cumulative cases'
       end
-      object cbInfected: TCheckBox
-        AnchorSideLeft.Control = cmbDataType
-        AnchorSideLeft.Side = asrBottom
-        AnchorSideTop.Control = Panel1
-        AnchorSideTop.Side = asrCenter
-        Left = 248
-        Height = 19
-        Top = 2
-        Width = 63
-        BorderSpacing.Left = 8
-        Caption = 'Infected'
-        Checked = True
-        OnChange = CheckedCasesChange
-        State = cbChecked
-        TabOrder = 1
-      end
-      object cbDeaths: TCheckBox
-        AnchorSideLeft.Control = cbInfected
-        AnchorSideLeft.Side = asrBottom
-        AnchorSideTop.Control = Panel1
-        AnchorSideTop.Side = asrCenter
-        Left = 319
-        Height = 19
-        Top = 2
-        Width = 56
-        BorderSpacing.Left = 8
-        Caption = 'Deaths'
-        OnChange = CheckedCasesChange
-        TabOrder = 2
-      end
-      object cbRecovered: TCheckBox
-        AnchorSideLeft.Control = cbDeaths
-        AnchorSideLeft.Side = asrBottom
-        AnchorSideTop.Control = Panel1
-        AnchorSideTop.Side = asrCenter
-        Left = 383
-        Height = 19
-        Top = 2
-        Width = 75
-        BorderSpacing.Left = 8
-        Caption = 'Recovered'
-        OnChange = CheckedCasesChange
-        TabOrder = 3
-      end
-      object cbSick: TCheckBox
-        AnchorSideLeft.Control = cbRecovered
-        AnchorSideLeft.Side = asrBottom
-        AnchorSideTop.Control = Panel1
-        AnchorSideTop.Side = asrCenter
-        Left = 466
-        Height = 19
-        Top = 2
-        Width = 41
-        BorderSpacing.Left = 8
-        Caption = 'Sick'
-        OnChange = CheckedCasesChange
-        TabOrder = 4
-      end
     end
-    object ToolButton1: TToolButton[3]
-      Left = 508
+    object tbDivider2: TToolButton[3]
+      Left = 371
       Height = 22
       Top = 0
-      Caption = 'ToolButton1'
+      Caption = 'tbDivider2'
       Style = tbsDivider
     end
-    object ToolButton2: TToolButton[4]
-      Left = 661
+    object tbDivider4: TToolButton[4]
+      Left = 519
       Height = 22
       Top = 0
-      Caption = 'ToolButton2'
+      Caption = 'tbDivider4'
       Style = tbsDivider
     end
     object tbHighlightWeekends: TToolButton[5]
-      Left = 666
+      Left = 524
       Top = 0
       Action = acHighlightWeekends
+      ShowCaption = False
       Style = tbsCheck
     end
     object tbClear: TToolButton[6]
-      Left = 513
+      Left = 376
       Top = 0
       Action = acClear
+      ShowCaption = False
     end
-    object ToolButton4: TToolButton[7]
-      Left = 559
+    object tbDivider1: TToolButton[7]
+      Left = 161
       Height = 22
       Top = 0
-      Caption = 'ToolButton4'
+      Caption = 'tbDivider1'
       Style = tbsDivider
     end
     object tbOverlay: TToolButton[8]
-      Left = 536
+      Left = 399
       Top = 0
       Action = acOverlayMode
+      ShowCaption = False
     end
     object ToolButton3: TToolButton[9]
-      Left = 564
+      Left = 422
       Top = 0
       Action = acLinear
+      ShowCaption = False
     end
     object ToolButton5: TToolButton[10]
-      Left = 587
+      Left = 445
       Top = 0
       Action = acLogarithmic
+      ShowCaption = False
     end
-    object ToolButton6: TToolButton[11]
-      Left = 610
+    object tbDivider3: TToolButton[11]
+      Left = 468
       Height = 22
       Top = 0
-      Caption = 'ToolButton6'
+      Caption = 'tbDivider3'
       Style = tbsDivider
+    end
+    object tbInfected: TToolButton[12]
+      Left = 166
+      Top = 0
+      Action = acInfected
+    end
+    object tbDeaths: TToolButton[13]
+      Left = 217
+      Top = 0
+      Action = acDeaths
+    end
+    object tbRecovered: TToolButton[14]
+      Left = 279
+      Top = 0
+      Action = acRecovered
+    end
+    object tbSick: TToolButton[15]
+      Left = 342
+      Top = 0
+      Action = acSick
     end
   end
   inherited SaveDialog: TSaveDialog
@@ -330,6 +302,31 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
       Hint = 'Logarithmic plot'
       ImageIndex = 6
       OnExecute = acLogarithmicExecute
+    end
+    object acInfected: TAction[7]
+      AutoCheck = True
+      Caption = 'Infected'
+      Checked = True
+      Hint = 'Show infected cases'
+      OnExecute = acCasesExecute
+    end
+    object acDeaths: TAction[8]
+      AutoCheck = True
+      Caption = 'Deaths'
+      Hint = 'Show deaths'
+      OnExecute = acCasesExecute
+    end
+    object acRecovered: TAction[9]
+      AutoCheck = True
+      Caption = 'Recovered'
+      Hint = 'Show recovered cases'
+      OnExecute = acCasesExecute
+    end
+    object acSick: TAction[10]
+      AutoCheck = True
+      Caption = 'Sick'
+      Hint = 'Show sick cases'
+      OnExecute = acCasesExecute
     end
   end
   object DateTimeIntervalChartSource: TDateTimeIntervalChartSource[4]

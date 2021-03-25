@@ -335,6 +335,8 @@ begin
     dtNormalizedNewCases:
       begin
         Result := GetDataArray(ACaseType, dtNewCases);
+        if Result = nil then
+          exit;
         WeeklySum(Result);
         factor := REF_POPULATION / FPopulation;
         for i := 0 to High(Result) do
