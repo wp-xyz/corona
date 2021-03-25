@@ -23,6 +23,7 @@ type
     InfoTool: TUserDefinedTool;
     PanDragTool: TPanDragTool;
     RightPanel: TPanel;
+    ToolButton1: TToolButton;
     ZoomDragTool: TZoomDragTool;
     cmbDataType: TComboBox;
     MapDateLabel: TLabel;
@@ -36,7 +37,6 @@ type
     procedure InfoToolAfterMouseMove({%H-}ATool: TChartTool; APoint: TPoint);
     procedure MapDateScrollBarChange(Sender: TObject);
     procedure PaletteListboxGetColors(Sender: TCustomColorListBox; Items: TStrings);
-
   private
     FGeoMap: TcGeoMap;
     FMapLock: Integer;
@@ -64,6 +64,7 @@ type
     procedure LoadFromIni(ini: TCustomIniFile); override;
     procedure SaveToIni(ini: TCustomIniFile); override;
     procedure ShowMap(ADataNode: TTreeNode); virtual;
+    procedure UpdateCmdStates; override;
     procedure UpdateInfectiousPeriod;
     property OnDateSelect: TDateSelectEvent read FOnDateSelect write SetOnDateSelect;
 
@@ -289,6 +290,9 @@ begin
   PageControl.ActivePageIndex := ini.ReadInteger('Map', 'PageControl', PageControl.ActivePageIndex);
   RightPanel.Width := ini.ReadInteger('Map', 'RightPanel', RightPanel.Width);
   Splitter.Left := 0;
+
+  // Update tool button hints
+  PageControlChange(nil);
 end;
 
 procedure TMapFrame.PopulatePaletteListbox(ADataType: TMapDataType);
@@ -490,9 +494,19 @@ begin
     end;
 
     UpdateGrid;
+    UpdateCmdStates;
   finally
     stream.Free;
   end;
+end;
+
+procedure TMapFrame.UpdateCmdStates;
+begin
+  if PageControl.ActivePage = pgTable then
+    tbSaveToFile.Enabled := Grid.RowCount > 2
+  else
+    tbSaveToFile.Enabled := Chart.SeriesCount > 0;
+  tbCopyToClipboard.Enabled := tbSaveToFile.Enabled;
 end;
 
 procedure TMapFrame.UpdateGrid;

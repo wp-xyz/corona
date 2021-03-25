@@ -8,6 +8,7 @@ inherited MapFrame: TMapFrame
   inherited PageControl: TPageControl
     Height = 331
     Width = 580
+    OnChange = nil
     inherited pgChart: TTabSheet
       ClientHeight = 303
       ClientWidth = 572
@@ -161,7 +162,15 @@ inherited MapFrame: TMapFrame
   inherited ToolBar: TToolBar
     Width = 580
     EdgeBorders = []
-    object Panel1: TPanel[0]
+    inherited tbSaveToFile: TToolButton
+      Left = 246
+      Top = 0
+    end
+    inherited tbCopyToClipboard: TToolButton
+      Left = 269
+      Top = 0
+    end
+    object Panel1: TPanel[2]
       Left = 1
       Height = 23
       Top = 0
@@ -192,8 +201,15 @@ inherited MapFrame: TMapFrame
         Text = 'Normalized new confirmed cases'
       end
     end
+    object ToolButton1: TToolButton[3]
+      Left = 241
+      Height = 22
+      Top = 0
+      Caption = 'ToolButton1'
+      Style = tbsDivider
+    end
   end
-  object ChartToolset: TChartToolset[2]
+  object ChartToolset: TChartToolset[3]
     Left = 179
     Top = 155
     object InfoTool: TUserDefinedTool

@@ -6,7 +6,7 @@ interface
 
 uses
   Graphics, Classes, SysUtils, Forms, Controls, ExtCtrls, ComCtrls, Grids,
-  LCLVersion, IniFiles,
+  LCLVersion, Dialogs, IniFiles,
   TAChartUtils, TAGraph,
   cGlobal, cDataSource, Types;
 
@@ -22,12 +22,18 @@ type
     PageControl: TPageControl;
     pgChart: TTabSheet;
     pgTable: TTabSheet;
+    SaveDialog1: TSaveDialog;
     ToolBar: TToolBar;
+    tbSaveToFile: TToolButton;
+    tbCopyToClipboard: TToolButton;
     procedure ChartResize(Sender: TObject);
     procedure GridDrawCell(Sender: TObject; aCol, aRow: Integer; aRect: TRect;
       aState: TGridDrawState);
-    procedure GridPrepareCanvas(sender: TObject; aCol, aRow: Integer;
+    procedure GridPrepareCanvas(Sender: TObject; aCol, aRow: Integer;
       aState: TGridDrawState);
+    procedure PageControlChange(Sender: TObject);
+    procedure tbCopyToClipboardClick(Sender: TObject);
+    procedure tbSaveToFileClick(Sender: TObject);
   private
     FDataTree: TTreeView;
     FOnShowInfo: TShowInfoEvent;
@@ -46,6 +52,7 @@ type
     function GetInfoText(ADataNode: TTreeNode; ADate: TDate): String; virtual;
     function GetInfoTitle(ADataNode: TTreeNode; ADate: TDate): STring; virtual;
     function GetLocation(ADataNode: TTreeNode): String;
+    procedure SaveGridToFile(const AFileName: String);
     procedure ShowInfo(const ATitle, AText: String); virtual;
 
   public
@@ -53,6 +60,7 @@ type
     function FindNodeWithGeoID(AGeoID: TGeoID): TTreeNode;
     procedure LoadFromIni(ini: TCustomIniFile); virtual;
     procedure SaveToIni(ini: TCustomIniFile); virtual;
+    procedure UpdateCmdStates; virtual;
     procedure WordwrapChart(AChart: TChart);
 
     property DataTree: TTreeView read FDataTree write FDataTree;
@@ -65,8 +73,11 @@ implementation
 {$R *.lfm}
 
 uses
-  Math,
+  Math, ClipBrd,
   cUtils;
+
+const
+  CSV_SEPARATOR = #9;
 
 constructor TBasicFrame.Create(AOwner: TComponent);
 begin
@@ -234,6 +245,44 @@ begin
   Grid.Canvas.TextStyle := ts;
 end;
 
+procedure TBasicFrame.PageControlChange(Sender: TObject);
+begin
+  if PageControl.ActivePage = pgTable then
+  begin
+    tbSaveToFile.Hint := 'Save table to CSV file';
+    tbCopyToClipboard.Hint := 'Copy table to clipboard';
+  end else
+  begin
+    tbSaveToFile.Hint := 'Save chart image to file';
+    tbCopyToClipboard.Hint := 'Copy chart to clipboard';
+  end;
+  UpdateCmdStates;
+end;
+
+procedure TBasicFrame.tbCopyToClipboardClick(Sender: TObject);
+var
+  stream: TStream;
+  clr: TColor;
+begin
+  if PageControl.ActivePage = pgTable then
+  begin
+    stream := TMemoryStream.Create;
+    try
+      Grid.SaveToCSVStream(stream, CSV_SEPARATOR, true);
+      stream.Position := 0;
+      Clipboard.AddFormat(CF_TEXT, stream);
+    finally
+      stream.Free;
+    end;
+  end else
+  begin
+    clr := Chart.Color;
+    Chart.Color := clWhite;
+    Chart.CopyToClipboardBitmap;
+    Chart.Color := clr;
+  end;
+end;
+
 procedure TBasicFrame.LoadFromIni(ini: TCustomIniFile);
 begin
   // to be overridden by descendants
@@ -247,6 +296,10 @@ begin
 end;
 {$IFEND}
 
+procedure TBasicFrame.SaveGridToFile(const AFileName: String);
+begin
+  Grid.SaveToCSVFile(AfileName, CSV_SEPARATOR, true);
+end;
 
 procedure TBasicFrame.SaveToIni(ini: TCustomIniFile);
 begin
@@ -257,6 +310,22 @@ procedure TBasicFrame.ShowInfo(const ATitle, AText: String);
 begin
   if Assigned(FOnShowInfo) then
     FOnShowInfo(Self, ATitle, AText);
+end;
+
+procedure TBasicFrame.tbSaveToFileClick(Sender: TObject);
+begin
+  if PageControl.ActivePage = PgTable then
+  begin
+    SaveDialog1.Filter := 'CSV files (*.txt;*.csv;*.dat)|*.txt;*.csv;*.dat)';
+    SaveDialog1.DefaultExt := '*.txt';
+    SaveDialog1.FileName := '';
+    if SaveDialog1.Execute then
+      SaveGridToFile(SaveDialog1.FileName);
+  end;
+end;
+
+procedure TBasicFrame.UpdateCmdStates;
+begin
 end;
 
 procedure TBasicFrame.WordwrapChart(AChart: TChart);

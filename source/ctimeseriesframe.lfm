@@ -2,6 +2,7 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
   DesignLeft = 358
   DesignTop = 130
   inherited PageControl: TPageControl
+    OnChange = nil
     inherited pgChart: TTabSheet
       inherited Chart: TChart
         Height = 262
@@ -116,7 +117,15 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
   end
   inherited ToolBar: TToolBar
     EdgeBorders = []
-    object Panel1: TPanel[0]
+    inherited tbSaveToFile: TToolButton
+      Left = 513
+      Top = 0
+    end
+    inherited tbCopyToClipboard: TToolButton
+      Left = 536
+      Top = 0
+    end
+    object Panel1: TPanel[2]
       Left = 1
       Height = 23
       Top = 0
@@ -210,28 +219,35 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
         TabOrder = 4
       end
     end
+    object ToolButton1: TToolButton[3]
+      Left = 508
+      Height = 22
+      Top = 0
+      Caption = 'ToolButton1'
+      Style = tbsDivider
+    end
   end
-  object DateTimeIntervalChartSource: TDateTimeIntervalChartSource[2]
+  object DateTimeIntervalChartSource: TDateTimeIntervalChartSource[3]
     Params.MaxLength = 120
     Params.MinLength = 30
     Left = 336
     Top = 240
   end
-  object LeftAxisTransformations: TChartAxisTransformations[3]
+  object LeftAxisTransformations: TChartAxisTransformations[4]
     Left = 112
     Top = 88
     object LeftAxisLogTransform: TLogarithmAxisTransform
       Base = 10
     end
   end
-  object BottomAxisTransformations: TChartAxisTransformations[4]
+  object BottomAxisTransformations: TChartAxisTransformations[5]
     Left = 160
     Top = 240
     object BottomAxisLogTransform: TLogarithmAxisTransform
       Base = 10
     end
   end
-  object ChartToolset: TChartToolset[5]
+  object ChartToolset: TChartToolset[6]
     Left = 240
     Top = 144
     object MeasurementTool: TDataPointDistanceTool

@@ -18,6 +18,7 @@ object BasicFrame: TBasicFrame
     Align = alClient
     TabIndex = 1
     TabOrder = 0
+    OnChange = PageControlChange
     object pgChart: TTabSheet
       Caption = 'Chart'
       ClientHeight = 285
@@ -75,6 +76,27 @@ object BasicFrame: TBasicFrame
     Top = 0
     Width = 598
     Caption = 'ToolBar'
+    Images = MainDatamodule.ImageList
     TabOrder = 1
+    object tbSaveToFile: TToolButton
+      Left = 1
+      Hint = 'Save to file'
+      Top = 2
+      Caption = 'tbSaveToFile'
+      ImageIndex = 3
+      OnClick = tbSaveToFileClick
+    end
+    object tbCopyToClipboard: TToolButton
+      Left = 24
+      Hint = 'Copy to clipboard'
+      Top = 2
+      Caption = 'tbCopyToClipboard'
+      ImageIndex = 7
+      OnClick = tbCopyToClipboardClick
+    end
+  end
+  object SaveDialog1: TSaveDialog
+    Left = 259
+    Top = 147
   end
 end

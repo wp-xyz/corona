@@ -13,7 +13,7 @@ uses
   TAGraph, TAIntervalSources, TASeries, TAChartListbox, TALegend,
   TACustomSeries, TATransformations, TATools, TAFuncSeries, TADataTools,
   TAChartUtils, TADrawUtils,
-  cGlobal, cDataSource, cPalette, cSeries, cMapFrame, cTimeSeriesFrame;
+  cGlobal, cDataSource, cDatamodule, cPalette, cSeries, cMapFrame, cTimeSeriesFrame;
 
 type
   TCountArray = array of Integer;
@@ -30,10 +30,8 @@ type
     acDataClear: TAction;
     acChartLogarithmic: TAction;
     acConfigHint: TAction;
-    acTableSave: TAction;
     acConfigAutoLoad: TAction;
     acChartLinear: TAction;
-    acChartCopyToClipboard: TAction;
     acChartOverlay: TAction;
     acDataCommonStart: TAction;
     acDataMovingAverage: TAction;
@@ -68,7 +66,6 @@ type
     acFileExit: TFileExit;
     lblTableHint: TLabel;
     MainMenu: TMainMenu;
-    MenuItem1: TMenuItem;
     MenuItem10: TMenuItem;
     MenuItem11: TMenuItem;
     mnuChartHighlightWeekends: TMenuItem;
@@ -79,10 +76,7 @@ type
     mnuMovingAverage: TMenuItem;
     MenuItem4: TMenuItem;
     MenuItem5: TMenuItem;
-    MenuItem6: TMenuItem;
-    MenuItem7: TMenuItem;
     MenuItem8: TMenuItem;
-    mnuTable: TMenuItem;
     mnuDataUpdate: TMenuItem;
     mnuDataClear: TMenuItem;
     mnuData: TMenuItem;
@@ -102,7 +96,6 @@ type
     TimeSeriesChartPanel: TPanel;
     ToolBar: TToolBar;
     ToolButton1: TToolButton;
-    ToolButton10: TToolButton;
     ToolButton11: TToolButton;
     ToolButton12: TToolButton;
     ToolButton13: TToolButton;
@@ -115,8 +108,6 @@ type
     ToolButton5: TToolButton;
     ToolButton6: TToolButton;
     ToolButton7: TToolButton;
-    ToolButton8: TToolButton;
-    ToolButton9: TToolButton;
     WheelZoomTool: TZoomMouseWheelTool;
     Grid: TDrawGrid;
     lblTableHdr: TLabel;
@@ -129,7 +120,6 @@ type
     MeasurementTool: TDataPointDistanceTool;
     UserdefinedTool: TUserDefinedTool;
     CrossHairTool: TDataPointCrosshairTool;
-    ImageList: TImageList;
     LeftAxisTransformations: TChartAxisTransformations;
     LeftAxisLogTransform: TLogarithmAxisTransform;
     ChartListbox: TChartListbox;
@@ -139,7 +129,6 @@ type
     RightSplitter: TSplitter;
     TreeView: TTreeView;
     procedure acAboutExecute(Sender: TObject);
-    procedure acChartCopyToClipboardExecute(Sender: TObject);
     procedure acChartHighlightWeekendsExecute(Sender: TObject);
     procedure acChartLinearExecute(Sender: TObject);
     procedure acChartLogarithmicExecute(Sender: TObject);
@@ -155,7 +144,6 @@ type
     procedure acDataUpdateExecute(Sender: TObject);
     procedure acInfectiousPeriodExecute(Sender: TObject);
     procedure acSmoothingRangeExecute(Sender: TObject);
-    procedure acTableSaveExecute(Sender: TObject);
 
     procedure ChartBeforeCustomDrawBackWall(ASender: TChart;
       ADrawer: IChartDrawer; const ARect: TRect; var ADoDefaultDrawing: Boolean);
@@ -317,13 +305,6 @@ begin
     finally
       Free;
     end;
-end;
-
-procedure TMainForm.acChartCopyToClipboardExecute(Sender: TObject);
-begin
-  Chart.Color := clWhite;
-  Chart.CopyToClipboardBitmap;
-  Chart.Color := cldefault;
 end;
 
 procedure TMainForm.acChartHighlightWeekendsExecute(Sender: TObject);
@@ -528,63 +509,6 @@ begin
         MessageDlg('Only odd number of days allowed (i.e. center day is included).', mtError, [mbOk], 0);
     end else
       MessageDlg('No valid number.', mtError, [mbOK], 0);
-  end;
-end;
-
-procedure TMainForm.acTableSaveExecute(Sender: TObject);
-const
-  ASCENDING = false;
-var
-  r, c: Integer;
-  r_start, r_end, r_delta: Integer;
-  F: TextFile;
-  col: TGridColumn;
-  ser: TChartSeries;
-  dt: TDateTime;
-  n: Integer;
-begin
-  SaveDialog.Filename := '';
-  if SaveDialog.Execute then
-  begin
-    AssignFile(F, SaveDialog.FileName);
-    Rewrite(F);
-
-    Write(F, 'Date');
-    for c := 1 to Grid.ColCount-1 do
-    begin
-      col := Grid.Columns[c-1];
-      ser := TChartSeries(col.Tag);
-      Write(F, #9, ser.Title);
-    end;
-    WriteLn(F);
-
-    if ASCENDING then
-    begin
-      r_start := 1;
-      r_end := Grid.RowCount;
-      r_delta := +1;
-    end else
-    begin
-      r_start := Grid.RowCount-1;
-      r_end := 0;
-      r_delta := -1;
-    end;
-
-    r := r_start;
-    while r <> r_end do begin
-//    for r := 1 to Grid.RowCount-1 do
-//    begin
-      dt := StrToDateTime(GetCellText(0, r));
-      Write(F, FormatDateTime(SAVE_DATE_FORMAT, dt));
-      for c := 1 to Grid.ColCount-1 do
-      begin
-        n := StrToInt(StripThousandSeparator(GetCellText(c, r), FormatSettings.ThousandSeparator));
-        Write(F, #9, n);
-      end;
-      WriteLn(F);
-      inc(r, r_delta);
-    end;
-    CloseFile(F);
   end;
 end;
 
@@ -2236,10 +2160,11 @@ end;
 
 procedure TMainForm.UpdateActionStates;
 begin
-  acTableSave.Enabled := Chart.SeriesCount > 1;  // 1 series reserved for measurement
   acChartLogarithmic.Enabled := GetDataType() in [dtCumulative, dtNormalizedCumulative,
     dtNewCases, dtNormalizedNewCases, dtCumVsNewCases];
   acChartLinear.Enabled := acChartLogarithmic.Enabled;
+  FMapFrame.UpdateCmdStates;
+  FTimeSeriesFrame.UpdateCmdStates;
 end;
 
 procedure TMainForm.UpdateAxes(LogarithmicX, LogarithmicY: Boolean);

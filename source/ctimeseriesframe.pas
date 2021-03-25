@@ -37,6 +37,7 @@ type
     Panel1: TPanel;
     Splitter1: TSplitter;
     StatusBar: TStatusBar;
+    ToolButton1: TToolButton;
     WheelZoomTool: TZoomMouseWheelTool;
     ZoomDragTool: TZoomDragTool;
     procedure ChartListboxAddSeries(ASender: TChartListbox;
@@ -94,6 +95,7 @@ type
     procedure ShowTimeSeries(ADataNode: TTreeNode);
     procedure SetCommonStart(AEnable: Boolean);
     procedure UpdateAxes(LogarithmicX, LogarithmicY: Boolean);
+    procedure UpdateCmdStates; override;
     procedure UpdateData;
     procedure UpdateDateIndicatorLine(Sender: TObject; ADate: TDate);
     procedure UpdateInfectiousPeriod;
@@ -522,6 +524,7 @@ begin
 
   UpdateGrid;
   DoUpdateActions;
+  UpdateCmdStates;
 end;
 
 procedure TTimeSeriesFrame.ClearAllSeries;
@@ -806,6 +809,9 @@ begin
 
   ct := ini.ReadInteger('TimeSeries', 'CaseTypes', integer(CasesChecked));
   CheckCases(TCaseTypes(ct));
+
+  // Update tool button hints
+  PageControlChange(nil);
 end;
 
 
@@ -1018,13 +1024,7 @@ begin
     UpdateAffectedSeries;
     UpdateAxes;
     UpdateGrid;
-    { <-------------- FIX ME
-    if population > 0 then
-      FStatusText1 := Format('%s loaded (population %.0n)', [GetLocation(ANode), 1.0*population])
-    else
-      FStatusText1 := Format('%s loaded.', [GetLocation(ANode)]);
-    UpdateStatusBar;
-    }
+    UpdateCmdStates;
     DoUpdateActions;
 
     // Update DateIndicatorLine position
@@ -1151,6 +1151,15 @@ begin
     end;
   end;
   Chart.Extent.UseYMin := LogarithmicY or (GetDataType = dtRValue);
+end;
+
+procedure TTimeSeriesFrame.UpdateCmdStates;
+begin
+  if PageControl.ActivePage = pgTable then
+    tbSaveToFile.Enabled := Grid.RowCount > 2
+  else
+    tbSaveToFile.Enabled := Chart.SeriesCount > 2;  // FitSeries and DateIndicator are always present.
+  tbCopyToClipboard.Enabled := tbSaveToFile.Enabled;
 end;
 
 // Recalculates data after changes in SmoothingPeriod or InfectiousPeriod.
