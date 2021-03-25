@@ -48,6 +48,7 @@ type
     Logarithmic: Boolean;
     CommonStart: Boolean;
     MovingAverage: Boolean;
+    HighlightWeekends: Boolean;
   end;
 
 const
@@ -102,6 +103,7 @@ var
     Logarithmic: false;
     CommonStart: false;
     MovingAverage: false;
+    HighlightWeekends: false;
   );
 
   cFormatSettings: TFormatSettings;

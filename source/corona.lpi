@@ -322,6 +322,7 @@
         <Filename Value="cdatamodule.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="MainDatamodule"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="DataModule"/>
         <UnitName Value="cDataModule"/>
       </Unit18>

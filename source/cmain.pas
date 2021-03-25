@@ -309,7 +309,7 @@ end;
 
 procedure TMainForm.acChartHighlightWeekendsExecute(Sender: TObject);
 begin
-  Chart.Invalidate;
+  FTimeSeriesFrame.HighlightWeekends(acChartHighlightWeekends.Checked);
 end;
 
 procedure TMainForm.acChartLinearExecute(Sender: TObject);
@@ -2294,6 +2294,7 @@ begin
   acChartLogarithmic.Checked := TimeSeriesSettings.Logarithmic;
   acChartLinear.Checked := not TimeSeriesSettings.Logarithmic;
   acDataMovingAverage.Checked := TimeSeriesSettings.MovingAverage;
+  acChartHighlightWeekends.Checked := TimeSeriesSettings.HighlightWeekends;
 end;
 
 procedure TMainForm.LoadIni;

@@ -9,7 +9,7 @@ uses
   StdCtrls, ExtCtrls, ComCtrls, Grids,
   TAGraph, TACustomSeries, TASeries, TAFuncSeries, TAChartListbox, TAIntervalSources,
   TALegend, TATransformations, TATools, TADataTools,
-  cGlobal, cBasicFrame, cSeries;
+  cGlobal, cBasicFrame, cSeries, TADrawUtils;
 
 type
   TUpdateTimeSeriesActions = procedure (Sender: TObject) of object;
@@ -38,8 +38,12 @@ type
     Splitter1: TSplitter;
     StatusBar: TStatusBar;
     ToolButton1: TToolButton;
+    ToolButton2: TToolButton;
+    tbHighlightWeekends: TToolButton;
     WheelZoomTool: TZoomMouseWheelTool;
     ZoomDragTool: TZoomDragTool;
+    procedure ChartBeforeCustomDrawBackWall(ASender: TChart; ADrawer: IChartDrawer;
+      const ARect: TRect; var ADoDefaultDrawing: Boolean);
     procedure ChartListboxAddSeries(ASender: TChartListbox;
       ASeries: TCustomChartSeries; AItems: TChartLegendItems; var ASkip: Boolean);
     procedure ChartListboxClick(Sender: TObject);
@@ -51,6 +55,7 @@ type
     procedure MeasurementToolAfterMouseUp(ATool: TChartTool; APoint: TPoint);
     procedure MeasurementToolGetDistanceText(ASender: TDataPointDistanceTool; var AText: String);
     procedure MeasurementToolMeasure(ASender: TDataPointDistanceTool);
+    procedure tbHighlightWeekendsClick(Sender: TObject);
   private
     FDateIndicatorLine: TConstantLine;
     FMeasurementSeries: TFuncSeries;
@@ -87,9 +92,8 @@ type
     constructor Create(AOwner: TComponent); override;
     procedure Clear(UnselectTree: Boolean = true);
     procedure EnableMovingAverage(AEnable, AStrict: Boolean);
+    procedure HighlightWeekends(AEnable: Boolean);
     function IsTimeSeries: Boolean;
-    procedure LoadFromIni(ini: TCustomIniFile); override;
-    procedure SaveToIni(ini: TCustomIniFile); override;
     procedure ShowDateIndicatorLine(AEnable: Boolean);
     procedure ShowTimeSeries(ADataNode: TTreeNode);
     procedure SetCommonStart(AEnable: Boolean);
@@ -99,6 +103,9 @@ type
     procedure UpdateDateIndicatorLine(Sender: TObject; ADate: TDate);
     procedure UpdateInfectiousPeriod;
     procedure UpdateStatusbar(AText: String);
+
+    procedure LoadFromIni(ini: TCustomIniFile); override;
+    procedure SaveToIni(ini: TCustomIniFile); override;
 
     property OnUpdateActions: TUpdateTimeSeriesActions read FOnUpdateActions write FOnUpdateActions;
 
@@ -480,6 +487,39 @@ begin
       end;
 end;
 
+procedure TTimeSeriesFrame.ChartBeforeCustomDrawBackWall(ASender: TChart;
+  ADrawer: IChartDrawer; const ARect: TRect; var ADoDefaultDrawing: Boolean);
+const
+  SATURDAY = 7;
+var
+  ext: TDoubleRect;
+  x: Double;
+begin
+  if (not TimeSeriesSettings.HighlightWeekends) or (not IsTimeSeries) then
+    exit;
+
+  ext := ASender.LogicalExtent;
+  if (ext.a.x = -1) and (ext.b.x = +1) then
+    exit;
+
+  ADrawer.SetPenColor(ASender.Frame.Color);
+  ADrawer.BrushColor := ASender.BackColor;
+  ADrawer.Rectangle(ARect);
+
+  x := trunc(ext.a.x);
+  while DayOfWeek(x) <> SATURDAY do
+    x += 1;
+
+  ADrawer.BrushColor := ASender.BottomAxis.Grid.Color;
+  while (x <= ext.b.x) do
+  begin
+    ADrawer.FillRect(ASender.XGraphToImage(x){%H-}, ARect.Top+1, ASender.XGraphToImage(x+1){%H-}, ARect.Bottom-1);
+    x += 7;
+  end;
+
+  ADoDefaultDrawing := false;
+end;
+
 procedure TTimeSeriesFrame.ChartListboxClick(Sender: TObject);
 begin
   UpdateAffectedSeries;
@@ -621,57 +661,6 @@ begin
   Chart.BottomAxis.Grid.Color := Chart.LeftAxis.Grid.Color;
 end;
 
-(*
-function TTimeSeriesFrame.GetCellText(ACol, ARow: Integer): String;
-var
-  col: TGridColumn;
-  ser: TChartSeries;
-  n: Integer;
-  r: Integer;
-  dt: TDate;
-  lastDateOfSeries: TDate;
-begin
-  if (ACol = 0) and (ARow = 0) then
-    Result := 'Date'
-  else
-  begin
-    Result := '';
-    if Grid.Columns.Count = 0 then
-      exit;
-    dt := FLastDate - (ARow - Grid.FixedRows);
-    if (ACol = 0) then
-    begin
-      Result := DateToStr(dt);
-   end else
-    if ARow > 0 then
-    begin
-      col := Grid.Columns[ACol - 1];
-      ser := TChartSeries(col.Tag);
-      lastDateOfSeries := ser.XValue[ser.LastValueIndex];
-      r := ARow - Grid.FixedRows - round(FLastDate - lastDateOfSeries);
-      r := Grid.RowCount - r - 2;
-      n := ser.Count;
-      if (r > -1) and (r < n) then
-        if not IsNan(ser.YValue[r]) then
-          case GetDataType() of
-            dtCumulativeCasesDoublingTime,
-            dtNewCasesDoublingTime:
-              Result := Format('%.1f', [ser.YValue[r]]);
-            dtCumVsNewCases:
-              if odd(ACol) then
-                Result := Format('%.0n', [ser.YValue[r]])
-              else
-                Result := Format('%.0n', [ser.XValue[r]]);
-            dtRValue:
-              Result := Format('%.2f', [ser.YValue[r]]);
-            else
-              Result := Format('%.0n', [ser.YValue[r]]);
-          end;
-    end;
-  end;
-end;
-*)
-
 function TTimeSeriesFrame.GetDataType: TDataType;
 begin
   Result := TDataType(cmbDataType.ItemIndex);
@@ -757,6 +746,12 @@ begin
   UpdateAffectedSeries;
 end;
 
+procedure TTimeSeriesFrame.HighlightWeekends(AEnable: Boolean);
+begin
+  TimeSeriesSettings.HighlightWeekends := AEnable;
+  Chart.Invalidate;
+end;
+
 function TTimeSeriesFrame.IsTimeSeries: Boolean;
 begin
   Result := GetDataType() <> dtCumVsNewCases;
@@ -808,6 +803,8 @@ begin
 
   ct := ini.ReadInteger('TimeSeries', 'CaseTypes', integer(CasesChecked));
   CheckCases(TCaseTypes(ct));
+
+  HighlightWeekends(ini.ReadBool('TimeSeries', 'HighlightWeekends', TimeSeriesSettings.HighlightWeekends));
 
   // Update tool button hints
   PageControlChange(nil);
@@ -872,6 +869,8 @@ begin
 
   ini.WriteInteger('TimeSeries', 'PageControl', PageControl.ActivePageIndex);
   ini.WriteInteger('TimeSeries', 'ListboxWidth', ChartListbox.Width);
+
+  ini.WriteBool('TimeSeries', 'HighlightWeekends', TimeSeriesSettings.HighlightWeekends);
 end;
 
 procedure TTimeSeriesFrame.SetCommonStart(AEnable: Boolean);
@@ -1058,6 +1057,11 @@ begin
   for i:=0 to ChartListbox.SeriesCount-1 do
     if ChartListbox.Series[i] is TcLineSeries then
       AList.Add(TcLineSeries(ChartListbox.Series[i]).Node);
+end;
+
+procedure TTimeSeriesFrame.tbHighlightWeekendsClick(Sender: TObject);
+begin
+  HighlightWeekends(tbHighlightWeekends.Down);
 end;
 
 procedure TTimeSeriesFrame.UpdateAffectedSeries;

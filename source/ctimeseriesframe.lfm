@@ -1,12 +1,18 @@
 inherited TimeSeriesFrame: TTimeSeriesFrame
+  Width = 677
+  ClientWidth = 677
   DesignLeft = 358
   DesignTop = 130
   inherited PageControl: TPageControl
+    Width = 677
+    ActivePage = pgChart
+    TabIndex = 0
     inherited pgChart: TTabSheet
+      ClientWidth = 669
       inherited Chart: TChart
         Height = 262
         Hint = 'Zoom: '#13#10'  drag a rectangle from left-top to bottom-right corner with left mouse button down'#13#10'  or: use mouse wheel (zoom center is mouse position).'#13#10'Pan: '#13#10'  drag with the right mouse button down'#13#10'Restore view: '#13#10'  click'#13#10'Read data value: '#13#10'  move mouse over data point (no key pressed)'#13#10'Measure doubling time: '#13#10'  CTRL-drag over data points of interest with left mouse button down.'
-        Width = 451
+        Width = 530
         AxisList = <        
           item
             Grid.Color = clSilver
@@ -37,12 +43,14 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
             Title.Caption = 'Date'
             Title.LabelBrush.Style = bsClear
           end>
+        Frame.Color = clWindowText
         Toolset = ChartToolset
+        OnBeforeCustomDrawBackWall = ChartBeforeCustomDrawBackWall
         Align = alClient
         OnResize = ChartResize
       end
       object ChartListbox: TChartListbox[1]
-        Left = 460
+        Left = 539
         Height = 262
         Hint = 'Uncheck to remove a curve temporarily.'
         Top = 0
@@ -56,7 +64,7 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
         TabOrder = 1
       end
       object Splitter1: TSplitter[2]
-        Left = 451
+        Left = 530
         Height = 262
         Top = 0
         Width = 5
@@ -67,7 +75,7 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
         Left = 0
         Height = 23
         Top = 262
-        Width = 590
+        Width = 669
         Panels = <>
       end
     end
@@ -115,6 +123,7 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
     end
   end
   inherited ToolBar: TToolBar
+    Width = 677
     EdgeBorders = []
     inherited tbSaveToFile: TToolButton
       Left = 513
@@ -225,6 +234,26 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
       Caption = 'ToolButton1'
       Style = tbsDivider
     end
+    object ToolButton2: TToolButton[4]
+      Left = 559
+      Height = 22
+      Top = 0
+      Caption = 'ToolButton2'
+      Style = tbsDivider
+    end
+    object tbHighlightWeekends: TToolButton[5]
+      Left = 564
+      Hint = 'Highlight weekends'
+      Top = 0
+      Caption = 'tbHighlightWeekends'
+      ImageIndex = 11
+      OnClick = tbHighlightWeekendsClick
+      Style = tbsCheck
+    end
+  end
+  inherited SaveDialog1: TSaveDialog
+    Left = 384
+    Top = 88
   end
   object DateTimeIntervalChartSource: TDateTimeIntervalChartSource[3]
     Params.MaxLength = 120
@@ -247,8 +276,8 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
     end
   end
   object ChartToolset: TChartToolset[6]
-    Left = 240
-    Top = 144
+    Left = 256
+    Top = 152
     object MeasurementTool: TDataPointDistanceTool
       Shift = [ssCtrl, ssLeft]
       OnAfterMouseUp = MeasurementToolAfterMouseUp
