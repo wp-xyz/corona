@@ -57,9 +57,9 @@ type
     tbRecovered: TToolButton;
     WheelZoomTool: TZoomMouseWheelTool;
     ZoomDragTool: TZoomDragTool;
+    procedure acCasesExecute(Sender: TObject);
     procedure acClearExecute(Sender: TObject);
     procedure acHighlightWeekendsExecute(Sender: TObject);
-    procedure acCasesExecute(Sender: TObject);
     procedure acLinearExecute(Sender: TObject);
     procedure acLogarithmicExecute(Sender: TObject);
     procedure acOverlayModeExecute(Sender: TObject);
@@ -187,16 +187,6 @@ begin
   {$IFEND}
 end;
 
-procedure TTimeSeriesFrame.acClearExecute(Sender: TObject);
-begin
-  Clear;
-end;
-
-procedure TTimeSeriesFrame.acHighlightWeekendsExecute(Sender: TObject);
-begin
-  HighlightWeekends(acHighlightWeekends.Checked);
-end;
-
 procedure TTimeSeriesFrame.acCasesExecute(Sender: TObject);
 var
   L: TFPList;
@@ -210,6 +200,16 @@ begin
   finally
     L.Free;
   end;
+end;
+
+procedure TTimeSeriesFrame.acClearExecute(Sender: TObject);
+begin
+  Clear;
+end;
+
+procedure TTimeSeriesFrame.acHighlightWeekendsExecute(Sender: TObject);
+begin
+  HighlightWeekends(acHighlightWeekends.Checked);
 end;
 
 procedure TTimeSeriesFrame.acLinearExecute(Sender: TObject);
@@ -259,7 +259,8 @@ begin
     serIdx := ASender.PointIndex;
     if serIdx > -1 then
     begin
-      x := ser.GetXValue(serIdx);
+      x := data.Date[serIdx];
+      //x := ser.GetXValue(serIdx);
       y := ser.GetYValue(serIdx);
       lTitle := GetInfoTitle(ser.Node, round(x));
       lInfo := GetInfoText(ser.Node, round(x));

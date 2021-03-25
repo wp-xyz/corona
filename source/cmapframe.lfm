@@ -8,6 +8,8 @@ inherited MapFrame: TMapFrame
   inherited PageControl: TPageControl
     Height = 331
     Width = 580
+    ActivePage = pgChart
+    TabIndex = 0
     inherited pgChart: TTabSheet
       ClientHeight = 303
       ClientWidth = 572
@@ -44,6 +46,7 @@ inherited MapFrame: TMapFrame
         Title.Font.Color = clWindowText
         Title.Font.Height = -13
         Title.Font.Style = [fsBold]
+        Title.Wordwrap = True
         Toolset = ChartToolset
         Anchors = [akTop, akLeft, akRight, akBottom]
       end
@@ -208,7 +211,7 @@ inherited MapFrame: TMapFrame
       Style = tbsDivider
     end
   end
-  object ChartToolset: TChartToolset[3]
+  object ChartToolset: TChartToolset[4]
     Left = 179
     Top = 155
     object InfoTool: TUserDefinedTool
