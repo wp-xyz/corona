@@ -28,10 +28,8 @@ type
     acDataUpdate: TAction;
     acAbout: TAction;
     acDataClear: TAction;
-    acChartLogarithmic: TAction;
     acConfigHint: TAction;
     acConfigAutoLoad: TAction;
-    acChartLinear: TAction;
     acDataCommonStart: TAction;
     acDataMovingAverage: TAction;
     acInfectiousPeriod: TAction;
@@ -96,9 +94,6 @@ type
     ToolButton3: TToolButton;
     ToolButton4: TToolButton;
     tbAbout: TToolButton;
-    ToolButton5: TToolButton;
-    ToolButton6: TToolButton;
-    ToolButton7: TToolButton;
     WheelZoomTool: TZoomMouseWheelTool;
     Grid: TDrawGrid;
     lblTableHdr: TLabel;
@@ -120,8 +115,6 @@ type
     RightSplitter: TSplitter;
     TreeView: TTreeView;
     procedure acAboutExecute(Sender: TObject);
-    procedure acChartLinearExecute(Sender: TObject);
-    procedure acChartLogarithmicExecute(Sender: TObject);
     procedure acChartMapExecute(Sender: TObject);
     procedure acChartTimeSeriesExecute(Sender: TObject);
     procedure acConfigAutoLoadExecute(Sender: TObject);
@@ -200,7 +193,6 @@ type
     procedure SelectNode(ANode: TTreeNode);
     procedure ShowVersionInfo;
     procedure UpdateActionStates;
-    procedure UpdateAxes(LogarithmicX, LogarithmicY: Boolean);
     procedure UpdateData;
     procedure UpdateDateIndicatorLine(ADate: TDate);
     procedure UpdateInfectiousPeriod;
@@ -292,24 +284,6 @@ begin
     finally
       Free;
     end;
-end;
-
-procedure TMainForm.acChartLinearExecute(Sender: TObject);
-begin
-  TimeSeriesSettings.Logarithmic := false;
-  if Assigned(FTimeSeriesFrame) then
-    FTimeSeriesFrame.UpdateAxes(false, false);
-
-  UpdateAxes(false, false);
-end;
-
-procedure TMainForm.acChartLogarithmicExecute(Sender: TObject);
-begin
-  TimeSeriesSettings.Logarithmic := true;
-  if Assigned(FTimeSeriesFrame) then
-    FTimeSeriesFrame.UpdateAxes(not FTimeSeriesFrame.IsTimeSeries(), true);
-
-  UpdateAxes(not IsTimeSeries(), true);
 end;
 
 procedure TMainForm.acChartMapExecute(Sender: TObject);
@@ -2104,79 +2078,8 @@ end;
 
 procedure TMainForm.UpdateActionStates;
 begin
-  acChartLogarithmic.Enabled := GetDataType() in [dtCumulative, dtNormalizedCumulative,
-    dtNewCases, dtNormalizedNewCases, dtCumVsNewCases];
-  acChartLinear.Enabled := acChartLogarithmic.Enabled;
   FMapFrame.UpdateCmdStates;
   FTimeSeriesFrame.UpdateCmdStates;
-end;
-
-procedure TMainForm.UpdateAxes(LogarithmicX, LogarithmicY: Boolean);
-begin
-  with Chart.BottomAxis do
-    if LogarithmicX then
-    begin
-      Transformations := BottomAxisTransformations;
-      Intervals.Options := Intervals.Options + [aipGraphCoords];
-      Intervals.MaxLength := 150;
-      Intervals.MinLength := 50;
-      Intervals.Tolerance := 100;
-      Marks.Source := nil;
-      Marks.Format := '%0:.0n';
-      Marks.Style := smsValue;
-    end else
-    if IsTimeSeries() then
-    begin
-      Transformations := nil;
-      if acDataCommonStart.Checked then
-      begin
-        Marks.Source := nil;
-        Marks.Style := smsValue;
-        Title.Caption := 'Days since ' + IntToStr(START_COUNT) + ' confirmed cases';
-      end else
-      begin
-        Marks.Source := DateTimeIntervalChartSource;
-        Marks.Style := smsLabel;
-        Title.Caption := 'Date';
-        // no need to reset Intervals here because they are handled by DateTimeInterval source on time series.
-      end;
-    end else
-    begin
-      Transformations := nil;
-      Intervals.Options := Intervals.Options - [aipGraphCoords];
-      Intervals.MaxLength := 150;
-      Intervals.MinLength := 30;
-      Intervals.Tolerance := 0;
-      Marks.Source := nil;
-      Marks.Style := smsValue;
-      Marks.Format := '%0:.0n';
-    end;
-
-  with Chart.LeftAxis do
-  begin
-    if LogarithmicY then
-    begin
-      Transformations := LeftAxisTransformations;
-      Intervals.Options := Intervals.Options + [aipGraphCoords];
-      Intervals.MaxLength := 150;
-      Intervals.MinLength := 50;
-      Intervals.Tolerance := 100;
-      Marks.Format := '%0:.0n';
-    end else
-    begin
-      Transformations := nil;
-      Intervals.Options := Intervals.Options - [aipGraphCoords];
-      Intervals.MaxLength := 50;
-      Intervals.MinLength := 10;
-      Intervals.Tolerance := 0;
-      Marks.Style := smsValue;
-      if GetDataType() in [dtCumulative, dtCumVsNewCases] then
-        Marks.Format := '%0:.0n'
-      else
-        Marks.Format := '%0:.9g';
-    end;
-  end;
-  Chart.Extent.UseYMin := LogarithmicY or (GetDataType = dtRValue);
 end;
 
 procedure TMainForm.UpdateData;
@@ -2234,8 +2137,6 @@ end;
 
 procedure TMainForm.UpdateTimeSeriesActions(Sender: TObject);
 begin
-  acChartLogarithmic.Checked := TimeSeriesSettings.Logarithmic;
-  acChartLinear.Checked := not TimeSeriesSettings.Logarithmic;
   acDataMovingAverage.Checked := TimeSeriesSettings.MovingAverage;
 end;
 

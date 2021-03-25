@@ -2066,31 +2066,14 @@ object MainForm: TMainForm
       Style = tbsDivider
     end
     object ToolButton4: TToolButton
-      Left = 248
+      Left = 163
       Top = 2
       Action = acFileExit
     end
     object tbAbout: TToolButton
-      Left = 288
-      Top = 2
-      Action = acAbout
-    end
-    object ToolButton5: TToolButton
-      Left = 163
-      Top = 2
-      Action = acChartLinear
-    end
-    object ToolButton6: TToolButton
       Left = 203
       Top = 2
-      Action = acChartLogarithmic
-    end
-    object ToolButton7: TToolButton
-      Left = 243
-      Height = 40
-      Top = 2
-      Caption = 'ToolButton7'
-      Style = tbsDivider
+      Action = acAbout
     end
     object ToolButton12: TToolButton
       Left = 47
@@ -2222,13 +2205,17 @@ object MainForm: TMainForm
         Caption = '-'
       end
       object MenuItem5: TMenuItem
-        Action = acChartLinear
         AutoCheck = True
+        Caption = 'Linear'
+        Checked = True
+        Hint = 'Linear y axis'
+        ImageIndex = 5
       end
       object mnuChartLogarithmic: TMenuItem
-        Action = acChartLogarithmic
         AutoCheck = True
         Caption = 'Logarithmic'
+        Hint = 'Logarithmic y axis'
+        ImageIndex = 6
       end
     end
     object mnuConfig: TMenuItem
@@ -2313,25 +2300,6 @@ object MainForm: TMainForm
       Caption = 'Show hints'
       Checked = True
       OnExecute = acConfigHintExecute
-    end
-    object acChartLogarithmic: TAction
-      Category = 'Chart'
-      AutoCheck = True
-      Caption = 'Log'
-      GroupIndex = 2220
-      Hint = 'Logarithmic y axis'
-      ImageIndex = 6
-      OnExecute = acChartLogarithmicExecute
-    end
-    object acChartLinear: TAction
-      Category = 'Chart'
-      AutoCheck = True
-      Caption = 'Linear'
-      Checked = True
-      GroupIndex = 2220
-      Hint = 'Linear y axis'
-      ImageIndex = 5
-      OnExecute = acChartLinearExecute
     end
     object acDataCommonStart: TAction
       Category = 'Data'
