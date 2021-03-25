@@ -2059,19 +2059,19 @@ object MainForm: TMainForm
       Action = acDataUpdate
     end
     object ToolButton3: TToolButton
-      Left = 158
+      Left = 198
       Height = 40
       Top = 2
       Caption = 'ToolButton3'
       Style = tbsDivider
     end
     object ToolButton4: TToolButton
-      Left = 163
+      Left = 203
       Top = 2
       Action = acFileExit
     end
     object tbAbout: TToolButton
-      Left = 203
+      Left = 243
       Top = 2
       Action = acAbout
     end
@@ -2091,6 +2091,11 @@ object MainForm: TMainForm
       Left = 92
       Top = 2
       Action = acChartTimeSeries
+    end
+    object ToolButton2: TToolButton
+      Left = 158
+      Top = 2
+      Action = acChartBoth
     end
   end
   object DisplayPanel: TPanel
@@ -2201,6 +2206,10 @@ object MainForm: TMainForm
         Action = acChartTimeSeries
         AutoCheck = True
       end
+      object MenuItem1: TMenuItem
+        Action = acChartBoth
+        AutoCheck = True
+      end
     end
     object mnuConfig: TMenuItem
       Caption = 'Configuration'
@@ -2301,7 +2310,7 @@ object MainForm: TMainForm
       Category = 'Chart'
       AutoCheck = True
       Caption = 'Map'
-      Checked = True
+      GroupIndex = 2000
       ImageIndex = 9
       OnExecute = acChartMapExecute
     end
@@ -2309,7 +2318,7 @@ object MainForm: TMainForm
       Category = 'Chart'
       AutoCheck = True
       Caption = 'Time series'
-      Checked = True
+      GroupIndex = 2000
       ImageIndex = 10
       OnExecute = acChartMapExecute
     end
@@ -2322,6 +2331,15 @@ object MainForm: TMainForm
       Category = 'Config'
       Caption = 'Smoothing range...'
       OnExecute = acSmoothingRangeExecute
+    end
+    object acChartBoth: TAction
+      Category = 'Chart'
+      AutoCheck = True
+      Caption = 'Both'
+      Checked = True
+      GroupIndex = 2000
+      ImageIndex = 12
+      OnExecute = acChartMapExecute
     end
   end
   object BottomAxisTransformations: TChartAxisTransformations

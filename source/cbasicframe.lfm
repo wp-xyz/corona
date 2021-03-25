@@ -11,11 +11,12 @@ object BasicFrame: TBasicFrame
   DesignTop = 127
   object PageControl: TPageControl
     Left = 0
-    Height = 313
-    Top = 26
+    Height = 309
+    Top = 30
     Width = 598
     ActivePage = pgTable
     Align = alClient
+    BorderSpacing.Top = 4
     TabIndex = 1
     TabOrder = 0
     OnChange = PageControlChange
@@ -54,7 +55,7 @@ object BasicFrame: TBasicFrame
     end
     object pgTable: TTabSheet
       Caption = 'Table'
-      ClientHeight = 285
+      ClientHeight = 281
       ClientWidth = 590
       object Grid: TStringGrid
         Left = 56

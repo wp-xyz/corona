@@ -37,6 +37,7 @@ type
     acChartMap: TAction;
     acChartTimeSeries: TAction;
     acConfigAutoSave: TAction;
+    acChartBoth: TAction;
     ActionList: TActionList;
     Chart: TChart;
     BottomAxisTransformations: TChartAxisTransformations;
@@ -44,6 +45,7 @@ type
     DateIndicatorLine: TConstantLine;
     InfoLabel: TLabel;
     InfoPanel: TPanel;
+    MenuItem1: TMenuItem;
     MenuItem15: TMenuItem;
     DisplayPanel: TPanel;
     NameLabel: TLabel;
@@ -88,6 +90,7 @@ type
     ToolButton12: TToolButton;
     ToolButton13: TToolButton;
     ToolButton15: TToolButton;
+    ToolButton2: TToolButton;
     ToolButton3: TToolButton;
     ToolButton4: TToolButton;
     tbAbout: TToolButton;
@@ -113,7 +116,6 @@ type
     TreeView: TTreeView;
     procedure acAboutExecute(Sender: TObject);
     procedure acChartMapExecute(Sender: TObject);
-    procedure acChartTimeSeriesExecute(Sender: TObject);
     procedure acConfigAutoLoadExecute(Sender: TObject);
     procedure acConfigAutoSaveExecute(Sender: TObject);
     procedure acConfigHintExecute(Sender: TObject);
@@ -286,45 +288,15 @@ end;
 procedure TMainForm.acChartMapExecute(Sender: TObject);
 var
   dm: TDisplayMode;
-  vc: TVisibleCharts;
 begin
-  if acChartMap.Checked and acChartTimeSeries.Checked then
-  begin
-    dm := dmBoth;
-    vc := vcBoth;
-  end
-  else if acChartMap.Checked then
-  begin
-    dm := dmMap;
-    vc := vcMap;
-  end
+  if acChartMap.Checked then
+    SetDisplayMode(dmMap)
   else if acChartTimeSeries.Checked then
-  begin
-    dm := dmTimeSeries;
-    vc := vcTimeSeries;
-  end
+    SetDisplayMode(dmTimeSeries)
+  else if acChartBoth.Checked then
+    SetDisplayMode(dmBoth)
   else
-  begin // Make sure that at least one of the two is checked
-    if Sender = acChartMap then
-    begin
-      dm := dmMap;
-      vc := vcMap;
-    end
-    else if sender = acChartTimeSeries then
-    begin
-      dm := dmTimeSeries;
-      vc := vcTimeSeries;
-    end
-    else
-      exit;
-  end;
-
-  SetDisplayMode(dm);
-end;
-
-procedure TMainForm.acChartTimeSeriesExecute(Sender: TObject);
-begin
-  //
+    raise Exception.Create('Unknown display mode');
 end;
 
 procedure TMainForm.acConfigAutoLoadExecute(Sender: TObject);
@@ -2192,9 +2164,7 @@ begin
     FDisplaySplitterPos := ini.ReadInteger('MainForm', 'DisplaySplitterPos', FDisplaySplitterPos);
     FTimeSeriesFrame.Height := FDisplaySplitterPos;
 
-    n := ini.ReadInteger('MainForm', 'DisplayMode', ord(FDisplayMode));
-    if (n >= ord(Low(TDisplayMode))) and (n <= ord(High(TDisplayMode))) then
-      SetDisplayMode(TDisplayMode(n));
+    SetDisplayMode(TDisplayMode(ini.ReadInteger('MainForm', 'DisplayMode', ord(FDisplayMode))));
 
     FMapFrame.LoadFromIni(ini);
     FTimeSeriesFrame.LoadFromIni(ini);
@@ -2338,6 +2308,7 @@ begin
   case FDisplayMode of
     dmMap:
       begin
+        acChartMap.Checked := true;
         FTimeSeriesFrame.Hide;
         FDisplaySplitter.Hide;
         FMapFrame.Align := alClient;
@@ -2346,6 +2317,7 @@ begin
       end;
     dmTimeSeries:
       begin
+        acChartTimeSeries.Checked := true;
         FMapFrame.Hide;
         FDisplaySplitter.Hide;
         FTimeSeriesFrame.Show;
@@ -2354,6 +2326,7 @@ begin
       end;
     dmBoth:
       begin
+        acChartBoth.Checked := true;
         FMapFrame.Parent := DisplayPanel;
         FMapFrame.Show;
         FTimeSeriesFrame.Show;
