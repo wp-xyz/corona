@@ -2058,11 +2058,6 @@ object MainForm: TMainForm
       Top = 2
       Action = acDataUpdate
     end
-    object ToolButton2: TToolButton
-      Left = 163
-      Top = 2
-      Action = acDataClear
-    end
     object ToolButton3: TToolButton
       Left = 158
       Height = 40
@@ -2071,37 +2066,31 @@ object MainForm: TMainForm
       Style = tbsDivider
     end
     object ToolButton4: TToolButton
-      Left = 341
+      Left = 248
       Top = 2
       Action = acFileExit
     end
     object tbAbout: TToolButton
-      Left = 381
+      Left = 288
       Top = 2
       Action = acAbout
     end
     object ToolButton5: TToolButton
-      Left = 256
+      Left = 163
       Top = 2
       Action = acChartLinear
     end
     object ToolButton6: TToolButton
-      Left = 296
+      Left = 203
       Top = 2
       Action = acChartLogarithmic
     end
     object ToolButton7: TToolButton
-      Left = 336
+      Left = 243
       Height = 40
       Top = 2
       Caption = 'ToolButton7'
       Style = tbsDivider
-    end
-    object ToolButton11: TToolButton
-      Left = 203
-      Top = 2
-      Action = acChartOverlay
-      Caption = 'Overlay'
     end
     object ToolButton12: TToolButton
       Left = 47
@@ -2114,13 +2103,6 @@ object MainForm: TMainForm
       Left = 52
       Top = 2
       Action = acChartMap
-    end
-    object ToolButton14: TToolButton
-      Left = 251
-      Height = 40
-      Top = 2
-      Caption = 'ToolButton14'
-      Style = tbsDivider
     end
     object ToolButton15: TToolButton
       Left = 92
@@ -2214,9 +2196,6 @@ object MainForm: TMainForm
       object mnuDataUpdate: TMenuItem
         Action = acDataUpdate
       end
-      object mnuDataClear: TMenuItem
-        Action = acDataClear
-      end
       object MenuItem10: TMenuItem
         Caption = '-'
       end
@@ -2240,13 +2219,6 @@ object MainForm: TMainForm
         AutoCheck = True
       end
       object MenuItem14: TMenuItem
-        Caption = '-'
-      end
-      object MenuItem8: TMenuItem
-        Action = acChartOverlay
-        AutoCheck = True
-      end
-      object MenuItem13: TMenuItem
         Caption = '-'
       end
       object MenuItem5: TMenuItem
@@ -2341,14 +2313,6 @@ object MainForm: TMainForm
       Caption = 'Show hints'
       Checked = True
       OnExecute = acConfigHintExecute
-    end
-    object acChartOverlay: TAction
-      Category = 'Chart'
-      AutoCheck = True
-      Caption = 'Overlay curves'
-      Hint = 'Overlay country courves'
-      ImageIndex = 8
-      OnExecute = acChartOverlayExecute
     end
     object acChartLogarithmic: TAction
       Category = 'Chart'

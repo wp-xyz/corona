@@ -32,7 +32,6 @@ type
     acConfigHint: TAction;
     acConfigAutoLoad: TAction;
     acChartLinear: TAction;
-    acChartOverlay: TAction;
     acDataCommonStart: TAction;
     acDataMovingAverage: TAction;
     acInfectiousPeriod: TAction;
@@ -67,16 +66,13 @@ type
     MainMenu: TMainMenu;
     MenuItem10: TMenuItem;
     MenuItem11: TMenuItem;
-    MenuItem13: TMenuItem;
     MenuItem2: TMenuItem;
     MenuItem3: TMenuItem;
     mnuCommonStart: TMenuItem;
     mnuMovingAverage: TMenuItem;
     MenuItem4: TMenuItem;
     MenuItem5: TMenuItem;
-    MenuItem8: TMenuItem;
     mnuDataUpdate: TMenuItem;
-    mnuDataClear: TMenuItem;
     mnuData: TMenuItem;
     mnuHelpAbout: TMenuItem;
     mnuHelp: TMenuItem;
@@ -94,12 +90,9 @@ type
     TimeSeriesChartPanel: TPanel;
     ToolBar: TToolBar;
     ToolButton1: TToolButton;
-    ToolButton11: TToolButton;
     ToolButton12: TToolButton;
     ToolButton13: TToolButton;
-    ToolButton14: TToolButton;
     ToolButton15: TToolButton;
-    ToolButton2: TToolButton;
     ToolButton3: TToolButton;
     ToolButton4: TToolButton;
     tbAbout: TToolButton;
@@ -130,7 +123,6 @@ type
     procedure acChartLinearExecute(Sender: TObject);
     procedure acChartLogarithmicExecute(Sender: TObject);
     procedure acChartMapExecute(Sender: TObject);
-    procedure acChartOverlayExecute(Sender: TObject);
     procedure acChartTimeSeriesExecute(Sender: TObject);
     procedure acConfigAutoLoadExecute(Sender: TObject);
     procedure acConfigAutoSaveExecute(Sender: TObject);
@@ -357,12 +349,6 @@ begin
   end;
 
   SetDisplayMode(dm);
-end;
-
-procedure TMainForm.acChartOverlayExecute(Sender: TObject);
-begin
-  TimeSeriesSettings.OverlayMode := acChartOverlay.Checked;
-  // Checked state is evaluated when adding curves.
 end;
 
 procedure TMainForm.acChartTimeSeriesExecute(Sender: TObject);
@@ -2248,7 +2234,6 @@ end;
 
 procedure TMainForm.UpdateTimeSeriesActions(Sender: TObject);
 begin
-  acChartOverlay.Checked := TimeSeriesSettings.OverlayMode;
   acChartLogarithmic.Checked := TimeSeriesSettings.Logarithmic;
   acChartLinear.Checked := not TimeSeriesSettings.Logarithmic;
   acDataMovingAverage.Checked := TimeSeriesSettings.MovingAverage;

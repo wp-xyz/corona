@@ -18,6 +18,8 @@ type
 
   TTimeSeriesFrame = class(TBasicFrame)
     acHighlightWeekends: TAction;
+    acClear: TAction;
+    acOverlayMode: TAction;
     BottomAxisLogTransform: TLogarithmAxisTransform;
     BottomAxisTransformations: TChartAxisTransformations;
     cbInfected: TCheckBox;
@@ -41,9 +43,15 @@ type
     ToolButton1: TToolButton;
     ToolButton2: TToolButton;
     tbHighlightWeekends: TToolButton;
+    tbClear: TToolButton;
+    tbOverlay: TToolButton;
+    ToolButton4: TToolButton;
     WheelZoomTool: TZoomMouseWheelTool;
     ZoomDragTool: TZoomDragTool;
+    procedure acClearExecute(Sender: TObject);
     procedure acHighlightWeekendsExecute(Sender: TObject);
+    procedure acOverlayModeExecute(Sender: TObject);
+
     procedure ChartBeforeCustomDrawBackWall(ASender: TChart; ADrawer: IChartDrawer;
       const ARect: TRect; var ADoDefaultDrawing: Boolean);
     procedure ChartListboxAddSeries(ASender: TChartListbox;
@@ -98,6 +106,7 @@ type
     procedure ShowDateIndicatorLine(AEnable: Boolean);
     procedure ShowTimeSeries(ADataNode: TTreeNode);
     procedure SetCommonStart(AEnable: Boolean);
+    procedure SetOverlayMode(AEnable: Boolean);
     procedure UpdateAxes(LogarithmicX, LogarithmicY: Boolean);
     procedure UpdateCmdStates; override;
     procedure UpdateData;
@@ -161,9 +170,19 @@ begin
   {$IFEND}
 end;
 
+procedure TTimeSeriesFrame.acClearExecute(Sender: TObject);
+begin
+  Clear;
+end;
+
 procedure TTimeSeriesFrame.acHighlightWeekendsExecute(Sender: TObject);
 begin
   HighlightWeekends(acHighlightWeekends.Checked);
+end;
+
+procedure TTimeSeriesFrame.acOverlayModeExecute(Sender: TObject);
+begin
+  SetOverlayMode(acOverlayMode.Checked);
 end;
 
 procedure TTimeSeriesFrame.cmbDataTypeChange(Sender: TObject);
@@ -754,6 +773,7 @@ end;
 
 procedure TTimeSeriesFrame.HighlightWeekends(AEnable: Boolean);
 begin
+  acHighlightWeekends.Checked := AEnable;
   TimeSeriesSettings.HighlightWeekends := AEnable;
   Chart.Invalidate;
 end;
@@ -810,6 +830,7 @@ begin
   ct := ini.ReadInteger('TimeSeries', 'CaseTypes', integer(CasesChecked));
   CheckCases(TCaseTypes(ct));
 
+  SetOverlayMode(ini.ReadBool('TimeSeries', 'OverlayMode', TimeSeriesSettings.OverlayMode));
   HighlightWeekends(ini.ReadBool('TimeSeries', 'HighlightWeekends', TimeSeriesSettings.HighlightWeekends));
 
   // Update tool button hints
@@ -873,10 +894,11 @@ begin
   ini.WriteInteger('TimeSeries', 'DataType', ord(TimeSeriesSettings.DataType));
   ini.WriteInteger('TimeSeries', 'CaseTypes', integer(CasesChecked));
 
+  ini.WriteBool('TimeSeries', 'OverlayMode', TimeSeriesSettings.OverlayMode);
+  ini.WriteBool('TimeSeries', 'HighlightWeekends', TimeSeriesSettings.HighlightWeekends);
+
   ini.WriteInteger('TimeSeries', 'PageControl', PageControl.ActivePageIndex);
   ini.WriteInteger('TimeSeries', 'ListboxWidth', ChartListbox.Width);
-
-  ini.WriteBool('TimeSeries', 'HighlightWeekends', TimeSeriesSettings.HighlightWeekends);
 end;
 
 procedure TTimeSeriesFrame.SetCommonStart(AEnable: Boolean);
@@ -901,6 +923,12 @@ begin
   for i := 0 to Chart.SeriesCount-1 do
     if Chart.Series[i] is TcLineSeries then
       ShowTimeSeries(TcLineSeries(Chart.Series[i]).Node);
+end;
+
+procedure TTimeSeriesFrame.SetOverlayMode(AEnable: Boolean);
+begin
+  TimeSeriesSettings.OverlayMode := AEnable;
+  acOverlayMode.Checked := AEnable;
 end;
 
 procedure TTimeSeriesFrame.ShowDateIndicatorLine(AEnable: Boolean);

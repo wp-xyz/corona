@@ -4,13 +4,16 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
   DesignLeft = 358
   DesignTop = 130
   inherited PageControl: TPageControl
+    Height = 316
+    Top = 23
     Width = 677
     ActivePage = pgChart
     TabIndex = 0
     inherited pgChart: TTabSheet
+      ClientHeight = 288
       ClientWidth = 669
       inherited Chart: TChart
-        Height = 262
+        Height = 265
         Hint = 'Zoom: '#13#10'  drag a rectangle from left-top to bottom-right corner with left mouse button down'#13#10'  or: use mouse wheel (zoom center is mouse position).'#13#10'Pan: '#13#10'  drag with the right mouse button down'#13#10'Restore view: '#13#10'  click'#13#10'Read data value: '#13#10'  move mouse over data point (no key pressed)'#13#10'Measure doubling time: '#13#10'  CTRL-drag over data points of interest with left mouse button down.'
         Width = 530
         AxisList = <        
@@ -51,7 +54,7 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
       end
       object ChartListbox: TChartListbox[1]
         Left = 539
-        Height = 262
+        Height = 265
         Hint = 'Uncheck to remove a curve temporarily.'
         Top = 0
         Width = 130
@@ -65,7 +68,7 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
       end
       object Splitter1: TSplitter[2]
         Left = 530
-        Height = 262
+        Height = 265
         Top = 0
         Width = 5
         Align = alRight
@@ -74,7 +77,7 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
       object StatusBar: TStatusBar[3]
         Left = 0
         Height = 23
-        Top = 262
+        Top = 265
         Width = 669
         Panels = <>
       end
@@ -123,14 +126,16 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
     end
   end
   inherited ToolBar: TToolBar
+    Height = 23
     Width = 677
+    AutoSize = True
     EdgeBorders = []
     inherited tbSaveToFile: TToolButton
-      Left = 513
+      Left = 564
       Top = 0
     end
     inherited tbCopyToClipboard: TToolButton
-      Left = 536
+      Left = 587
       Top = 0
     end
     object Panel1: TPanel[2]
@@ -235,17 +240,34 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
       Style = tbsDivider
     end
     object ToolButton2: TToolButton[4]
-      Left = 559
+      Left = 610
       Height = 22
       Top = 0
       Caption = 'ToolButton2'
       Style = tbsDivider
     end
     object tbHighlightWeekends: TToolButton[5]
-      Left = 564
+      Left = 615
       Top = 0
       Action = acHighlightWeekends
       Style = tbsCheck
+    end
+    object tbClear: TToolButton[6]
+      Left = 513
+      Top = 0
+      Action = acClear
+    end
+    object ToolButton4: TToolButton[7]
+      Left = 559
+      Height = 22
+      Top = 0
+      Caption = 'ToolButton4'
+      Style = tbsDivider
+    end
+    object tbOverlay: TToolButton[8]
+      Left = 536
+      Top = 0
+      Action = acOverlayMode
     end
   end
   inherited SaveDialog: TSaveDialog
@@ -257,9 +279,23 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
     Top = 128
     object acHighlightWeekends: TAction[2]
       AutoCheck = True
-      Caption = 'acHighlightWeekends'
+      Caption = 'Highlight weekends'
+      Hint = 'Highlight weekends'
       ImageIndex = 11
       OnExecute = acHighlightWeekendsExecute
+    end
+    object acClear: TAction[3]
+      Caption = 'Clear'
+      Hint = 'Clear data'
+      ImageIndex = 4
+      OnExecute = acClearExecute
+    end
+    object acOverlayMode: TAction[4]
+      AutoCheck = True
+      Caption = 'Overlay'
+      Hint = 'Overlay curves'
+      ImageIndex = 8
+      OnExecute = acOverlayModeExecute
     end
   end
   object DateTimeIntervalChartSource: TDateTimeIntervalChartSource[4]
