@@ -2,7 +2,6 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
   DesignLeft = 358
   DesignTop = 130
   inherited PageControl: TPageControl
-    OnChange = nil
     inherited pgChart: TTabSheet
       inherited Chart: TChart
         Height = 262

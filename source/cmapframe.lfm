@@ -8,7 +8,6 @@ inherited MapFrame: TMapFrame
   inherited PageControl: TPageControl
     Height = 331
     Width = 580
-    OnChange = nil
     inherited pgChart: TTabSheet
       ClientHeight = 303
       ClientWidth = 572

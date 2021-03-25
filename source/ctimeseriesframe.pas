@@ -51,7 +51,6 @@ type
     procedure MeasurementToolAfterMouseUp(ATool: TChartTool; APoint: TPoint);
     procedure MeasurementToolGetDistanceText(ASender: TDataPointDistanceTool; var AText: String);
     procedure MeasurementToolMeasure(ASender: TDataPointDistanceTool);
-
   private
     FDateIndicatorLine: TConstantLine;
     FMeasurementSeries: TFuncSeries;
