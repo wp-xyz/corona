@@ -1819,7 +1819,6 @@ object MainForm: TMainForm
             'TAChart'
           )
           Toolset = ChartToolset
-          OnBeforeCustomDrawBackWall = ChartBeforeCustomDrawBackWall
           Align = alClient
           Anchors = [akLeft]
           Color = clWindow
@@ -2247,10 +2246,6 @@ object MainForm: TMainForm
         Action = acChartOverlay
         AutoCheck = True
       end
-      object mnuChartHighlightWeekends: TMenuItem
-        Action = acChartHighlightWeekends
-        AutoCheck = True
-      end
       object MenuItem13: TMenuItem
         Caption = '-'
       end
@@ -2385,12 +2380,6 @@ object MainForm: TMainForm
       AutoCheck = True
       Caption = 'Moving average'
       OnExecute = acDataMovingAverageExecute
-    end
-    object acChartHighlightWeekends: TAction
-      Category = 'Chart'
-      AutoCheck = True
-      Caption = 'Highlight weekends'
-      OnExecute = acChartHighlightWeekendsExecute
     end
     object acChartMap: TAction
       Category = 'Chart'

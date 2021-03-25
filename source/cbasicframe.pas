@@ -6,7 +6,7 @@ interface
 
 uses
   Graphics, Classes, SysUtils, Forms, Controls, ExtCtrls, ComCtrls, Grids,
-  LCLVersion, Dialogs, IniFiles,
+  LCLVersion, Dialogs, ActnList, IniFiles,
   TAChartUtils, TAGraph,
   cGlobal, cDataSource, Types;
 
@@ -17,15 +17,20 @@ type
   { TBasicFrame }
 
   TBasicFrame = class(TFrame)
+    acSaveToFile: TAction;
+    acCopyToClipboard: TAction;
+    ActionList: TActionList;
     Chart: TChart;
     Grid: TStringGrid;
     PageControl: TPageControl;
     pgChart: TTabSheet;
     pgTable: TTabSheet;
-    SaveDialog1: TSaveDialog;
+    SaveDialog: TSaveDialog;
     ToolBar: TToolBar;
     tbSaveToFile: TToolButton;
     tbCopyToClipboard: TToolButton;
+    procedure acCopyToClipboardExecute(Sender: TObject);
+    procedure acSaveToFileExecute(Sender: TObject);
     procedure ChartResize(Sender: TObject);
     procedure GridDrawCell(Sender: TObject; aCol, aRow: Integer; aRect: TRect;
       aState: TGridDrawState);
@@ -33,7 +38,6 @@ type
       aState: TGridDrawState);
     procedure PageControlChange(Sender: TObject);
     procedure tbCopyToClipboardClick(Sender: TObject);
-    procedure tbSaveToFileClick(Sender: TObject);
   private
     FDataTree: TTreeView;
     FOnShowInfo: TShowInfoEvent;
@@ -88,6 +92,42 @@ begin
   FResizeTimer.Interval := 50;
   FResizeTimer.OnTimer := @ResizeTimerHandler;
  {$IFEND}
+end;
+
+procedure TBasicFrame.acCopyToClipboardExecute(Sender: TObject);
+var
+  stream: TStream;
+  clr: TColor;
+begin
+  if PageControl.ActivePage = pgTable then
+  begin
+    stream := TMemoryStream.Create;
+    try
+      Grid.SaveToCSVStream(stream, CSV_SEPARATOR, true);
+      stream.Position := 0;
+      Clipboard.AddFormat(CF_TEXT, stream);
+    finally
+      stream.Free;
+    end;
+  end else
+  begin
+    clr := Chart.Color;
+    Chart.Color := clWhite;
+    Chart.CopyToClipboardBitmap;
+    Chart.Color := clr;
+  end;
+end;
+
+procedure TBasicFrame.acSaveToFileExecute(Sender: TObject);
+begin
+  if PageControl.ActivePage = PgTable then
+  begin
+    SaveDialog.Filter := 'CSV files (*.txt;*.csv;*.dat)|*.txt;*.csv;*.dat)';
+    SaveDialog.DefaultExt := '*.txt';
+    SaveDialog.FileName := '';
+    if SaveDialog.Execute then
+      SaveGridToFile(SaveDialog.FileName);
+  end;
 end;
 
 procedure TBasicFrame.ChartResize(Sender: TObject);
@@ -310,18 +350,6 @@ procedure TBasicFrame.ShowInfo(const ATitle, AText: String);
 begin
   if Assigned(FOnShowInfo) then
     FOnShowInfo(Self, ATitle, AText);
-end;
-
-procedure TBasicFrame.tbSaveToFileClick(Sender: TObject);
-begin
-  if PageControl.ActivePage = PgTable then
-  begin
-    SaveDialog1.Filter := 'CSV files (*.txt;*.csv;*.dat)|*.txt;*.csv;*.dat)';
-    SaveDialog1.DefaultExt := '*.txt';
-    SaveDialog1.FileName := '';
-    if SaveDialog1.Execute then
-      SaveGridToFile(SaveDialog1.FileName);
-  end;
 end;
 
 procedure TBasicFrame.UpdateCmdStates;

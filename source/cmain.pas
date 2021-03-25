@@ -37,7 +37,6 @@ type
     acDataMovingAverage: TAction;
     acInfectiousPeriod: TAction;
     acSmoothingRange: TAction;
-    acChartHighlightWeekends: TAction;
     acChartMap: TAction;
     acChartTimeSeries: TAction;
     acConfigAutoSave: TAction;
@@ -68,7 +67,6 @@ type
     MainMenu: TMainMenu;
     MenuItem10: TMenuItem;
     MenuItem11: TMenuItem;
-    mnuChartHighlightWeekends: TMenuItem;
     MenuItem13: TMenuItem;
     MenuItem2: TMenuItem;
     MenuItem3: TMenuItem;
@@ -129,7 +127,6 @@ type
     RightSplitter: TSplitter;
     TreeView: TTreeView;
     procedure acAboutExecute(Sender: TObject);
-    procedure acChartHighlightWeekendsExecute(Sender: TObject);
     procedure acChartLinearExecute(Sender: TObject);
     procedure acChartLogarithmicExecute(Sender: TObject);
     procedure acChartMapExecute(Sender: TObject);
@@ -145,8 +142,6 @@ type
     procedure acInfectiousPeriodExecute(Sender: TObject);
     procedure acSmoothingRangeExecute(Sender: TObject);
 
-    procedure ChartBeforeCustomDrawBackWall(ASender: TChart;
-      ADrawer: IChartDrawer; const ARect: TRect; var ADoDefaultDrawing: Boolean);
     procedure ChartListboxAddSeries(ASender: TChartListbox;
       ASeries: TCustomChartSeries; AItems: TChartLegendItems; var ASkip: Boolean);
     procedure cmbDataTypeDropDown(Sender: TObject);
@@ -305,11 +300,6 @@ begin
     finally
       Free;
     end;
-end;
-
-procedure TMainForm.acChartHighlightWeekendsExecute(Sender: TObject);
-begin
-  FTimeSeriesFrame.HighlightWeekends(acChartHighlightWeekends.Checked);
 end;
 
 procedure TMainForm.acChartLinearExecute(Sender: TObject);
@@ -510,38 +500,6 @@ begin
     end else
       MessageDlg('No valid number.', mtError, [mbOK], 0);
   end;
-end;
-
-procedure TMainForm.ChartBeforeCustomDrawBackWall(ASender: TChart;
-  ADrawer: IChartDrawer; const ARect: TRect; var ADoDefaultDrawing: Boolean);
-const
-  SATURDAY = 7;
-var
-  ext: TDoubleRect;
-  x: Double;
-begin
-  if (not acChartHighlightWeekends.Checked) or (not IsTimeSeries) then
-    exit;
-
-  ext := ASender.LogicalExtent;
-  if (ext.a.x = -1) and (ext.b.x = +1) then
-    exit;
-
-  ADrawer.BrushColor := ASender.BackColor;
-  ADrawer.Rectangle(ARect);
-
-  x := trunc(ext.a.x);
-  while DayOfWeek(x) <> SATURDAY do
-    x += 1;
-
-  ADrawer.BrushColor := ASender.BottomAxis.Grid.Color;
-  while (x <= ext.b.x) do
-  begin
-    ADrawer.FillRect(ASender.XGraphToImage(x){%H-}, ARect.Top+1, ASender.XGraphToImage(x+1){%H-}, ARect.Bottom-1);
-    x += 7;
-  end;
-
-  ADoDefaultDrawing := false;
 end;
 
 procedure TMainForm.BeforeRun;
@@ -2294,7 +2252,6 @@ begin
   acChartLogarithmic.Checked := TimeSeriesSettings.Logarithmic;
   acChartLinear.Checked := not TimeSeriesSettings.Logarithmic;
   acDataMovingAverage.Checked := TimeSeriesSettings.MovingAverage;
-  acChartHighlightWeekends.Checked := TimeSeriesSettings.HighlightWeekends;
 end;
 
 procedure TMainForm.LoadIni;

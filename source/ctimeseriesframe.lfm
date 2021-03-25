@@ -243,41 +243,48 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
     end
     object tbHighlightWeekends: TToolButton[5]
       Left = 564
-      Hint = 'Highlight weekends'
       Top = 0
-      Caption = 'tbHighlightWeekends'
-      ImageIndex = 11
-      OnClick = tbHighlightWeekendsClick
+      Action = acHighlightWeekends
       Style = tbsCheck
     end
   end
-  inherited SaveDialog1: TSaveDialog
-    Left = 384
-    Top = 88
+  inherited SaveDialog: TSaveDialog
+    Left = 456
+    Top = 72
   end
-  object DateTimeIntervalChartSource: TDateTimeIntervalChartSource[3]
+  inherited ActionList: TActionList
+    Left = 456
+    Top = 128
+    object acHighlightWeekends: TAction[2]
+      AutoCheck = True
+      Caption = 'acHighlightWeekends'
+      ImageIndex = 11
+      OnExecute = acHighlightWeekendsExecute
+    end
+  end
+  object DateTimeIntervalChartSource: TDateTimeIntervalChartSource[4]
     Params.MaxLength = 120
     Params.MinLength = 30
     Left = 336
     Top = 240
   end
-  object LeftAxisTransformations: TChartAxisTransformations[4]
+  object LeftAxisTransformations: TChartAxisTransformations[5]
     Left = 112
     Top = 88
     object LeftAxisLogTransform: TLogarithmAxisTransform
       Base = 10
     end
   end
-  object BottomAxisTransformations: TChartAxisTransformations[5]
+  object BottomAxisTransformations: TChartAxisTransformations[6]
     Left = 160
     Top = 240
     object BottomAxisLogTransform: TLogarithmAxisTransform
       Base = 10
     end
   end
-  object ChartToolset: TChartToolset[6]
-    Left = 256
-    Top = 152
+  object ChartToolset: TChartToolset[7]
+    Left = 248
+    Top = 168
     object MeasurementTool: TDataPointDistanceTool
       Shift = [ssCtrl, ssLeft]
       OnAfterMouseUp = MeasurementToolAfterMouseUp

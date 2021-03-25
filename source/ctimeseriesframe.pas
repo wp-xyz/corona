@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Types, IniFiles, LCLVersion,
-  StdCtrls, ExtCtrls, ComCtrls, Grids,
+  StdCtrls, ExtCtrls, ComCtrls, Grids, ActnList,
   TAGraph, TACustomSeries, TASeries, TAFuncSeries, TAChartListbox, TAIntervalSources,
   TALegend, TATransformations, TATools, TADataTools,
   cGlobal, cBasicFrame, cSeries, TADrawUtils;
@@ -17,6 +17,7 @@ type
   { TTimeSeriesFrame }
 
   TTimeSeriesFrame = class(TBasicFrame)
+    acHighlightWeekends: TAction;
     BottomAxisLogTransform: TLogarithmAxisTransform;
     BottomAxisTransformations: TChartAxisTransformations;
     cbInfected: TCheckBox;
@@ -42,6 +43,7 @@ type
     tbHighlightWeekends: TToolButton;
     WheelZoomTool: TZoomMouseWheelTool;
     ZoomDragTool: TZoomDragTool;
+    procedure acHighlightWeekendsExecute(Sender: TObject);
     procedure ChartBeforeCustomDrawBackWall(ASender: TChart; ADrawer: IChartDrawer;
       const ARect: TRect; var ADoDefaultDrawing: Boolean);
     procedure ChartListboxAddSeries(ASender: TChartListbox;
@@ -55,7 +57,6 @@ type
     procedure MeasurementToolAfterMouseUp(ATool: TChartTool; APoint: TPoint);
     procedure MeasurementToolGetDistanceText(ASender: TDataPointDistanceTool; var AText: String);
     procedure MeasurementToolMeasure(ASender: TDataPointDistanceTool);
-    procedure tbHighlightWeekendsClick(Sender: TObject);
   private
     FDateIndicatorLine: TConstantLine;
     FMeasurementSeries: TFuncSeries;
@@ -158,6 +159,11 @@ begin
   ZoomDragTool.LimitToExtent := [zdDown, zdLeft, zdRight, zdUp];
   PanDragTool.LimitToExtent := [pdDown, pdLeft, pdRight, pdUp];
   {$IFEND}
+end;
+
+procedure TTimeSeriesFrame.acHighlightWeekendsExecute(Sender: TObject);
+begin
+  HighlightWeekends(acHighlightWeekends.Checked);
 end;
 
 procedure TTimeSeriesFrame.cmbDataTypeChange(Sender: TObject);
@@ -1059,11 +1065,6 @@ begin
       AList.Add(TcLineSeries(ChartListbox.Series[i]).Node);
 end;
 
-procedure TTimeSeriesFrame.tbHighlightWeekendsClick(Sender: TObject);
-begin
-  HighlightWeekends(tbHighlightWeekends.Down);
-end;
-
 procedure TTimeSeriesFrame.UpdateAffectedSeries;
 var
   i: Integer;
@@ -1159,10 +1160,13 @@ end;
 procedure TTimeSeriesFrame.UpdateCmdStates;
 begin
   if PageControl.ActivePage = pgTable then
-    tbSaveToFile.Enabled := Grid.RowCount > 2
+    acSaveToFile.Enabled := Grid.RowCount > 2
   else
-    tbSaveToFile.Enabled := Chart.SeriesCount > 2;  // FitSeries and DateIndicator are always present.
-  tbCopyToClipboard.Enabled := tbSaveToFile.Enabled;
+    acSaveToFile.Enabled := Chart.SeriesCount > 2;  // FitSeries and DateIndicator are always present.
+  acCopyToClipboard.Enabled := acSaveToFile.Enabled;
+
+  acHighlightWeekends.Enabled := Chart.SeriesCount > 2;
+
 end;
 
 // Recalculates data after changes in SmoothingPeriod or InfectiousPeriod.
