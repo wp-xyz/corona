@@ -2201,22 +2201,6 @@ object MainForm: TMainForm
         Action = acChartTimeSeries
         AutoCheck = True
       end
-      object MenuItem14: TMenuItem
-        Caption = '-'
-      end
-      object MenuItem5: TMenuItem
-        AutoCheck = True
-        Caption = 'Linear'
-        Checked = True
-        Hint = 'Linear y axis'
-        ImageIndex = 5
-      end
-      object mnuChartLogarithmic: TMenuItem
-        AutoCheck = True
-        Caption = 'Logarithmic'
-        Hint = 'Logarithmic y axis'
-        ImageIndex = 6
-      end
     end
     object mnuConfig: TMenuItem
       Caption = 'Configuration'

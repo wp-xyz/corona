@@ -54,6 +54,7 @@ type
       AMapDataType: TMapDataType);
 
   protected
+    procedure CreateHandle; override;
     procedure DoDateSelect(ADate: TDate); virtual;
     procedure PopulatePaletteListbox(ADataType: TMapDataType); virtual;
     procedure SelectProjection(AMapRes: string); virtual;
@@ -75,7 +76,7 @@ implementation
 {$R *.lfm}
 
 uses
-  LCLType,
+  LCLType, LCLIntf, Math,
   TAChartUtils, TAGeometry, TACustomSeries,
   {$IF LCL_FullVersion < 2010000}
   cFixes,
@@ -98,6 +99,18 @@ begin
   ShowMap(DataTree.Selected);
 end;
 
+procedure TMapFrame.CreateHandle;
+var
+  w: Integer;
+  s: String;
+begin
+  inherited;
+  w := 0;
+  for s in cmbDataType.Items do
+    w := Max(w, cmbDataType.Canvas.TextWidth(s));
+  cmbDataType.Width := w + GetSystemMetrics(SM_CXVSCROLL) + 8;
+end;
+
 procedure TMapFrame.DataPointClickToolPointClick(ATool: TChartTool;
   APoint: TPoint);
 var
@@ -110,6 +123,14 @@ begin
     node := FindNodeWithGeoID(ser.GeoID);
     DataTree.Selected := node;
   end;
+end;
+
+procedure TMapFrame.DoDateSelect(ADate: TDate);
+begin
+  FCurrentDate := ADate;
+  MapDateLabel.Caption := DateToStr(FCurrentDate);
+  if Assigned(FOnDateSelect) then
+    FOnDateSelect(Self, FCurrentDate);
 end;
 
 procedure TMapFrame.InfoToolAfterMouseMove(ATool: TChartTool; APoint: TPoint);
@@ -147,14 +168,6 @@ begin
     end;
   end;
   ShowInfo('', '');
-end;
-
-procedure TMapFrame.DoDateSelect(ADate: TDate);
-begin
-  FCurrentDate := ADate;
-  MapDateLabel.Caption := DateToStr(FCurrentDate);
-  if Assigned(FOnDateSelect) then
-    FOnDateSelect(Self, FCurrentDate);
 end;
 
 procedure TMapFrame.MapDateScrollBarChange(Sender: TObject);

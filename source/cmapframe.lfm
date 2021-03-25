@@ -6,19 +6,20 @@ inherited MapFrame: TMapFrame
   DesignLeft = 446
   DesignTop = 142
   inherited PageControl: TPageControl
-    Height = 331
+    Height = 334
+    Top = 23
     Width = 580
     ActivePage = pgChart
     TabIndex = 0
     inherited pgChart: TTabSheet
-      ClientHeight = 303
+      ClientHeight = 306
       ClientWidth = 572
       inherited Chart: TChart
         AnchorSideLeft.Control = pgChart
         AnchorSideTop.Control = pgChart
         AnchorSideRight.Control = Splitter
         AnchorSideBottom.Control = MapDateScrollBar
-        Height = 286
+        Height = 289
         Hint = 'Zoom: '#13#10'  drag a rectangle from left-top to bottom-right corner with left mouse button down'#13#10'  or: use mouse wheel (zoom center is mouse position).'#13#10'Pan: '#13#10'  drag with the right mouse button down'#13#10'Restore view: '#13#10'  drag in opposite direction to zoom-in'#13#10'Read data values: '#13#10'  move mouse over data point (no key pressed)'#13#10'Select country in time-series: '#13#10'  double-click on country'
         Width = 393
         AxisList = <        
@@ -52,7 +53,7 @@ inherited MapFrame: TMapFrame
       end
       object Splitter: TSplitter[1]
         Left = 393
-        Height = 303
+        Height = 306
         Top = 0
         Width = 5
         Align = alRight
@@ -66,7 +67,7 @@ inherited MapFrame: TMapFrame
         AnchorSideBottom.Side = asrBottom
         Left = 4
         Height = 17
-        Top = 286
+        Top = 289
         Width = 390
         Anchors = [akLeft, akRight, akBottom]
         BorderSpacing.Left = 4
@@ -78,13 +79,13 @@ inherited MapFrame: TMapFrame
       end
       object RightPanel: TPanel[3]
         Left = 402
-        Height = 303
+        Height = 306
         Top = 0
         Width = 170
         Align = alRight
         BorderSpacing.Left = 4
         BevelOuter = bvNone
-        ClientHeight = 303
+        ClientHeight = 306
         ClientWidth = 170
         TabOrder = 3
         object DatePanel: TPanel
@@ -93,7 +94,7 @@ inherited MapFrame: TMapFrame
           AnchorSideBottom.Control = RightPanel
           Left = 0
           Height = 17
-          Top = 286
+          Top = 289
           Width = 170
           Align = alBottom
           BevelOuter = bvNone
@@ -114,7 +115,7 @@ inherited MapFrame: TMapFrame
         end
         object PaletteListbox: TColorListBox
           Left = 0
-          Height = 282
+          Height = 285
           Top = 0
           Width = 170
           Style = []
@@ -162,25 +163,27 @@ inherited MapFrame: TMapFrame
     end
   end
   inherited ToolBar: TToolBar
+    Height = 23
     Width = 580
+    AutoSize = True
     EdgeBorders = []
     inherited tbSaveToFile: TToolButton
-      Left = 246
+      Left = 166
       Top = 0
     end
     inherited tbCopyToClipboard: TToolButton
-      Left = 269
+      Left = 189
       Top = 0
     end
     object Panel1: TPanel[2]
       Left = 1
       Height = 23
       Top = 0
-      Width = 240
+      Width = 160
       AutoSize = True
       BevelOuter = bvNone
       ClientHeight = 23
-      ClientWidth = 240
+      ClientWidth = 160
       TabOrder = 0
       object cmbDataType: TComboBox
         AnchorSideLeft.Control = Panel1
@@ -189,7 +192,8 @@ inherited MapFrame: TMapFrame
         Left = 0
         Height = 23
         Top = 0
-        Width = 240
+        Width = 160
+        DropDownCount = 16
         ItemHeight = 15
         ItemIndex = 0
         Items.Strings = (
@@ -204,7 +208,7 @@ inherited MapFrame: TMapFrame
       end
     end
     object ToolButton1: TToolButton[3]
-      Left = 241
+      Left = 161
       Height = 22
       Top = 0
       Caption = 'ToolButton1'

@@ -54,7 +54,6 @@ type
     MapToolsetPanDragTool: TPanDragTool;
     MapToolsetZoomDragTool: TZoomDragTool;
     MenuItem12: TMenuItem;
-    MenuItem14: TMenuItem;
     MenuItem9: TMenuItem;
     PaletteListbox: TColorListBox;
     MapChart: TChart;
@@ -69,14 +68,12 @@ type
     mnuCommonStart: TMenuItem;
     mnuMovingAverage: TMenuItem;
     MenuItem4: TMenuItem;
-    MenuItem5: TMenuItem;
     mnuDataUpdate: TMenuItem;
     mnuData: TMenuItem;
     mnuHelpAbout: TMenuItem;
     mnuHelp: TMenuItem;
     mnuConfigHints: TMenuItem;
     mnuConfig: TMenuItem;
-    mnuChartLogarithmic: TMenuItem;
     mnuChart: TMenuItem;
     mnuFileQuit: TMenuItem;
     mnuFile: TMenuItem;

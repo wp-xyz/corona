@@ -77,6 +77,7 @@ type
     procedure MeasurementToolAfterMouseUp(ATool: TChartTool; APoint: TPoint);
     procedure MeasurementToolGetDistanceText(ASender: TDataPointDistanceTool; var AText: String);
     procedure MeasurementToolMeasure(ASender: TDataPointDistanceTool);
+
   private
     FDateIndicatorLine: TConstantLine;
     FMeasurementSeries: TFuncSeries;
@@ -141,7 +142,7 @@ implementation
 {$R *.lfm}
 
 uses
-  Math, DateUtils,
+  LCLIntf, LCLType, Math, DateUtils,
   TAChartUtils, TATypes, TAMath, TACustomSource, TAFitLib,
   cUtils, cDataSource, cRobertKochInstitut;
 
@@ -573,7 +574,7 @@ begin
   w := 0;
   for s in cmbDataType.Items do
     w := Max(w, cmbDataType.Canvas.TextWidth(s));
-  cmbDataType.Width := w + 16;
+  cmbDataType.Width := w + GetSystemMetrics(SM_CXVSCROLL);
 end;
 
 procedure TTimeSeriesFrame.CreateMeasurementSeries;
