@@ -53,6 +53,7 @@ type
     procedure CreateHandle; override;
     function GetCellText(ACol, ARow: Integer): String; virtual;
     function GetDataItem(ADataNode: TTreeNode): TcDataitem;
+    function GetDataItemName(ADataNode: TTreeNode): string;
     function GetInfoText(ADataNode: TTreeNode; ADate: TDate): String; virtual;
     function GetInfoTitle(ADataNode: TTreeNode; ADate: TDate): STring; virtual;
     function GetLocation(ADataNode: TTreeNode): String;
@@ -197,6 +198,22 @@ begin
     Result := nil;
 end;
 
+function TBasicframe.GetDataItemName(ADataNode: TTreeNode): string;
+var
+  data: TcDataItem;
+  p: Integer;
+begin
+  data := GetDataItem(ADataNode);
+  if data <> nil then
+  begin
+    Result := data.Name;
+    p := pos('|', Result);
+    if p > 0 then
+      SetLength(Result, p-1);
+  end else
+    Result := '';
+end;
+
 function TBasicFrame.GetInfoText(ADataNode: TTreeNode; ADate: TDate): String;
 var
   data: TcDataItem;
@@ -246,9 +263,9 @@ begin
   if ADataNode = nil then
     exit;
   case ADataNode.Level of
-    3: Result := Format('%s (%s)', [GetDataItem(ADataNode).Name, GetDataItem(ADataNode.Parent).Name]);
-    4: Result := Format('%s (%s), %s', [GetDataItem(ADataNode).Name, GetDataItem(ADataNode.Parent).Name, GetDataItem(ADataNode.Parent.Parent).Name]);
-    else Result := GetDataItem(ADataNode).Name;
+    3: Result := Format('%s (%s)', [GetDataItemName(ADataNode), GetDataItemName(ADataNode.Parent)]);
+    4: Result := Format('%s (%s), %s', [GetDataItemName(ADataNode), GetDataItemName(ADataNode.Parent), GetDataItemName(ADataNode.Parent.Parent)]);
+    else Result := GetDataItemName(ADataNode);
   end;
  end;
 
