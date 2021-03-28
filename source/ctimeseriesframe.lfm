@@ -4,16 +4,16 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
   DesignLeft = 392
   DesignTop = 190
   inherited PageControl: TPageControl
-    Height = 316
-    Top = 23
+    Height = 312
+    Top = 27
     Width = 959
     ActivePage = pgChart
     TabIndex = 0
     inherited pgChart: TTabSheet
-      ClientHeight = 288
+      ClientHeight = 284
       ClientWidth = 951
       inherited Chart: TChart
-        Height = 265
+        Height = 261
         Hint = 'Zoom: '#13#10'  drag a rectangle from left-top to bottom-right corner with left mouse button down'#13#10'  or: use mouse wheel (zoom center is mouse position).'#13#10'Pan: '#13#10'  drag with the right mouse button down'#13#10'Restore view: '#13#10'  click'#13#10'Read data value: '#13#10'  move mouse over data point (no key pressed)'#13#10'Measure doubling time: '#13#10'  CTRL-drag over data points of interest with left mouse button down.'
         Width = 812
         AxisList = <        
@@ -54,7 +54,7 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
       end
       object ChartListbox: TChartListbox[1]
         Left = 821
-        Height = 265
+        Height = 261
         Hint = 'Uncheck to remove a curve temporarily.'
         Top = 0
         Width = 130
@@ -68,7 +68,7 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
       end
       object Splitter1: TSplitter[2]
         Left = 812
-        Height = 265
+        Height = 261
         Top = 0
         Width = 5
         Align = alRight
@@ -77,7 +77,7 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
       object StatusBar: TStatusBar[3]
         Left = 0
         Height = 23
-        Top = 265
+        Top = 261
         Width = 951
         Panels = <>
       end
@@ -133,12 +133,12 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
     List = True
     ShowCaptions = True
     inherited tbSaveToFile: TToolButton
-      Left = 473
+      Left = 455
       Top = 0
       ShowCaption = False
     end
     inherited tbCopyToClipboard: TToolButton
-      Left = 496
+      Left = 478
       Top = 0
       ShowCaption = False
     end
@@ -180,28 +180,28 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
       end
     end
     object tbDivider2: TToolButton[3]
-      Left = 371
+      Left = 353
       Height = 22
       Top = 0
       Caption = 'tbDivider2'
       Style = tbsDivider
     end
     object tbDivider4: TToolButton[4]
-      Left = 519
+      Left = 501
       Height = 22
       Top = 0
       Caption = 'tbDivider4'
       Style = tbsDivider
     end
     object tbHighlightWeekends: TToolButton[5]
-      Left = 524
+      Left = 506
       Top = 0
       Action = acHighlightWeekends
       ShowCaption = False
       Style = tbsCheck
     end
     object tbClear: TToolButton[6]
-      Left = 376
+      Left = 358
       Top = 0
       Action = acClear
       ShowCaption = False
@@ -214,25 +214,25 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
       Style = tbsDivider
     end
     object tbOverlay: TToolButton[8]
-      Left = 399
+      Left = 381
       Top = 0
       Action = acOverlayMode
       ShowCaption = False
     end
     object ToolButton3: TToolButton[9]
-      Left = 422
+      Left = 404
       Top = 0
       Action = acLinear
       ShowCaption = False
     end
     object ToolButton5: TToolButton[10]
-      Left = 445
+      Left = 427
       Top = 0
       Action = acLogarithmic
       ShowCaption = False
     end
     object tbDivider3: TToolButton[11]
-      Left = 468
+      Left = 450
       Height = 22
       Top = 0
       Caption = 'tbDivider3'
@@ -249,12 +249,12 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
       Action = acDeaths
     end
     object tbRecovered: TToolButton[14]
-      Left = 279
+      Left = 261
       Top = 0
       Action = acRecovered
     end
     object tbSick: TToolButton[15]
-      Left = 342
+      Left = 324
       Top = 0
       Action = acSick
     end

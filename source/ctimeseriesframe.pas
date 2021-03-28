@@ -1376,7 +1376,7 @@ begin
         ser := TcLineSeries(Chart.Series[i]);
         data := GetDataItem(ser.Node);
         serLastDate := data.GetLastDate;
-        r := Grid.FixedRows + round(serLastDate - lastDate);
+        r := Grid.FixedRows + round(lastDate - serLastDate);
         for j := ser.Count-1 downto 0 do
         begin
           if not IsNan(ser.YValue[j]) then
