@@ -26,6 +26,7 @@ type
     acDeaths: TAction;
     acRecovered: TAction;
     acSick: TAction;
+    acMovingAverage: TAction;
     BottomAxisLogTransform: TLogarithmAxisTransform;
     BottomAxisTransformations: TChartAxisTransformations;
     ChartListbox: TChartListbox;
@@ -44,10 +45,10 @@ type
     StatusBar: TStatusBar;
     tbDivider2: TToolButton;
     tbSick: TToolButton;
-    tbDivider4: TToolButton;
     tbHighlightWeekends: TToolButton;
     tbClear: TToolButton;
     tbOverlay: TToolButton;
+    ToolButton1: TToolButton;
     ToolButton3: TToolButton;
     tbDivider1: TToolButton;
     ToolButton5: TToolButton;
@@ -62,6 +63,7 @@ type
     procedure acHighlightWeekendsExecute(Sender: TObject);
     procedure acLinearExecute(Sender: TObject);
     procedure acLogarithmicExecute(Sender: TObject);
+    procedure acMovingAverageExecute(Sender: TObject);
     procedure acOverlayModeExecute(Sender: TObject);
 
     procedure ChartBeforeCustomDrawBackWall(ASender: TChart; ADrawer: IChartDrawer;
@@ -93,7 +95,7 @@ type
     procedure ClearAllSeries;
     procedure CreateMeasurementSeries;
     function DataLoaded: Boolean;
-    procedure EnableMovingAverage(ASeries: TChartSeries; AEnable, AStrict: Boolean); overload;
+    procedure EnableMovingAverage(ASeries: TChartSeries; AEnable: Boolean);
     procedure FixChartColors;
     function GetDataType: TDataType;
     function GetSeries(ADataNode: TTreeNode; ACaseType: TCaseType;
@@ -114,12 +116,12 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     procedure Clear(UnselectTree: Boolean = true);
-    procedure EnableMovingAverage(AEnable, AStrict: Boolean);
     procedure HighlightWeekends(AEnable: Boolean);
     function IsTimeSeries: Boolean;
     procedure SetCommonStart(AEnable: Boolean);
     procedure SetDataType(ADataType: TDataType);
     procedure SetLogarithmic(AEnable: Boolean);
+    procedure SetMovingAverage(AEnable: Boolean);
     procedure SetOverlayMode(AEnable: Boolean);
     procedure ShowDateIndicatorLine(AEnable: Boolean);
     procedure ShowTimeSeries(ADataNode: TTreeNode);
@@ -221,6 +223,11 @@ end;
 procedure TTimeSeriesFrame.acLogarithmicExecute(Sender: TObject);
 begin
   SetLogarithmic(true);
+end;
+
+procedure TTimeSeriesFrame.acMovingAverageExecute(Sender: TObject);
+begin
+  SetMovingAverage(acMovingAverage.Checked);
 end;
 
 procedure TTimeSeriesFrame.acOverlayModeExecute(Sender: TObject);
@@ -546,7 +553,6 @@ begin
 
   UpdateGrid;
   DoUpdateActions;
-  UpdateCmdStates;
 end;
 
 procedure TTimeSeriesFrame.ClearAllSeries;
@@ -614,34 +620,15 @@ end;
 
 procedure TTimeSeriesFrame.DoUpdateActions;
 begin
+  UpdateCmdStates;
   if Assigned(FOnUpdateActions) then FOnUpdateActions(self);
 end;
 
-procedure TTimeSeriesFrame.EnableMovingAverage(AEnable, AStrict: Boolean);
-var
-  isMovingAverage: Boolean;
-  i: Integer;
-begin
-  TimeSeriesSettings.MovingAverage := AEnable;
-
-  isMovingAverage := TimeSeriesSettings.MovingAverage and
-    ( GetDataType in [dtCumulative, dtNormalizedCumulative, dtNormalizedNewCases, dtNewCases] );
-
-  for i:=0 to Chart.SeriesCount-1 do
-    if Chart.Series[i] is TChartSeries then
-      EnableMovingAverage(TChartSeries(Chart.Series[i]), isMovingAverage, AStrict);
-
-  UpdateGrid;
-end;
-
 procedure TTimeSeriesFrame.EnableMovingAverage(ASeries: TChartSeries;
-  AEnable, AStrict: Boolean);
+  AEnable: Boolean);
 begin
   if ASeries is TcLineSeries then
-    TcLineSeries(ASeries).MovingAverage := AEnable
-  else
-  if AStrict then
-    raise Exception.Create('Only modified series types allowed.');
+    TcLineSeries(ASeries).MovingAverage := AEnable;
 end;
 
 procedure TTimeSeriesFrame.FixChartColors;
@@ -795,6 +782,7 @@ begin
   CheckCases(TCaseTypes(ini.ReadInteger('TimeSeries', 'CaseTypes', integer(CasesChecked))));;
   SetOverlayMode(ini.ReadBool('TimeSeries', 'OverlayMode', TimeSeriesSettings.OverlayMode));
   SetLogarithmic(ini.ReadBool('TimeSeries', 'Logarithmic', TimeSeriesSettings.Logarithmic));
+  SetMovingAverage(ini.ReadBool('TimeSeries', 'MovingAverage', TimeSeriesSettings.MovingAverage));
   HighlightWeekends(ini.ReadBool('TimeSeries', 'HighlightWeekends', TimeSeriesSettings.HighlightWeekends));
 
   // Update tool button hints
@@ -859,6 +847,7 @@ begin
   ini.WriteInteger('TimeSeries', 'CaseTypes', integer(CasesChecked));
   ini.WriteBool('TimeSeries', 'OverlayMode', TimeSeriesSettings.OverlayMode);
   ini.WriteBool('TimeSeries', 'Logarithmic', TimeSeriesSettings.Logarithmic);
+  ini.WriteBool('TimeSeries', 'MovingAverage', TimeSeriesSettings.MovingAverage);
   ini.WriteBool('TimeSeries', 'HighlightWeekends', TimeSeriesSettings.HighlightWeekends);
 
   ini.WriteInteger('TimeSeries', 'PageControl', PageControl.ActivePageIndex);
@@ -923,7 +912,6 @@ begin
           UpdateAxes(false, TimeSeriesSettings.Logarithmic);
           MeasurementTool.Enabled := true;
           { <-------- FIX ME
-          acDataMovingAverage.Enabled := true;
           clbCases.Enabled := true;
           }
         end;
@@ -937,7 +925,6 @@ begin
           UpdateAxes(false, false);
           MeasurementTool.Enabled := false;
           { <---------- FIX ME
-          acDataMovingAverage.Enabled := false;
           clbCases.Enabled := true;
           }
         end;
@@ -951,7 +938,6 @@ begin
           { <--------- FIX ME
           acChartLogarithmic.Checked := true;
           UpdateAxes(true, true);
-          acDataMovingAverage.Enabled := false;
           clbCases.Enabled := true;
           }
         end;
@@ -964,7 +950,6 @@ begin
           UpdateAxes(false, false);
           MeasurementTool.Enabled := false;
           { <----------- FIX ME
-          acDataMovingAverage.Enabled := false;
           clbCases.Enabled := false;
           }
         end;
@@ -972,7 +957,7 @@ begin
         raise Exception.Create('Data type unsupported.');
     end;
 
-    //acDataMovingAverageExecute(nil);   // <------ FIX ME
+    SetMovingAverage(TimeSeriesSettings.MovingAverage);
     RestoreSeriesNodesFromlist(L);
     DoUpdateActions;
     WordwrapChart(Chart);
@@ -992,6 +977,25 @@ begin
     UpdateAxes(not IsTimeSeries(), true)
   else
     UpdateAxes(false, false);
+end;
+
+procedure TTimeSeriesFrame.SetMovingAverage(AEnable: Boolean);
+var
+  movingAvg: Boolean;
+  i: Integer;
+begin
+  TimeSeriesSettings.MovingAverage := AEnable;
+  acMovingAverage.Checked := AEnable;
+  acMovingAverage.Hint := Format('Moving average (%d days)', [SmoothingRange]);
+
+  movingAvg := AEnable and
+    ( GetDataType in [dtCumulative, dtNormalizedCumulative, dtNormalizedNewCases, dtNewCases] );
+
+  for i:=0 to Chart.SeriesCount-1 do
+    if Chart.Series[i] is TChartSeries then
+      EnableMovingAverage(TChartSeries(Chart.Series[i]), movingAvg);
+
+  UpdateGrid;
 end;
 
 procedure TTimeSeriesFrame.SetOverlayMode(AEnable: Boolean);
@@ -1124,7 +1128,7 @@ begin
           finally
             ser.EndUpdate;
             if not (dt in [dtCumulativeCasesDoublingTime, dtNewCasesDoublingTime]) then
-              EnableMovingAverage(ser, TimeSeriesSettings.MovingAverage, true);
+              EnableMovingAverage(ser, TimeSeriesSettings.MovingAverage);
           end;
       end;
     end;
@@ -1132,7 +1136,6 @@ begin
     UpdateAffectedSeries;
     UpdateAxes;
     UpdateGrid;
-    UpdateCmdStates;
     DoUpdateActions;
 
     // Update DateIndicatorLine position
@@ -1269,8 +1272,9 @@ begin
     acSaveToFile.Enabled := Chart.SeriesCount > 2;  // FitSeries and DateIndicator are always present.
   acCopyToClipboard.Enabled := acSaveToFile.Enabled;
 
-  acHighlightWeekends.Enabled := Chart.SeriesCount > 2;
+  acMovingAverage.Enabled := (Chart.SeriesCount > 2);
 
+  acHighlightWeekends.Enabled := Chart.SeriesCount > 2;
 end;
 
 // Recalculates data after changes in SmoothingPeriod or InfectiousPeriod.

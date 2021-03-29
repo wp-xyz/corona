@@ -133,12 +133,12 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
     List = True
     ShowCaptions = True
     inherited tbSaveToFile: TToolButton
-      Left = 455
+      Left = 501
       Top = 0
       ShowCaption = False
     end
     inherited tbCopyToClipboard: TToolButton
-      Left = 478
+      Left = 524
       Top = 0
       ShowCaption = False
     end
@@ -186,77 +186,76 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
       Caption = 'tbDivider2'
       Style = tbsDivider
     end
-    object tbDivider4: TToolButton[4]
-      Left = 501
-      Height = 22
-      Top = 0
-      Caption = 'tbDivider4'
-      Style = tbsDivider
-    end
-    object tbHighlightWeekends: TToolButton[5]
-      Left = 506
+    object tbHighlightWeekends: TToolButton[4]
+      Left = 450
       Top = 0
       Action = acHighlightWeekends
       ShowCaption = False
       Style = tbsCheck
     end
-    object tbClear: TToolButton[6]
+    object tbClear: TToolButton[5]
       Left = 358
       Top = 0
       Action = acClear
       ShowCaption = False
     end
-    object tbDivider1: TToolButton[7]
+    object tbDivider1: TToolButton[6]
       Left = 161
       Height = 22
       Top = 0
       Caption = 'tbDivider1'
       Style = tbsDivider
     end
-    object tbOverlay: TToolButton[8]
+    object tbOverlay: TToolButton[7]
       Left = 381
       Top = 0
       Action = acOverlayMode
       ShowCaption = False
     end
-    object ToolButton3: TToolButton[9]
+    object ToolButton3: TToolButton[8]
       Left = 404
       Top = 0
       Action = acLinear
       ShowCaption = False
     end
-    object ToolButton5: TToolButton[10]
+    object ToolButton5: TToolButton[9]
       Left = 427
       Top = 0
       Action = acLogarithmic
       ShowCaption = False
     end
-    object tbDivider3: TToolButton[11]
-      Left = 450
+    object tbDivider3: TToolButton[10]
+      Left = 496
       Height = 22
       Top = 0
       Caption = 'tbDivider3'
       Style = tbsDivider
     end
-    object tbInfected: TToolButton[12]
+    object tbInfected: TToolButton[11]
       Left = 166
       Top = 0
       Action = acInfected
     end
-    object tbDeaths: TToolButton[13]
+    object tbDeaths: TToolButton[12]
       Left = 217
       Top = 0
       Action = acDeaths
     end
-    object tbRecovered: TToolButton[14]
+    object tbRecovered: TToolButton[13]
       Left = 261
       Top = 0
       Action = acRecovered
     end
-    object tbSick: TToolButton[15]
+    object tbSick: TToolButton[14]
       Left = 324
       Top = 0
       Action = acSick
+    end
+    object ToolButton1: TToolButton[15]
+      Left = 473
+      Top = 0
+      Action = acMovingAverage
+      ShowCaption = False
     end
   end
   inherited SaveDialog: TSaveDialog
@@ -303,26 +302,33 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
       ImageIndex = 6
       OnExecute = acLogarithmicExecute
     end
-    object acInfected: TAction[7]
+    object acMovingAverage: TAction[7]
+      AutoCheck = True
+      Caption = 'Moving average'
+      Hint = 'Moving average'
+      ImageIndex = 13
+      OnExecute = acMovingAverageExecute
+    end
+    object acInfected: TAction[8]
       AutoCheck = True
       Caption = 'Infected'
       Checked = True
       Hint = 'Show infected cases'
       OnExecute = acCasesExecute
     end
-    object acDeaths: TAction[8]
+    object acDeaths: TAction[9]
       AutoCheck = True
       Caption = 'Deaths'
       Hint = 'Show deaths'
       OnExecute = acCasesExecute
     end
-    object acRecovered: TAction[9]
+    object acRecovered: TAction[10]
       AutoCheck = True
       Caption = 'Recovered'
       Hint = 'Show recovered cases'
       OnExecute = acCasesExecute
     end
-    object acSick: TAction[10]
+    object acSick: TAction[11]
       AutoCheck = True
       Caption = 'Sick'
       Hint = 'Show sick cases'

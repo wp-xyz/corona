@@ -31,13 +31,14 @@ type
     acConfigHint: TAction;
     acConfigAutoLoad: TAction;
     acDataCommonStart: TAction;
-    acDataMovingAverage: TAction;
     acInfectiousPeriod: TAction;
     acSmoothingRange: TAction;
     acChartMap: TAction;
     acChartTimeSeries: TAction;
     acConfigAutoSave: TAction;
     acChartBoth: TAction;
+    Action1: TAction;
+    acTimeSeriesMovingAvg: TAction;
     ActionList: TActionList;
     Chart: TChart;
     BottomAxisTransformations: TChartAxisTransformations;
@@ -48,6 +49,8 @@ type
     MenuItem1: TMenuItem;
     MenuItem15: TMenuItem;
     DisplayPanel: TPanel;
+    MenuItem5: TMenuItem;
+    MenuItem6: TMenuItem;
     NameLabel: TLabel;
     MapToolset: TChartToolset;
     MapDateLabel: TLabel;
@@ -68,7 +71,6 @@ type
     MenuItem2: TMenuItem;
     MenuItem3: TMenuItem;
     mnuCommonStart: TMenuItem;
-    mnuMovingAverage: TMenuItem;
     MenuItem4: TMenuItem;
     mnuDataUpdate: TMenuItem;
     mnuData: TMenuItem;
@@ -121,7 +123,7 @@ type
     procedure acConfigHintExecute(Sender: TObject);
     procedure acDataClearExecute(Sender: TObject);
     procedure acDataCommonStartExecute(Sender: TObject);
-    procedure acDataMovingAverageExecute(Sender: TObject);
+    procedure acTimeSeriesMovingAverageExecute(Sender: TObject);
     procedure acDataUpdateExecute(Sender: TObject);
     procedure acInfectiousPeriodExecute(Sender: TObject);
     procedure acSmoothingRangeExecute(Sender: TObject);
@@ -182,8 +184,6 @@ type
     function GetMapDataType: TMapDataType;
     procedure GetMapResourceParams(var ANode: TTreeNode; out AResName: String;
       out APlotChildNodes: Boolean);
-    function GetSeries(ANode: TTreeNode; ACaseType: TCaseType;
-      ADataType: TDataType): TBasicPointSeries;
     procedure InitShortCuts;
     function IsTimeSeries: Boolean;
     procedure LoadLocations;
@@ -350,29 +350,6 @@ begin
       }
 end;
 
-procedure TMainForm.acDataMovingAverageExecute(Sender: TObject);
-var
-  i: Integer;
-  isMovingAverage: Boolean;
-begin
-  if Assigned(FTimeSeriesFrame) then
-    FTimeSeriesFrame.EnableMovingAverage(acDataMovingAverage.Checked, false);
-
-  // to be removed
-  isMovingAverage := acDataMovingAverage.Checked and
-    ( GetDataType in [dtCumulative, dtNormalizedCumulative, dtNormalizedNewCases, dtNewCases] );
-
-  for i:=0 to Chart.SeriesCount-1 do
-    if Chart.Series[i] is TChartSeries then
-      EnableMovingAverage(TChartSeries(Chart.Series[i]), isMovingAverage, false);
-
-  {
-  MovingAverageInfo.Caption := Format('(%d days)', [SmoothingRange]);
-  MovingAverageInfo.Enabled := acDataMovingAverage.Enabled;
-  UpdateGrid;
-  }
-end;
-
 procedure TMainForm.acDataUpdateExecute(Sender: TObject);
 begin
   UpdateData;
@@ -413,7 +390,7 @@ begin
 
         //MovingAverageInfo.Caption := Format('(%d days)', [SmoothingRange]);
 
-        FTimeSeriesFrame.UpdateData
+        FTimeSeriesFrame.UpdateData;
         {
         // Recalculate the currently loaded data
         L := StoreSeriesNodesInList();
@@ -429,6 +406,12 @@ begin
     end else
       MessageDlg('No valid number.', mtError, [mbOK], 0);
   end;
+end;
+
+procedure TMainForm.acTimeSeriesMovingAverageExecute(Sender: TObject);
+begin
+  if Assigned(FTimeSeriesFrame) then
+    FTimeSeriesFrame.acMovingAverageExecute(nil);
 end;
 
 procedure TMainForm.BeforeRun;
@@ -785,6 +768,7 @@ end;
 procedure TMainForm.EnableMovingAverage(ASeries: TChartSeries;
   AEnabled, AStrict: Boolean);
 begin
+  (*
   acDataMovingAverage.Checked := AEnabled;
   if ASeries is TcLineSeries then
     TcLineSeries(ASeries).MovingAverage := AEnabled
@@ -794,6 +778,7 @@ begin
   else
   if AStrict then
     raise Exception.Create('Only modified series types allowed.');
+    *)
 end;
 
 procedure TMainForm.FormActivate(Sender: TObject);
@@ -1027,116 +1012,6 @@ function TMainForm.GetMapDataType: TMapDataType;
 begin
   Result := MapSettings.DataType;
 //  Result := TMapDataType(cmbMapDataType.ItemIndex);
-end;
-
-function TMainForm.GetSeries(ANode: TTreeNode; ACaseType: TCaseType;
-  ADataType: TDataType): TBasicPointSeries;
-var
-  i: Integer;
-  serTitle: String;
-  ser: TBasicPointSeries;
-  ct: TCaseType;
-  clr: TColor;
-begin
-  serTitle := Format('%s (%s)', [GetLocation(ANode), CASETYPE_NAMES[ACaseType]]);
-
-  for i:=0 to Chart.SeriesCount-1 do
-    if (Chart.Series[i] is TBasicPointSeries) then
-    begin
-      Result := TBasicPointSeries(Chart.Series[i]);
-      if (Result <> nil) and (pos(serTitle, Result.Title) = 1) then
-      begin
-        Result.Active := true;
-        exit;
-      end;
-    end;
-
-  clr := COLORS[((Chart.SeriesCount - 1) div (ord(High(TCaseType))+1)) mod Length(COLORS)];
-
-  // The node does not yet have associated series. Create 4 series for
-  // the cases "confirmed", "deaths", "recovered" and "sick".
-  // Return the one for ADatatype and hide the others.
-  serTitle := GetLocation(ANode);
-  for ct in TCaseType do begin
-    {$IFNDEF USE_BARSERIES}
-    case ADataType of
-      dtCumulative,
-      dtNormalizedCumulative,
-      dtDoublingTime,
-      dtCumVsNewCases,
-      dtRValue:
-        begin
-    {$ENDIF}
-          ser := TcLineSeries.Create(Chart);
-          with TcLineSeries(ser) do
-          begin
-            ShowPoints := true;
-            LinePen.Color := clr;
-            Pointer.Pen.Color := clr;
-            case ct of
-              ctConfirmed:
-                begin
-                  Pointer.Style := psCircle;
-                  Pointer.Brush.Color := LinePen.Color;
-                end;
-              ctDeaths:
-                begin
-                  Pointer.Style := psCross;
-                end;
-              ctRecovered:
-                begin
-                  Pointer.Style := psRectangle;
-                  Pointer.Brush.Color := clWhite;
-                end;
-              ctSick:
-                begin
-                  Pointer.Style := psTriangle;
-                  Pointer.Brush.Color := LinePen.Color;
-                end;
-            end;
-            AccumulationRange := SmoothingRange;
-            MovingAverage := acDataMovingAverage.Checked;
-            Node := ANode;
-          end;
-    {$IFNDEF USE_BARSERIES}
-        end;
-      dtNewCases,
-      dtNormalizedNewCases:
-        begin
-          ser := TcBarSeries.Create(Chart);
-          with TcBarSeries(ser) do
-          begin
-            BarBrush.Color := clr;
-            BarBrush.Style := bsSolid;
-            BarPen.Color := BarBrush.Color;
-            case ct of
-              ctConfirmed : BarBrush.Style := bsSolid;
-              ctDeaths    : BarBrush.Color := clWhite;
-              ctRecovered : BarBrush.Style := bsDiagCross;
-              ctSick      : BarBrush.Style := bsHorizontal;
-            end;
-            AccumulationRange := SmoothingRange;
-            MovingAverage := acDataMovingAverage.Checked;
-            Node := ANode;
-          end;
-        end;
-    end;  // case
-    {$ENDIF}
-
-    if ADataType = dtRValue then
-      ser.Title := serTitle + ' (' + R_NUMBER_STR + ')'
-    else
-      ser.Title := serTitle + ' (' + CASETYPE_NAMES[ct] + ')';
-    ser.AxisIndexX := 1;
-    ser.AxisIndexY := 0;
-    if (ct = ACaseType) or ((ct = ctConfirmed) and (ADataType = dtRvalue)) then
-      Result := ser
-    else
-      ser.Active := false;
-    Chart.AddSeries(ser);
-  end;  // for ct
-
-//  UpdateAffectedSeries;
 end;
 
 { The specified node has been clicked.
@@ -2106,7 +1981,7 @@ end;
 
 procedure TMainForm.UpdateTimeSeriesActions(Sender: TObject);
 begin
-  acDataMovingAverage.Checked := TimeSeriesSettings.MovingAverage;
+  acTimeSeriesMovingAvg.Checked := TimeSeriesSettings.MovingAverage;
 end;
 
 procedure TMainForm.LoadIni;
@@ -2257,7 +2132,7 @@ begin
       ini.WriteInteger('MainForm', 'Height', Height);
     end;
 
-    ini.WriteBool('MainForm', 'ShowHints', acConfigHint.Checked);
+    ini.WriteBool   ('MainForm', 'ShowHints', acConfigHint.Checked);
     ini.WriteInteger('MainForm', 'LeftPanel', LeftPanel.Width);
     ini.WriteInteger('MainForm', 'DisplayMode', ord(FDisplayMode));
     ini.WriteInteger('MainForm', 'DisplaySplitterPos', FDisplaySplitterPos);

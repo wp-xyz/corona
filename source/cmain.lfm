@@ -2175,6 +2175,12 @@ object MainForm: TMainForm
     Left = 744
     object mnuFile: TMenuItem
       Caption = 'File'
+      object MenuItem5: TMenuItem
+        Action = acDataUpdate
+      end
+      object MenuItem6: TMenuItem
+        Caption = '-'
+      end
       object mnuFileQuit: TMenuItem
         Action = acFileExit
       end
@@ -2189,10 +2195,6 @@ object MainForm: TMainForm
       end
       object mnuCommonStart: TMenuItem
         Action = acDataCommonStart
-        AutoCheck = True
-      end
-      object mnuMovingAverage: TMenuItem
-        Action = acDataMovingAverage
         AutoCheck = True
       end
     end
@@ -2300,17 +2302,12 @@ object MainForm: TMainForm
       Caption = 'Common start'
       OnExecute = acDataCommonStartExecute
     end
-    object acDataMovingAverage: TAction
-      Category = 'Data'
-      AutoCheck = True
-      Caption = 'Moving average'
-      OnExecute = acDataMovingAverageExecute
-    end
     object acChartMap: TAction
       Category = 'Chart'
       AutoCheck = True
       Caption = 'Map'
       GroupIndex = 2000
+      Hint = 'Show map alone'
       ImageIndex = 9
       OnExecute = acChartMapExecute
     end
@@ -2319,6 +2316,7 @@ object MainForm: TMainForm
       AutoCheck = True
       Caption = 'Time series'
       GroupIndex = 2000
+      Hint = 'Show time-series alone'
       ImageIndex = 10
       OnExecute = acChartMapExecute
     end
@@ -2338,8 +2336,20 @@ object MainForm: TMainForm
       Caption = 'Both'
       Checked = True
       GroupIndex = 2000
+      Hint = 'Show maps and time-series'
       ImageIndex = 12
       OnExecute = acChartMapExecute
+    end
+    object Action1: TAction
+      Caption = 'Action1'
+    end
+    object acTimeSeriesMovingAvg: TAction
+      Category = 'Chart'
+      AutoCheck = True
+      Caption = 'Moving average'
+      Hint = 'Moving average'
+      ImageIndex = 13
+      OnExecute = acTimeSeriesMovingAverageExecute
     end
   end
   object BottomAxisTransformations: TChartAxisTransformations
