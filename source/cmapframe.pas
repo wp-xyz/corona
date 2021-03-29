@@ -6,9 +6,9 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ColorBox, IniFiles,
-  StdCtrls, ExtCtrls, ComCtrls, LCLVersion,
+  StdCtrls, ExtCtrls, ComCtrls, LCLVersion, Types,
   TATools,
-  cBasicFrame, cGlobal, cDataSource, cPalette, cGeoMap, Types;
+  cBasicFrame, cGlobal, cDataSource, cPalette, cGeoMap;
 
 type
   TDateSelectEvent = procedure(Sender: TObject; ADate: TDate) of object;

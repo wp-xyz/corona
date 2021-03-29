@@ -1,11 +1,11 @@
 object MainForm: TMainForm
   Left = 379
-  Height = 848
+  Height = 526
   Top = 118
-  Width = 973
+  Width = 859
   Caption = 'corona'
-  ClientHeight = 828
-  ClientWidth = 973
+  ClientHeight = 506
+  ClientWidth = 859
   Icon.Data = {
     E8CE000000000100070000000000010020001269000076000000303000000100
     2000A8250000886900002828000001002000681A0000308F0000202000000100
@@ -1665,7 +1665,6 @@ object MainForm: TMainForm
     C663EDFFFC3FE6FFFC3FDFFF
   }
   Menu = MainMenu
-  OnActivate = FormActivate
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnShow = FormShow
@@ -1673,14 +1672,14 @@ object MainForm: TMainForm
   LCLVersion = '2.1.0.0'
   object TreeSplitter: TSplitter
     Left = 238
-    Height = 478
+    Height = 462
     Top = 44
     Width = 5
     ResizeStyle = rsPattern
   end
   object LeftPanel: TPanel
     Left = 6
-    Height = 472
+    Height = 450
     Top = 50
     Width = 229
     Align = alLeft
@@ -1689,13 +1688,13 @@ object MainForm: TMainForm
     BorderSpacing.Right = 3
     BorderSpacing.Bottom = 6
     BevelOuter = bvNone
-    ClientHeight = 472
+    ClientHeight = 450
     ClientWidth = 229
     Constraints.MinWidth = 120
     TabOrder = 0
     object TreeView: TTreeView
       Left = 0
-      Height = 374
+      Height = 412
       Hint = 'Click on the country to display'
       Top = 0
       Width = 229
@@ -1709,33 +1708,33 @@ object MainForm: TMainForm
     end
     object InfoPanel: TPanel
       Left = 0
-      Height = 94
-      Top = 378
+      Height = 34
+      Top = 416
       Width = 229
       Align = alBottom
       AutoSize = True
       BorderSpacing.Top = 4
       BevelOuter = bvNone
-      ClientHeight = 94
+      ClientHeight = 34
       ClientWidth = 229
       TabOrder = 1
       object InfoLabel: TLabel
         Left = 0
-        Height = 60
-        Top = 34
+        Height = 15
+        Top = 19
         Width = 229
         Align = alTop
-        Caption = #13#10#13#10#13#10
+        Caption = 'InfoLabel'
         ParentColor = False
       end
       object NameLabel: TLabel
         Left = 0
-        Height = 30
+        Height = 15
         Top = 0
         Width = 229
         Align = alTop
         BorderSpacing.Bottom = 4
-        Caption = '     '#13#10'   '
+        Caption = 'NameLabel    '
         Font.Style = [fsBold]
         ParentColor = False
         ParentFont = False
@@ -1743,307 +1742,11 @@ object MainForm: TMainForm
       end
     end
   end
-  object PageControl: TPageControl
-    Left = 0
-    Height = 294
-    Top = 528
-    Width = 967
-    ActivePage = pgChart
-    Align = alBottom
-    BorderSpacing.Top = 6
-    BorderSpacing.Right = 6
-    BorderSpacing.Bottom = 6
-    TabIndex = 0
-    TabOrder = 2
-    Visible = False
-    object pgChart: TTabSheet
-      Caption = 'Charts'
-      ClientHeight = 266
-      ClientWidth = 959
-      object TimeSeriesChartPanel: TPanel
-        Left = 0
-        Height = 125
-        Top = 141
-        Width = 959
-        Align = alBottom
-        BevelOuter = bvNone
-        ClientHeight = 125
-        ClientWidth = 959
-        TabOrder = 0
-        object Chart: TChart
-          Left = 0
-          Height = 125
-          Hint = 'Zoom: drag a rectangle from left-top to bottom-right corner with left mouse button down'#13#10'    or: use mouse wheel (zoom center is mouse position).'#13#10'Pan: drag with the right mouse button down'#13#10'Restore view: click'#13#10'Read data value: move mouse over data point (no key pressed)'#13#10'Measure doubling time: CTRL-drag over data points of interest with left mouse button down.'
-          Top = 0
-          Width = 819
-          AxisList = <          
-            item
-              Grid.Color = 14540253
-              Grid.Style = psSolid
-              AxisPen.Color = clWindowText
-              AxisPen.Visible = True
-              Marks.LabelBrush.Style = bsClear
-              Minors = <>
-              Title.Alignment = taCenter
-              Title.LabelFont.Height = -16
-              Title.LabelFont.Orientation = 900
-              Title.LabelFont.Style = [fsBold]
-              Title.Visible = True
-              Title.Caption = 'Cases'
-              Title.LabelBrush.Style = bsClear
-            end          
-            item
-              Grid.Color = 14540253
-              Grid.Style = psSolid
-              Alignment = calBottom
-              AxisPen.Color = clWindowText
-              AxisPen.Visible = True
-              Marks.Format = '%2:s'
-              Marks.LabelBrush.Style = bsClear
-              Marks.Source = DateTimeIntervalChartSource
-              Marks.Style = smsLabel
-              Minors = <>
-              Title.LabelFont.Height = -16
-              Title.LabelFont.Style = [fsBold]
-              Title.Visible = True
-              Title.Caption = 'Date'
-              Title.LabelBrush.Style = bsClear
-            end>
-          BackColor = clForm
-          Foot.Brush.Color = clBtnFace
-          Foot.Font.Color = clBlue
-          Frame.Color = clWindowText
-          Title.Brush.Color = clBtnFace
-          Title.Font.Color = clBlue
-          Title.Text.Strings = (
-            'TAChart'
-          )
-          Toolset = ChartToolset
-          Align = alClient
-          Anchors = [akLeft]
-          Color = clWindow
-          object DateIndicatorLine: TConstantLine
-            Active = False
-            LineStyle = lsVertical
-            Pen.Color = clFuchsia
-            Pen.Width = 2
-            Title = 'Date indicator'
-          end
-        end
-        object ChartListbox: TChartListbox
-          Left = 829
-          Height = 125
-          Hint = 'Uncheck to remove a curve temporarily.'
-          Top = 0
-          Width = 130
-          Chart = Chart
-          OnAddSeries = ChartListboxAddSeries
-          Align = alRight
-          BorderSpacing.Left = 5
-          ItemHeight = 0
-          TabOrder = 1
-        end
-        object RightSplitter: TSplitter
-          Left = 819
-          Height = 125
-          Top = 0
-          Width = 5
-          Align = alRight
-          ResizeAnchor = akRight
-          ResizeStyle = rsPattern
-        end
-      end
-      object ChartSplitter: TSplitter
-        Cursor = crVSplit
-        Left = 0
-        Height = 5
-        Top = 136
-        Width = 959
-        Align = alBottom
-        ResizeAnchor = akBottom
-        ResizeStyle = rsPattern
-      end
-      object MapChartPanel: TPanel
-        Left = 0
-        Height = 136
-        Top = 0
-        Width = 959
-        Align = alClient
-        BevelOuter = bvNone
-        ClientHeight = 136
-        ClientWidth = 959
-        TabOrder = 2
-        Visible = False
-        object MapChart: TChart
-          AnchorSideLeft.Control = MapChartPanel
-          AnchorSideTop.Control = MapChartPanel
-          AnchorSideRight.Control = MapSplitter
-          AnchorSideBottom.Control = MapDateScrollbar
-          Left = 0
-          Height = 119
-          Top = 0
-          Width = 818
-          AxisList = <          
-            item
-              Visible = False
-              Marks.LabelBrush.Style = bsClear
-              Minors = <>
-              Title.LabelFont.Orientation = 900
-              Title.LabelBrush.Style = bsClear
-            end          
-            item
-              Visible = False
-              Alignment = calBottom
-              Marks.LabelBrush.Style = bsClear
-              Minors = <>
-              Title.LabelBrush.Style = bsClear
-            end>
-          BackColor = clForm
-          Foot.Alignment = taLeftJustify
-          Foot.Brush.Color = clBtnFace
-          Foot.Brush.Style = bsClear
-          Foot.Font.Color = clBlue
-          Foot.Text.Strings = (
-            ' '
-          )
-          Frame.Visible = False
-          Proportional = True
-          Title.Brush.Color = clBtnFace
-          Title.Brush.Style = bsClear
-          Title.Font.Color = clWindowText
-          Title.Font.Height = -16
-          Title.Font.Style = [fsBold]
-          Title.Text.Strings = (
-            'TAChart'
-          )
-          Toolset = MapToolset
-          Anchors = [akTop, akLeft, akRight, akBottom]
-          Color = clWindow
-        end
-        object MapSplitter: TSplitter
-          Left = 818
-          Height = 136
-          Top = 0
-          Width = 5
-          Align = alRight
-          ResizeAnchor = akRight
-        end
-        object MapDateScrollbar: TScrollBar
-          AnchorSideLeft.Control = MapChartPanel
-          AnchorSideRight.Control = MapSplitter
-          AnchorSideBottom.Control = MapChartPanel
-          AnchorSideBottom.Side = asrBottom
-          Left = 4
-          Height = 17
-          Top = 119
-          Width = 810
-          Anchors = [akLeft, akRight, akBottom]
-          BorderSpacing.Left = 4
-          BorderSpacing.Right = 4
-          Max = 0
-          PageSize = 0
-          TabOrder = 2
-        end
-        object PaletteListboxPanel: TPanel
-          Left = 829
-          Height = 136
-          Top = 0
-          Width = 130
-          Align = alRight
-          BorderSpacing.Left = 6
-          BevelOuter = bvNone
-          ClientHeight = 136
-          ClientWidth = 130
-          TabOrder = 3
-          object PaletteListbox: TColorListBox
-            AnchorSideLeft.Control = PaletteListboxPanel
-            AnchorSideTop.Control = PaletteListboxPanel
-            AnchorSideRight.Control = PaletteListboxPanel
-            AnchorSideRight.Side = asrBottom
-            AnchorSideBottom.Control = MapDateLabel
-            Left = 0
-            Height = 115
-            Top = 0
-            Width = 130
-            Style = []
-            OnGetColors = PaletteListboxGetColors
-            Anchors = [akTop, akLeft, akRight, akBottom]
-            BorderSpacing.Bottom = 6
-            ItemHeight = 0
-            TabOrder = 0
-          end
-          object MapDateLabel: TLabel
-            Left = 0
-            Height = 15
-            Top = 121
-            Width = 130
-            Align = alBottom
-            Anchors = [akLeft, akBottom]
-            Caption = 'MapDateLabel'
-            ParentColor = False
-          end
-        end
-      end
-    end
-    object pgTable: TTabSheet
-      Caption = 'Table'
-      ClientHeight = 266
-      ClientWidth = 959
-      object Grid: TDrawGrid
-        AnchorSideLeft.Control = pgTable
-        AnchorSideTop.Control = lblTableHint
-        AnchorSideTop.Side = asrBottom
-        AnchorSideRight.Control = pgTable
-        AnchorSideRight.Side = asrBottom
-        AnchorSideBottom.Control = pgTable
-        AnchorSideBottom.Side = asrBottom
-        Left = 6
-        Height = 208
-        Top = 52
-        Width = 947
-        Anchors = [akTop, akLeft, akRight, akBottom]
-        BorderSpacing.Around = 6
-        ColCount = 2
-        DefaultColWidth = 80
-        ExtendedSelect = False
-        MouseWheelOption = mwGrid
-        Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goRowSizing, goColSizing, goThumbTracking, goFixedColSizing]
-        RowCount = 2
-        TabOrder = 0
-        OnDrawCell = GridDrawCell
-      end
-      object lblTableHdr: TLabel
-        AnchorSideLeft.Control = pgTable
-        AnchorSideTop.Control = pgTable
-        Left = 6
-        Height = 25
-        Top = 6
-        Width = 148
-        BorderSpacing.Left = 6
-        BorderSpacing.Top = 6
-        Caption = 'Cumulative Cases'
-        Font.Height = -19
-        ParentColor = False
-        ParentFont = False
-      end
-      object lblTableHint: TLabel
-        AnchorSideLeft.Control = lblTableHdr
-        AnchorSideTop.Control = lblTableHdr
-        AnchorSideTop.Side = asrBottom
-        Left = 6
-        Height = 15
-        Top = 31
-        Width = 63
-        Caption = 'lblTableHint'
-        ParentColor = False
-      end
-    end
-  end
   object ToolBar: TToolBar
     Left = 0
     Height = 44
     Top = 0
-    Width = 973
+    Width = 859
     AutoSize = True
     ButtonHeight = 40
     ButtonWidth = 40
@@ -2051,7 +1754,7 @@ object MainForm: TMainForm
     EdgeBorders = [ebTop, ebBottom]
     Images = MainDatamodule.ImageList
     ShowCaptions = True
-    TabOrder = 3
+    TabOrder = 2
     OnResize = ToolBarResize
     object ToolButton1: TToolButton
       Left = 1
@@ -2100,70 +1803,15 @@ object MainForm: TMainForm
   end
   object DisplayPanel: TPanel
     Left = 246
-    Height = 472
+    Height = 456
     Top = 50
-    Width = 721
+    Width = 607
     Align = alClient
     BorderSpacing.Left = 3
     BorderSpacing.Top = 6
     BorderSpacing.Right = 6
     BevelOuter = bvNone
-    TabOrder = 4
-  end
-  object DateTimeIntervalChartSource: TDateTimeIntervalChartSource
-    Params.MaxLength = 120
-    Params.MinLength = 30
-    Left = 592
-    Top = 384
-  end
-  object LeftAxisTransformations: TChartAxisTransformations
-    Left = 336
-    Top = 384
-    object LeftAxisLogTransform: TLogarithmAxisTransform
-      Base = 10
-    end
-  end
-  object ChartToolset: TChartToolset
-    Left = 808
-    Top = 384
-    object MeasurementTool: TDataPointDistanceTool
-      Shift = [ssCtrl, ssLeft]
-      OnAfterMouseUp = MeasurementToolAfterMouseUp
-      GrabRadius = 32
-      LinePen.Visible = False
-      DataPointModeEnd = dpmLock
-      DataPointModeStart = dpmLock
-      Marks.Format = '%0:.9g'
-      Marks.Frame.Visible = False
-      Marks.LabelBrush.Style = bsClear
-      Marks.LinkPen.Visible = False
-      PointerEnd.HorizSize = 8
-      PointerEnd.Style = psCircle
-      PointerEnd.VertSize = 8
-      PointerEnd.Visible = True
-      PointerStart.HorizSize = 8
-      PointerStart.Style = psCircle
-      PointerStart.VertSize = 8
-      PointerStart.Visible = True
-      OnGetDistanceText = MeasurementToolGetDistanceText
-      OnMeasure = MeasurementToolMeasure
-    end
-    object CrossHairTool: TDataPointCrosshairTool
-      GrabRadius = 32
-      OnDraw = CrossHairToolDraw
-      Size = 16
-    end
-    object ZoomDragTool: TZoomDragTool
-      Shift = [ssLeft]
-      Brush.Style = bsClear
-      EscapeCancels = True
-    end
-    object PanDragTool: TPanDragTool
-      Shift = [ssRight]
-      EscapeCancels = True
-    end
-    object WheelZoomTool: TZoomMouseWheelTool
-    end
+    TabOrder = 3
   end
   object SaveDialog: TSaveDialog
     Filter = 'Comma-separated files (*.csv)|*.csv'
@@ -2172,7 +1820,8 @@ object MainForm: TMainForm
   end
   object MainMenu: TMainMenu
     Images = MainDatamodule.ImageList
-    Left = 744
+    Left = 280
+    Top = 112
     object mnuFile: TMenuItem
       Caption = 'File'
       object MenuItem5: TMenuItem
@@ -2246,7 +1895,8 @@ object MainForm: TMainForm
   end
   object ActionList: TActionList
     Images = MainDatamodule.ImageList
-    Left = 672
+    Left = 280
+    Top = 56
     object acFileExit: TFileExit
       Category = 'File'
       Caption = 'Quit'
@@ -2267,13 +1917,6 @@ object MainForm: TMainForm
       Hint = 'About this program...'
       ImageIndex = 0
       OnExecute = acAboutExecute
-    end
-    object acDataClear: TAction
-      Category = 'Data'
-      Caption = 'Clear'
-      Hint = 'Clear loaded data'
-      ImageIndex = 4
-      OnExecute = acDataClearExecute
     end
     object acConfigAutoLoad: TAction
       Category = 'Config'
@@ -2342,40 +1985,6 @@ object MainForm: TMainForm
     end
     object Action1: TAction
       Caption = 'Action1'
-    end
-    object acTimeSeriesMovingAvg: TAction
-      Category = 'Chart'
-      AutoCheck = True
-      Caption = 'Moving average'
-      Hint = 'Moving average'
-      ImageIndex = 13
-      OnExecute = acTimeSeriesMovingAverageExecute
-    end
-  end
-  object BottomAxisTransformations: TChartAxisTransformations
-    Left = 592
-    Top = 440
-    object BottomAxisLogTransform: TLogarithmAxisTransform
-      Base = 10
-    end
-  end
-  object MapToolset: TChartToolset
-    Left = 520
-    Top = 144
-    object MapToolsetZoomDragTool: TZoomDragTool
-      Shift = [ssLeft]
-      Brush.Style = bsClear
-      RestoreExtentOn = [zreDragTopLeft, zreDragTopRight, zreDragBottomLeft, zreDifferentDrag]
-    end
-    object MapToolsetPanDragTool: TPanDragTool
-      Shift = [ssRight]
-    end
-    object MapToolsetDataPointHintTool: TDataPointHintTool
-      UseApplicationHint = True
-      UseDefaultHintText = False
-    end
-    object MapToolsetDataPointClickTool: TDataPointClickTool
-      Shift = [ssLeft, ssDouble]
     end
   end
 end

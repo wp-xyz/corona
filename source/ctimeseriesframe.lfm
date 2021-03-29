@@ -395,7 +395,6 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
       EscapeCancels = True
     end
     object WheelZoomTool: TZoomMouseWheelTool
-      ZoomFactor = 1.05
     end
   end
 end

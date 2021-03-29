@@ -6,20 +6,20 @@ inherited MapFrame: TMapFrame
   DesignLeft = 446
   DesignTop = 142
   inherited PageControl: TPageControl
-    Height = 334
-    Top = 23
+    Height = 330
+    Top = 27
     Width = 580
     ActivePage = pgChart
     TabIndex = 0
     inherited pgChart: TTabSheet
-      ClientHeight = 306
+      ClientHeight = 302
       ClientWidth = 572
       inherited Chart: TChart
         AnchorSideLeft.Control = pgChart
         AnchorSideTop.Control = pgChart
         AnchorSideRight.Control = Splitter
         AnchorSideBottom.Control = MapDateScrollBar
-        Height = 289
+        Height = 285
         Hint = 'Zoom: '#13#10'  drag a rectangle from left-top to bottom-right corner with left mouse button down'#13#10'  or: use mouse wheel (zoom center is mouse position).'#13#10'Pan: '#13#10'  drag with the right mouse button down'#13#10'Restore view: '#13#10'  drag in opposite direction to zoom-in'#13#10'Read data values: '#13#10'  move mouse over data point (no key pressed)'#13#10'Select country in time-series: '#13#10'  double-click on country'
         Width = 393
         AxisList = <        
@@ -53,7 +53,7 @@ inherited MapFrame: TMapFrame
       end
       object Splitter: TSplitter[1]
         Left = 393
-        Height = 306
+        Height = 302
         Top = 0
         Width = 5
         Align = alRight
@@ -67,7 +67,7 @@ inherited MapFrame: TMapFrame
         AnchorSideBottom.Side = asrBottom
         Left = 4
         Height = 17
-        Top = 289
+        Top = 285
         Width = 390
         Anchors = [akLeft, akRight, akBottom]
         BorderSpacing.Left = 4
@@ -79,13 +79,13 @@ inherited MapFrame: TMapFrame
       end
       object RightPanel: TPanel[3]
         Left = 402
-        Height = 306
+        Height = 302
         Top = 0
         Width = 170
         Align = alRight
         BorderSpacing.Left = 4
         BevelOuter = bvNone
-        ClientHeight = 306
+        ClientHeight = 302
         ClientWidth = 170
         TabOrder = 3
         object DatePanel: TPanel
@@ -94,7 +94,7 @@ inherited MapFrame: TMapFrame
           AnchorSideBottom.Control = RightPanel
           Left = 0
           Height = 17
-          Top = 289
+          Top = 285
           Width = 170
           Align = alBottom
           BevelOuter = bvNone
@@ -115,7 +115,7 @@ inherited MapFrame: TMapFrame
         end
         object PaletteListbox: TColorListBox
           Left = 0
-          Height = 285
+          Height = 281
           Top = 0
           Width = 170
           Style = []

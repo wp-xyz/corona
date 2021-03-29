@@ -175,15 +175,11 @@ begin
   FFixedColAlignment := taCenter;
 
   FCheckedCases := [ctConfirmed];
-  {
-  FCheckedCases[ctConfirmed] := cbInfected;
-  FCheckedCases[ctDeaths] := cbDeaths;
-  FCheckedCases[ctRecovered] := cbRecovered;
-  FCheckedCases[ctSick] := cbSick;
-   }
   CreateMeasurementSeries;
   FixChartColors;
 
+  WheelZoomTool.ZoomFactor := 1.05;
+  WheelZoomTool.ZoomRatio := 1.0 / WheelZoomTool.ZoomFactor;
   {$IF LCL_FullVersion >= 2010000}
   ZoomDragTool.LimitToExtent := [zdDown, zdLeft, zdRight, zdUp];
   PanDragTool.LimitToExtent := [pdDown, pdLeft, pdRight, pdUp];
@@ -705,7 +701,6 @@ begin
           end;
       end;
       AccumulationRange := SmoothingRange;
-    //  MovingAverage := acDataMovingAverage.Checked;  <---------- FIX ME
       Node := ADataNode;
     end;
 
