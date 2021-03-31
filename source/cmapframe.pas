@@ -42,11 +42,13 @@ type
     FMapLock: Integer;
     FPalette: TPalette;
     FCurrentDate: TDate;
+    FMapMenu: TMenuItem;
     FOldMapResource: String;
     FOnDateSelect: TDateSelectEvent;
     function GetMapDataType: TMapDataType;
     procedure GetMapResourceParams(var ADataNode: TTreeNode; out AResName: String;
       out APlotChildNodes: Boolean);
+    procedure MenuDataTypeClickHandler(Sender: TObject);
     procedure SetOnDateSelect(AValue: TDateSelectEvent);
     procedure ShowCoronaMap(ADataNode: TTreeNode; ADateIndex: Integer;
       AMapDataType: TMapDataType; PlotChildNodeData: Boolean);
@@ -64,6 +66,7 @@ type
     constructor Create(AOwner: TComponent); override;
     procedure LoadFromIni(ini: TCustomIniFile); override;
     procedure SaveToIni(ini: TCustomIniFile); override;
+    procedure SetDataType(ADataType: TMapDataType);
     procedure ShowMap(ADataNode: TTreeNode); virtual;
     procedure UpdateCmdStates; override;
     procedure UpdateInfectiousPeriod;
@@ -84,6 +87,9 @@ uses
   {$IFEND}
   cGeoReaderKML, cPolygonSeries;
 
+const
+  MENUBASE_DATATYPE = 100;
+
 constructor TMapFrame.Create(AOwner: TComponent);
 begin
   inherited;
@@ -95,9 +101,7 @@ end;
 
 procedure TMapFrame.cmbDataTypeChange(Sender: TObject);
 begin
-  MapSettings.DataType := GetMapDataType;
-  PopulatePaletteListbox(MapSettings.DataType);
-  ShowMap(DataTree.Selected);
+  SetDataType(TMapDataType(cmbDataType.ItemIndex));
 end;
 
 procedure TMapFrame.CreateHandle;
@@ -297,9 +301,7 @@ end;
 
 procedure TMapFrame.LoadFromIni(ini: TCustomIniFile);
 begin
-  MapSettings.DataType := TMapDataType(ini.ReadInteger('Map', 'DataType', ord(MapSettings.DataType)));
-  cmbDataType.ItemIndex := ord(MapSettings.DataType);
-  cmbDataTypeChange(nil);
+  SetDataType(TMapDataType(ini.ReadInteger('Map', 'DataType', ord(MapSettings.DataType))));
 
   PageControl.ActivePageIndex := ini.ReadInteger('Map', 'PageControl', PageControl.ActivePageIndex);
   RightPanel.Width := ini.ReadInteger('Map', 'RightPanel', RightPanel.Width);
@@ -307,6 +309,11 @@ begin
 
   // Update tool button hints
   PageControlChange(nil);
+end;
+
+procedure TMapFrame.MenuDataTypeClickHandler(Sender: TObject);
+begin
+  SetDataType(TMapDataType(TMenuItem(Sender).Tag - MENUBASE_DATATYPE));
 end;
 
 procedure TMapFrame.PopulatePaletteListbox(ADataType: TMapDataType);
@@ -341,6 +348,20 @@ begin
     if (AMapRes = USStatesMapResName) or (AMapRes = USCountiesMapResName) then
       FGeoMap.GeoIDOffset := 84000000;
   end;
+end;
+
+procedure TMapFrame.SetDataType(ADataType: TMapDataType);
+var
+  i: Integer;
+begin
+  MapSettings.DataType := ADataType;
+
+  cmbDataType.ItemIndex := ord(ADataType);
+  for i := 0 to FMapMenu.Count-1 do
+    FMapMenu.Items[i].Checked := (FMapMenu.Items[i].Tag = MENUBASE_DATATYPE + ord(ADataType));
+
+  PopulatePaletteListbox(ADataType);
+  ShowMap(DataTree.Selected);
 end;
 
 procedure TMapFrame.SetOnDateSelect(AValue: TDateSelectEvent);
@@ -586,8 +607,26 @@ end;
 
 procedure TMapFrame.UpdateMenu(AMenu: TMenuItem);
 var
+  i: Integer;
   item: TMenuItem;
 begin
+  FMapMenu := AMenu;
+
+  for i := 0 to cmbDataType.Items.Count-1 do
+  begin
+    item := TMenuItem.Create(self);
+    item.AutoCheck := true;
+    item.Caption := cmbDataType.Items[i];
+    item.GroupIndex := 1;
+    item.Tag := i + MENUBASE_DATATYPE;
+    item.OnClick := @MenuDataTypeClickHandler;
+    AMenu.Add(item);
+  end;
+
+  item := TMenuItem.Create(self);
+  item.Caption := '-';
+  AMenu.Add(item);
+
   item := TMenuItem.Create(self);
   item.Action := acCopyToClipboard;
   AMenu.Add(item);

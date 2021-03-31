@@ -265,33 +265,52 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
   inherited ActionList: TActionList
     Left = 456
     Top = 128
-    inherited acSaveToFile: TAction
-      Caption = 'Save to file'
+    object acInfected: TAction[0]
+      AutoCheck = True
+      Caption = 'Infected'
+      Checked = True
+      Hint = 'Show infected cases'
+      OnExecute = acCasesExecute
     end
-    inherited acCopyToClipboard: TAction
-      Caption = 'Copy to clipboard'
+    object acDeaths: TAction[1]
+      AutoCheck = True
+      Caption = 'Deaths'
+      Hint = 'Show deaths'
+      OnExecute = acCasesExecute
     end
-    object acHighlightWeekends: TAction[2]
+    object acRecovered: TAction[2]
+      AutoCheck = True
+      Caption = 'Recovered'
+      Hint = 'Show recovered cases'
+      OnExecute = acCasesExecute
+    end
+    object acSick: TAction[3]
+      AutoCheck = True
+      Caption = 'Sick'
+      Hint = 'Show sick cases'
+      OnExecute = acCasesExecute
+    end
+    object acHighlightWeekends: TAction[4]
       AutoCheck = True
       Caption = 'Highlight weekends'
       Hint = 'Highlight weekends'
       ImageIndex = 11
       OnExecute = acHighlightWeekendsExecute
     end
-    object acClear: TAction[3]
+    object acClear: TAction[5]
       Caption = 'Clear'
       Hint = 'Clear data'
       ImageIndex = 4
       OnExecute = acClearExecute
     end
-    object acOverlayMode: TAction[4]
+    object acOverlayMode: TAction[6]
       AutoCheck = True
       Caption = 'Overlay'
       Hint = 'Overlay curves'
       ImageIndex = 8
       OnExecute = acOverlayModeExecute
     end
-    object acLinear: TAction[5]
+    object acLinear: TAction[7]
       AutoCheck = True
       Caption = 'Linear'
       Checked = True
@@ -300,7 +319,7 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
       ImageIndex = 5
       OnExecute = acLinearExecute
     end
-    object acLogarithmic: TAction[6]
+    object acLogarithmic: TAction[8]
       AutoCheck = True
       Caption = 'Log'
       GroupIndex = 20210325
@@ -308,37 +327,18 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
       ImageIndex = 6
       OnExecute = acLogarithmicExecute
     end
-    object acMovingAverage: TAction[7]
+    object acMovingAverage: TAction[9]
       AutoCheck = True
       Caption = 'Moving average'
       Hint = 'Moving average'
       ImageIndex = 13
       OnExecute = acMovingAverageExecute
     end
-    object acInfected: TAction[8]
-      AutoCheck = True
-      Caption = 'Infected'
-      Checked = True
-      Hint = 'Show infected cases'
-      OnExecute = acCasesExecute
+    inherited acSaveToFile: TAction[10]
+      Caption = 'Save to file'
     end
-    object acDeaths: TAction[9]
-      AutoCheck = True
-      Caption = 'Deaths'
-      Hint = 'Show deaths'
-      OnExecute = acCasesExecute
-    end
-    object acRecovered: TAction[10]
-      AutoCheck = True
-      Caption = 'Recovered'
-      Hint = 'Show recovered cases'
-      OnExecute = acCasesExecute
-    end
-    object acSick: TAction[11]
-      AutoCheck = True
-      Caption = 'Sick'
-      Hint = 'Show sick cases'
-      OnExecute = acCasesExecute
+    inherited acCopyToClipboard: TAction[11]
+      Caption = 'Copy to clipboard'
     end
   end
   object DateTimeIntervalChartSource: TDateTimeIntervalChartSource[4]
