@@ -42,7 +42,7 @@ type
     FMapLock: Integer;
     FPalette: TPalette;
     FCurrentDate: TDate;
-    FMapMenu: TMenuItem;
+    FMenu: TMenuItem;
     FOldMapResource: String;
     FOnDateSelect: TDateSelectEvent;
     function GetMapDataType: TMapDataType;
@@ -357,8 +357,8 @@ begin
   MapSettings.DataType := ADataType;
 
   cmbDataType.ItemIndex := ord(ADataType);
-  for i := 0 to FMapMenu.Count-1 do
-    FMapMenu.Items[i].Checked := (FMapMenu.Items[i].Tag = MENUBASE_DATATYPE + ord(ADataType));
+  for i := 0 to FMenu.Count-1 do
+    FMenu.Items[i].Checked := (FMenu.Items[i].Tag = MENUBASE_DATATYPE + ord(ADataType));
 
   PopulatePaletteListbox(ADataType);
   ShowMap(DataTree.Selected);
@@ -601,8 +601,13 @@ begin
 end;
 
 procedure TMapFrame.UpdateInfectiousPeriod;
+var
+  i: Integer;
 begin
-  cmbDataType.Items[2] := Format('Reproduction number (R, % days)', [InfectiousPeriod]);
+  cmbDataType.Items[2] := Format('Reproduction number (R, %d days)', [InfectiousPeriod]);
+  for i := 0 to FMenu.Count-1 do
+    if FMenu.Items[i].Tag - MENUBASE_DATATYPE = 2 then
+      FMenu.Items[i].Caption := cmbDataType.Items[2];
 end;
 
 procedure TMapFrame.UpdateMenu(AMenu: TMenuItem);
@@ -610,7 +615,7 @@ var
   i: Integer;
   item: TMenuItem;
 begin
-  FMapMenu := AMenu;
+  FMenu := AMenu;
 
   for i := 0 to cmbDataType.Items.Count-1 do
   begin
