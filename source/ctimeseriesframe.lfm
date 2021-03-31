@@ -265,6 +265,12 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
   inherited ActionList: TActionList
     Left = 456
     Top = 128
+    inherited acSaveToFile: TAction
+      Caption = 'Save to file'
+    end
+    inherited acCopyToClipboard: TAction
+      Caption = 'Copy to clipboard'
+    end
     object acHighlightWeekends: TAction[2]
       AutoCheck = True
       Caption = 'Highlight weekends'

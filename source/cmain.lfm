@@ -1862,6 +1862,12 @@ object MainForm: TMainForm
         AutoCheck = True
       end
     end
+    object mnuMap: TMenuItem
+      Caption = 'Map'
+    end
+    object mnuTimeSeries: TMenuItem
+      Caption = 'Time-series'
+    end
     object mnuConfig: TMenuItem
       Caption = 'Configuration'
       object MenuItem4: TMenuItem
@@ -1963,16 +1969,6 @@ object MainForm: TMainForm
       ImageIndex = 10
       OnExecute = acChartMapExecute
     end
-    object acInfectiousPeriod: TAction
-      Category = 'Config'
-      Caption = 'Infectious period...'
-      OnExecute = acInfectiousPeriodExecute
-    end
-    object acSmoothingRange: TAction
-      Category = 'Config'
-      Caption = 'Smoothing range...'
-      OnExecute = acSmoothingRangeExecute
-    end
     object acChartBoth: TAction
       Category = 'Chart'
       AutoCheck = True
@@ -1983,8 +1979,15 @@ object MainForm: TMainForm
       ImageIndex = 12
       OnExecute = acChartMapExecute
     end
-    object Action1: TAction
-      Caption = 'Action1'
+    object acInfectiousPeriod: TAction
+      Category = 'Config'
+      Caption = 'Infectious period...'
+      OnExecute = acInfectiousPeriodExecute
+    end
+    object acSmoothingRange: TAction
+      Category = 'Config'
+      Caption = 'Smoothing range...'
+      OnExecute = acSmoothingRangeExecute
     end
   end
 end

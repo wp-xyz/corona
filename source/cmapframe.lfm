@@ -19,7 +19,7 @@ inherited MapFrame: TMapFrame
         AnchorSideTop.Control = pgChart
         AnchorSideRight.Control = Splitter
         AnchorSideBottom.Control = MapDateScrollBar
-        Height = 285
+        Height = 281
         Hint = 'Zoom: '#13#10'  drag a rectangle from left-top to bottom-right corner with left mouse button down'#13#10'  or: use mouse wheel (zoom center is mouse position).'#13#10'Pan: '#13#10'  drag with the right mouse button down'#13#10'Restore view: '#13#10'  drag in opposite direction to zoom-in'#13#10'Read data values: '#13#10'  move mouse over data point (no key pressed)'#13#10'Select country in time-series: '#13#10'  double-click on country'
         Width = 393
         AxisList = <        
@@ -67,11 +67,12 @@ inherited MapFrame: TMapFrame
         AnchorSideBottom.Side = asrBottom
         Left = 4
         Height = 17
-        Top = 285
+        Top = 281
         Width = 390
         Anchors = [akLeft, akRight, akBottom]
         BorderSpacing.Left = 4
         BorderSpacing.Right = 4
+        BorderSpacing.Bottom = 4
         PageSize = 0
         Position = 100
         TabOrder = 2
@@ -94,9 +95,10 @@ inherited MapFrame: TMapFrame
           AnchorSideBottom.Control = RightPanel
           Left = 0
           Height = 17
-          Top = 285
+          Top = 281
           Width = 170
           Align = alBottom
+          BorderSpacing.Bottom = 4
           BevelOuter = bvNone
           ClientHeight = 17
           ClientWidth = 170
@@ -115,7 +117,7 @@ inherited MapFrame: TMapFrame
         end
         object PaletteListbox: TColorListBox
           Left = 0
-          Height = 281
+          Height = 277
           Top = 0
           Width = 170
           Style = []
@@ -215,9 +217,25 @@ inherited MapFrame: TMapFrame
       Style = tbsDivider
     end
   end
+  inherited SaveDialog: TSaveDialog
+    Left = 152
+    Top = 88
+  end
+  inherited ActionList: TActionList
+    Left = 248
+    Top = 88
+    inherited acSaveToFile: TAction
+      Caption = 'Save to file'
+      Hint = 'Save chart or table to file'
+    end
+    inherited acCopyToClipboard: TAction
+      Caption = 'Copy to clipboard'
+      Hint = 'Copy chart or table to clipboard'
+    end
+  end
   object ChartToolset: TChartToolset[4]
-    Left = 179
-    Top = 155
+    Left = 56
+    Top = 88
     object InfoTool: TUserDefinedTool
       OnAfterMouseMove = InfoToolAfterMouseMove
     end

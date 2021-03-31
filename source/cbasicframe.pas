@@ -6,7 +6,7 @@ interface
 
 uses
   Graphics, Classes, SysUtils, Forms, Controls, ExtCtrls, ComCtrls, Grids,
-  LCLVersion, Dialogs, ActnList, IniFiles,
+  LCLVersion, Dialogs, Menus, ActnList, IniFiles,
   TAChartUtils, TAGraph,
   cGlobal, cDataSource, Types;
 
@@ -66,6 +66,7 @@ type
     procedure LoadFromIni(ini: TCustomIniFile); virtual;
     procedure SaveToIni(ini: TCustomIniFile); virtual;
     procedure UpdateCmdStates; virtual;
+    procedure UpdateMenu(AMenu: TMenuItem); virtual;
     procedure WordwrapChart(AChart: TChart);
 
     property DataTree: TTreeView read FDataTree write FDataTree;
@@ -370,6 +371,11 @@ begin
 end;
 
 procedure TBasicFrame.UpdateCmdStates;
+begin
+end;
+
+// Insert the actions of the frame as items into the specified menu
+procedure TBasicFrame.UpdateMenu(AMenu: TMenuItem);
 begin
 end;
 

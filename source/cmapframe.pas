@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ColorBox, IniFiles,
-  StdCtrls, ExtCtrls, ComCtrls, LCLVersion, Types,
+  StdCtrls, ExtCtrls, ComCtrls, LCLVersion, Types, Menus,
   TATools,
   cBasicFrame, cGlobal, cDataSource, cPalette, cGeoMap;
 
@@ -67,6 +67,7 @@ type
     procedure ShowMap(ADataNode: TTreeNode); virtual;
     procedure UpdateCmdStates; override;
     procedure UpdateInfectiousPeriod;
+    procedure UpdateMenu(AMenu: TMenuItem); override;
     property OnDateSelect: TDateSelectEvent read FOnDateSelect write SetOnDateSelect;
 
   end;
@@ -345,8 +346,6 @@ end;
 procedure TMapFrame.SetOnDateSelect(AValue: TDateSelectEvent);
 begin
   FOnDateSelect := AValue;
-  MapDateScrollbar.Visible := Assigned(FOnDateSelect);
-  DatePanel.Visible := Assigned(FOnDateSelect);
   UpdateGrid;
 end;
 
@@ -585,5 +584,17 @@ begin
   cmbDataType.Items[2] := Format('Reproduction number (R, % days)', [InfectiousPeriod]);
 end;
 
-end.
+procedure TMapFrame.UpdateMenu(AMenu: TMenuItem);
+var
+  item: TMenuItem;
+begin
+  item := TMenuItem.Create(self);
+  item.Action := acCopyToClipboard;
+  AMenu.Add(item);
 
+  item := TMenuItem.Create(self);
+  item.Action := acSaveTofile;
+  AMenu.Add(item);
+end;
+
+end.

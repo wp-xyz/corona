@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Types, IniFiles, LCLVersion,
-  StdCtrls, ExtCtrls, ComCtrls, Grids, ActnList,
+  StdCtrls, ExtCtrls, ComCtrls, Grids, Menus, ActnList,
   TAGraph, TACustomSeries, TASeries, TAFuncSeries, TAChartListbox, TAIntervalSources,
   TALegend, TATransformations, TATools, TADataTools,
   cGlobal, cBasicFrame, cSeries, TADrawUtils;
@@ -130,6 +130,7 @@ type
     procedure UpdateData;
     procedure UpdateDateIndicatorLine(Sender: TObject; ADate: TDate);
     procedure UpdateInfectiousPeriod;
+    procedure UpdateMenu(AMenu: TMenuItem); override;
     procedure UpdateStatusbar(AText: String);
 
     procedure LoadFromIni(ini: TCustomIniFile); override;
@@ -1413,6 +1414,67 @@ procedure TTimeSeriesFrame.UpdateInfectiousPeriod;
 begin
   cmbDataType.Items[7] := Format('Reproduction number (R, % days)', [InfectiousPeriod]);
   UpdateData;
+end;
+
+procedure TTimeSeriesFrame.UpdateMenu(AMenu: TMenuItem);
+var
+  item: TMenuItem;
+begin
+  item := TMenuItem.Create(self);
+  item.Action := acInfected;
+  AMenu.Add(item);
+
+  item := TMenuItem.Create(self);
+  item.Action := acDeaths;
+  AMenu.Add(item);
+
+  item := TMenuItem.Create(self);
+  item.Action := acRecovered;
+  AMenu.Add(item);
+
+  item := TMenuItem.Create(self);
+  item.Action := acSick;
+  AMenu.Add(item);
+
+  item := TMenuItem.Create(self);
+  item.caption := '-';
+  AMenu.Add(item);
+
+  item := TMenuItem.Create(self);
+  item.Action := acClear;
+  AMenu.Add(item);
+
+  item := TMenuItem.Create(self);
+  item.Action := acOverlayMode;
+  AMenu.Add(item);
+
+  item := TMenuItem.Create(self);
+  item.Action := acLinear;
+  AMenu.Add(item);
+
+  item := TMenuItem.Create(self);
+  item.Action := acLogarithmic;
+  AMenu.Add(item);
+
+  item := TMenuItem.Create(self);
+  item.Action := acHighlightWeekends;
+  AMenu.Add(item);
+
+  item := TMenuItem.Create(self);
+  item.Action := acMovingAverage;
+  AMenu.Add(item);
+
+  item := TMenuItem.Create(self);
+  item.Caption := '-';
+  AMenu.Add(item);
+
+  item := TMenuItem.Create(self);
+  item.Action := acSaveToFile;
+  AMenu.Add(item);
+
+  item := TMenuItem.Create(self);
+  item.Action := acCopyToClipboard;
+  AMenu.Add(item);
 end;
 
 procedure TTimeSeriesFrame.UpdateStatusbar(AText: String);

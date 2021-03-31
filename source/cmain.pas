@@ -35,17 +35,18 @@ type
     acChartTimeSeries: TAction;
     acConfigAutoSave: TAction;
     acChartBoth: TAction;
-    Action1: TAction;
     ActionList: TActionList;
     BottomAxisLogTransform: TLogarithmAxisTransform;
     DateIndicatorLine: TConstantLine;
     InfoLabel: TLabel;
     InfoPanel: TPanel;
     MenuItem1: TMenuItem;
+    mnuMap: TMenuItem;
     MenuItem15: TMenuItem;
     DisplayPanel: TPanel;
     MenuItem5: TMenuItem;
     MenuItem6: TMenuItem;
+    mnuTimeSeries: TMenuItem;
     NameLabel: TLabel;
     MapToolsetDataPointClickTool: TDataPointClickTool;
     MapToolsetDataPointHintTool: TDataPointHintTool;
@@ -329,6 +330,7 @@ begin
   FMapFrame.OnShowInfo := @ShowInfoHandler;
   FMapFrame.Hide;
   FMapFrame.Parent := DisplayPanel;
+  FMapFrame.UpdateMenu(mnuMap);
 
   // Create and insert the time-series frame
   FTimeSeriesFrame := TTimeSeriesFrame.Create(self);
@@ -339,6 +341,7 @@ begin
   FTimeSeriesFrame.OnUpdateActions := @UpdateTimeSeriesActions;
   FTimeSeriesFrame.Hide;
   FTimeSeriesFrame.Parent := DisplayPanel;
+  FTimeSeriesFrame.UpdateMenu(mnuTimeSeries);
 
   // Create and insert the splitter between the map and time-series frames
   FDisplaySplitter := TSplitter.Create(self);
@@ -788,6 +791,8 @@ begin
         FMapFrame.Align := alClient;
         FMapFrame.Show;
         FMapFrame.OnDateSelect := nil;
+        mnuMap.Enabled := true;
+        mnuTimeSeries.Enabled := false;
       end;
     dmTimeSeries:
       begin
@@ -797,6 +802,8 @@ begin
         FTimeSeriesFrame.Show;
         FTimeSeriesFrame.Align := alClient;
         FTimeSeriesFrame.ShowDateIndicatorLine(false);
+        mnuMap.Enabled := false;
+        mnuTimeSeries.Enabled := true;
       end;
     dmBoth:
       begin
@@ -812,6 +819,8 @@ begin
         FDisplaySplitter.Top := 0;
         FMapFrame.Align := alClient;
         FMapFrame.OnDateSelect := @FTimeSeriesFrame.UpdateDateIndicatorLine;
+        mnuMap.Enabled := true;
+        mnuTimeSeries.Enabled := true;
       end;
   end;
 end;
