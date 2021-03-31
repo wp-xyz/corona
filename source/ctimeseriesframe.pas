@@ -283,85 +283,10 @@ begin
         L.Free;
       end;
       ShowInfo(lTitle, lInfo);
-      {
-      dataIdx := data.GetDateIndex(round(x));
-      R := data.CalcRValue(dataIdx);
-      if IsNaN(R) then sR := '-' else sR := FormatFloat('0.0', R);
-      infos := Format(
-        'Total infected: %.0n' + LineEnding +
-        'Total deaths: %.0n' + LineEnding +
-        'New infected: %.0n' + LineEnding +
-        'New deaths: %.0n' + LineEnding +
-        'Incidence: %.1f' + LineEnding +
-        'R value: %s', [
-        data.RawData[pctConfirmed][dataIdx]*1.0,
-        data.RawData[pctDeaths][dataIdx]*1.0,
-        data.CalcNewCases(dataIdx, ctConfirmed)*1.0,
-        data.CalcNewCases(dataIdx, ctDeaths)*1.0,
-        data.CalcNormalizedNewCases(dataIdx, ctConfirmed),
-        sR
-      ]);
-      location := GetLocation(ser.Node) + LineEnding + FormatDateTime('dddddd', x);
-      }
-      (*
-      case dt of
-        dtCumulative, dtNormalizedCumulative:
-          begin
-            sx := FormatDateTime('dddddd', x);
-            if y < 0.5 then sy := '0 cases'
-              else if y < 1.5 then sy := '1 case'
-              else sy := Format('%.*n cases', [DECS[(y < 100) and (dt = dtNormalizedCumulative)], y]);
-            if dt = dtNormalizedCumulative then
-              sy := sy + Format(' per week and pop. %.0n', [PopulationRef*1.0]); //' per 100 000 inhabitants and per week';
-            infos := sx + LineEnding + sy + LineEnding + LineEnding;
-//            FStatusText1 := Format('%s, %s', [sx, sy]);
-          end;
-        dtNewCases, dtNormalizedNewCases:
-          begin
-            sx := FormatDateTime('dddddd', x);
-            if y = 1.0 then
-              sy := '1 new case'
-            else
-              sy := Format('%.*n new cases', [DECS[(y < 100) and (dt = dtNormalizedNewCases)], y]);
-            if dt = dtNormalizedNewCases then
-              sy := sy + Format(' per week and pop. %.0n', [PopulationRef*1.0]); //100 000 inhabitants and per week';
-            infos := sx + LineEnding + sy + LineEnding + LineEnding;
-//            FStatusText1 := Format('%s, %s', [sx, sy]);
-          end;
-        dtCumulativeCasesDoublingTime, dtNewCasesDoublingTime:
-          begin
-            sx := FormatDateTime('dddddd', x);
-            sy := Format('Doubling time %.1f', [y]);
-            infos := sx + LineEnding + sy + LineEnding + LineEnding;
-//            FStatusText1 := Format('%s, %s', [sx, sy]);
-          end;
-        dtCumVsNewCases:
-          begin
-            sx := ser.Source.Item[ASender.PointIndex]^.Text;
-            d := ScanDateTime('mm"/"dd"/"yy', ser.Source.Item[ASender.PointIndex]^.Text, cFormatSettings);
-            if x = 1 then sx := '1 case' else sx := Format('%.0n cases', [x]);
-            if y = 1 then sy := '1 case' else sy := Format('%.0n cases', [y]);
-            infos := DateToStr(d) + LineEnding + 'Total: ' + sx + LineEnding + 'New: ' + sy + LineEnding;
-//            FStatusText1 := Format('%s - %s, %s', [DateToStr(d), sx, sy]);
-          end;
-        dtRValue:
-          begin
-            sx := FormatDateTime('dddddd', x);
-            if IsNaN(y) then sy := '-' else sy := Format('%.1f', [y]);
-            sy := Format('Reproduction number: %.1f', [y]);
-            infos := sx + LineEnding + 'Reprod. number R: ' + sy + Lineending + LineEnding;
-            //FStatusText1 := Format('%s, %s', [sx, sy]);
-          end;
-      end;
-      *)
-   //   DoShowInfo(location, infos);
-//      FStatusText1 := ser.Title + ': ' + FStatusText1;
     end;
     ASender.Handled;
   end else
     ShowInfo('', '');
-//    DoShowInfo('', '');
-  //UpdateStatusBar;
 end;
 
 // It is assumed that xmin < xmax.
