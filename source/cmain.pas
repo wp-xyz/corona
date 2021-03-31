@@ -277,20 +277,8 @@ begin
       begin
         SmoothingRange := n;
         RRange := (n - 1) div 2;
-
-        //MovingAverageInfo.Caption := Format('(%d days)', [SmoothingRange]);
-
+        FTimeSeriesFrame.UpdateMovingAverage;
         FTimeSeriesFrame.UpdateData;
-        {
-        // Recalculate the currently loaded data
-        L := StoreSeriesNodesInList();
-        try
-          RestoreSeriesNodesFromList(L);
-        finally
-          L.Free;
-        end;
-         }
-
       end else
         MessageDlg('Only odd number of days allowed (i.e. center day is included).', mtError, [mbOk], 0);
     end else

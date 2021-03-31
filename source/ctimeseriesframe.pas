@@ -133,6 +133,7 @@ type
     procedure UpdateDateIndicatorLine(Sender: TObject; ADate: TDate);
     procedure UpdateInfectiousPeriod;
     procedure UpdateMenu(AMenu: TMenuItem); override;
+    procedure UpdateMovingAverage;
     procedure UpdateStatusbar(AText: String);
 
     procedure LoadFromIni(ini: TCustomIniFile); override;
@@ -918,7 +919,6 @@ var
 begin
   TimeSeriesSettings.MovingAverage := AEnable;
   acMovingAverage.Checked := AEnable;
-  acMovingAverage.Hint := Format('Moving average (%d days)', [SmoothingRange]);
 
   movingAvg := AEnable and
     ( GetDataType in [dtCumulative, dtNormalizedCumulative, dtNormalizedNewCases, dtNewCases] );
@@ -927,6 +927,7 @@ begin
     if Chart.Series[i] is TChartSeries then
       EnableMovingAverage(TChartSeries(Chart.Series[i]), movingAvg);
 
+  UpdateMovingAverage;
   UpdateGrid;
 end;
 
@@ -1430,6 +1431,12 @@ begin
   item := TMenuItem.Create(self);
   item.Action := acCopyToClipboard;
   AMenu.Add(item);
+end;
+
+procedure TTimeSeriesFrame.UpdateMovingAverage;
+begin
+  acMovingAverage.Caption := Format('Moving average (%d days)', [SmoothingRange]);
+  acMovingAverage.Hint := acMovingAverage.Caption;
 end;
 
 procedure TTimeSeriesFrame.UpdateStatusbar(AText: String);
