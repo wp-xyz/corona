@@ -268,7 +268,6 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
     object acInfected: TAction[0]
       AutoCheck = True
       Caption = 'Infected'
-      Checked = True
       Hint = 'Show infected cases'
       OnExecute = acCasesExecute
     end

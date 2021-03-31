@@ -628,11 +628,11 @@ begin
   AMenu.Add(item);
 
   item := TMenuItem.Create(self);
-  item.Action := acCopyToClipboard;
+  item.Action := acSaveTofile;
   AMenu.Add(item);
 
   item := TMenuItem.Create(self);
-  item.Action := acSaveTofile;
+  item.Action := acCopyToClipboard;
   AMenu.Add(item);
 end;
 

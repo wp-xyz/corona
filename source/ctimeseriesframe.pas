@@ -814,7 +814,6 @@ var
 begin
   TimeSeriesSettings.DataType := ADataType;
   cmbDataType.ItemIndex := ord(ADataType);
-
   for i := 0 to FMenu.Count-1 do
     FMenu.Items[i].Checked := (FMenu.Items[i].Tag - MENUBASE_DATATYPE = ord(ADataType));
 
