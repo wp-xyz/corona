@@ -1749,7 +1749,7 @@ object MainForm: TMainForm
     Width = 859
     AutoSize = True
     ButtonHeight = 40
-    ButtonWidth = 40
+    ButtonWidth = 50
     Caption = 'ToolBar'
     EdgeBorders = [ebTop, ebBottom]
     Images = MainDatamodule.ImageList
@@ -1762,43 +1762,43 @@ object MainForm: TMainForm
       Action = acDataUpdate
     end
     object ToolButton3: TToolButton
-      Left = 198
+      Left = 222
       Height = 40
       Top = 2
       Caption = 'ToolButton3'
       Style = tbsDivider
     end
     object ToolButton4: TToolButton
-      Left = 203
+      Left = 227
       Top = 2
       Action = acFileExit
     end
     object tbAbout: TToolButton
-      Left = 243
+      Left = 277
       Top = 2
       Action = acAbout
     end
     object ToolButton12: TToolButton
-      Left = 47
+      Left = 51
       Height = 40
       Top = 2
       Caption = 'ToolButton12'
       Style = tbsDivider
     end
     object ToolButton13: TToolButton
-      Left = 52
+      Left = 56
       Top = 2
-      Action = acChartMap
+      Action = acDataMap
     end
     object ToolButton15: TToolButton
-      Left = 92
+      Left = 106
       Top = 2
-      Action = acChartTimeSeries
+      Action = acDataTimeSeries
     end
     object ToolButton2: TToolButton
-      Left = 158
+      Left = 172
       Top = 2
-      Action = acChartBoth
+      Action = acDataBoth
     end
   end
   object DisplayPanel: TPanel
@@ -1842,23 +1842,23 @@ object MainForm: TMainForm
       object MenuItem10: TMenuItem
         Caption = '-'
       end
+      object mnuDataMap: TMenuItem
+        Action = acDataMap
+        AutoCheck = True
+      end
+      object mnuDataTimeSeries: TMenuItem
+        Action = acDataTimeSeries
+        AutoCheck = True
+      end
+      object mnuDataBoth: TMenuItem
+        Action = acDataBoth
+        AutoCheck = True
+      end
+      object MenuItem12: TMenuItem
+        Caption = '-'
+      end
       object mnuCommonStart: TMenuItem
         Action = acDataCommonStart
-        AutoCheck = True
-      end
-    end
-    object mnuChart: TMenuItem
-      Caption = 'Chart'
-      object MenuItem12: TMenuItem
-        Action = acChartMap
-        AutoCheck = True
-      end
-      object MenuItem9: TMenuItem
-        Action = acChartTimeSeries
-        AutoCheck = True
-      end
-      object MenuItem1: TMenuItem
-        Action = acChartBoth
         AutoCheck = True
       end
     end
@@ -1951,33 +1951,33 @@ object MainForm: TMainForm
       Caption = 'Common start'
       OnExecute = acDataCommonStartExecute
     end
-    object acChartMap: TAction
-      Category = 'Chart'
+    object acDataMap: TAction
+      Category = 'Data'
       AutoCheck = True
       Caption = 'Map'
       GroupIndex = 2000
       Hint = 'Show map alone'
       ImageIndex = 9
-      OnExecute = acChartMapExecute
+      OnExecute = acDataMapExecute
     end
-    object acChartTimeSeries: TAction
-      Category = 'Chart'
+    object acDataTimeSeries: TAction
+      Category = 'Data'
       AutoCheck = True
       Caption = 'Time series'
       GroupIndex = 2000
       Hint = 'Show time-series alone'
       ImageIndex = 10
-      OnExecute = acChartMapExecute
+      OnExecute = acDataMapExecute
     end
-    object acChartBoth: TAction
-      Category = 'Chart'
+    object acDataBoth: TAction
+      Category = 'Data'
       AutoCheck = True
       Caption = 'Both'
       Checked = True
       GroupIndex = 2000
       Hint = 'Show maps and time-series'
       ImageIndex = 12
-      OnExecute = acChartMapExecute
+      OnExecute = acDataMapExecute
     end
     object acInfectiousPeriod: TAction
       Category = 'Config'

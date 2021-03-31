@@ -31,16 +31,19 @@ type
     acDataCommonStart: TAction;
     acInfectiousPeriod: TAction;
     acSmoothingRange: TAction;
-    acChartMap: TAction;
-    acChartTimeSeries: TAction;
+    acDataMap: TAction;
+    acDataTimeSeries: TAction;
     acConfigAutoSave: TAction;
-    acChartBoth: TAction;
+    acDataBoth: TAction;
     ActionList: TActionList;
     BottomAxisLogTransform: TLogarithmAxisTransform;
     DateIndicatorLine: TConstantLine;
     InfoLabel: TLabel;
     InfoPanel: TPanel;
-    MenuItem1: TMenuItem;
+    mnuDataBoth: TMenuItem;
+    MenuItem12: TMenuItem;
+    mnuDataTimeSeries: TMenuItem;
+    mnuDataMap: TMenuItem;
     mnuMap: TMenuItem;
     MenuItem15: TMenuItem;
     DisplayPanel: TPanel;
@@ -52,8 +55,6 @@ type
     MapToolsetDataPointHintTool: TDataPointHintTool;
     MapToolsetPanDragTool: TPanDragTool;
     MapToolsetZoomDragTool: TZoomDragTool;
-    MenuItem12: TMenuItem;
-    MenuItem9: TMenuItem;
     acFileExit: TFileExit;
     MainMenu: TMainMenu;
     MenuItem10: TMenuItem;
@@ -68,7 +69,6 @@ type
     mnuHelp: TMenuItem;
     mnuConfigHints: TMenuItem;
     mnuConfig: TMenuItem;
-    mnuChart: TMenuItem;
     mnuFileQuit: TMenuItem;
     mnuFile: TMenuItem;
     ToolBar: TToolBar;
@@ -92,7 +92,7 @@ type
     TreeSplitter: TSplitter;
     TreeView: TTreeView;
     procedure acAboutExecute(Sender: TObject);
-    procedure acChartMapExecute(Sender: TObject);
+    procedure acDataMapExecute(Sender: TObject);
     procedure acConfigAutoLoadExecute(Sender: TObject);
     procedure acConfigAutoSaveExecute(Sender: TObject);
     procedure acConfigHintExecute(Sender: TObject);
@@ -201,15 +201,15 @@ begin
     end;
 end;
 
-procedure TMainForm.acChartMapExecute(Sender: TObject);
+procedure TMainForm.acDataMapExecute(Sender: TObject);
 var
   dm: TDisplayMode;
 begin
-  if acChartMap.Checked then
+  if acDataMap.Checked then
     SetDisplayMode(dmMap)
-  else if acChartTimeSeries.Checked then
+  else if acDataTimeSeries.Checked then
     SetDisplayMode(dmTimeSeries)
-  else if acChartBoth.Checked then
+  else if acDataBoth.Checked then
     SetDisplayMode(dmBoth)
   else
     raise Exception.Create('Unknown display mode');
@@ -659,8 +659,8 @@ begin
     clbCases.Checked[3] := ini.ReadBool('MainForm', 'SickCases', clbCases.Checked[3]);
 
     n := 0;
-    if ini.ReadBool('MainForm', 'ShowMap', acChartMap.Checked) then n := n or 1;
-    if ini.ReadBool('MainForm', 'ShowTimeSeries', acChartTimeSeries.Checked) then n := n or 2;
+    if ini.ReadBool('MainForm', 'ShowMap', acDataMap.Checked) then n := n or 1;
+    if ini.ReadBool('MainForm', 'ShowTimeSeries', acDataTimeSeries.Checked) then n := n or 2;
     if n = 0 then n := 3;
     ShowCharts(TVisibleCharts(n-1));
     acChartMapExecute(nil);
@@ -742,9 +742,9 @@ begin
     FMapFrame.SaveToIni(ini);
     FTimeSeriesFrame.SaveToIni(ini);
                          (*
-    if acChartMap.Checked then
+    if acDataMap.Checked then
       ini.WriteInteger('MainForm', 'PaletteListbox', PaletteListboxPanel.Width);
-    if acChartTimeSeries.Checked then
+    if acDataTimeSeries.Checked then
       ini.WriteInteger('MainForm', 'RightPanel', ChartListBox.Width);
   ini.WriteInteger('MainForm', 'CasesPanel', CasesPanel.Width);
   ini.WriteInteger('MainForm', 'TimeSeriesGroup', TimeSeriesGroup.Height);
@@ -757,8 +757,8 @@ begin
     ini.WriteInteger('MainForm', 'DataType', cmbDataType.ItemIndex);
     ini.WriteInteger('MainForm', 'MapDataType', cmbMapDataType.ItemIndex);
 
-    ini.WriteBool('MainForm', 'ShowMap', acChartMap.Checked);
-    ini.WriteBool('MainForm', 'ShowTimeSeries', acChartTimeSeries.Checked);
+    ini.WriteBool('MainForm', 'ShowMap', acDataMap.Checked);
+    ini.WriteBool('MainForm', 'ShowTimeSeries', acDataTimeSeries.Checked);
     ini.WriteBool('MainForm', 'MovingAverage', acDataMovingAverage.Checked);
     ini.WriteBool('MainForm', 'Overlay', acChartOverlay.Checked);
     ini.WriteBool('MainForm', 'HighlightWeekends', acChartHighlightWeekends.Checked);
@@ -785,7 +785,7 @@ begin
   case FDisplayMode of
     dmMap:
       begin
-        acChartMap.Checked := true;
+        acDataMap.Checked := true;
         FTimeSeriesFrame.Hide;
         FDisplaySplitter.Hide;
         FMapFrame.Align := alClient;
@@ -796,7 +796,7 @@ begin
       end;
     dmTimeSeries:
       begin
-        acChartTimeSeries.Checked := true;
+        acDataTimeSeries.Checked := true;
         FMapFrame.Hide;
         FDisplaySplitter.Hide;
         FTimeSeriesFrame.Show;
@@ -807,7 +807,7 @@ begin
       end;
     dmBoth:
       begin
-        acChartBoth.Checked := true;
+        acDataBoth.Checked := true;
         FMapFrame.Parent := DisplayPanel;
         FMapFrame.Show;
         FTimeSeriesFrame.Show;
