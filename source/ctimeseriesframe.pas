@@ -85,6 +85,7 @@ type
     FMeasurementSeries: TFuncSeries;
     FFitCoeffs: array[0..1] of Double;
     FCheckedCases: TCaseTypes;
+    FMenu: TMenuItem;
     FCurrentDate: TDate; // Date displayed by the DateIndicatorLine
     FOnUpdateActions: TUpdateTimeSeriesActions;
 
@@ -102,6 +103,7 @@ type
       ADataType: TDataType): TBasicPointSeries;
     procedure LessChartSymbols;
     procedure LessChartSymbols(ASeries: TcLineSeries);
+    procedure MenuDataTypeClickHandler(Sender: TObject);
     procedure RestoreSeriesNodesFromList(AList: TFPList);
     procedure StoreSeriesNodesInList(AList: TFPList);
     procedure UpdateAffectedSeries;
@@ -151,6 +153,7 @@ uses
 
 const
   START_COUNT = 100;
+  MENUBASE_DATATYPE = 200;
 
 var
   // The BaseDate must be subtracted from the date values for fitting on the
@@ -234,7 +237,7 @@ end;
 
 procedure TTimeSeriesFrame.cmbDataTypeChange(Sender: TObject);
 begin
-  SetDataType(GetDataType());
+  SetDataType(TDataType(cmbDataType.ItemIndex));
 end;
 
 procedure TTimeSeriesFrame.CrossHairToolDraw(ASender: TDataPointDrawTool);
@@ -642,7 +645,7 @@ end;
 
 function TTimeSeriesFrame.GetDataType: TDataType;
 begin
-  Result := TDataType(cmbDataType.ItemIndex);
+  Result := TimeSeriesSettings.DataType;
 end;
 
 function TTimeSeriesFrame.GetSeries(ADataNode: TTreeNode; ACaseType: TCaseType;
@@ -837,6 +840,11 @@ begin
   FMeasurementSeries.Active := false;
 end;
 
+procedure TTimeSeriesFrame.MenuDataTypeClickHandler(Sender: TObject);
+begin
+  SetDataType(TDataType(TMenuItem(Sender).Tag - MENUBASE_DATATYPE));
+end;
+
 procedure TTimeSeriesFrame.SaveToIni(ini: TCustomIniFile);
 begin
   ini.WriteInteger('TimeSeries', 'DataType', ord(TimeSeriesSettings.DataType));
@@ -877,9 +885,13 @@ end;
 procedure TTimeSeriesFrame.SetDataType(ADataType: TDataType);
 var
   L: TFPList;
+  i: Integer;
 begin
   TimeSeriesSettings.DataType := ADataType;
   cmbDataType.ItemIndex := ord(ADataType);
+
+  for i := 0 to FMenu.Count-1 do
+    FMenu.Items[i].Checked := (FMenu.Items[i].Tag - MENUBASE_DATATYPE = ord(ADataType));
 
   // Store currently available series in a list
   L := TFPList.Create;
@@ -1418,8 +1430,27 @@ end;
 
 procedure TTimeSeriesFrame.UpdateMenu(AMenu: TMenuItem);
 var
+  i: Integer;
   item: TMenuItem;
 begin
+  FMenu := AMenu;
+
+  for i := 0 to cmbDataType.Items.Count - 1 do
+  begin
+    item := TMenuItem.Create(self);
+    item.Caption := cmbDataType.Items[i];
+    item.AutoCheck := true;
+    item.Caption := cmbDataType.Items[i];
+    item.GroupIndex := 1;
+    item.Tag := i + MENUBASE_DATATYPE;
+    item.OnClick := @MenuDataTypeClickHandler;
+    AMenu.Add(item);
+  end;
+
+  item := TMenuItem.Create(self);
+  item.caption := '-';
+  AMenu.Add(item);
+
   item := TMenuItem.Create(self);
   item.Action := acInfected;
   AMenu.Add(item);
