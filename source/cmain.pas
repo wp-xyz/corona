@@ -294,9 +294,6 @@ end;
 
 procedure TMainForm.BeforeRun;
 begin
-//  LeftPanel.Constraints.MinWidth := LeftPanel.Width;
-//  LeftPanel.AutoSize := false;
-
   ReadCommandlineParams;
   LoadLocations;
   LoadIni;
@@ -448,6 +445,9 @@ begin
   Screen.Cursor := crHourglass;
   TreeView.Items.BeginUpdate;
   try
+    FMapFrame.Clear;
+    FTimeSeriesFrame.Clear;
+
     TreeView.Items.Clear;
 
     with TJohnsHopkinsDatasource.Create(DataDir) do

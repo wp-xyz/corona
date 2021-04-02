@@ -64,8 +64,7 @@ type
 
   public
     constructor Create(AOwner: TComponent); override;
-    procedure LoadFromIni(ini: TCustomIniFile); override;
-    procedure SaveToIni(ini: TCustomIniFile); override;
+    procedure Clear;
     procedure SetDataType(ADataType: TMapDataType);
     procedure ShowMap(ADataNode: TTreeNode); virtual;
     procedure UpdateCmdStates; override;
@@ -73,6 +72,8 @@ type
     procedure UpdateMenu(AMenu: TMenuItem); override;
     property OnDateSelect: TDateSelectEvent read FOnDateSelect write SetOnDateSelect;
 
+    procedure LoadFromIni(ini: TCustomIniFile); override;
+    procedure SaveToIni(ini: TCustomIniFile); override;
   end;
 
 implementation
@@ -96,6 +97,13 @@ begin
   FCurrentDate := Now;
   MapDateLabel.Caption := '';
   PopulatePaletteListbox(GetMapDataType);
+  UpdateGrid;
+end;
+
+procedure TMapFrame.Clear;
+begin
+  if Assigned(FGeoMap) then
+    FGeoMap.Clear;
   UpdateGrid;
 end;
 
