@@ -8,12 +8,10 @@ interface
 
 uses
   LCLType, Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls,
-  ExtCtrls, StdCtrls, Buttons, Grids, Types, LCLVersion, Menus, ActnList,
-  StdActns, ColorBox,
-  TAGraph, TAIntervalSources, TASeries, TAChartListbox, TALegend,
-  TACustomSeries, TATransformations, TATools, TAFuncSeries, TADataTools,
-  TAChartUtils, TADrawUtils,
-  cGlobal, cDataSource, cDatamodule, cPalette, cSeries, cMapFrame, cTimeSeriesFrame;
+  ExtCtrls, StdCtrls, Buttons, Types, LCLVersion, Menus, ActnList, StdActns,
+  TAGraph, TASeries, TALegend, TACustomSeries, TATransformations,
+  TATools, TAFuncSeries, TADataTools, TAChartUtils,
+  cGlobal, cDataSource, cMapFrame, cTimeSeriesFrame;
 
 type
   TCountArray = array of Integer;
@@ -28,7 +26,6 @@ type
     acAbout: TAction;
     acConfigHint: TAction;
     acConfigAutoLoad: TAction;
-    acDataCommonStart: TAction;
     acInfectiousPeriod: TAction;
     acSmoothingRange: TAction;
     acDataMap: TAction;
@@ -41,7 +38,6 @@ type
     InfoLabel: TLabel;
     InfoPanel: TPanel;
     mnuDataBoth: TMenuItem;
-    MenuItem12: TMenuItem;
     mnuDataTimeSeries: TMenuItem;
     mnuDataMap: TMenuItem;
     mnuMap: TMenuItem;
@@ -61,7 +57,6 @@ type
     MenuItem11: TMenuItem;
     MenuItem2: TMenuItem;
     MenuItem3: TMenuItem;
-    mnuCommonStart: TMenuItem;
     MenuItem4: TMenuItem;
     mnuDataUpdate: TMenuItem;
     mnuData: TMenuItem;
@@ -96,7 +91,6 @@ type
     procedure acConfigAutoLoadExecute(Sender: TObject);
     procedure acConfigAutoSaveExecute(Sender: TObject);
     procedure acConfigHintExecute(Sender: TObject);
-    procedure acDataCommonStartExecute(Sender: TObject);
     procedure acTimeSeriesMovingAverageExecute(Sender: TObject);
     procedure acDataUpdateExecute(Sender: TObject);
     procedure acInfectiousPeriodExecute(Sender: TObject);
@@ -202,8 +196,6 @@ begin
 end;
 
 procedure TMainForm.acDataMapExecute(Sender: TObject);
-var
-  dm: TDisplayMode;
 begin
   if acDataMap.Checked then
     SetDisplayMode(dmMap)
@@ -228,16 +220,6 @@ end;
 procedure TMainForm.acConfigHintExecute(Sender: TObject);
 begin
   ShowHint := acConfigHint.Checked;
-end;
-
-procedure TMainForm.acDataCommonStartExecute(Sender: TObject);
-var
-  logX, logY: Boolean;
-  i: Integer;
-begin
-  TimeSeriesSettings.CommonStart := acDataCommonStart.Checked;
-  if Assigned(FTimeSeriesFrame) then
-    FTimeSeriesFrame.SetCommonStart(TimeSeriesSettings.CommonStart);
 end;
 
 procedure TMainForm.acDataUpdateExecute(Sender: TObject);
@@ -266,7 +248,6 @@ procedure TMainForm.acSmoothingRangeExecute(Sender: TObject);
 var
   n: Integer;
   s: String;
-  L: TFPList;
 begin
   s := IntToStr(SmoothingRange);
   if InputQuery('Smoothing range', 'Total days (including center day)', s) then

@@ -1854,13 +1854,6 @@ object MainForm: TMainForm
         Action = acDataBoth
         AutoCheck = True
       end
-      object MenuItem12: TMenuItem
-        Caption = '-'
-      end
-      object mnuCommonStart: TMenuItem
-        Action = acDataCommonStart
-        AutoCheck = True
-      end
     end
     object mnuMap: TMenuItem
       Caption = 'Map'
@@ -1944,12 +1937,6 @@ object MainForm: TMainForm
       Caption = 'Show hints'
       Checked = True
       OnExecute = acConfigHintExecute
-    end
-    object acDataCommonStart: TAction
-      Category = 'Data'
-      AutoCheck = True
-      Caption = 'Common start'
-      OnExecute = acDataCommonStartExecute
     end
     object acDataMap: TAction
       Category = 'Data'

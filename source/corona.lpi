@@ -65,7 +65,6 @@
               <DebugInfoType Value="dsDwarf2Set"/>
               <UseHeaptrc Value="True"/>
               <TrashVariables Value="True"/>
-              <UseExternalDbgSyms Value="True"/>
             </Debugging>
             <Options>
               <Win32>
@@ -112,11 +111,6 @@
               </Win32>
             </Options>
           </Linking>
-          <Other>
-            <OtherDefines Count="1">
-              <Define0 Value="PORTABLE"/>
-            </OtherDefines>
-          </Other>
         </CompilerOptions>
       </Item3>
       <Item4 Name="Release">

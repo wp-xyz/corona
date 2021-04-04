@@ -45,6 +45,8 @@ type
     function GetLastDate: TDate;
     function HasData(ACaseType: TPrimaryCaseType): Boolean;
 
+    function GetFirstIndexAboveLimit(ALimit: TCaseCount): Integer;
+
     function GetDataArray(ACaseType: TCaseType; ADataType: TDataType): TValueArray;
     function GetSmoothedDataArray(ACaseType: TCaseType; ADataType: TDataType; SmoothingInterval: Integer): TValueArray;
 
@@ -426,6 +428,26 @@ end;
 function TcDataItem.GetFirstDate: TDate;
 begin
   Result := FFirstDate;
+end;
+
+function TcDataItem.GetFirstIndexAboveLimit(ALimit: TCaseCount): Integer;
+var
+  i: Integer;
+begin
+  if Length(FRawData[pctConfirmed]) = 0 then
+  begin
+    Result := -1;
+    exit;
+  end;
+
+  for i := 0 to High(FRawData[pctConfirmed]) do
+    if FRawData[pctConfirmed][i] >= ALimit then
+    begin
+      Result := i;
+      exit;
+    end;
+
+  Result := 0;
 end;
 
 function TcDataItem.GetLastDate: TDate;

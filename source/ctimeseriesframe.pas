@@ -27,6 +27,7 @@ type
     acRecovered: TAction;
     acSick: TAction;
     acMovingAverage: TAction;
+    acCommonStart: TAction;
     BottomAxisLogTransform: TLogarithmAxisTransform;
     BottomAxisTransformations: TChartAxisTransformations;
     ChartListbox: TChartListbox;
@@ -49,6 +50,7 @@ type
     tbClear: TToolButton;
     tbOverlay: TToolButton;
     ToolButton1: TToolButton;
+    ToolButton2: TToolButton;
     ToolButton3: TToolButton;
     tbDivider1: TToolButton;
     ToolButton5: TToolButton;
@@ -60,6 +62,7 @@ type
     ZoomDragTool: TZoomDragTool;
     procedure acCasesExecute(Sender: TObject);
     procedure acClearExecute(Sender: TObject);
+    procedure acCommonStartExecute(Sender: TObject);
     procedure acHighlightWeekendsExecute(Sender: TObject);
     procedure acLinearExecute(Sender: TObject);
     procedure acLogarithmicExecute(Sender: TObject);
@@ -68,17 +71,17 @@ type
 
     procedure ChartBeforeCustomDrawBackWall(ASender: TChart; ADrawer: IChartDrawer;
       const ARect: TRect; var ADoDefaultDrawing: Boolean);
-    procedure ChartListboxAddSeries(ASender: TChartListbox;
-      ASeries: TCustomChartSeries; AItems: TChartLegendItems; var ASkip: Boolean);
+    procedure ChartListboxAddSeries({%H-}ASender: TChartListbox;
+      ASeries: TCustomChartSeries; {%H-}AItems: TChartLegendItems; var ASkip: Boolean);
     procedure ChartListboxClick(Sender: TObject);
     procedure ChartResize(Sender: TObject);
     procedure CheckedCasesChange(Sender: TObject);
     procedure cmbDataTypeChange(Sender: TObject);
     procedure CrossHairToolDraw(ASender: TDataPointDrawTool);
 
-    procedure MeasurementToolAfterMouseUp(ATool: TChartTool; APoint: TPoint);
+    procedure MeasurementToolAfterMouseUp({%H-}ATool: TChartTool; {%H-}APoint: TPoint);
     procedure MeasurementToolGetDistanceText(ASender: TDataPointDistanceTool; var AText: String);
-    procedure MeasurementToolMeasure(ASender: TDataPointDistanceTool);
+    procedure MeasurementToolMeasure({%H-}ASender: TDataPointDistanceTool);
 
   private
     FDateIndicatorLine: TConstantLine;
@@ -211,6 +214,11 @@ begin
   Clear;
 end;
 
+procedure TTimeSeriesFrame.acCommonStartExecute(Sender: TObject);
+begin
+  SetCommonStart(acCommonStart.Checked);
+end;
+
 procedure TTimeSeriesFrame.acHighlightWeekendsExecute(Sender: TObject);
 begin
   HighlightWeekends(acHighlightWeekends.Checked);
@@ -247,12 +255,9 @@ const
 var
   ser: TcLineSeries;
   data: TcDataItem;
-  x, y, R: Double;
-  sx, sy, sR: String;
+  x, y: Double;
   dt: TDataType;
-  d: TDate;
   serIdx: Integer;
-  dataIdx: Integer;
   lTitle: String;
   lInfo: String;
   L: TStrings;
@@ -266,10 +271,12 @@ begin
     data := GetDataItem(ser.Node);
     dt := GetDataType();
     serIdx := ASender.PointIndex;
-    if serIdx > -1 then
+    if (serIdx > -1) and (serIdx < ser.Count) then
     begin
-      x := data.Date[serIdx];
-      //x := ser.GetXValue(serIdx);
+      if TimeSeriesSettings.CommonStart then
+        x := data.Date[serIdx + data.GetFirstIndexAboveLimit(START_COUNT)]
+      else
+        x := data.Date[serIdx];
       y := ser.GetYValue(serIdx);
       lTitle := GetInfoTitle(ser.Node, round(x));
       lInfo := GetInfoText(ser.Node, round(x));
@@ -278,7 +285,7 @@ begin
         L := TStringList.Create;
         L.SkipLastLineBreak := true;
         L.Text := lInfo;
-        L.Delete(L.Count-1);  // Delete "R value"
+        L.Delete(L.Count-1);  // Delete the lInfo text "R value"
         L.Add(Format('Doubling time: %.1f', [y]));
         lInfo := L.Text;
         L.Free;
@@ -293,8 +300,6 @@ end;
 // It is assumed that xmin < xmax.
 function TTimeSeriesFrame.CalcFit(ASeries: TBasicChartSeries;
   xmin, xmax: Double): Boolean;
-const
-  EPS = 1E-9;
 var
   x: TArbFloatArray = nil;
   y: TArbFloatArray = nil;
@@ -948,16 +953,14 @@ var
   caseType: TCaseType;
   dt: TDataType;
   pct: TPrimaryCaseType;
-  i: Integer;
+  i, j: Integer;
   ser: TBasicPointSeries;
-  country, state, city: String;
-  population: Int64;
-  dataSrc: TcDataSource;
   values, valuesNew: TValueArray;
   data: TcDataItem;
   firstDate: TDateTime;
   R, dR: Double;
   ext: TDoubleRect;
+  startIndex: Integer;
 begin
   if ADataNode = nil then
     exit;
@@ -987,6 +990,11 @@ begin
 
     acRecovered.Enabled := data.Count[pctRecovered] > 0;
     acSick.Enabled := acRecovered.Enabled;
+
+    if TimeSeriesSettings.CommonStart then
+      startIndex := data.GetFirstIndexAboveLimit(START_COUNT)
+    else
+      startIndex := 0;
 
     for caseType in TCaseType do
     begin
@@ -1036,13 +1044,18 @@ begin
                 pct := pctConfirmed
               else
                 pct := TPrimaryCaseType(caseType);
-              for i := 0 to data.Count[pct]-1 do
+              if TimeSeriesSettings.CommonStart then
+                j := 0
+              else
+                j := round(firstDate);
+              for i := startIndex to data.Count[pct]-1 do
               begin
                 data.CalcRValue(i, R, dR);
                 if (not IsNaN(R)) and (dR/R < 0.5) then
-                  ser.AddXY(firstDate + i, R, [dR])
+                  ser.AddXY(j, R, [dR])
                 else
-                  ser.AddXY(firstDate + i, NaN);
+                  ser.AddXY(j, NaN);
+                inc(j);
               end;
             finally
               ser.EndUpdate;
@@ -1056,8 +1069,12 @@ begin
           ser.BeginUpdate;
           try
             ser.Clear;
-            for i := 0 to High(values) do
-              ser.AddXY(firstDate + i, values[i]);
+            if TimeSeriesSettings.CommonStart then
+              for i := startIndex to High(values) do
+                ser.AddXY(i - startIndex, values[i])
+            else
+              for i := startIndex to High(values) do
+                ser.AddXY(firstDate + i, values[i]);
           finally
             ser.EndUpdate;
             if not (dt in [dtCumulativeCasesDoublingTime, dtNewCasesDoublingTime]) then
@@ -1207,6 +1224,8 @@ begin
 
   acMovingAverage.Enabled := (Chart.SeriesCount > 2);
 
+  acCommonStart.Enabled := (Chart.SeriesCount > 2);
+
   acHighlightWeekends.Enabled := Chart.SeriesCount > 2;
 end;
 
@@ -1236,11 +1255,11 @@ end;
 
 procedure TTimeSeriesFrame.UpdateGrid;
 var
-  n: Integer;
+  nCols, nRows: Integer;
   i, j: Integer;
   ser: TcLineSeries;
   s: String;
-  firstDate, lastDate, d, serLastDate: TDate;
+  firstDate, lastDate, d, serLastDate, offs: TDate;
   r, c: Integer;
   data: TcDataItem;
   dt: TDataType;
@@ -1249,7 +1268,8 @@ begin
   Grid.BeginUpdate;
   try
     Grid.Columns.Clear;
-    n := 0;
+    nCols := 0;
+    nRows := 0;
     lastDate := -1;
     firstDate := MaxInt;
     for i:=0 to Chart.SeriesCount-1 do
@@ -1259,17 +1279,22 @@ begin
         ser := TcLineSeries(Chart.Series[i]);
         if ser.Count = 0 then
           Continue;
+        data := GetDataItem(ser.Node);
         if dt = dtCumVsNewCases then
         begin
-          inc(n, 2);
-          data := GetDataItem(ser.Node);
+          inc(nCols, 2);
           lastDate := Max(lastDate, data.GetLastDate);
           firstDate := Min(firstDate, data.GetFirstDate);
         end else
         begin
-          inc(n);
-          lastDate := Max(lastDate, ser.XValue[ser.LastValueIndex]);
-          firstDate := Min(firstDate, ser.XValue[0]);
+          inc(nCols);
+          if TimeSeriesSettings.CommonStart then
+            nRows := Max(nRows, ser.Count)
+          else
+          begin
+            lastDate := Max(lastDate, ser.XValue[ser.LastValueIndex]);
+            firstDate := Min(firstDate, ser.XValue[0]);
+          end;
         end;
         with Grid.Columns.Add do
         begin
@@ -1289,20 +1314,35 @@ begin
     end;
 
     // Set number of rows
-    if n = 0 then
+    if nCols = 0 then
     begin
       Grid.RowCount := 2;
       Grid.Cells[0, 1] := '';
       exit;
     end;
-    Grid.RowCount := round(lastDate - firstDate + 1) + Grid.FixedRows;
+    if not TimeSeriesSettings.CommonStart then
+      nRows := round(lastDate - firstDate + 1);
+    Grid.RowCount := Grid.FixedRows + nRows;
 
     // Fill date column
-    d := lastDate;
-    for r := Grid.FixedRows to Grid.RowCount-1 do
+    if TimeSeriesSettings.CommonStart then
     begin
-      Grid.Cells[0, r] := DateToStr(d);
-      d := d - 1;
+      Grid.Cells[0, 0] := 'Days';
+      d := nRows;
+      for r := Grid.FixedRows to Grid.RowCount-1 do
+      begin
+        Grid.Cells[0, r] := FormatFloat('0', d);
+        d := d - 1;
+      end;
+    end else
+    begin
+      Grid.Cells[0, 0] := 'Date';
+      d := lastDate;
+      for r := Grid.FixedRows to Grid.RowCount-1 do
+      begin
+        Grid.Cells[0, r] := DateToStr(d);
+        d := d - 1;
+      end;
     end;
 
     // Fill series columns
@@ -1311,9 +1351,16 @@ begin
       if (Chart.Series[i] is TcLineSeries) and Chart.Series[i].Active then
       begin
         ser := TcLineSeries(Chart.Series[i]);
-        data := GetDataItem(ser.Node);
-        serLastDate := data.GetLastDate;
-        r := Grid.FixedRows + round(lastDate - serLastDate);
+        if TimeSeriesSettings.CommonStart then
+          r := Grid.RowCount - 1 - ser.Count + Grid.FixedRows
+        else
+        begin
+          data := GetDataItem(ser.Node);
+          serLastDate := data.GetLastDate;
+          r := Grid.FixedRows + round(lastDate - serLastDate);
+        end;
+        if r < Grid.FixedRows then
+          continue;
         for j := ser.Count-1 downto 0 do
         begin
           if not IsNan(ser.YValue[j]) then

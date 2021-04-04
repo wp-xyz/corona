@@ -133,12 +133,12 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
     List = True
     ShowCaptions = True
     inherited tbSaveToFile: TToolButton
-      Left = 501
+      Left = 524
       Top = 0
       ShowCaption = False
     end
     inherited tbCopyToClipboard: TToolButton
-      Left = 524
+      Left = 547
       Top = 0
       ShowCaption = False
     end
@@ -225,7 +225,7 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
       ShowCaption = False
     end
     object tbDivider3: TToolButton[10]
-      Left = 496
+      Left = 519
       Height = 22
       Top = 0
       Caption = 'tbDivider3'
@@ -255,6 +255,12 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
       Left = 473
       Top = 0
       Action = acMovingAverage
+      ShowCaption = False
+    end
+    object ToolButton2: TToolButton[16]
+      Left = 496
+      Top = 0
+      Action = acCommonStart
       ShowCaption = False
     end
   end
@@ -333,10 +339,17 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
       ImageIndex = 13
       OnExecute = acMovingAverageExecute
     end
-    inherited acSaveToFile: TAction[10]
+    object acCommonStart: TAction[10]
+      AutoCheck = True
+      Caption = 'Common start'
+      Hint = 'Common start of time-series'
+      ImageIndex = 14
+      OnExecute = acCommonStartExecute
+    end
+    inherited acSaveToFile: TAction[11]
       Caption = 'Save to file'
     end
-    inherited acCopyToClipboard: TAction[11]
+    inherited acCopyToClipboard: TAction[12]
       Caption = 'Copy to clipboard'
     end
   end
