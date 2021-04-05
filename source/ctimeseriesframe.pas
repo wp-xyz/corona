@@ -1,6 +1,7 @@
 unit cTimeSeriesFrame;
 
 {$mode ObjFPC}{$H+}
+{$include corona.inc}
 
 interface
 
@@ -961,6 +962,7 @@ var
   R, dR: Double;
   ext: TDoubleRect;
   startIndex: Integer;
+  dataSrc: TcDataSource;
 begin
   if ADataNode = nil then
     exit;

@@ -1,6 +1,7 @@
 unit cJohnsHopkinsUniversity;
 
 {$mode objfpc}{$H+}
+{$include corona.inc}
 
 interface
 

@@ -1,8 +1,7 @@
 unit cMain;
 
 {$mode objfpc}{$H+}
-// {$define RKI}  -- this define is in the project options
-{$define USE_BARSERIES}
+{$include corona.inc}
 
 interface
 
