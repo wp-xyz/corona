@@ -61,6 +61,7 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
         Width = 130
         Chart = Chart
         OnAddSeries = ChartListboxAddSeries
+        OnCheckboxClick = ChartListboxCheckboxClick
         Align = alRight
         BorderSpacing.Left = 4
         BorderSpacing.Top = 4

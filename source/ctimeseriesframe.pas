@@ -76,6 +76,7 @@ type
       const ARect: TRect; var ADoDefaultDrawing: Boolean);
     procedure ChartListboxAddSeries({%H-}ASender: TChartListbox;
       ASeries: TCustomChartSeries; {%H-}AItems: TChartLegendItems; var ASkip: Boolean);
+    procedure ChartListboxCheckboxClick(ASender: TObject; AIndex: Integer);
     procedure ChartListboxClick(Sender: TObject);
     procedure ChartResize(Sender: TObject);
     procedure CheckedCasesChange(Sender: TObject);
@@ -329,6 +330,9 @@ begin
   if ser.Count = 0 then
     exit;
 
+  if pos(',' + IntToStr(ser.Index) + ',', ',' + MeasurementTool.AffectedSeries + ',') = 0 then
+    exit;
+
   SetLength(x, ser.Count);
   SetLength(y, ser.Count);
   n := 0;
@@ -414,6 +418,12 @@ begin
         ASkip := true;
         exit;
       end;
+end;
+
+procedure TTimeSeriesFrame.ChartListboxCheckboxClick(ASender: TObject;
+  AIndex: Integer);
+begin
+  UpdateAffectedSeries;
 end;
 
 procedure TTimeSeriesFrame.ChartBeforeCustomDrawBackWall(ASender: TChart;
@@ -1160,18 +1170,24 @@ procedure TTimeSeriesFrame.UpdateAffectedSeries;
 var
   i: Integer;
   s: String;
+  sNoFit: String;
 begin
   s := '';
+  sNoFit := '';
   for i := 0 to Chart.SeriesCount-1 do
   begin
-    // Avoid fitting to sick cases.
-    if i mod (ord(High(TCaseType))+1) = 0 then
-      Continue;
-    if (Chart.Series[i] is TChartSeries) and Chart.Series[i].Active then
-      s := s + ',' + IntToStr(Chart.Series[i].Index);
+    // Collect the indices of the series which respond to crosshair and fit tool
+    if (Chart.Series[i] is TcLineSeries) and Chart.Series[i].Active then
+    begin
+      // Avoid fitting to sick cases.
+      if pos('sick', TChartSeries(Chart.Series[i]).Title) > 0 then
+        sNoFit := sNoFit + ',' + IntToStr(Chart.Series[i].Index)
+      else
+        s := s + ',' + IntToStr(Chart.Series[i].Index);
+    end;
   end;
   Delete(s, 1, 1);
-  CrossHairTool.AffectedSeries := s;
+  CrossHairTool.AffectedSeries := s + sNoFit;
   MeasurementTool.AffectedSeries := s;
 end;
 
