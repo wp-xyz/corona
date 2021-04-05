@@ -29,6 +29,7 @@ type
     acSick: TAction;
     acMovingAverage: TAction;
     acCommonStart: TAction;
+    acShowSymbols: TAction;
     BottomAxisLogTransform: TLogarithmAxisTransform;
     BottomAxisTransformations: TChartAxisTransformations;
     ChartListbox: TChartListbox;
@@ -69,6 +70,7 @@ type
     procedure acLogarithmicExecute(Sender: TObject);
     procedure acMovingAverageExecute(Sender: TObject);
     procedure acOverlayModeExecute(Sender: TObject);
+    procedure acShowSymbolsExecute(Sender: TObject);
 
     procedure ChartBeforeCustomDrawBackWall(ASender: TChart; ADrawer: IChartDrawer;
       const ARect: TRect; var ADoDefaultDrawing: Boolean);
@@ -130,6 +132,7 @@ type
     procedure SetMovingAverage(AEnable: Boolean);
     procedure SetOverlayMode(AEnable: Boolean);
     procedure ShowDateIndicatorLine(AEnable: Boolean);
+    procedure ShowSymbols(AEnable: Boolean);
     procedure ShowTimeSeries(ADataNode: TTreeNode);
     procedure UpdateAxes(LogarithmicX, LogarithmicY: Boolean);
     procedure UpdateCmdStates; override;
@@ -243,6 +246,11 @@ end;
 procedure TTimeSeriesFrame.acOverlayModeExecute(Sender: TObject);
 begin
   SetOverlayMode(acOverlayMode.Checked);
+end;
+
+procedure TTimeSeriesFrame.acShowSymbolsExecute(Sender: TObject);
+begin
+  ShowSymbols(acShowSymbols.Checked);
 end;
 
 procedure TTimeSeriesFrame.cmbDataTypeChange(Sender: TObject);
@@ -623,6 +631,7 @@ begin
           begin
             Pointer.Style := psCircle;
             Pointer.Brush.Color := LinePen.Color;
+            LinePen.Width := 2;
           end;
         ctDeaths:
           begin
@@ -632,11 +641,13 @@ begin
           begin
             Pointer.Style := psRectangle;
             Pointer.Brush.Color := clWhite;
+            LinePen.Style := psDot;
           end;
         ctSick:
           begin
             Pointer.Style := psTriangle;
             Pointer.Brush.Color := LinePen.Color;
+            LinePen.Style := psDash;
           end;
       end;
       AccumulationRange := SmoothingRange;
@@ -653,10 +664,14 @@ begin
       Result := ser
     else
       ser.Active := false;
+
     Chart.AddSeries(ser);
 
     if (ser is TcLineSeries) then
+    begin
+      TcLineSeries(ser).ShowPoints := TimeSeriesSettings.ShowSymbols;
       LessChartSymbols(TcLineSeries(ser));
+    end;
   end;  // for ct
 
   UpdateAffectedSeries;
@@ -718,6 +733,7 @@ begin
   SetLogarithmic(ini.ReadBool('TimeSeries', 'Logarithmic', TimeSeriesSettings.Logarithmic));
   SetMovingAverage(ini.ReadBool('TimeSeries', 'MovingAverage', TimeSeriesSettings.MovingAverage));
   HighlightWeekends(ini.ReadBool('TimeSeries', 'HighlightWeekends', TimeSeriesSettings.HighlightWeekends));
+  ShowSymbols(ini.ReadBool('TimeSeries', 'ShowSymbols', TimeSeriesSettings.ShowSymbols));
 
   // Update tool button hints
   PageControlChange(nil);
@@ -788,6 +804,7 @@ begin
   ini.WriteBool('TimeSeries', 'Logarithmic', TimeSeriesSettings.Logarithmic);
   ini.WriteBool('TimeSeries', 'MovingAverage', TimeSeriesSettings.MovingAverage);
   ini.WriteBool('TimeSeries', 'HighlightWeekends', TimeSeriesSettings.HighlightWeekends);
+  ini.WriteBool('TimeSeries', 'ShowSymbols', TimeSeriesSettings.ShowSymbols);
 
   ini.WriteInteger('TimeSeries', 'PageControl', PageControl.ActivePageIndex);
   ini.WriteInteger('TimeSeries', 'ListboxWidth', ChartListbox.Width);
@@ -950,6 +967,18 @@ procedure TTimeSeriesFrame.ShowDateIndicatorLine(AEnable: Boolean);
 begin
   FDateIndicatorLine.Position := FCurrentDate;
   FDateIndicatorLine.Active := AEnable;
+end;
+
+procedure TTimeSeriesFrame.ShowSymbols(AEnable: Boolean);
+var
+  i: Integer;
+begin
+  TimeSeriesSettings.ShowSymbols := AEnable;
+  acShowSymbols.Checked := AEnable;
+
+  for i := 0 to Chart.SeriesCount-1 do
+    if (Chart.Series[i] is TcLineSeries) then
+      TcLineSeries(Chart.Series[i]).ShowPoints := AEnable;
 end;
 
 procedure TTimeSeriesFrame.ShowTimeSeries(ADataNode: TTreeNode);
@@ -1482,6 +1511,14 @@ begin
 
   item := TMenuItem.Create(self);
   item.Action := acCopyToClipboard;
+  AMenu.Add(item);
+
+  item := TMenuItem.Create(self);
+  item.Caption := '-';
+  Amenu.Add(item);
+
+  item := TMenuItem.Create(self);
+  item.Action := acShowSymbols;
   AMenu.Add(item);
 end;
 

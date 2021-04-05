@@ -40,6 +40,7 @@ type
     CommonStart: Boolean;
     MovingAverage: Boolean;
     HighlightWeekends: Boolean;
+    ShowSymbols: Boolean;
   end;
 
 const
@@ -95,6 +96,7 @@ var
     CommonStart: false;
     MovingAverage: false;
     HighlightWeekends: false;
+    ShowSymbols: false;
   );
 
   cFormatSettings: TFormatSettings;

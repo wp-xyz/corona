@@ -15,7 +15,7 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
       inherited Chart: TChart
         Height = 261
         Hint = 'Zoom: '#13#10'  drag a rectangle from left-top to bottom-right corner with left mouse button down'#13#10'  or: use mouse wheel (zoom center is mouse position).'#13#10'Pan: '#13#10'  drag with the right mouse button down'#13#10'Restore view: '#13#10'  click'#13#10'Read data value: '#13#10'  move mouse over data point (no key pressed)'#13#10'Measure doubling time: '#13#10'  CTRL-drag over data points of interest with left mouse button down.'#13#10'|'
-        Width = 812
+        Width = 808
         AxisList = <        
           item
             Grid.Color = clSilver
@@ -47,27 +47,31 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
             Title.LabelBrush.Style = bsClear
           end>
         Frame.Color = clWindowText
+        Legend.SymbolWidth = 30
         Toolset = ChartToolset
         OnBeforeCustomDrawBackWall = ChartBeforeCustomDrawBackWall
         Align = alClient
         OnResize = ChartResize
       end
       object ChartListbox: TChartListbox[1]
-        Left = 821
-        Height = 261
+        Left = 817
+        Height = 253
         Hint = 'Uncheck to remove a curve temporarily.'
-        Top = 0
+        Top = 4
         Width = 130
         Chart = Chart
         OnAddSeries = ChartListboxAddSeries
         Align = alRight
         BorderSpacing.Left = 4
+        BorderSpacing.Top = 4
+        BorderSpacing.Right = 4
+        BorderSpacing.Bottom = 4
         ItemHeight = 0
         OnClick = ChartListboxClick
         TabOrder = 1
       end
       object Splitter1: TSplitter[2]
-        Left = 812
+        Left = 808
         Height = 261
         Top = 0
         Width = 5
@@ -351,6 +355,13 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
     end
     inherited acCopyToClipboard: TAction[12]
       Caption = 'Copy to clipboard'
+    end
+    object acShowSymbols: TAction[13]
+      AutoCheck = True
+      Caption = 'Show symbols'
+      Checked = True
+      Hint = 'Show time series symbols'
+      OnExecute = acShowSymbolsExecute
     end
   end
   object DateTimeIntervalChartSource: TDateTimeIntervalChartSource[4]
