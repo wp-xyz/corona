@@ -22,7 +22,7 @@ type
     procedure SetBrush(AValue: TBrush);
     procedure SetPen(AValue: TPen);
   protected
-    procedure GetLegendItems(AItems: TChartLegendItems); override;
+    procedure GetLegendItems({%H-}AItems: TChartLegendItems); override;
 
   public
     constructor Create(AOwner: TComponent); override;
@@ -45,7 +45,7 @@ type
 implementation
 
 uses
-  TAChartStrConsts, TAGeometry, TAGraph;
+  TAGeometry, TAGraph;
 
 constructor TcPolygonSeries.Create(AOwner: TComponent);
 begin

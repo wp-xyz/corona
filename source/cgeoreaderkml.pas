@@ -50,7 +50,7 @@ end;
 
 class function TKMLReader.Check(AStream: TStream): Boolean;
 var
-  s: String;
+  s: String = '';
   P: Int64;
 begin
   P := AStream.Position;
@@ -69,7 +69,6 @@ var
   itemName: String;
   geoID: TGeoID;
   s: String;
-  ser: TcGeoMapSeries;
 begin
   itemName := '';
   geoID := -1;
@@ -175,7 +174,6 @@ var
   boundaryNode: TDOMNode;
   linearRingNode: TDOMNode;
   coordinatesNode: TDOMNode;
-  isInnerBoundary: Boolean;
   nodeName, s: String;
 begin
   boundaryNode := ANode.FirstChild;
@@ -184,7 +182,6 @@ begin
     nodeName := boundaryNode.NodeName;
     if (nodeName = 'outerBoundaryIs') or (nodeName = 'innerBoundaryIs') then
     begin
-      isInnerBoundary := (nodeName = 'innerBoundaryIs');
       linearRingNode := boundaryNode.FirstChild;
       while linearRingNode <> nil do
       begin
@@ -213,7 +210,7 @@ end;
 procedure TKMLReader.StringToPolygon(AText: string; var AItem: TcGeoItem);
 var
   L: TStringList;
-  P: Array of TDoublePoint;
+  P: Array of TDoublePoint = nil;
   i, j: Integer;
   sa: TStringArray;
   lon, lat: Double;

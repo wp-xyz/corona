@@ -125,7 +125,6 @@ type
     procedure UpdateActionStates;
     procedure UpdateData;
     procedure UpdateInfectiousPeriod;
-    procedure UpdateStatusBar(ASeparator: String = ' ');
     procedure UpdateTimeSeriesActions(Sender: TObject);
 
     procedure SetDisplayMode(AMode: TDisplayMode);
@@ -539,48 +538,18 @@ begin
   FTimeSeriesFrame.UpdateInfectiousPeriod;
 end;
 
-procedure TMainForm.UpdateStatusbar(ASeparator: String = ' ');
-begin
-  (*
-  if (FStatusText1 <> '') and (FStatusText2 <> '') then
-    Statusbar.SimpleText := FStatusText1 + ASeparator + FStatusText2
-  else if (FStatusText1 <> '') then
-    Statusbar.SimpleText := FStatusText1
-  else if (FStatusText2 <> '') then
-    Statusbar.SimpleText := FStatusText2
-  else
-    Statusbar.SimpleText := '';
-  Statusbar.Update;
-  *)
-end;
-
 procedure TMainForm.LoadIni;
 var
   ini: TCustomIniFile;
   L, T, W, H: Integer;
   R: TRect;
   ws: TWindowState;
-  n: Integer;
-  isLog: Boolean;
 begin
   ini := CreateIni;
   try
     acConfigAutoLoad.Checked := ini.ReadBool('MainForm', 'AutoLoad', acConfigAutoLoad.Checked);
     if not acConfigAutoLoad.Checked then
-    begin
-      {
-      cmbMapDataType.ItemIndex := ord(mdtNormalizedNewConfirmed);
-      cmbMapDataTypeChange(nil);
-      cmbDataType.ItemIndex := ord(dtNormalizedNewCases);
-      cmbDataTypeChange(nil);
-      ShowCharts(vcBoth);
-      }
-      // <--------- FIX ME
       exit;
-    end;
-
-    // Avoid unnecessary repainting the maps
-   // inc(FMapLock);
 
     acConfigAutoSave.Checked := ini.ReadBool('MainForm', 'AutoSave', acConfigAutoSave.Checked);
 
@@ -613,68 +582,7 @@ begin
 
     FMapFrame.LoadFromIni(ini);
     FTimeSeriesFrame.LoadFromIni(ini);
-(*
-    LeftPanel.Width := ini.ReadInteger('MainForm', 'LeftPanel', LeftPanel.Width);
-    ChartListbox.Width := ini.ReadInteger('MainForm', 'RightPanel', ChartListBox.Width);
-    PaletteListboxPanel.Width := ini.ReadInteger('MainForm', 'PaletteListbox', PaletteListboxPanel.Width);
-    CasesPanel.Width := ini.ReadInteger('MainForm', 'CasesPanel', CasesPanel.Width);
-    TimeSeriesGroup.Height := ini.ReadInteger('MainForm', 'TimeSeriesGroup', TimeSeriesGroup.Height);
-    PageControl.ActivePageIndex := ini.ReadInteger('MainForm', 'PageControl', PageControl.ActivePageIndex);
 
-    clbCases.Checked[0] := ini.Readbool('MainForm', 'ConfirmedCases', clbCases.Checked[0]);
-    clbCases.Checked[1] := ini.ReadBool('MainForm', 'DeathCases', clbCases.Checked[1]);
-    clbCases.Checked[2] := ini.ReadBool('MainForm', 'RecoveredCases', clbCases.Checked[2]);
-    clbCases.Checked[3] := ini.ReadBool('MainForm', 'SickCases', clbCases.Checked[3]);
-
-    n := 0;
-    if ini.ReadBool('MainForm', 'ShowMap', acDataMap.Checked) then n := n or 1;
-    if ini.ReadBool('MainForm', 'ShowTimeSeries', acDataTimeSeries.Checked) then n := n or 2;
-    if n = 0 then n := 3;
-    ShowCharts(TVisibleCharts(n-1));
-    acChartMapExecute(nil);
-    acDataMovingAverage.Checked := ini.ReadBool('MainForm', 'MovingAverage', acDataMovingAverage.Checked);
-    acChartOverlay.Checked := ini.ReadBool('MainForm', 'Overlay', acChartOverlay.Checked);
-    acChartHighlightWeekends.Checked := ini.ReadBool('MainForm', 'HighlightWeekends', acChartHighlightWeekends.Checked);
-
-    n := ini.ReadInteger('MainForm', 'MapDataType', cmbMapDataType.ItemIndex);
-    if (n >= 0) and (n < cmbMapDataType.Items.Count) then
-    begin
-      cmbMapDataType.ItemIndex := n;
-      cmbMapDataTypeChange(nil);
-    end;
-
-    n := ini.ReadInteger('MainForm', 'DataType', cmbDataType.ItemIndex);
-    if (n >= 0) and (n <= ord(High(TDataType))) then
-      cmbDataType.ItemIndex := n;
-
-    isLog := ini.ReadBool('MainForm', 'Logarithmic', acChartLogarithmic.Checked);
-
-    case GetDataType() of
-      dtCumulative, dtNormalizedCumulative:
-        begin
-          acChartLogarithmic.Checked  := isLog;
-          UpdateAxes(false, isLog);
-        end;
-      dtCumVsNewCases:
-        begin
-          acChartLogarithmic.Checked := isLog;
-          UpdateAxes(isLog, isLog);
-        end;
-      else
-        UpdateAxes(false, false);
-    end;
-
-    InfectiousPeriod := ini.ReadInteger('Params', 'InfectiousPeriod', InfectiousPeriod);
-    SmoothingRange := ini.ReadInteger('Params', 'SmoothingRange', SmoothingRange);
-    RRange := (SmoothingRange - 1) div 2;
-
-    cmbDataType.Items[ord(dtRValue)] := Format('Reproduction number (%d d)', [InfectiousPeriod]);
-    cmbDataTypeChange(nil);
-    MovingAverageInfo.Caption := Format('(%d days)', [SmoothingRange]);
-
-    // Release painting of map. Repainting itself is done by the caller.
-    dec(FMapLock);
-    *)
   finally
     UpdateActionStates;
     ini.Free;
@@ -707,35 +615,11 @@ begin
     ini.WriteInteger('MainForm', 'DisplayMode', ord(FDisplayMode));
     ini.WriteInteger('MainForm', 'DisplaySplitterPos', FDisplaySplitterPos);
 
-    FMapFrame.SaveToIni(ini);
-    FTimeSeriesFrame.SaveToIni(ini);
-                         (*
-    if acDataMap.Checked then
-      ini.WriteInteger('MainForm', 'PaletteListbox', PaletteListboxPanel.Width);
-    if acDataTimeSeries.Checked then
-      ini.WriteInteger('MainForm', 'RightPanel', ChartListBox.Width);
-  ini.WriteInteger('MainForm', 'CasesPanel', CasesPanel.Width);
-  ini.WriteInteger('MainForm', 'TimeSeriesGroup', TimeSeriesGroup.Height);
-  ini.WriteInteger('MainForm', 'PageControl', PageControl.ActivePageIndex);
-
-    ini.WriteBool('MainForm', 'ConfirmedCases', clbCases.Checked[0]);
-    ini.WriteBool('MainForm', 'DeathCases', clbCases.Checked[1]);
-    ini.WriteBool('MainForm', 'RecoveredCases', clbCases.Checked[2]);
-    ini.WriteBool('MainForm', 'SickCases', clbCases.Checked[3]);
-    ini.WriteInteger('MainForm', 'DataType', cmbDataType.ItemIndex);
-    ini.WriteInteger('MainForm', 'MapDataType', cmbMapDataType.ItemIndex);
-
-    ini.WriteBool('MainForm', 'ShowMap', acDataMap.Checked);
-    ini.WriteBool('MainForm', 'ShowTimeSeries', acDataTimeSeries.Checked);
-    ini.WriteBool('MainForm', 'MovingAverage', acDataMovingAverage.Checked);
-    ini.WriteBool('MainForm', 'Overlay', acChartOverlay.Checked);
-    ini.WriteBool('MainForm', 'HighlightWeekends', acChartHighlightWeekends.Checked);
-    if GetDataType() in [dtCumulative, dtNormalizedCumulative] then
-      ini.WriteBool('MainForm', 'Logarithmic', acChartLogarithmic.Checked);
-                          *)
-
     ini.WriteInteger('Params', 'InfectiousPeriod', InfectiousPeriod);
     ini.WriteInteger('Params', 'SmoothingRange', SmoothingRange);
+
+    FMapFrame.SaveToIni(ini);
+    FTimeSeriesFrame.SaveToIni(ini);
 
   finally
     ini.Free;
@@ -744,10 +628,6 @@ end;
 
 procedure TMainForm.SetDisplayMode(AMode: TDisplayMode);
 begin
-  {
-  if FDisplayMode = dmBoth then
-    FDisplaySplitterPos := FTimeSeriesFrame.Height;
-  }
   FDisplayMode := AMode;
 
   case FDisplayMode of

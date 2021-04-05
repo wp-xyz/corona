@@ -9,8 +9,8 @@ uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Types, IniFiles, LCLVersion,
   StdCtrls, ExtCtrls, ComCtrls, Grids, Menus, ActnList,
   TAGraph, TACustomSeries, TASeries, TAFuncSeries, TAChartListbox, TAIntervalSources,
-  TALegend, TATransformations, TATools, TADataTools,
-  cGlobal, cBasicFrame, cSeries, TADrawUtils;
+  TALegend, TATransformations, TATools, TADataTools, TADrawUtils,
+  cGlobal, cBasicFrame, cSeries;
 
 type
   TUpdateTimeSeriesActions = procedure (Sender: TObject) of object;
@@ -1264,7 +1264,7 @@ var
   i, j: Integer;
   ser: TcLineSeries;
   s: String;
-  firstDate, lastDate, d, serLastDate, offs: TDate;
+  firstDate, lastDate, d, serLastDate: TDate;
   r, c: Integer;
   data: TcDataItem;
   dt: TDataType;

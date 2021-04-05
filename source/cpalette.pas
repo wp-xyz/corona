@@ -72,7 +72,6 @@ end;
 function TPalette.GetColor(AValue: Double): TColor;
 var
   i: Integer;
-  item: TPaletteItem;
 begin
   Result := BaseColor;
   if IsNaN(AValue) then

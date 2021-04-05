@@ -152,7 +152,7 @@ const
 -------------------------------------------------------------------------------}
 
 // Set projected planar coordinate values equal to the spherical angular coordinates
-procedure SimpleProjection(In1, In2, ARefLongitude, ARefLatitude: Double;
+procedure SimpleProjection(In1, In2, {%H-}ARefLongitude, {%H-}ARefLatitude: Double;
   out Out1, Out2: Double);
 begin
   Out1 := In1;
@@ -160,7 +160,7 @@ begin
 end;
 
 // https://forum.openstreetmap.org/viewtopic.php?id=20097
-procedure Mercator(ALongitude, ALatitude, ARefLongitude, ARefLatitude: Double;
+procedure Mercator(ALongitude, ALatitude, {%H-}ARefLongitude, {%H-}ARefLatitude: Double;
   out X, Y: Double);
 begin
   X := ALongitude * PItRo180;
@@ -168,7 +168,7 @@ begin
   Y := Y * PItRo180;
 end;
 
-procedure InvMercator(X, Y, ARefLongitude, ARefLatitude: Double;
+procedure InvMercator(X, Y, {%H-}ARefLongitude, {%H-}ARefLatitude: Double;
   out ALongitude, ALatitude: Double);
 begin
   ALongitude := (X / 20037508.34) * 180;
@@ -178,14 +178,14 @@ end;
 
 
 // https://en.wikipedia.org/wiki/Gall%E2%80%93Peters_projection
-procedure GallPeters(ALongitude, ALatitude, ARefLongitude, ARefLatitude: Double;
+procedure GallPeters(ALongitude, ALatitude, {%H-}ARefLongitude, {%H-}ARefLatitude: Double;
   out X, Y: Double);
 begin
   X := PItRo180 * ALongitude;            // R * lambda
   Y := TWO_R * sin(D2R * ALatitude);     // 2 * r * sin(phi)
 end;
 
-procedure InvGallPeters(X, Y, ARefLongitude, ARefLatitude: Double;
+procedure InvGallPeters(X, Y, {%H-}ARefLongitude, {%H-}ARefLatitude: Double;
   out ALongitude, ALatitude: Double);
 begin
   ALongitude := X / PItRo180;
@@ -194,7 +194,7 @@ end;
 
 
 // https://en.wikipedia.org/wiki/Hammer_projection
-procedure HammerAitoff(ALongitude, ALatitude, ARefLongitude, ARefLatitude: Double;
+procedure HammerAitoff(ALongitude, ALatitude, {%H-}ARefLongitude, {%H-}ARefLatitude: Double;
   out X, Y: Double);
 var
   lambda2, phi: Double;
@@ -210,7 +210,7 @@ begin
   Y := SQRT2 * sinPhi / denom;
 end;
 
-procedure InvHammerAitoff(X, Y, ARefLongitude, ARefLatitude: Double;
+procedure InvHammerAitoff(X, Y, {%H-}ARefLongitude, {%H-}ARefLatitude: Double;
   out ALongitude, ALatitude: Double);
 var
   z: Double;
@@ -225,7 +225,7 @@ end;
 
 
 // https://en.wikipedia.org/wiki/Miller_cylindrical_projection
-procedure Miller(ALongitude, ALatitude, ARefLongitude, ARefLatitude: Double;
+procedure Miller(ALongitude, ALatitude, {%H-}ARefLongitude, {%H-}ARefLatitude: Double;
   out X, Y: Double);
 var
   phi, lambda: Double;
@@ -241,7 +241,7 @@ begin
     Y := NaN;
 end;
 
-procedure InvMiller(X, Y, ARefLongitude, ARefLatitude: Double;
+procedure InvMiller(X, Y, {%H-}ARefLongitude, {%H-}ARefLatitude: Double;
   out ALongitude, ALatitude: Double);
 var
   phi, tmp: Double;
@@ -261,7 +261,7 @@ var
   phi, cosPhi, sinPhi: Double;
   phi0, cosPhi0, sinPhi0: double;
   lambda, lambda0, cosLambda, sinLambda: Double;
-  c, cPhi, sPhi: Double;
+  c: Double;
 begin
   lambda := ALongitude * D2R;
   phi := ALatitude * D2R;

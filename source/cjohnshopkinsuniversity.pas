@@ -30,7 +30,7 @@ type
     function GetDataString(const ACountry, AState, ACity: String;
       ACaseType: TCaseType; out AHeader, ACounts: String): Boolean; override;
       *)
-    function LoadData(ATreeView: TTreeView; ANode: TTreeNode): Boolean; override;
+    function LoadData(ATreeView: TTreeView; {%H-}ANode: TTreeNode): Boolean; override;
     function LoadLocations(ATreeView: TTreeView): Boolean; override;
   end;
 
@@ -520,7 +520,7 @@ var
   fn: String;
   L: TStrings;
   CCList: TStringList;
-  worldNode, continentNode, countryNode, stateNode, cityNode, node: TTreeNode;
+  worldNode, continentNode, countryNode, stateNode, node: TTreeNode;
   africaNode, asiaNode, europeNode, northAmericaNode, southAmericaNode, oceaniaNode: TTreeNode;
   sa: TStringArray;
   i, j, p: Integer;
@@ -685,7 +685,6 @@ begin
         if state <> '' then
         begin
           stateNode := nil;
-          cityNode := nil;
           node := countryNode.GetFirstChild;
           while (node <> nil) do begin
             if node.Text = state then
@@ -751,7 +750,7 @@ begin
               data.OtherMapDataLevelDist := 1;
               data.OtherMapDataAtChildLevel := true;
             end;
-            citynode := ATreeView.Items.AddChildObject(stateNode, city, data);
+            ATreeView.Items.AddChildObject(stateNode, city, data);
           end;
         end;
       end;

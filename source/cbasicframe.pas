@@ -33,9 +33,9 @@ type
     procedure acSaveToFileExecute(Sender: TObject);
     procedure ChartResize(Sender: TObject);
     procedure GridDrawCell(Sender: TObject; aCol, aRow: Integer; aRect: TRect;
-      aState: TGridDrawState);
+      {%H-}aState: TGridDrawState);
     procedure GridPrepareCanvas(Sender: TObject; aCol, aRow: Integer;
-      aState: TGridDrawState);
+      {%H-}aState: TGridDrawState);
     procedure PageControlChange(Sender: TObject);
     procedure tbCopyToClipboardClick(Sender: TObject);
   private
@@ -51,7 +51,7 @@ type
   protected
     FFixedColAlignment: TAlignment;
     procedure CreateHandle; override;
-    function GetCellText(ACol, ARow: Integer): String; virtual;
+    function GetCellText({%H-}ACol, {%H-}ARow: Integer): String; virtual;
     function GetDataItem(ADataNode: TTreeNode): TcDataitem;
     function GetDataItemName(ADataNode: TTreeNode): string;
     function GetInfoText(ADataNode: TTreeNode; ADate: TDate): String; virtual;
@@ -63,10 +63,10 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     function FindNodeWithGeoID(AGeoID: TGeoID): TTreeNode;
-    procedure LoadFromIni(ini: TCustomIniFile); virtual;
-    procedure SaveToIni(ini: TCustomIniFile); virtual;
+    procedure LoadFromIni({%H-}ini: TCustomIniFile); virtual;
+    procedure SaveToIni({%H-}ini: TCustomIniFile); virtual;
     procedure UpdateCmdStates; virtual;
-    procedure UpdateMenu(AMenu: TMenuItem); virtual;
+    procedure UpdateMenu({%H-}AMenu: TMenuItem); virtual;
     procedure WordwrapChart(AChart: TChart);
 
     property DataTree: TTreeView read FDataTree write FDataTree;
@@ -79,8 +79,7 @@ implementation
 {$R *.lfm}
 
 uses
-  Math, ClipBrd,
-  cUtils;
+  Math, ClipBrd;
 
 const
   CSV_SEPARATOR = #9;

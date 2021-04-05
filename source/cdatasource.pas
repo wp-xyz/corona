@@ -136,9 +136,6 @@ uses
   Math,
   LazFileUtils;
 
-const
-  REFERENCE_POPULATION = 100000;
-
 { TcDataItem }
 
 function TcDataItem.CalcNewCases(AIndex: Integer; ACaseType: TCaseType): TCaseCount;
@@ -206,7 +203,6 @@ end;
   The function result is false when R cannot be calculated (division by 0) }
 function TcDataItem.CalcRValue(AIndex: Integer; out R, dR: Double): Boolean;
 var
-  i: Integer;
   sum_now, sum_earlier: TCaseCount;
   dSum_now, dSum_earlier: Double;
 begin
@@ -465,7 +461,7 @@ end;
 function TcDataItem.GetSmoothedDataArray(ACaseType: TCaseType;
   ADataType: TDataType; SmoothingInterval: Integer): TValueArray;
 var
-  i, j: Integer;
+  i: Integer;
   sum: Double;
   v: Double;
   n: Integer;
