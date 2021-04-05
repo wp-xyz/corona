@@ -141,7 +141,7 @@ end;
 procedure TMapFrame.DoDateSelect(ADate: TDate);
 begin
   FCurrentDate := ADate;
-  MapDateLabel.Caption := DateToStr(FCurrentDate);
+  MapDateLabel.Caption := FormatDateTime('ddd, ddddd', FCurrentDate);
   if Assigned(FOnDateSelect) then
     FOnDateSelect(Self, FCurrentDate);
 end;
