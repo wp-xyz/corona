@@ -1,11 +1,11 @@
 object MainForm: TMainForm
   Left = 379
-  Height = 526
+  Height = 600
   Top = 118
-  Width = 859
+  Width = 900
   Caption = 'corona'
-  ClientHeight = 506
-  ClientWidth = 859
+  ClientHeight = 580
+  ClientWidth = 900
   Icon.Data = {
     E8CE000000000100070000000000010020001269000076000000303000000100
     2000A8250000886900002828000001002000681A0000308F0000202000000100
@@ -1672,14 +1672,14 @@ object MainForm: TMainForm
   LCLVersion = '2.1.0.0'
   object TreeSplitter: TSplitter
     Left = 238
-    Height = 462
+    Height = 513
     Top = 44
     Width = 5
     ResizeStyle = rsPattern
   end
   object LeftPanel: TPanel
     Left = 6
-    Height = 450
+    Height = 501
     Top = 50
     Width = 229
     Align = alLeft
@@ -1688,14 +1688,14 @@ object MainForm: TMainForm
     BorderSpacing.Right = 3
     BorderSpacing.Bottom = 6
     BevelOuter = bvNone
-    ClientHeight = 450
+    ClientHeight = 501
     ClientWidth = 229
     Constraints.MinWidth = 120
     TabOrder = 0
     object TreeView: TTreeView
       Left = 0
-      Height = 412
-      Hint = 'Click on the country to display'
+      Height = 463
+      Hint = 'Click on the country to display its time-series'
       Top = 0
       Width = 229
       Align = alClient
@@ -1709,7 +1709,7 @@ object MainForm: TMainForm
     object InfoPanel: TPanel
       Left = 0
       Height = 34
-      Top = 416
+      Top = 467
       Width = 229
       Align = alBottom
       AutoSize = True
@@ -1746,7 +1746,7 @@ object MainForm: TMainForm
     Left = 0
     Height = 44
     Top = 0
-    Width = 859
+    Width = 900
     AutoSize = True
     ButtonHeight = 40
     ButtonWidth = 50
@@ -1803,15 +1803,23 @@ object MainForm: TMainForm
   end
   object DisplayPanel: TPanel
     Left = 246
-    Height = 456
+    Height = 507
     Top = 50
-    Width = 607
+    Width = 648
     Align = alClient
     BorderSpacing.Left = 3
     BorderSpacing.Top = 6
     BorderSpacing.Right = 6
     BevelOuter = bvNone
     TabOrder = 3
+  end
+  object StatusBar: TStatusBar
+    Left = 0
+    Height = 23
+    Top = 557
+    Width = 900
+    AutoHint = True
+    Panels = <>
   end
   object SaveDialog: TSaveDialog
     Filter = 'Comma-separated files (*.csv)|*.csv'
@@ -1934,7 +1942,7 @@ object MainForm: TMainForm
     object acConfigHint: TAction
       Category = 'Config'
       AutoCheck = True
-      Caption = 'Show hints'
+      Caption = 'Show popup hints'
       Checked = True
       OnExecute = acConfigHintExecute
     end

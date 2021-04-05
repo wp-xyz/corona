@@ -65,6 +65,7 @@ type
     mnuConfig: TMenuItem;
     mnuFileQuit: TMenuItem;
     mnuFile: TMenuItem;
+    StatusBar: TStatusBar;
     ToolBar: TToolBar;
     ToolButton1: TToolButton;
     ToolButton12: TToolButton;
@@ -94,7 +95,6 @@ type
     procedure acDataUpdateExecute(Sender: TObject);
     procedure acInfectiousPeriodExecute(Sender: TObject);
     procedure acSmoothingRangeExecute(Sender: TObject);
-
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -217,7 +217,8 @@ end;
 
 procedure TMainForm.acConfigHintExecute(Sender: TObject);
 begin
-  ShowHint := acConfigHint.Checked;
+  Application.ShowHint := acConfigHint.Checked;
+//  ShowHint := acConfigHint.Checked;
 end;
 
 procedure TMainForm.acDataUpdateExecute(Sender: TObject);
