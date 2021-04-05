@@ -27,15 +27,6 @@ type
 
   TGeoID = Int64;
 
-  TLocationParams = record
-   {$IFDEF DEBUG_LOCATIONPARAMS}
-    Name: String[16];
-   {$ENDIF}
-    ID: Integer;
-    Population: Integer;
-  end;
-  PLocationParams = ^TLocationParams;
-
   TDisplayMode = (dmMap, dmTimeSeries, dmBoth);
 
   TMapSettings = record
