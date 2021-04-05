@@ -1930,6 +1930,7 @@ object MainForm: TMainForm
       AutoCheck = True
       Caption = 'Automatic loading'
       Checked = True
+      Hint = 'Automatically load the configuration when the program starts'
       OnExecute = acConfigAutoLoadExecute
     end
     object acConfigAutoSave: TAction
@@ -1937,6 +1938,7 @@ object MainForm: TMainForm
       AutoCheck = True
       Caption = 'Automatic saving'
       Checked = True
+      Hint = 'Automatically save the configuration when the program terminates'
       OnExecute = acConfigAutoSaveExecute
     end
     object acConfigHint: TAction
@@ -1944,6 +1946,7 @@ object MainForm: TMainForm
       AutoCheck = True
       Caption = 'Show popup hints'
       Checked = True
+      Hint = 'Turn off/on the popup hint windows'
       OnExecute = acConfigHintExecute
     end
     object acDataMap: TAction
@@ -1977,11 +1980,13 @@ object MainForm: TMainForm
     object acInfectiousPeriod: TAction
       Category = 'Config'
       Caption = 'Infectious period...'
+      Hint = 'Days during which an infected person can infect others'
       OnExecute = acInfectiousPeriodExecute
     end
     object acSmoothingRange: TAction
       Category = 'Config'
       Caption = 'Smoothing range...'
+      Hint = 'Days to be used for smoothing the time-series plots (must be an odd number)'
       OnExecute = acSmoothingRangeExecute
     end
   end
