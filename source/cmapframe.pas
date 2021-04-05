@@ -486,6 +486,8 @@ begin
 
   if ADataNode = nil then
     ADataNode := DataTree.Items.GetFirstNode;
+  if ADataNode = nil then
+    exit;
 
   GetMapResourceParams(ADataNode, mapRes, plotChildData);
   if ADataNode = nil then

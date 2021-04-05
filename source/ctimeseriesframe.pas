@@ -454,7 +454,10 @@ end;
 
 procedure TTimeSeriesFrame.CheckCases(ACaseTypes: TCaseTypes);
 begin
-  FCheckedCases := ACaseTypes;
+  if ACaseTypes <> [] then
+    FCheckedCases := ACaseTypes
+  else
+    FCheckedCases := [ctConfirmed];  // avoid no option being checked.
   acInfected.Checked := ctConfirmed in FCheckedCases;
   acDeaths.Checked := ctDeaths in FCheckedCases;
   acRecovered.Checked := ctRecovered in FCheckedCases;
