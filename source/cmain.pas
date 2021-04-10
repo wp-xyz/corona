@@ -88,13 +88,13 @@ type
     TreeView: TTreeView;
     procedure acAboutExecute(Sender: TObject);
     procedure acDataMapExecute(Sender: TObject);
+    procedure acDataUpdateExecute(Sender: TObject);
     procedure acConfigAutoLoadExecute(Sender: TObject);
     procedure acConfigAutoSaveExecute(Sender: TObject);
     procedure acConfigHintExecute(Sender: TObject);
-    procedure acTimeSeriesMovingAverageExecute(Sender: TObject);
-    procedure acDataUpdateExecute(Sender: TObject);
     procedure acInfectiousPeriodExecute(Sender: TObject);
     procedure acSmoothingRangeExecute(Sender: TObject);
+    procedure acTimeSeriesMovingAverageExecute(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -635,6 +635,7 @@ begin
     dmMap:
       begin
         acDataMap.Checked := true;
+        //FTimeSeriesFrame.ShowDateIndicatorLine(false);
         FTimeSeriesFrame.Hide;
         FDisplaySplitter.Hide;
         FMapFrame.Align := alClient;
@@ -650,7 +651,7 @@ begin
         FDisplaySplitter.Hide;
         FTimeSeriesFrame.Show;
         FTimeSeriesFrame.Align := alClient;
-        FTimeSeriesFrame.ShowDateIndicatorLine(false);
+        //FTimeSeriesFrame.ShowDateIndicatorLine(false);
         mnuMap.Enabled := false;
         mnuTimeSeries.Enabled := true;
       end;
@@ -660,7 +661,7 @@ begin
         FMapFrame.Parent := DisplayPanel;
         FMapFrame.Show;
         FTimeSeriesFrame.Show;
-        FTimeSeriesFrame.ShowDateIndicatorLine(true);
+        //FTimeSeriesFrame.ShowDateIndicatorLine(true);
         FDisplaySplitter.Show;
         FTimeSeriesFrame.Align := alBottom;
         FTimeSeriesFrame.Height := FDisplaySplitterPos;
@@ -672,6 +673,7 @@ begin
         mnuTimeSeries.Enabled := true;
       end;
   end;
+  FTimeSeriesFrame.DisplayModeChanged(FDisplayMode);
 end;
 
 procedure TMainForm.ShowInfoHandler(Sender: TObject; const ATitle, AInfos: String);

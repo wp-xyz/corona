@@ -89,6 +89,7 @@ type
 
   private
     FDateIndicatorLine: TConstantLine;
+    FDateIndicatorLineActive: Boolean;
     FMeasurementSeries: TFuncSeries;
     FFitCoeffs: array[0..1] of Double;
     FCheckedCases: TCaseTypes;
@@ -125,6 +126,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     procedure Clear(UnselectTree: Boolean = true);
+    procedure DisplayModeChanged(ANewDisplayMode: TDisplayMode); override;
     procedure HighlightWeekends(AEnable: Boolean);
     function IsTimeSeries: Boolean;
     procedure SetCommonStart(AEnable: Boolean);
@@ -403,8 +405,9 @@ begin
   end;
 
   // Do not add the DateIndicatorLine when no map is displayed
-  if (ASeries = FDateIndicatorLine) and ((Align = alClient) or not DataLoaded) then
-  begin
+//  if (ASeries = FDateIndicatorLine) and ((Align = alClient) or not DataLoaded) then
+  if (ASeries = FDateIndicatorLine) and ((FCurrentDisplayMode <> dmBoth) or not DataLoaded)
+  then begin
     ASkip := true;
     exit;
   end;
@@ -549,8 +552,10 @@ begin
   FMeasurementSeries.ZPosition := 99;
   Chart.AddSeries(FMeasurementSeries);
 
+  FDateIndicatorLineActive := false;
+
   FDateIndicatorLine := TConstantLine.Create(Chart);
-  FDateIndicatorLine.Active := false;
+  FDateIndicatorLine.Active := FDateIndicatorLineActive;
   FDateIndicatorLine.LineStyle := lsVertical;
   FDateIndicatorLine.Pen.Width := 2;
   FDateIndicatorLine.Pen.Color := clFuchsia;
@@ -569,6 +574,18 @@ begin
       exit;
     end;
   Result := false;
+end;
+
+procedure TTimeSeriesFrame.DisplayModeChanged(ANewDisplayMode: TDisplayMode);
+begin
+  inherited;
+  case ANewDisplayMode of
+    dmBoth:
+      FDateIndicatorLine.Active := FDateIndicatorLineActive;
+    else
+      FDateIndicatorLineActive := FDateIndicatorLine.Active;
+  end;
+  ChartListbox.Populate;
 end;
 
 procedure TTimeSeriesFrame.DoUpdateActions;

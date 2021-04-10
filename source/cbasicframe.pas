@@ -49,6 +49,7 @@ type
  {$IFEND}
 
   protected
+    FCurrentDisplayMode: TDisplayMode;
     FFixedColAlignment: TAlignment;
     procedure CreateHandle; override;
     function GetCellText({%H-}ACol, {%H-}ARow: Integer): String; virtual;
@@ -62,6 +63,7 @@ type
 
   public
     constructor Create(AOwner: TComponent); override;
+    procedure DisplayModeChanged(ANewDisplayMode: TDisplayMode); virtual;
     function FindNodeWithGeoID(AGeoID: TGeoID): TTreeNode;
     procedure LoadFromIni({%H-}ini: TCustomIniFile); virtual;
     procedure SaveToIni({%H-}ini: TCustomIniFile); virtual;
@@ -143,6 +145,11 @@ begin
   inherited;
   if Grid.RowCount > 0 then
     Grid.RowHeights[0] := 3 * Grid.Canvas.TextHeight('Tg') + 2* varCellPadding;
+end;
+
+procedure TBasicFrame.DisplayModeChanged(ANewDisplayMode: TDisplayMode);
+begin
+  FCurrentDisplayMode := ANewDisplayMode;
 end;
 
 function TBasicFrame.FindNodeWithGeoID(AGeoID: TGeoID): TTreeNode;
