@@ -34,6 +34,7 @@ function LessThan(a, b: Double; Epsilon:Double = 0.0): Boolean;
 implementation
 
 uses
+  StrUtils,
   fileInfo, cGlobal;
 
 function BrighterColor(AColor: TColor; AFraction: Double): TColor;
@@ -204,7 +205,8 @@ function StripLineEndings(const AString: String): String;
 var
   i, j: Integer;
 begin
-  SetLength(Result{%H-}, Length(AString));
+  Result := '';
+  SetLength(Result, Length(AString));
   i := 1;
   j := 0;
   while i <= Length(AString) do

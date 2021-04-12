@@ -444,7 +444,7 @@ begin
   if (ext.a.x = -1) and (ext.b.x = +1) then
     exit;
 
-  ADrawer.SetPenColor(ASender.Frame.Color);
+  ADrawer.SetPenParams(psSolid, ASender.Frame.Color);
   ADrawer.BrushColor := ASender.BackColor;
   ADrawer.Rectangle(ARect);
 
@@ -585,7 +585,12 @@ begin
     else
       FDateIndicatorLineActive := FDateIndicatorLine.Active;
   end;
+  {$IF LCL_FullVersion >= 2010000}
   ChartListbox.Populate;
+  {$ELSE}
+  ChartListbox.Chart := nil;
+  ChartListbox.Chart := Chart;
+  {$IFEND}
 end;
 
 procedure TTimeSeriesFrame.DoUpdateActions;

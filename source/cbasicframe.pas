@@ -81,7 +81,8 @@ implementation
 {$R *.lfm}
 
 uses
-  Math, ClipBrd;
+  Math, ClipBrd,
+  cUtils;
 
 const
   CSV_SEPARATOR = #9;
@@ -89,7 +90,11 @@ const
 constructor TBasicFrame.Create(AOwner: TComponent);
 begin
   inherited;
- {$IF LCL_FullVersion < 2010000}
+ {$IF LCL_FullVersion >= 2010000}
+  Chart.Title.WordWrap := true;
+  Chart.LeftAxis.Title.WordWrap := true;
+  Chart.BottomAxis.Title.WordWrap := true;
+ {$ELSe}
   FResizeTimer := TTimer.Create(self);
   FResizeTimer.Enabled := false;
   FResizeTimer.Interval := 50;

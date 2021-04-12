@@ -47,7 +47,6 @@ inherited MapFrame: TMapFrame
         Title.Font.Color = clWindowText
         Title.Font.Height = -13
         Title.Font.Style = [fsBold]
-        Title.Wordwrap = True
         Toolset = ChartToolset
         Anchors = [akTop, akLeft, akRight, akBottom]
       end
