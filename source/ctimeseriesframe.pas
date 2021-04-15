@@ -733,25 +733,13 @@ begin
 end;
 
 procedure TTimeSeriesFrame.LessChartSymbols(ASeries: TcLineSeries);
-var
-  data: TcDataItem;
-  dx, interval: Integer;
 begin
   ASeries.SymbolInterval := 0;
   if ASeries.Count = 0 then
     exit;
 
-  data := GetDataItem(ASeries.Node);
-
-  // Cannot use Chart.XGraphToImage at this early stage. So we must calculate
-  // the length of an x axis unit (1 day) in image units manually (approximately):
-  dx := round(Chart.Width / ASeries.Count);
-  if dx <> 0 then
-  begin
-    interval := round(DataSymbolDistance / dx);
-    ASeries.FirstSymbolIndex := Random(interval);
-    ASeries.SymbolInterval := interval;
-  end;
+  ASeries.SymbolInterval := 7;    // Every week one symbol...
+  ASeries.FirstSymbolIndex := ASeries.Index mod ASeries.SymbolInterval; //Random(ASeries.SymbolInterval);
 end;
 
 procedure TTimeSeriesFrame.LoadFromIni(ini: TCustomIniFile);
