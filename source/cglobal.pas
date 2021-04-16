@@ -99,6 +99,8 @@ var
     ShowSymbols: false;
   );
 
+  LocalizedFormatSettings: Boolean = true;
+
   cFormatSettings: TFormatSettings;
 
   // DataDir is the directory in which the downloaded csv files are found.

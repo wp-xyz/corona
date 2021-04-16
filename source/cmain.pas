@@ -579,7 +579,15 @@ begin
     FDisplaySplitterPos := ini.ReadInteger('MainForm', 'DisplaySplitterPos', FDisplaySplitterPos);
     FTimeSeriesFrame.Height := FDisplaySplitterPos;
 
-    SetDisplayMode(TDisplayMode(ini.ReadInteger('MainForm', 'DisplayMode', ord(FDisplayMode))));
+    SetDisplayMode(
+      TDisplayMode(ini.ReadInteger('MainForm', 'DisplayMode', ord(FDisplayMode)))
+    );
+    InitDefaultFormatSettings(
+      ini.ReadBool('MainForm', 'LocalizedFormatSettings', LocalizedFormatSettings)
+    );
+
+    InfectiousPeriod := ini.ReadInteger('Params', 'InfectiousPeriod', InfectiousPeriod);
+    SmoothingRange := ini.ReadInteger('Params', 'SmoothingRange', SmoothingRange);
 
     FMapFrame.LoadFromIni(ini);
     FTimeSeriesFrame.LoadFromIni(ini);
@@ -615,6 +623,8 @@ begin
     ini.WriteInteger('MainForm', 'LeftPanel', LeftPanel.Width);
     ini.WriteInteger('MainForm', 'DisplayMode', ord(FDisplayMode));
     ini.WriteInteger('MainForm', 'DisplaySplitterPos', FDisplaySplitterPos);
+
+    ini.WriteBool   ('MainForm', 'LocalizedFormatSettings', LocalizedFormatSettings);
 
     ini.WriteInteger('Params', 'InfectiousPeriod', InfectiousPeriod);
     ini.WriteInteger('Params', 'SmoothingRange', SmoothingRange);
