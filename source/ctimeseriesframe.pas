@@ -1520,6 +1520,10 @@ begin
   AMenu.Add(item);
 
   item := TMenuItem.Create(self);
+  item.Action := acShowSymbols;
+  AMenu.Add(item);
+
+  item := TMenuItem.Create(self);
   item.Action := acHighlightWeekends;
   AMenu.Add(item);
 
@@ -1539,13 +1543,6 @@ begin
   item.Action := acCopyToClipboard;
   AMenu.Add(item);
 
-  item := TMenuItem.Create(self);
-  item.Caption := '-';
-  Amenu.Add(item);
-
-  item := TMenuItem.Create(self);
-  item.Action := acShowSymbols;
-  AMenu.Add(item);
 end;
 
 procedure TTimeSeriesFrame.UpdateMovingAverage;
