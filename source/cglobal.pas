@@ -11,6 +11,7 @@ type
   TPrimaryCaseType = (pctConfirmed, pctDeaths, pctRecovered);
 
   TCaseType = (ctConfirmed, ctDeaths, ctRecovered, ctSick);
+  TCaseTypes = set of TCaseType;
 
   TDataType = (
     dtCumulative, dtNewCases,
@@ -26,14 +27,21 @@ type
 
   TGeoID = Int64;
 
-  TLocationParams = record
-   {$IFDEF DEBUG_LOCATIONPARAMS}
-    Name: String[16];
-   {$ENDIF}
-    ID: Integer;
-    Population: Integer;
+  TDisplayMode = (dmMap, dmTimeSeries, dmBoth);
+
+  TMapSettings = record
+    DataType: TMapDataType;
   end;
-  PLocationParams = ^TLocationParams;
+
+  TTimeSeriesSettings = record
+    DataType: TDataType;
+    OverlayMode: Boolean;
+    Logarithmic: Boolean;
+    CommonStart: Boolean;
+    MovingAverage: Boolean;
+    HighlightWeekends: Boolean;
+    ShowSymbols: Boolean;
+  end;
 
 const
   CASETYPE_NAMES: array [TCaseType] of string = (
@@ -78,7 +86,23 @@ var
   PortableInstallation: Boolean = {$IFDEF PORTABLE}true{$ELSE}false{$ENDIF};
   DataSymbolDistance: Integer = 16;
 
+  MapSettings: TMapSettings = (
+    DataType: mdtNormalizedNewConfirmed
+  );
+  TimeSeriesSettings: TTimeSeriesSettings = (
+    DataType: dtCumulative;
+    OverlayMode: false;
+    Logarithmic: false;
+    CommonStart: false;
+    MovingAverage: false;
+    HighlightWeekends: false;
+    ShowSymbols: false;
+  );
+
   cFormatSettings: TFormatSettings;
+
+  // DataDir is the directory in which the downloaded csv files are found.
+  DataDir: String;
 
 
 implementation

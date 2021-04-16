@@ -25,7 +25,7 @@ type
     class function GetDisplayString(const AText: String): String;
     class function GetPopulation(const AText: String): Integer;
     class function IsRKINode(ANode: TTreeNode): Boolean;
-    function LoadData(ATreeView: TTreeView; ANode: TTreeNode): Boolean; override;
+    function LoadData({%H-}ATreeView: TTreeView; ANode: TTreeNode): Boolean; override;
     function LoadLocations(ATreeView: TTreeView): Boolean; override;
   end;
 
@@ -38,8 +38,7 @@ uses
 
 const
   FILENAME_CONFIRMED = 'RKI_confirmed.csv';
-  FILENAME_DEATHS = 'RKI__deaths.csv';
-//  FILENAME_RECOVERED = 'RKI_recovered.csv';
+  FILENAME_DEATHS = 'RKI_deaths.csv';
 
   POPULATION_GERMANY = 83149300;  // Sept 30, 2019; wikipedia.
 
@@ -319,7 +318,7 @@ const
 
   BASE_URL = 'https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/Covid19_RKI_Sums/FeatureServer/0/query';
 
-  // Landkreis-Abfrage
+  // Landkreis-Abfrage (query of German states)
   LK_URL_MASK =
     '?f=json'+
     '&where='+
@@ -334,7 +333,7 @@ const
     '&resultRecordCount=2000'+
     '&cacheHint=true';
 
-  // Bundesland-Abfrage
+  // Bundesland-Abfrage (query of German counties)
   BL_URL_MASK =
     '?f=json'+
     '&where='+
@@ -351,7 +350,7 @@ const
       '{"statisticType":"sum","onStatisticField":"SummeTodesfall","outStatisticFieldName":"SummeTodesfall"}'+
     ']';
 
-  // Deutschland (RKI)-Abfrage
+  // Deutschland (RKI)-Abfrage   // query of Germany total
   DE_URL_MASK =
     '?f=json'+
     '&where='+
@@ -592,7 +591,6 @@ end;
 class function TRobertKochDataSource.GetDisplayString(const AText: String): String;
 var
   p: Integer;
-  population: Double;
 begin
   p := pos('=', AText);
   if p > 0 then

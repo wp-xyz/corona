@@ -26,11 +26,16 @@ function UnQuote(const s: String): String;
 function WordWrap(const AText: String; AFont: TFont; AMaxWidth: Integer): string;
 {$IFEND}
 
+function GreaterEqual(a, b: Double; Epsilon:Double = 0.0): Boolean;
+function GreaterThan(a, b: Double; Epsilon:Double = 0.0): Boolean;
+function LessEqual(a, b: Double; Epsilon:Double = 0.0): Boolean;
+function LessThan(a, b: Double; Epsilon:Double = 0.0): Boolean;
 
 implementation
 
 uses
-  StrUtils, fileInfo, cGlobal;
+  StrUtils,
+  fileInfo, cGlobal;
 
 function BrighterColor(AColor: TColor; AFraction: Double): TColor;
 var
@@ -88,6 +93,7 @@ function GetVersionStr: String;
 var
   ver: TProgramVersion;
 begin
+  ver := Default(TProgramVersion);
   GetProgramVersion(ver);
   Result := Format('v%d.%d.%d', [ver.Major, ver.Minor, ver.Revision]);
   if PortableInstallation then
@@ -160,7 +166,7 @@ end;
 // Splits the string at the delimiter. Does not split quoted.
 procedure Split(AString: String; ADest: TStrings; ADelimiter: Char = ',');
 var
-  P, P1, P2: PChar;
+  P, P1: PChar;
   PLast: PChar;
   s: String;
 begin
@@ -184,7 +190,7 @@ begin
         s := ''
       else
       begin
-        SetLength(s, PtrUInt(P) - PtrUInt(P1));
+        SetLength(s, {%H-}PtrUInt(P) - {%H-}PtrUInt(P1));
         Move(P1^, s[1], Length(s));
       end;
       ADest.Add(s);
@@ -199,6 +205,7 @@ function StripLineEndings(const AString: String): String;
 var
   i, j: Integer;
 begin
+  Result := '';
   SetLength(Result, Length(AString));
   i := 1;
   j := 0;
@@ -226,7 +233,7 @@ function StripThousandSeparator(const AString: String; ASep: Char): String;
 var
   i, j: Integer;
 begin
-  SetLength(Result, Length(AString));
+  SetLength(Result{%H-}, Length(AString));
   j := 0;
   for i := 1 to Length(AString) do begin
     if AString[i] <> ASep then
@@ -298,5 +305,25 @@ begin
   end;
 end;
 {$IFEND}
+
+function GreaterEqual(a, b: Double; Epsilon: Double = 0.0): Boolean;
+begin
+  Result := (a > b) or SameValue(a, b, Epsilon);
+end;
+
+function GreaterThan(a, b: Double; Epsilon: Double = 0.0): Boolean;
+begin
+  Result := (a > b) and not SameValue(a, b, Epsilon);
+end;
+
+function LessEqual(a, b: Double; Epsilon: Double = 0.0): Boolean;
+begin
+  Result := (a < b) or SameValue(a, b, Epsilon);
+end;
+
+function LessThan(a, b: Double; Epsilon: Double = 0.0): Boolean;
+begin
+  Result := (a < b) and not SameValue(a, b, Epsilon);
+end;
 
 end.

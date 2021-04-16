@@ -1,11 +1,11 @@
 object MainForm: TMainForm
-  Left = 249
-  Height = 601
-  Top = 179
-  Width = 973
+  Left = 379
+  Height = 600
+  Top = 118
+  Width = 900
   Caption = 'corona'
-  ClientHeight = 581
-  ClientWidth = 973
+  ClientHeight = 580
+  ClientWidth = 900
   Icon.Data = {
     E8CE000000000100070000000000010020001269000076000000303000000100
     2000A8250000886900002828000001002000681A0000308F0000202000000100
@@ -1665,47 +1665,40 @@ object MainForm: TMainForm
     C663EDFFFC3FE6FFFC3FDFFF
   }
   Menu = MainMenu
-  OnActivate = FormActivate
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnShow = FormShow
   ShowHint = True
   LCLVersion = '2.1.0.0'
-  object LeftSplitter: TSplitter
-    Left = 259
-    Height = 514
+  object TreeSplitter: TSplitter
+    Left = 238
+    Height = 513
     Top = 44
     Width = 5
     ResizeStyle = rsPattern
   end
-  object StatusBar: TStatusBar
-    Left = 0
-    Height = 23
-    Top = 558
-    Width = 973
-    Panels = <>
-  end
   object LeftPanel: TPanel
     Left = 6
-    Height = 502
+    Height = 501
     Top = 50
-    Width = 253
+    Width = 229
     Align = alLeft
     BorderSpacing.Left = 6
     BorderSpacing.Top = 6
+    BorderSpacing.Right = 3
     BorderSpacing.Bottom = 6
     BevelOuter = bvNone
-    ClientHeight = 502
-    ClientWidth = 253
+    ClientHeight = 501
+    ClientWidth = 229
+    Constraints.MinWidth = 120
     TabOrder = 0
     object TreeView: TTreeView
       Left = 0
-      Height = 304
-      Hint = 'Click on the country to display'
-      Top = 198
-      Width = 253
+      Height = 463
+      Hint = 'Click on the country to display its time-series'
+      Top = 0
+      Width = 229
       Align = alClient
-      BorderSpacing.Top = 6
       HideSelection = False
       ReadOnly = True
       TabOrder = 0
@@ -1713,491 +1706,39 @@ object MainForm: TMainForm
       OnSelectionChanged = TreeViewSelectionChanged
       Options = [tvoAutoItemHeight, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
     end
-    object MapDataGroup: TGroupBox
+    object InfoPanel: TPanel
       Left = 0
-      Height = 51
-      Top = 0
-      Width = 253
-      Align = alTop
+      Height = 34
+      Top = 467
+      Width = 229
+      Align = alBottom
       AutoSize = True
-      BorderSpacing.Bottom = 8
-      Caption = 'Map data'
-      ClientHeight = 31
-      ClientWidth = 249
+      BorderSpacing.Top = 4
+      BevelOuter = bvNone
+      ClientHeight = 34
+      ClientWidth = 229
       TabOrder = 1
-      object cmbMapDataType: TComboBox
-        AnchorSideLeft.Control = MapDataGroup
-        AnchorSideTop.Control = MapDataGroup
-        AnchorSideRight.Control = MapDataGroup
-        AnchorSideRight.Side = asrBottom
-        Left = 8
-        Height = 23
-        Top = 0
-        Width = 233
-        Anchors = [akTop, akLeft, akRight]
-        BorderSpacing.Left = 8
-        BorderSpacing.Right = 8
-        BorderSpacing.Bottom = 8
-        ItemHeight = 15
-        ItemIndex = 0
-        Items.Strings = (
-          'Normalized new confirmed cases'
-          'Normalized new deaths'
-          'Reproduction number (R, 5 days)'
-        )
-        OnChange = cmbMapDataTypeChange
-        Style = csDropDownList
-        TabOrder = 0
-        Text = 'Normalized new confirmed cases'
-      end
-    end
-    object TimeSeriesGroup: TGroupBox
-      Left = 0
-      Height = 125
-      Top = 59
-      Width = 253
-      Align = alTop
-      BorderSpacing.Bottom = 3
-      Caption = 'Time series data'
-      ClientHeight = 105
-      ClientWidth = 249
-      TabOrder = 2
-      object cbMovingAverage: TCheckBox
-        AnchorSideLeft.Control = TimeSeriesGroup
-        AnchorSideTop.Control = cmbDataType
-        AnchorSideTop.Side = asrBottom
-        Left = 8
-        Height = 19
-        Top = 46
-        Width = 105
-        Action = acDataMovingAverage
-        BorderSpacing.Left = 8
-        BorderSpacing.Top = 6
-        TabOrder = 0
-      end
-      object cmbDataType: TComboBox
-        AnchorSideLeft.Control = TimeSeriesGroup
-        AnchorSideTop.Control = lblDataType
-        AnchorSideTop.Side = asrBottom
-        AnchorSideRight.Control = CasesSplitter
-        Left = 8
-        Height = 23
-        Top = 17
-        Width = 120
-        Anchors = [akTop, akLeft, akRight]
-        BorderSpacing.Left = 8
-        BorderSpacing.Top = 2
-        BorderSpacing.Right = 4
-        ItemHeight = 15
-        ItemIndex = 0
-        Items.Strings = (
-          'Cumulative cases'
-          'New cases'
-          'Normalized cumulative'
-          'Normalized new cases'
-          'Doubling time of cumulative cases'
-          'Doubling time of new cases'
-          'Cumulative vs. new cases'
-          'Reproduction number'
-        )
-        OnChange = cmbDataTypeChange
-        OnDropDown = cmbDataTypeDropDown
-        Style = csDropDownList
-        TabOrder = 1
-        Text = 'Cumulative cases'
-      end
-      object lblDataType: TLabel
-        AnchorSideLeft.Control = TimeSeriesGroup
-        AnchorSideTop.Control = TimeSeriesGroup
-        Left = 8
+      object InfoLabel: TLabel
+        Left = 0
         Height = 15
-        Top = 0
-        Width = 27
-        BorderSpacing.Left = 8
-        Caption = 'Data:'
-        FocusControl = cmbDataType
+        Top = 19
+        Width = 229
+        Align = alTop
+        Caption = 'InfoLabel'
         ParentColor = False
       end
-      object CasesSplitter: TSplitter
-        Left = 132
-        Height = 105
-        Top = 0
-        Width = 5
-        Align = alRight
-        ResizeAnchor = akRight
-      end
-      object MovingAverageInfo: TLabel
-        AnchorSideLeft.Control = cbMovingAverage
-        AnchorSideTop.Control = cbMovingAverage
-        AnchorSideTop.Side = asrBottom
-        Left = 32
+      object NameLabel: TLabel
+        Left = 0
         Height = 15
-        Top = 65
-        Width = 41
-        BorderSpacing.Left = 24
-        Caption = '(7 days)'
-        ParentColor = False
-      end
-      object CasesPanel: TPanel
-        Left = 141
-        Height = 97
         Top = 0
-        Width = 100
-        Align = alRight
-        BorderSpacing.Left = 4
-        BorderSpacing.Right = 8
-        BorderSpacing.Bottom = 8
-        BevelOuter = bvNone
-        ClientHeight = 97
-        ClientWidth = 100
-        TabOrder = 3
-        object clbCases: TCheckListBox
-          AnchorSideLeft.Control = CasesPanel
-          AnchorSideTop.Control = lblCases
-          AnchorSideTop.Side = asrBottom
-          AnchorSideRight.Control = CasesPanel
-          AnchorSideRight.Side = asrBottom
-          AnchorSideBottom.Control = CasesPanel
-          AnchorSideBottom.Side = asrBottom
-          Left = 0
-          Height = 80
-          Top = 17
-          Width = 100
-          Anchors = [akTop, akLeft, akRight, akBottom]
-          BorderSpacing.Top = 2
-          Items.Strings = (
-            'Confirmed'
-            'Deaths'
-            'Recovered'
-            'Sick'
-          )
-          ItemHeight = 17
-          OnClickCheck = clbCasesClickCheck
-          TabOrder = 0
-          Data = {
-            0400000000000000
-          }
-        end
-        object lblCases: TLabel
-          AnchorSideLeft.Control = CasesPanel
-          AnchorSideTop.Control = CasesPanel
-          Left = 0
-          Height = 15
-          Top = 0
-          Width = 33
-          Caption = 'Cases:'
-          ParentColor = False
-        end
-      end
-    end
-    object TreeSplitter: TSplitter
-      Cursor = crVSplit
-      Left = 0
-      Height = 5
-      Top = 187
-      Width = 253
-      Align = alTop
-      ResizeAnchor = akTop
-    end
-  end
-  object PageControl: TPageControl
-    Left = 264
-    Height = 502
-    Top = 50
-    Width = 703
-    ActivePage = pgChart
-    Align = alClient
-    BorderSpacing.Top = 6
-    BorderSpacing.Right = 6
-    BorderSpacing.Bottom = 6
-    TabIndex = 0
-    TabOrder = 2
-    object pgChart: TTabSheet
-      Caption = 'Charts'
-      ClientHeight = 474
-      ClientWidth = 695
-      object TimeSeriesChartPanel: TPanel
-        Left = 0
-        Height = 225
-        Top = 249
-        Width = 695
-        Align = alBottom
-        BevelOuter = bvNone
-        ClientHeight = 225
-        ClientWidth = 695
-        TabOrder = 0
-        object Chart: TChart
-          Left = 0
-          Height = 225
-          Hint = 'Zoom: drag a rectangle from left-top to bottom-right corner with left mouse button down'#13#10'    or: use mouse wheel (zoom center is mouse position).'#13#10'Pan: drag with the right mouse button down'#13#10'Restore view: click'#13#10'Read data value: move mouse over data point (no key pressed)'#13#10'Measure doubling time: CTRL-drag over data points of interest with left mouse button down.'
-          Top = 0
-          Width = 555
-          AxisList = <          
-            item
-              Grid.Color = 14540253
-              Grid.Style = psSolid
-              AxisPen.Color = clWindowText
-              AxisPen.Visible = True
-              Marks.LabelBrush.Style = bsClear
-              Minors = <>
-              Title.Alignment = taCenter
-              Title.LabelFont.Height = -16
-              Title.LabelFont.Orientation = 900
-              Title.LabelFont.Style = [fsBold]
-              Title.Visible = True
-              Title.Caption = 'Cases'
-              Title.LabelBrush.Style = bsClear
-            end          
-            item
-              Grid.Color = 14540253
-              Grid.Style = psSolid
-              Alignment = calBottom
-              AxisPen.Color = clWindowText
-              AxisPen.Visible = True
-              Marks.Format = '%2:s'
-              Marks.LabelBrush.Style = bsClear
-              Marks.Source = DateTimeIntervalChartSource
-              Marks.Style = smsLabel
-              Minors = <>
-              Title.LabelFont.Height = -16
-              Title.LabelFont.Style = [fsBold]
-              Title.Visible = True
-              Title.Caption = 'Date'
-              Title.LabelBrush.Style = bsClear
-            end>
-          BackColor = clForm
-          Foot.Brush.Color = clBtnFace
-          Foot.Font.Color = clBlue
-          Frame.Color = clWindowText
-          Title.Brush.Color = clBtnFace
-          Title.Font.Color = clBlue
-          Title.Text.Strings = (
-            'TAChart'
-          )
-          Toolset = ChartToolset
-          OnBeforeCustomDrawBackWall = ChartBeforeCustomDrawBackWall
-          Align = alClient
-          Anchors = [akLeft]
-          Color = clWindow
-          OnResize = ChartResize
-          object DateIndicatorLine: TConstantLine
-            Active = False
-            LineStyle = lsVertical
-            Pen.Color = clFuchsia
-            Pen.Width = 2
-            Title = 'Date indicator'
-          end
-        end
-        object ChartListbox: TChartListbox
-          Left = 565
-          Height = 225
-          Hint = 'Uncheck to remove a curve temporarily.'
-          Top = 0
-          Width = 130
-          Chart = Chart
-          OnAddSeries = ChartListboxAddSeries
-          OnCheckboxClick = ChartListboxCheckboxClick
-          Align = alRight
-          BorderSpacing.Left = 5
-          ItemHeight = 0
-          TabOrder = 1
-        end
-        object RightSplitter: TSplitter
-          Left = 555
-          Height = 225
-          Top = 0
-          Width = 5
-          Align = alRight
-          ResizeAnchor = akRight
-          ResizeStyle = rsPattern
-        end
-      end
-      object ChartSplitter: TSplitter
-        Cursor = crVSplit
-        Left = 0
-        Height = 5
-        Top = 244
-        Width = 695
-        Align = alBottom
-        ResizeAnchor = akBottom
-        ResizeStyle = rsPattern
-      end
-      object MapChartPanel: TPanel
-        Left = 0
-        Height = 244
-        Top = 0
-        Width = 695
-        Align = alClient
-        BevelOuter = bvNone
-        ClientHeight = 244
-        ClientWidth = 695
-        TabOrder = 2
-        Visible = False
-        object MapChart: TChart
-          AnchorSideLeft.Control = MapChartPanel
-          AnchorSideTop.Control = MapChartPanel
-          AnchorSideRight.Control = MapSplitter
-          AnchorSideBottom.Control = MapDateScrollbar
-          Left = 0
-          Height = 227
-          Top = 0
-          Width = 554
-          AxisList = <          
-            item
-              Visible = False
-              Marks.LabelBrush.Style = bsClear
-              Minors = <>
-              Title.LabelFont.Orientation = 900
-              Title.LabelBrush.Style = bsClear
-            end          
-            item
-              Visible = False
-              Alignment = calBottom
-              Marks.LabelBrush.Style = bsClear
-              Minors = <>
-              Title.LabelBrush.Style = bsClear
-            end>
-          BackColor = clForm
-          Foot.Alignment = taLeftJustify
-          Foot.Brush.Color = clBtnFace
-          Foot.Brush.Style = bsClear
-          Foot.Font.Color = clBlue
-          Foot.Text.Strings = (
-            ' '
-          )
-          Frame.Visible = False
-          Proportional = True
-          Title.Brush.Color = clBtnFace
-          Title.Brush.Style = bsClear
-          Title.Font.Color = clWindowText
-          Title.Font.Height = -16
-          Title.Font.Style = [fsBold]
-          Title.Text.Strings = (
-            'TAChart'
-          )
-          Toolset = MapToolset
-          Anchors = [akTop, akLeft, akRight, akBottom]
-          Color = clWindow
-          OnResize = MapChartResize
-        end
-        object MapSplitter: TSplitter
-          Left = 554
-          Height = 244
-          Top = 0
-          Width = 5
-          Align = alRight
-          ResizeAnchor = akRight
-        end
-        object MapDateScrollbar: TScrollBar
-          AnchorSideLeft.Control = MapChartPanel
-          AnchorSideRight.Control = MapSplitter
-          AnchorSideBottom.Control = MapChartPanel
-          AnchorSideBottom.Side = asrBottom
-          Left = 4
-          Height = 17
-          Top = 227
-          Width = 546
-          Anchors = [akLeft, akRight, akBottom]
-          BorderSpacing.Left = 4
-          BorderSpacing.Right = 4
-          Max = 0
-          PageSize = 0
-          TabOrder = 2
-          OnChange = MapDateScrollbarChange
-        end
-        object PaletteListboxPanel: TPanel
-          Left = 565
-          Height = 244
-          Top = 0
-          Width = 130
-          Align = alRight
-          BorderSpacing.Left = 6
-          BevelOuter = bvNone
-          ClientHeight = 244
-          ClientWidth = 130
-          TabOrder = 3
-          object PaletteListbox: TColorListBox
-            AnchorSideLeft.Control = PaletteListboxPanel
-            AnchorSideTop.Control = PaletteListboxPanel
-            AnchorSideRight.Control = PaletteListboxPanel
-            AnchorSideRight.Side = asrBottom
-            AnchorSideBottom.Control = MapDateLabel
-            Left = 0
-            Height = 223
-            Top = 0
-            Width = 130
-            Style = []
-            OnGetColors = PaletteListboxGetColors
-            Anchors = [akTop, akLeft, akRight, akBottom]
-            BorderSpacing.Bottom = 6
-            ItemHeight = 0
-            TabOrder = 0
-          end
-          object MapDateLabel: TLabel
-            Left = 0
-            Height = 15
-            Top = 229
-            Width = 130
-            Align = alBottom
-            Anchors = [akLeft, akBottom]
-            Caption = 'MapDateLabel'
-            ParentColor = False
-          end
-        end
-      end
-    end
-    object pgTable: TTabSheet
-      Caption = 'Table'
-      ClientHeight = 474
-      ClientWidth = 695
-      object Grid: TDrawGrid
-        AnchorSideLeft.Control = pgTable
-        AnchorSideTop.Control = lblTableHint
-        AnchorSideTop.Side = asrBottom
-        AnchorSideRight.Control = pgTable
-        AnchorSideRight.Side = asrBottom
-        AnchorSideBottom.Control = pgTable
-        AnchorSideBottom.Side = asrBottom
-        Left = 6
-        Height = 416
-        Top = 52
-        Width = 683
-        Anchors = [akTop, akLeft, akRight, akBottom]
-        BorderSpacing.Around = 6
-        ColCount = 2
-        DefaultColWidth = 80
-        ExtendedSelect = False
-        MouseWheelOption = mwGrid
-        Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goRowSizing, goColSizing, goThumbTracking, goFixedColSizing]
-        RowCount = 2
-        TabOrder = 0
-        OnDrawCell = GridDrawCell
-        OnPrepareCanvas = GridPrepareCanvas
-      end
-      object lblTableHdr: TLabel
-        AnchorSideLeft.Control = pgTable
-        AnchorSideTop.Control = pgTable
-        Left = 6
-        Height = 25
-        Top = 6
-        Width = 148
-        BorderSpacing.Left = 6
-        BorderSpacing.Top = 6
-        Caption = 'Cumulative Cases'
-        Font.Height = -19
+        Width = 229
+        Align = alTop
+        BorderSpacing.Bottom = 4
+        Caption = 'NameLabel    '
+        Font.Style = [fsBold]
         ParentColor = False
         ParentFont = False
-      end
-      object lblTableHint: TLabel
-        AnchorSideLeft.Control = lblTableHdr
-        AnchorSideTop.Control = lblTableHdr
-        AnchorSideTop.Side = asrBottom
-        Left = 6
-        Height = 15
-        Top = 31
-        Width = 63
-        Caption = 'lblTableHint'
-        ParentColor = False
+        WordWrap = True
       end
     end
   end
@@ -2205,605 +1746,80 @@ object MainForm: TMainForm
     Left = 0
     Height = 44
     Top = 0
-    Width = 973
+    Width = 900
     AutoSize = True
     ButtonHeight = 40
-    ButtonWidth = 40
+    ButtonWidth = 50
     Caption = 'ToolBar'
     EdgeBorders = [ebTop, ebBottom]
-    Images = ImageList
+    Images = MainDatamodule.ImageList
     ShowCaptions = True
-    TabOrder = 4
+    TabOrder = 2
     OnResize = ToolBarResize
     object ToolButton1: TToolButton
       Left = 1
       Top = 2
       Action = acDataUpdate
     end
-    object ToolButton2: TToolButton
-      Left = 163
-      Top = 2
-      Action = acDataClear
-    end
     object ToolButton3: TToolButton
-      Left = 158
+      Left = 222
       Height = 40
       Top = 2
       Caption = 'ToolButton3'
       Style = tbsDivider
     end
     object ToolButton4: TToolButton
-      Left = 462
+      Left = 227
       Top = 2
       Action = acFileExit
     end
     object tbAbout: TToolButton
-      Left = 502
+      Left = 277
       Top = 2
       Action = acAbout
     end
-    object ToolButton5: TToolButton
-      Left = 256
-      Top = 2
-      Action = acChartLinear
-    end
-    object ToolButton6: TToolButton
-      Left = 296
-      Top = 2
-      Action = acChartLogarithmic
-    end
-    object ToolButton7: TToolButton
-      Left = 336
-      Height = 40
-      Top = 2
-      Caption = 'ToolButton7'
-      Style = tbsDivider
-    end
-    object ToolButton8: TToolButton
-      Left = 381
-      Top = 2
-      Action = acTableSave
-    end
-    object ToolButton9: TToolButton
-      Left = 457
-      Height = 40
-      Top = 2
-      Caption = 'ToolButton9'
-      Style = tbsDivider
-    end
-    object ToolButton10: TToolButton
-      Left = 341
-      Hint = 'Copy chart to clipboard'
-      Top = 2
-      Action = acChartCopyToClipboard
-      Caption = 'Copy'
-    end
-    object ToolButton11: TToolButton
-      Left = 203
-      Top = 2
-      Action = acChartOverlay
-      Caption = 'Overlay'
-    end
     object ToolButton12: TToolButton
-      Left = 47
+      Left = 51
       Height = 40
       Top = 2
       Caption = 'ToolButton12'
       Style = tbsDivider
     end
     object ToolButton13: TToolButton
-      Left = 52
+      Left = 56
       Top = 2
-      Action = acChartMap
-    end
-    object ToolButton14: TToolButton
-      Left = 251
-      Height = 40
-      Top = 2
-      Caption = 'ToolButton14'
-      Style = tbsDivider
+      Action = acDataMap
     end
     object ToolButton15: TToolButton
-      Left = 92
+      Left = 106
       Top = 2
-      Action = acChartTimeSeries
+      Action = acDataTimeSeries
+    end
+    object ToolButton2: TToolButton
+      Left = 172
+      Top = 2
+      Action = acDataBoth
     end
   end
-  object DateTimeIntervalChartSource: TDateTimeIntervalChartSource
-    Params.MaxLength = 120
-    Params.MinLength = 30
-    Left = 592
-    Top = 384
+  object DisplayPanel: TPanel
+    Left = 246
+    Height = 507
+    Top = 50
+    Width = 648
+    Align = alClient
+    BorderSpacing.Left = 3
+    BorderSpacing.Top = 6
+    BorderSpacing.Right = 6
+    BevelOuter = bvNone
+    TabOrder = 3
   end
-  object LeftAxisTransformations: TChartAxisTransformations
-    Left = 336
-    Top = 384
-    object LeftAxisLogTransform: TLogarithmAxisTransform
-      Base = 10
-    end
-  end
-  object ChartToolset: TChartToolset
-    Left = 808
-    Top = 384
-    object MeasurementTool: TDataPointDistanceTool
-      Shift = [ssCtrl, ssLeft]
-      OnAfterMouseUp = MeasurementToolAfterMouseUp
-      GrabRadius = 32
-      LinePen.Visible = False
-      DataPointModeEnd = dpmLock
-      DataPointModeStart = dpmLock
-      Marks.Format = '%0:.9g'
-      Marks.Frame.Visible = False
-      Marks.LabelBrush.Style = bsClear
-      Marks.LinkPen.Visible = False
-      PointerEnd.HorizSize = 8
-      PointerEnd.Style = psCircle
-      PointerEnd.VertSize = 8
-      PointerEnd.Visible = True
-      PointerStart.HorizSize = 8
-      PointerStart.Style = psCircle
-      PointerStart.VertSize = 8
-      PointerStart.Visible = True
-      OnGetDistanceText = MeasurementToolGetDistanceText
-      OnMeasure = MeasurementToolMeasure
-    end
-    object CrossHairTool: TDataPointCrosshairTool
-      GrabRadius = 32
-      OnDraw = CrossHairToolDraw
-      Size = 16
-    end
-    object ZoomDragTool: TZoomDragTool
-      Shift = [ssLeft]
-      Brush.Style = bsClear
-      EscapeCancels = True
-    end
-    object PanDragTool: TPanDragTool
-      Shift = [ssRight]
-      EscapeCancels = True
-    end
-    object WheelZoomTool: TZoomMouseWheelTool
-    end
-  end
-  object ImageList: TImageList
-    Scaled = True
-    Left = 480
-    Top = 24
-    Bitmap = {
-      4C7A0B0000001000000010000000F10900000000000078DAED5A7B5053571A87
-      767676F6CF9DD99D4EF7D5EEB69DE98CEE1F3BEECC4EFFD9A910A0152D04A4BA
-      8046ABDDAD8EBA4A0B4202212E2F154B00E5258F84F753798590002126F27E13
-      454050141094671E3C0C49F8F69C2B0909B98180BA5D1DCECC37E7DEF37DBFF3
-      BD2FB9E76263B33A582CD63B7CC6575E55C1EE6221D36D9A1FE8BA806721CBBD
-      B682EEE289F9361606DFCFED770226B5471AEEA97A90791E26CBC361AA3C8298
-      F1BD04ADA3BDEE9433F6FE762DB682B1E783CA20D7C9BE341FADBC32122C515F
-      DAF71A41207542C870F9BDB1CD02A65B3FE2E9F4724A49326866466079691134
-      D323C4FDEA1E3E5A64C73DBD2FD82F698497D2588F667A1816FB25A0A8B98A66
-      2968A61E9BD82189F054F2192E07305EC874970E66F899F041A705B9308AB856
-      5445C3B276C9843F80E4718C311EF9AD98280DB3E8F37CFB4DD02A274CD6264A
-      434118449D25E24E77D1CEF02F9362E79AF38818CCB5169AACCF545C0264BF86
-      D01FE82AB7A47FF9F91CA81AB3CDD6B17E64F7CC0BFFDDAA06327C49F17890AD
-      63F92A963B9FB03FC0653FAE0D32391C7FB375E4EBADB07FA8CA192E547DFE85
-      4C6A5F6F8A8FCE045B1B4FE85788E24CF0BDA967B5B84EC1C6C676A3FA5BAB9F
-      A8BF20D3FA23ABFF81743F78561202B3088367ECEF7AF54FD67FA8CEE515F4AF
-      00E9935BD37FAF62B058F08E9D5DD32147C7965B0E0E2DD3144AF3029EF1BDBD
-      7D9337E65BC2DAD9D57F84647BF7EEED561D39F2144E9C98839327E78899467B
-      0A781DF17B2894D63FADC53A38347DE2E0D02CF7F61ED59E3EBD0896C8CB6B54
-      8364E558971EEBE151F0AEA363F300C2EAD6CAE3B176CDDB7B448B74F5EB7DB1
-      B76FF4C2B619CB9C39638AD7DFEBC9D9B94B85E27110E3516CA434DAB881171B
-      AB86E666AD09BEBD5D0B71716A83CCE1C3638063BAE2BBE2C409958177FFBE0E
-      E2E3D526F8C444350C0CE80C32DF7DA7040AA56576C57EEDA9530B069E42B10C
-      3E3EA6F6FBFA2E8252B96C9039756A1E90FD1A32FD83833AB87C596DE22F9BAD
-      86A12172FD28961263FFB19FA3A3CB1015A586B3671789F9C99365834FABFEB7
-      D65A8A3FF6777454075A2DC0C8888EB8378D7FB721FEFAFC7B790DEBD6AB1D3D
-      797A9AE6FF65EB8FACFE69B4311423C54AAC1484BFEBD53F59FFA1DE93A3D800
-      9EADE9BFD731F0F307D3367E1B6FED40BF472EEA716B09F3ACD4CB22C1B33669
-      3BCB1AEC7AFEADECC1FA7FCFCFCBD0AB784EA4FB4682312530BF0776C03FCD28
-      31E807C80E880E24C32B7B06091AAB6A206495938FCD08AF175E885BC8624433
-      37834F89F437E027DB7BE04668FC5C0E9D1DBE153C969968BB4BF849867F76AB
-      15B22299A4FEE7C68418E42CE1ADA5D785DF68FC4FF04FA5E4F416EBDF0AD9BC
-      65C3CDAD3BD8DDBD3BDE121FF3B08C055E4C60E0A4EAC28599E7FBF7CBD26C6C
-      C076950BB61E1E320EE661192C4BA23B2528686281CD5E84E0E0A97937B7AEC4
-      D5770C59125EC33C845F40F8EB6436B8BA76A13D26E7B01C9339F5DCC3E34ECA
-      D75FCBB8C1C1D36ABC8679546A67B2E508802D95DA9589B08B2BF20B2CD6D4C2
-      CAF5A29B5B67FAC651045B644706933949D8FBC296C979A437DD34269607F22F
-      41EF87DEEEF5F2628AED42D8A93912FB37DC03F171FC567C9F52BABA76C661C2
-      D7FA186019322C95DA7D5DEFF38BFCADCA219B528DF237679CDBD5FC77B27C7D
-      C7A6115F81759AE7B6338EC19854FAF98D4F6159F2FC775EB21CE71779C1326F
-      5BDFEEDBB70FD46AF5A6C918CF422F379BA557A9FFA7C66FFBFF76F88FEDB2F6
-      DA18BF15DAEEFFEDFADBF67FBBFF5FD760077C2B6607FC4BB4E16FBE78291813
-      D9BB2FA6B572C6783FE9BC812CE18D65D6C35F8ABC6886BD1479C96ABC35F426
-      E0F1B9052658521AAED7DE6F84C7B2966823FC7A583DBD4EFD3F357E33FE9391
-      B5FA2D0D6BF36FFCFDD12FE5D0A1C0F46F6FD1B9C7A6FD394717F08CEFCF271F
-      F65EEFFBA36F12ED233AF7786F58C13955764B0A54DE2F03C1008F98739A5320
-      B4E0AC0AEDD5E39FF68DD9F70F5FCE914FD0BA9C5B17A7153DAA024B945E774D
-      E39F76548E7519DECD0B3CDE0DE01E1BE0D6C7E9D6CA27D55E31DB835B774D4B
-      E71CEBD7FBE2974AF30ACB3FA722D3E7977298D48E90FCB3AAF3298788EF4F81
-      DCE3D2ECE664D80C3EABE93AD0514C313E20EDA882DF5FBA297C457F09D03947
-      6757ECD7D60C090CFE628C25D2C7A3FAA100CEA71ED6BC0AFD28A7922DFA5FAB
-      8F7F288AA7B5F89A474208CDFFB721FEFAFCA7DD8EB52AFFA9D25893FCBF6CFD
-      91D57F565312F0FA6E8268A88A98B1BFEBD53F59FF0570BE9163FFF16C4DFFBD
-      CAF1B026F9BDC1CA6B81B5374244BCFCE0765E21B3A0B298F5E146B86171CCCE
-      FE5276E7B03859332BBB017D1D99C0A90C87E29A581016B096FBCBA23B86849C
-      4FC9B03525112785D90C4D6249005CE70581EAB100D44F6A812BFE1152846130
-      F580074BC33520C967A9C5E511C78DB1B5BC885DE559745D716716942279298A
-      778F2C9BC05C29F4816783E5C4F96D535B0AE4B7A64279265D27E685EDD4E379
-      59F419C1BD6248AFBE08DA7131881AE261A8B790C0E8C66E19CE7FBB3A3320AB
-      EE2A08EE1641454EE024C6961584FCB12C2F98A88FDCFA38E00842A144960BA9
-      821093B363F9A34A48AD0C05E16005215B9ECF82EAF2983F088A587965920443
-      8DE5375F076E5504B235D580D58D4B805B790104833C831CC6F08B58D9FC3CE6
-      DDCAAE02B821CB815CD487B79B13CDCEAD47FB8B21A721C1A496F9DD79C02F08
-      9235DC0C17251433A0A6FE2AE4A138AB474566F8A2DA4883DD26F87CA6EC8130
-      2EB803D992867236FDB0C20CBB385A031CD165B35E2A172780F0C67FD2C7C439
-      BF1AAA4D5AC271CF11864066CD65C81545C2FC4835815F7E2A019E940D79E22B
-      908BF2A2C7F350CCDB04ECF7710EFACAA2EA961ED780E0762CF137073F9FB8C2
-      7090362799D87213ED51FDA01204770A819713386EA877D1B50FEE57C4C887FB
-      8A20B7715507B6C5183F702F0FF21A516F67D2B50DA5511F9BF64CA2C34045CC
-      6C2ECA1DC6E6A05AE8E8CA30C13F47EBC59C1FB452DEC583643DF0489AF47E55
-      1E73B4349B018DA258500F09099AED2E8207D5F19A7E5E745D47D5D5DF6CD487
-      B8571F565DA3DFE75F4DC384AF719CC964D32203FE161B7BFAE75B7D56A0DF10
-      E7E323FC7FF926E15D5CDA3CDDDD654D4E4E2D3B30BEBE2CC3EE8EB8F4AF64D4
-      2329FD8B4C52F2E77BE29B3B7BEACA76603A78A04D7AEEDC887ACF9EB633E4FA
-      C1D6C5059F5D7704ADD5BD7B77CB0E7BFBFA1827A7A6DDF87F57C8F05F7E29FD
-      358DD6A73870E0CEB8F1FAE79F377C4CA134B177ED6AFB9965FFC1964269BCE8
-      E4D4EAF7C5176D3EF6F60DD1CECEEDDECECEAD51144A4324D669397E606B67D7
-      18626757FF77635B3C3C64D3C78F0FCE3B3AB67D6A29FE546A571AA267144ABD
-      8BF9F950E711148F28B273717DFC3D0F76B4D368BD533F860ADC378A3FBEC66B
-      98A7D7FFD9670DBFB0B76F7AEF4DAC5F4E84FF87788FCD12EE5BDCBF788FAD10
-      C6FE172C04D55D
-    }
-    BitmapAdv = {
-      4C69020000004C7A0B00000018000000180000005F1400000000000078DAED9C
-      095453599A80B5ABBA7BA6E6F49C9EAE39DD7D7AE654CFD4D454F52CA7667AAA
-      CFF4525D7550D4624B70A3F4288BE2BE95A240C2D2564405044405650D6B648B
-      408090B0CB0E8104951D54161197C2854D5993FC73FF1782595E1684AAE9EAE2
-      9DF31FDEBBEFDEEFFEF7BFFFFFDFFB125E56ACA03FF81C871FE47B336D45DE8C
-      58B1CFFA56B10F7348EC633F4AFEF688BDECCB453ECCE305ECF5FFB4E2358E7C
-      2FE646C2EA137933A1E8E426B9E4FC4EB879793FDC8A38088D17774355C07685
-      D89BA91479DBCB49FF51B9DECC9F99C31572186F11BD52915B15E0A418C8F085
-      E1826018A1912779FED01A7D040A7CD7CB453EF6CFC95857196317B9AFFB9B02
-      1F7B19E12BBBE28FD332E96428E72C54046C93E358C898B7D0B161C58A95626F
-      FB6C1C735FAAB71E63EC7A24BC6C16C164E77578D190A177FFB9E81CD4063B2B
-      896ED3447EA3CB2773B61D6DD29D7042AFEDCBA66C50CE4E81E6313B7417468A
-      42B5EA3D1306C2F5335B701C9D7C07873734FD84D865A0FA9CA352973D5A7605
-      943393201F7F02E3B549D4F5647715D5C7D4DD7A3D5DFAC9D8514F9197FDCE57
-      BADB33B0EC5E9ABE5DD026788CD7246A95CF7C75171453E3B4F3511DE0A820FE
-      DCA4619B44F4C16171905EDDC93B35145FB77CAA4F0A4AF90C2DBF837B0CC7A0
-      14B218EF209FF85627FAB7B9FE82221F7904F2D1C7B4F71E5CFB92B291D0C77E
-      C39C7D463176CC654FF548A8314DB49718888B008A9FEFCD3842E9EF6D3FDD1C
-      79D03C766F03C59E79D00E238521B475D057E7F82CE4A3EF482FED31C97E21CB
-      56F90DD1DF58BDC702BF391F623851F6F16656623E31C59FBC53AB9A6B037AAB
-      A537C58BE217F830FE38671F37BC1ECA3963DC366ABE093D64617B09DFFE993A
-      C630C762EE68893ABC201FA29D5BA13F14FA6E90139B446BE607CCF198078772
-      0D8F61A2AD88E4855E182D0D375807FD90E4B119918FCD2FB5F2B28FDD3F90F2
-      118C3D9C7FBAB6B3433DAA58AE4DA6BDDFC3635176177B33CED0E550B12F6335
-      B92FAF0D71513ECD0F00FD5C7419C6EB7806D962DF0D0AB1AF7D91666EA35DB7
-      BC9953A57E9F2B7AAF7A99B63759639AC2F7AAFCD187592CE658FFADC9B591BD
-      FE2362AB6E6C531DE8A8688F3D0A83FC93F054180098A31E0B4E43CF5536E527
-      057FDA40D62EE62CA91F684C6FDDA39C63F1A6D88B7940E4CBBC25A2D65926E8
-      0AE615F29727F2DAF0FE8A451C220F9B9F9358B4C3FEF2BD18EEC497B7097DD6
-      FFEF42F4FDFF38ACADC53F5CBDBA9E6169298923D2B6664DFDD09A359251223D
-      E4BC62F56A89FB9A35D27717CA7570E0BFB1664D9D2B610E5A5AD6C3BA758DF2
-      F5EB3BC0C1E12E7CFE790F6CDCD80D7676CD0A724F49FA5792BF3C73FBF9F8E3
-      9A1F91FA62E4DAD9B52876ED7A02478E4CD2CAC183E3B0756B1FAC5D2B519031
-      BDB0B4ACB333CD963413516EDF3E6090AB2B070E8C115D6EC9493B322689231D
-      9BC381EF119B0A891ECA9D3BBFA2E584854D83583C4B7BEFF0E197C064B62949
-      FB6922BFD3E5137BB8A04D9C9C060DEA896C3C8CD9CBDAFA068EE3B68545F99B
-      9A7E42FA1C24F6561AB383293E8AABEB57807A125BEC79A57BDD7A2C73751DA2
-      B5898FCF142D3F3171068E1DD3EF83C168C1F9BEA9619B44E2838A234726B4EA
-      9D3C39052F5F2AA1B252AEC7FFF2CB29989901A8AA92EBF1B76D1BC03190B9A8
-      A1F63F642C9D1B3674E8D52B299985F171257878D0DB47289C05B91CC0DB7B4A
-      ABDD9E3DCF291BAD5E5DB741C5978C62ECE8F2070614505D2D37687F1C1F1E5C
-      EE8CCE3CBF50CFC19139FE34C6A52EFFE953258844B306F96E6E93D4756AAA36
-      FFD0A19773FAD7B3E6F8039B3675EBF15B5B152095CA0DFA4A50D034C50F0D9D
-      D62ADFB76F748E2F7152CDAFA492C16856E8B64F4A9AA1ECEBEF3FA5C7FEE28B
-      49686951C0D09052CF87303E916F69D9F0894AFF3A0FBCC638D76574772BA839
-      E6F166E6E7F9DCB9698A8D7D47444CEBF5BD69D36DC2960C639E44FEAA55351F
-      A03F6DD9D2AB57F7C48949686C948352A9F5F802CF9F2B212A6A9A2617BD20F9
-      AE414E744ED6C90FE958BE7FFF18ADAD4F9D9AA2C6909D3D4BE94C175728E887
-      84255FB7AEEE579A7C0B8BBAF748F904E664CC55E6E64E4DD9B1E3F19CDDEB2E
-      D3E550E2AF1BD14EF6F6ED4AF4E185B05D5C1EA9D70109E633436B00E97B17E9
-      63D6CAAA4981FA98E262CEDCBCF9F69CDE92BA75EB6A7F6A6A0D2371FD0752FF
-      AE7A0DDBB6ED1EECDEFD8C8ACBC38727887F8F107D1F535C9C33B437D1FB8283
-      43FB0FCC5D833FFA48F67D8C6FD57A46ADB1A02F9231C24D25F5FE6D31FB88B5
-      6B6B7E816B2BE11DC43D03616F5FB5AAFEB79A6BC8B7E1207B418EC6FE90B3CC
-      5FE62FF397F9DF563E796EDE8FCFCD6A21CC1A0D7E8DD63D5277A17CB1E7C67F
-      CCF766DEA17BB6D61646073E23BFCE184CF7F1FA6CD37D2C9E6DB80FF3D9E6FA
-      C3AB3ECC63BF8EBFE16775E67E27F217168F1573D74B2915A66367F1F24DEC9D
-      92DC83D71009D4151E9148363BF70AFB78BD218960BB572578FA45A69C08F9A5
-      41BE673027C9231874258675122E78ED3529615E8721D933E461A247D0BF18E3
-      8FB5DF9D9787C57550121341B51F7B72CFA054E6F1A83AA9DE17143CD6F97BC9
-      ACC07716CBBFDB5A0FF525995AFCFB354D90EA7B91F411F2309E7DE1DDC5F091
-      CD0D666BF1B1CD7C1F9E210F34FB582A3ECA409554357F84698CFFA8A40E4A63
-      A3A8B66582042D11A55E81CCB860EA3C35DC0FC27C0F68B53587FFA4FE1674E7
-      1440CCA9E3467DE792F73E28BB1AB760FE62E4BBC05FE8F19DE48FF7033CAE32
-      2E58E775F9D323AAF6C604EB2CDBE75B619F25150D7E322BE48FE49AB59482CC
-      15CBC79FE56163D3E4C66034C59B5B9FC19025D8DA4A8F9959D7DDD9B97BE4F0
-      E1FE0926F346EA8A15B0D2706D58C96436A51D3A746F02DB605BE3DF69CAFEE4
-      E2D23D1C1A3A09172E4CC2B163832F6D6C6402FCFE8DEE3B393BBB2601D6C1BA
-      D806DB22C3109F8C31EDC081FE71ACAF968307FBC7EDEC6429DAE380955876F0
-      E0BD319DBA63449F5463E325F793F6EFEF1DD56C77F4E8E04B5B5B590EEA8C62
-      6BDB948B659A75B08DAD6D63A2717BAAFAB0B26ACC20BA8C68EB76EF05B12F9F
-      CC7B26B937A1A3F788B57563BA69F62BDBDAD84833C9BC69D9EAC081BE31149D
-      7EC7885DAF99CBD6B6953479DFBE5E2D9EB64DFA46B1CEC2D9AFC6616D2DBD76
-      E850FFA82E1BCB089B4FE75B0B8CB57862DF615D3EB1D308B14BDCEB72557E22
-      BB76ECD87D83F6C17B68FB858F41E5A7BA3E443FBFFD2358D7FC3980950CC68D
-      D4438706747D8770A4A9643ED2687C771CDB98EA43E597328C792D1D890F69C4
-      0E7D0C621B127759C66C85B14D33FE716263BE6E7E40BBD3E787C61423F9EDC0
-      D6ADEDCF424327E663DEB06D55F18131A0CA6F13B0756BDB336418CFA152CFED
-      DB3B9FA8E6CDB87FCFC5399FD41D7574EC7C626525F530777D21B6E499E71368
-      AB269EB9EBCBF2F1CD1F6FBFFDB6C5FBEFBFCFF1F5F55D32F9F4D34F2DD47C64
-      33180C989E9E5E32C13E74F91CE2D04B251616167AFCB2B2B22513676767CE37
-      6D9F65FEB2FF2CFBCFB2FF7C17FC07C778E7CE9DF96B3CC73273EB98E2E31C69
-      F2F01CCBCCAD43C75F4A41A6EEFABE9482CCE5FDCFF2FEE7DB947F96EDB3BCBE
-      2FFBCFF2FC7E17F8CBFB9FEFD6FEE73C6BDF7F857AED6D47B9E8BDFBC3D7616C
-      8A2EFFD5A688EABD9AC23E1DC44309F63D5479D16B0F3394B5CF3EC8E748B9BA
-      5CB73E320CF1B7C448BA0F09074153D4FFA711EAB54F4964F0A2D7BEFB78AE2E
-      D7ADBF25A6BEDB10DF21B6BEDFB3EA25688AA9FF2DD2AD8F8C85F0FD2FC74250
-      E0695A397B99BB68FE4265996F5CB627DD7CF075F2DD4A9E4DBF0E3F40500F91
-      2919C013E44247573BE4149750D7785E565D4D9D37DC9011912AD3A2CE66A75C
-      39CD8F0E64BD632E1FDBE3FFA50D3FEE05981983F16783F064F036753E39FA98
-      3A9F9D784E099E8BF931C3B121EC8FCCE5A3DE6AB63922ABCC1BCE4A0CFAD85C
-      3EDAC15CB65A5A25C58EE6F2D1DE681373D9DDB7AAC78B055CCB85D85F6D6F73
-      E47A5EF29385D8FFEBB60FFA20FA89B9EC877D6D93558569B67F2EF6C1D841DF
-      36974F7C61565A95B74993BF95DBE8EF105DDBA329DB139B06DC4A9E4F615C2E
-      966FECC0985FAC7D8C1D984F30E6312ED5FE8D0CF55CE239EA8C82E769116746
-      17C2C75C85F531E6D1EF3076F01ACFD14FF01CED8182E728D11CCE5B867847C2
-      8EFC90C57562B0B8CE71AC78973656FC8E21F27794FCEDF18C75AE60715DDCD9
-      F1AE0B7FFF9DEFF08607D7D995B0063DB9CEE09DB45B1E92EB03578AFC21B224
-      102E8A387036C34DE119E7ACF488735292BA3C73FBF18C73FD112BCE458C5CFF
-      6BC715D76EF1A0ACAF18CAFAF5A5E08E1062AE87003B7EA782B479E111E36C67
-      8AEDC97569F68C775126568743697F112D575744DD3970867F544EECA560C53A
-      1B78FF9DF33D325E21B2D36509667135A5A4A70002B33D95641CD39EB13BF4DE
-      7F27F670419BC45785196424D7474260A687C1FB85C45E9C940372A2E36D0EC7
-      E24D4D3F61C7EF18F4E7BB298DD9249AD81A7530368E746902558715E7B4E795
-      EE8EEBB18C7F23C9685B73F828E817641E6F6AD826D13B71B7A2B4AF6849F8F1
-      5597B09E9215ED4CED1DD8713B3ACF13FF36D5CE5C7E4E6B3A55CF3DCE997AFF
-      1D63F24AF159BDB9449EA604647950ED74CB51F2BB045AF38CF53CE29C8FA8FC
-      DE793AB234488B8F7E8275CC95CC9BBCF9B6C5BD627539F5FE3BF19D018CF9A5
-      B24F7E67F61CDFC9694EFFCAB319C7154BC5C7F8A4EC13EBF8C91CDF03AF31CE
-      97827F49EC079E712EC39827557CC70FD09FA2CB8216CD2FB89D075E09AE7252
-      2F59273FA4933C281775E52C8A7FB9E82CEA2EF78ADEA1F58CCAE63ABEC78A73
-      9EC07928E92DA09F37E2839A7EA22B298DDC39BF74A17DFFDD33D66923DA2958
-      C05216DEC95F50FE4C69889D5B079C2598CF0CAF014EBBC8DA37FBE5D5038A34
-      69BC492EAE31E1857E94DEEC38973AF7482793EFBFB3621CFF4072EC5D6C7396
-      EFA688ABB80082E634C03195F61682B0230B52A5711056E0075E89642E89BD3D
-      635D2E70F80E66BFFFBE377AEFF731BE894ECD6833BA98256BC918F1ED5462D7
-      45BDFF4ED6CD5FE0DA4A980771CF40F4DDEE1EEFF45BCD35E4DB70DC2FE4FE44
-      24F0FBBC507066133FF9F43FAF80152B17CBEC2DB9B2A74310D4D274D56FA639
-      C31F04D1474110EB06855C0F288E39A1CC4FF41CE92D8ED8BD606E591483F086
-      BA851760A45500CA8795D4FFFA8FF417C0851C2FD5BE84E4C9F8340FE8CA0B85
-      960CFFAFFA8B2FDB98C396E69E4BAD4EF4565ECBE340BCE84BA8A98F02E52315
-      7FE6E17508BA761C4A889F86E6B0A1BDF92A553EDE2584A6ABA794D539017C63
-      EC523E4720E2BA038FEC5302AF9D00FFB4C3942F66917D21721EDDC985F3D99E
-      943448B9F3EF300C93719D4F77036C5B9AC5A1EDE37AB6DF1785D127A088E4B8
-      781253A28A50AA6D576B0A74B6A450E783B7B3E1146F1FDC69CF98672B1F5742
-      04B15906D97F1476E640518C3BD9FBFBEDD57BF793EB312B942440495F219CCB
-      380AF247E554DBBB6DE9F062A0789E35FDE0BAD6FB17F28715904372FBC5B93D
-      82B03E1E90A5C92ECCE484E726ABE6ADF8AE0842898D47FB0B212AD70B2E93B5
-      13FBC3B9A57BBF4341E626A5F0341973E87C5E1226B3A12893133AFF6E6C226B
-      3CAF3676FE7E42792884649EA0F663788D39A8A2F68A1E1B758FCF3F095CB236
-      68E6BDBCEA681025B147D5FC2262F7EBBDDAB9B1888C23A9E632840B4F4224B1
-      AFDA469A82FE132E3AA997574BC97E1799943F169CFE40CCF5D0D9ABE64320FF
-      1894D584C3BDAE4C5ABBA0FD02D2BE80BCF64CFADC4D7CA9BAF4C2BBA502FF5D
-      F9496CAA2C83E47CDC5B5D21F6BC41F601C6DEABB9D1940071E52186F729C8CC
-      3EB5F386E8E2A69CB81390541709DC3C5FA86D8882D3BCFD3046F433C60FCBF6
-      D0DAB7D1F10BB2387B7B4B637FD698E207DE09AE502789A2FC4F268BA37CD110
-      BBBD990711641F626C6D13639CF2D8EFE11CDC48F19BBED79909E159EE2456FD
-      4DBE73945A7806B29A530DB2A9F98D39AE54FB4FBB20F8D6486B36D5B6B7830F
-      6199EE1072CD8D8A83DCF2602AEF68F2317E83C9FC07A61F852BE2537A7BB3DC
-      F208C84BF21C56F3FB8AAFECEBCA0DD5B0AD2714F788A967C7A8920028AB0EA3
-      E2882EB6BA5A522154C0D6B67D220B0AB338673563B825DDFFD178571ED52E26
-      CF07C4DDB9AA6737922B634ACF4140FA17F3394957C2492EC5BD1B155B553120
-      8A77D7FB0CB4AF34CAEA66EA19F9ECFD52A8954443028959AD6744929782884D
-      E8F8D76BC38157170185ED59C4EE27A02CCFDF892E87F61484735AF9FE30419E
-      F302338E69F179641DC82E3B47CB7FD62B824BD73C289F29CE3C95686C0DE816
-      5E62DF4CF19B4DC9F69D8FCDA4AA708815FAC2C4FD125AFE58472E94C4BA2BCB
-      499E346B7D2C8D5A5B91EC339697E00969E22088267954417299265349AE875B
-      B2A033E73CB4F0031E7496847FB6D075B84C70C6579CCC7E2A4B3E49ADEFC842
-      C1F31B574F4D7708426E90F5DD7129F6277DE5093FEE2B8FFD9D4A127E6CF6E7
-      461CCE5BBA9F732FE5819F3371835931CBFC6F86AFFA2D45E9BBBFFF7DDD5F7F
-      1D7C1B1BA9D8C1A1F9B98D8DAC0B7F2B8CFACC313630BBBD32F7D7AD95825DDD
-      E5C2BF6FAFCAB3EFA812ACEF2CCD7E1BCB3AAA84FF63EE7D1B6BE908BE6BB679
-      73CBD3B56B25FF8AFCF88B3EF13299F02D6CCBE7F3DF68A9CEFF3B143CC732BC
-      67CEFD504EE17B56568DF73FFBAC71D2D65626425B99B2CFDC7B428564DCC376
-      76B2D386EA7DF659DD4F2C2DEB6B2D2DEBAC1632BF96960DEF3B38B450EFE459
-      5B4B87E9EACCFDAE67B9A5A564F342FD67EDDADAFFB6B6964D6DDEDC3C696DDD
-      3042181FEAB257AFC6DF33AD7358A87FAE5DDBF01B32DE3664A2CF595B4BFE9D
-      E8594FCAFC88BDD2C978DAD6ACA96B267CEB85FAFFAA558DFF41582DEBD6D5FE
-      A766B98545F95F9172E18E1DDD8A93279F02F1C35E73E34BF59BAE751B08732B
-      D1A915FBA06B4374FE359379736CE7CE3B53AAF787CCE3DBD935A5EFD871FB05
-      93D984BF4967F4BB8755AB241FE16F7B9AFA1D38E40BE28384ED15399F6CDBDA
-      F0F0D4A9E7E0EADA3D7DF64F2591CDB5D93F6DABCCF5EDA8CCFD14EFE3797BB9
-      E8E76D5539BBDB2A72F798735F537F2B2BC987C4579AF13DB2A5FA7DBAE5FCFC
-      97CF8F0B6677621F4B2DB82FC1FD89FAFBAAA51664FF1F6C2B0D0D4C7A0B0000
-      002000000020000000331700000000000078DAED5D67505CD9951ECFAC3DE559
-      6F39EDEE8F2D7BED1FEBDDF256ADB7C6F60F6BC641224822CF5842F28C3D68A4
-      D1A011D2CC4888D4A0D00204888C02880C2237D0C42607915313254020441012
-      51209210B1CFDEF3BA1B1AE87EFD3A20F0CE7B555FF1FADE77CF77EEB9E79C7B
-      EE13A2DF7843F9C533377F2B9B63F6871C8E9997C0D1B492608860528221499B
-      67AE93C9EFF1D937B474E57C69F07636C7C446C0311D25F2812146044EA6D638
-      56236E27331322AB4F2AB7D4F52FD016740606932EC230DF19C633DD29E03DB6
-      B5DE3903252E4765F5E8CDE59819AAC34DC6720856514E99FBC73090E00853B9
-      5E8CD01FEF08F7DC3E96EAB09AC331B55369DE8EA6C13896CC1F3A23CEC3548E
-      27636E295E1074849F07019181B2B21D4D03559837E45F3E044F922EA9CCBB19
-      B82EF9570E496D614BCBCD3131A6EC75F10318E429E67ED99C09CB934F41B4F4
-      8AC2F2E42069CB50F83CCE23476C87D51C471303457E8EFE827A7647D92894B5
-      38D0048AAE85FE4685E31E465A4B6DD0C3E39A7F67337FB6A3893DF6575EB7A0
-      9D37758956E1557705CCDC0B2608A1EEB10DAF974DE90AC7977B7C22F60512CF
-      B2DC5C2EF74D12AFC3D847B7E66873BC5E75956FE9A37420D7F2C4139A75B848
-      F113FF7E869C6BEBEE64FA472ABEAF7D44EB4BA295258A63BA24704BDF4C4990
-      D834E4193A19252487503A704CDF5FB7BDA937B6B592DC4237567AC9EB9B2EBE
-      25E15FA695D1126425F60327D3EBEBF16E568D6D03894E6AC719AE3B5E2B33E3
-      4A7393241F54ACC79D38B7631E55877BBAC01F5666C725BE5146FBEC50EA5569
-      1C0CC9E49C456C9BCCF6509DBBE826F1B9418A7B757E0AA60B03689F9F201C12
-      FE054DF9917B657A44CCBD300BB315914AC7C8E557D3FE4BC30F25313748FCEF
-      36A331C821C7FE95EAF8DF5A3C32E496F53F82F275FF3771C5B696402B95F8E9
-      E251119A6F9F16C7BF93C95599FCF35B6C2B26B5C376F317399B8BF91D4CDF95
-      F2C31B6F7C8BB43DD1340730B7BD593F726EDC7BCD4E496B1DA6F5C65C5D02CC
-      D52630AE474A5D3F92F29FDC52DF923D91F43DC6FEAEC80B0CB813D7EC8FF7CA
-      9E7F18B1B6FF760B2D2DBF4D577FE43A998906122F2AE14F62CC8FB5638E93A9
-      88AEFED8527F5DFAB3D29A9389FD71CDF32E7FC8A8FEDA5C7F62EDD819AE7EFD
-      D919764EE5FA7337D4DF8ACE1FC5CE47A0E9D669E88DE350FBD8A4E03A852192
-      537B6339D044724BB1B376CE1FBBE1FCC5E0FCB92CC1B69D3FD94B7C999BF3DE
-      D2D7AFFE93AE6E8D0F4195AE6EF5909E5ECD2402EF75746A2A49BBB78E4ED51F
-      F1596DF1EED953FD5D229F43643F2700861827FAD8E3584DB875756B0F135983
-      52B98686CD70F4682F7CF6D97338756A0AACACE628E03DB6619F814193AC1E03
-      3A3AD51FAA636B62570F325E84728C8C5AE0C48931F8F2CB578C70FCF8183546
-      A2039151EBC6E5C29B4CB8F13932868F63F5F46AE1AF7F7DC29877333EFEF809
-      2543A2470A131D88BDDCF1797DFD3A6A1EEA72CBDA026589E753E34AC74D743D
-      84F6429D99D85B7A297B0E6549EC80B2CD14FB79CD13D4F36F7F1B643437A6FC
-      08942959873E03839CB7B7DABDC609FB4D4CDA18DB56157E84B1719B641D6A1D
-      36FB3B691FC53E3ABB9F3BA79CFFFC79BA751895DA6058D617497CECC3760383
-      668563BDBC16E1F97311B8B82C28E4F7F45C84172F44E0EFBFA8500EE610E4C2
-      3CB9CE4FE554923F1ECB1D83731A1B13515C9999CB0AF9D3D296A9CF939322B0
-      B696CF7FF4688F640DAABDD6FDBEA696CEF6F1F1E2735657D72A7CF515BDFD3B
-      3BC5EF8192929614C682640DAA64E63F8E6D9847E58D696B13CBBC797351E9FA
-      07052D526D1D1DAB72659D3AF542CA3F22C3BF846D67CECCC91D333222B6FD66
-      9BCAE3B7B75FA0DAD057E4C9C2FD42C2BF20C3BF48C73F3A2A8255620259DB2B
-      E2471DF19A9850897F94CEFEF7EF8BEDEFECBCA034C63106A4BE22AFDFD2526A
-      FFEA2119FE1AB1FF8DCB1D939828F6BFE2E265A5FCD5D52BD4B37CFE32ADFF61
-      BDC234FE2E5C7845C514AE4170B0E2D80E0D5D02117195E96911D8DA328FBF7D
-      FB6ADE17E79F2685B203021661854C0D75282B5B010F8FF5B5C07B6CC33EC4ED
-      DB8A7534306894D8BF6A8FAAF917636B6E4EA4F0FDF3FCBC0842421669F662F9
-      F957B206D6E21AAB853C3BAF50869DDD2B484F5F86FEFE5558226E81C07B8160
-      191C1D15FBE7D9B3F3547E17F3D77E4DB7FF62DDA269DDB1191F7DF48476FF55
-      A7FE600AF1BE475F7FC8ABBFB4A1832AF5D76EA83F77BAFEA63B7F607E3872A4
-      878A23DCC7CE9E7D490173EAF1E323606EDE2313DFEA9F3F76CBF94BD9F993FC
-      5C1663FBCE9FEC45FB8E6CC37B1F969FE567F9597E969FE567F959FEFF2FFC39
-      8E661E2AFCDBD706E0582DCD95AB063F57CBF6E6EE14B78A3A70B7D9EFB83BC5
-      AD4407AE2671A4A10EDC9D885F890E5C367FB1FC9AF27F53C1BEC9105F310E3E
-      F7EFDAFBCCC943A483FBFCED4BE756039CAC80296E5FFC4A14C9B9D61E79CEEF
-      074CF8E3397E235D7995305CD7B686A1F246182AAA85CABBD1907CC7039EF5B4
-      324646A43F2478B82FC772FCEE07DB7B7C9F09FF933221CCB4F7ACE179752B0C
-      155443455414A485FBC2CCF8804214F223202BF6260C7435529F73E383A03229
-      0ECA4292E7E338BE9DD11CB71F6F277F42D03508F3728047AD55EBFCBC389879
-      D0B3A643D879DF1FBD767E9445E9C09B8FE5F828D4615BF965748871F0EB8873
-      70FFE16BE72798BEFF080A6FC5BE8A73F42FD1367F555E32946444C353E2FB8A
-      F811C8815C8CF86B5A28FEAAE86888F3BF0AAD55798CC10B7287AAE4788DF8A7
-      5A1EC228C901FD05659072C303127D9D95C3CF05926E5C037E90273CAB6BD488
-      7F3BC0F2EF7EFEFCD8602A96B50994C9983F2E041E082B61E1D5BC5680B250A6
-      2AFC9DAD75A0AD0B65A9CD3F3F0230D1A41EE64734E75F5900587CA11E561634
-      E7DF69FB2F4E024C77AB071CAB29FFD20CC0DCA07AC0B17FEFF65F9E237E3CAC
-      1E70ACA6FC0BCF01A63AD4038EFD3BB27F7B6629D52F880C0461453E8C8F3CD5
-      0A5016CA44D9C8218FFFAE836F35A9D1871077DD5C5E46FB5E59D52650E69A7C
-      C2C59E78D98BEED2D5ADFB4F3DBD9ABDDA9085BFFFA3A3537B9CE9EF01EDDD5B
-      FD1F8686C2211393A6093DBD063D4DB90D0D1B530E1D6A9D33346C4857A683AE
-      6EED7F93E7875C5DA7C0D37316CCCC9AC795FDDE98E27994FE838141438E9555
-      FFAC9FDF2B38736660F6E0C1FA3C6C97F73CB1F72F8D8C1A865D5C5E003E8F50
-      5787CDDC5258590DCC123BE4CAFB3DA1FDFBEB3C2D2C1ECEC93E8FF0F09805B2
-      1663070ED4EE636A73C29D6869D9332D4FD6C1830DD3FBF655FED7D691F02D32
-      2EE2F8F1EE2DE3AE5F9FA3ECA0AFDF60AACEBC11EEEE33641E8D63070FD6ED51
-      2C417D1D24DC023AEEFDFBABDF536E41E53AECDF5F6F223B02D7533BDCAAEBB0
-      CEDD37A31DEE751D48BC442AD6A169F4C081EA832457A49D3EAD6D6ED9FC21E4
-      595A3E9E91E7CBC6C6C217274FF64CC9EB33356D7A4E624A471BF913E3E9E4C9
-      C72F36F37879CDC156DB50DCA3DAE0DEB816C2C813271E6D99AB3C9BEBEBD7BC
-      AFFD5D895E87EDE5165F2477867DFA69F7B4AFAF7C7E63E3C63192AB7FA76D5E
-      891F26113F9CA6B3BFC4EFC6B4BDF64646F551274E74CF6E9EB73CFF73739B21
-      3A3412DFAF7F4F1BDC64DEB8E65B6C4E177FA8837662BF3195D87C4E81FC5194
-      8F3E41F47BB1593F8C4392A39EEBEA36E8ABCFDD3BA7C0CF47D7E7863612EB20
-      2F17905C3DA1AF5FBB7F7BB837EC17E18A75687ACE4407E4363212F24F9D5285
-      9BB90E7A7A750794C458DAA9537D6A706FD1614A551D76BAFEDABBB7F627C48F
-      06AE5C9958557DDEF2EB87CD6B817B39EEE9D82FDF06F53F95EA20E5563F9FAF
-      EB80B1896B6260501FA5887BD3F963403C6FCDF228AE05B177C2871FB64E929F
-      3CA667A09D3C7FB1D737EF32313101C4E2E2E26BC16EE5E79220791DD8ADFCDF
-      F4F567F9D9F867E39FF53F969F8D7F36FE59FFFBA6F34BFD45DBEDBB95FF7561
-      B7F1B3177BFE67F31FBBFFB3EBCFAE3F5BFFB0FC6CFCB3F1CFFA1FCBCFF2B3E7
-      7FF6FCCF9EFFD96BE3E5EBF0B9951FC7B211E1CFB13CA52DB91FDEA9F8DFC381
-      E5270F055658CAE2ACE71D2F0717CF1884F315C7043FCEE7C55CAEF97710BE9C
-      CF4BAE7239F1D27E7C76F378B1CCF25F29E33F125C3D723A73507426EB29C8E2
-      6AC01D20735D832FC7D2513AC6CFC1D249B60F9FDD3C1E65A26C65FC47436BC7
-      EDCA5FC2665C0B8ADCC8EF68D9EFE364F5D3007BCB7F27BA0CCAF6E1B3F264A0
-      6C6DF18B75F862DAD7F1F4B4EFA6F6EDE0E726946EE157842B09F7B4CE8FB8C4
-      6F862B4955B4B894D6028AC66BCAAF29587E965F53FE70DF4B101BEE4F6162A4
-      6FED9ED1E7E15E480CF1184744F95D7A19EAEDF01B55F9510EF5FF5A354449E6
-      DDF1BF477EB4A936F867279E2E3794671E62EDCFAE3F6B7F76FD59FBEF0EFEBF
-      ECF4FA87D5DC360FAE7AAC083121DE2BDB397F6517D60E3BC98F750B8E45A00D
-      A5F7AA7E4E08749D56871FC74881EBA7C9E7602EF71D269CE63CF3B76C233EF9
-      935D98858F5DB84515F93944302901DE57DA851FF3B60F3BF6477C565BEF02CE
-      F3CCBF6B17768C43E43F2700861827B0C7B19A70DB855A1C267206A572B9F167
-      E14E9127A4B6C44256470AE43DCAA280F729CDB1A4EF3A70E3CEC8EA3160136E
-      A1FAF7FF11FB91B11E042294E392740E788DD150DC5FC008498D51E092F8B554
-      0722E31337D9EF3BA7FF7F32DC37ED432DF838D63EFC538828BF01C57D058CB9
-      D740C64494071019C7283DECC33E4961A2836DB8853B3EEF18F5994A73A6B385
-      63E467125B1C73A5E73E7608EDE540744E6EBAAB31B714380F891D44C4B6668A
-      FDDCE209EA195519C848AED4CF983C1B59794BFA7CDF9737BE7C7BABAF7FE284
-      FD6E291718CF4B157E845BF205B12F845A386CF1F7708B51ECE335456F1B3FFA
-      8264CCB0AC2F12EE7DD87E35E14B95D655557EC4559243C4F1706CEDFBFFA89C
-      4ADA8248FED86EFEC0420F6A8C6D98C5DAF78FD98759D48A6D7F77DBF93116A8
-      71640F91993FE66B2A8F6E377F667B8A34178CC8F02F615B418F402187BAD82C
-      2FFF718EB46F41867F7147F925B197D591BAFDF6EF90DADF624866FE35D896FC
-      3AFD8FD42BBB25FE6CC38EBD2FAE2FCE6C3BFF95D8D3D4185297EC919B7F1B5F
-      7FFEA57250B88535F639277E05457DF95AE72FEACD23F9FDACD4F65FD3EDBFE1
-      58F368993FBCCC9F76FF95AD3FB0EED246ED236B77B2DFD0D61FBBA1FEDA96FA
-      334CB5FA73A7EB6FBAF3C795382BB85DE00689C2486A1F2BECCDA590D99E0C89
-      0D91A4EF1AF58CA6E78FDD72FE6270FE5C9660DBCE9FEC25FF02E0BE395012FA
-      9BF4D44B270BD2AE7E5497E7FB076CDB4ECEDEE240F387E9BEE5CD71CEB34DB1
-      CEA2FA582EA4067F0D59E1B69017660B0521172037D4663527D6B1BF32C3FD0B
-      6DF10E14877CDE9AE436F530C317C61AE261F94931C04839BCE8CF85F4624F08
-      CC715E8BFDBCF654884D7282EA446768E3B9BD78521272425DDEC1BCB01F3D48
-      F5ECEE48F38697DD028A73335E0E16822FDF7E7D9FEBCB83EB245F2D3E2BA1C6
-      74A47989DA53AF77F59546FE4015EEBA1C3F9DEA98CBAF04FCAB7027D3117C52
-      ACE1569A03340A2336F08B86CBC033F9FC1A7F6891271455DEDCF0CC687D1CD4
-      C572E7EF657A1830E116F0B907F3422F8862B25DD7721DCA0DCC738180CC8B90
-      5BEEBF267BA427036E655FA1F27D70BE1BA491F5108D946DE04F24393322ED32
-      A0CCCCE4CBB43A0804DE3FCB09B516A5558550F3C97D94055EE4DC5A5573072A
-      6A82C0959CDF2E479D84D56131C7FDE6BB1044E4FBA4D991FE3B5BD6A741184E
-      F476A56465548753FE891C8AF8B3A2EC6652B3D7EB509C6F7B6BACDCB5473C79
-      980A5763BE80EE07895BFAA6FBF3287D65CF15E9022FC88EB29B92C79D9D7CD9
-      2333C276FDD9073C08175C5E93B73A740F9E76F36185FC94E5D9FC59961F6DEF
-      97CED9B03F6647D8416E2A97BB993F27CC6625AB3E6AEDB984860828A808A064
-      8D3FCE8680541BB825B802DEBCF330D12B506813593C20B6F3E1DB6DE017D447
-      0372C972176538DB65476E7C2EB73B83E22AA9BE099E3C6B628F24AA3DB5250E
-      42B29C9472E3DA7BA792DCF4287B4B8D2088B087D234E7B36B738F71184ECBF1
-      DAF21C72DE257E27BB86B9DD99E04EEA643AEEAABA3BC4EE0E50F838576E8D92
-      9EEB03B9B19C6752FEBC109BD5BC763E7D0D4D72CBDDAA40F020F9E5615B3C2D
-      FF35526B17929A5B91AC82CE0C2A16289F1772DFC90F56FCDE89DF1A0FD7498E
-      F14BB1817C12FBF324E729E2455F0CCDBA48F285F2B35C1ED92F1EE5DC78BB30
-      C3E5CFC41F149E5731F74D915CCFC4DFC67AB2C4F988419D883E5092EE6658C8
-      BF7A3E3BDA610327D690F86E3988E48EC71D498CB8112555B720BAE22623FEAC
-      680E14F19DBF6A14F87D9A1E7E01F27AB22195ACAB4FB23508EEF98037B1F9A5
-      E8CF6159417C6F06E6074FDE39C897F31E432EFF5D317F7F71C87B75715CF0CF
-      7422B6BB0C830FF96B7B4B64D625C673AFAD0F855092FF99D6E939240FDD4BF3
-      30100A83BFDD14E72C2AAB09047CF71B4FF6991692D75166074DEE95C5D25009
-      78909A3FFFB180317F7E880D088383BF8D31D01CEF32BD345048F8E2C08BD890
-      1B730A6607F218CF7DB24F0001194ECCB9499D42E26F2D077667FB670CD7C4AC
-      C9C3350827F22248BE9522A5C803FA3B53E4F2E35A619C04937C1F5EEA0BF10D
-      E1D4BB2645FC19599E9015C7E95AABED8AEEE83F48B9BE41664F7B12DC20B194
-      DDC9A790DC1C43F280350C3FCA90ABC3F25029F476F0A0B991D40CA5DEE096F0
-      95C2775A39A45ECC4BBDFC89EC1ED096E4FE6CEA3E7F4D1EEE39E88FB2E35288
-      0EB80FF575242B5D13DC2B6F905CB4993BBB2214B2226C1737EF7F7D25217F6A
-      4B721381A47E11AFA9A39C7798C9A4D6B94662ED3C1456DDA4D5C18B3C532493
-      878BC89E9C176A0B59C9178FCBAB0148AD297C5611295E53A207EE7FF2F62F29
-      BC488EA0E34F2870DDF04E3F33CD1D04310EA38AEA9FF676EE7748DD3C32D1CC
-      A3C6D73784117FF291BF8791BD3152C0A5E5EF22F94C5A7F6515DD80EC309B65
-      1ECF97F65C3A5870E717E47CF16AB23599CA7D68E72DFB17C9717E646D3A95EC
-      831817D7C9F88C925B24DEAD450519AEBF65520377E6FAFD9CE484E74FCB23C8
-      7E7669831FE774655032ABEB4294E706C29F99E00882B00B2B5989DC5FAB7206
-      182BE57DAF3DCDABA52CD291C4BE3FC58D7BBA37DF16BA1E2428E57ED1960A2D
-      09D744C264B74E7E11E7C7EA9E838A92AE1E1384DB2CE684DA4042A213949607
-      28E45C24E780A1EA6872F67227DCAEFD5DB901BADA3A07E6A73B5B15C45FEC6E
-      897399698E7511B5F3BD00CF8408BCC736CCE30F337D8AFA0B838DB6FBFCDD5F
-      16F62EE60C04DEAB7BFE0EE65ABE83BF43BE53EF12021C4EFEC697732A84E567
-      F959FEEDBD0C0CCAFFC5D858986564D4D0A6AFDF60F8BAF98D8D1B32EDEC4644
-      6E6ED3D4DFA6D6D3137E1FF943AF59C7B596A6FEA4A334F377ADF9F9FFD85696
-      FE3F08BCA7DA489F36FA4D4D1A9EE3DFFFC5BFC37BF870EBD8DEBD353FA7F8DD
-      6CE2EE97A5FF94E0BD76B2EFDD2FCFF81582BA276D923E8DFA3F30AD0CD4D3AB
-      25F3162E1D39D2366D68284C57D5FEF2D68FC9A5AB5B739D00080ADF7BAFEA5F
-      F5F52BFF4D1DFF13AFDFF086F563C0ED28E6AE2EDFBBB7F47B9AF83FB159BF74
-      FD0E1D6A59D2D5A5FB1E0BEABB4C3CA5F3DEB3A7FABB9AC41FD1FF2059BF4563
-      E3C6D54387DA160E1EAC071D9D9AB17DFB6AE47E17869E5ECD45BA79ABC24F64
-      7C40642D12F4E2F7B3E0FAE9E8D4E990CF83C841F4E2FDFEF7153FDC3C6FA25F
-      91A27933E5C7EF5D9172EBE854FD6C639FF0FBA43D16B90C0C1A5E12DB4C929F
-      43526EE2EBEF6892FF74746AF71359AF089EE2DF8356500D7D8B70DD3C76EC21
-      E517E7CE3D850307EA06DF7FBFF29F34C9BFEBF3AE7EACA757495B1FEDDB576B
-      48F867C5FC83222323A1B73AF95F26BE7BF5F4EA1670DEFAFAB5BF50FEEFA6F8
-      37E31B53497C4C126EA1AC2F30E1BF79F96C845098F5CE0766C23C99F85E257E
-      F6DBAED2AC7FC63E04DEF378BCB7DA2AB27F88C07B4DFB913FC6F712BFBD2CE3
-      5DF3C3F583D2F83E7AA475D6FA8BC277EF97A57DD6519EF56BECC77B94D15E9E
-      69D6519EF6416711FFC79AF6CBDA9FD8DC88CC7BFCF0E1B609697E7EDDFB3FFA
-      AD6C7E66EB1F969FE5DF5E7E7F8E6527EAF0BA81E76EEAFC4D74D80920F7FF01
-      072D60AF
-    }
+  object StatusBar: TStatusBar
+    Left = 0
+    Height = 23
+    Top = 557
+    Width = 900
+    AutoHint = True
+    Panels = <>
   end
   object SaveDialog: TSaveDialog
     Filter = 'Comma-separated files (*.csv)|*.csv'
@@ -2811,11 +1827,17 @@ object MainForm: TMainForm
     Top = 136
   end
   object MainMenu: TMainMenu
-    Images = ImageList
-    Left = 640
-    Top = 24
+    Images = MainDatamodule.ImageList
+    Left = 280
+    Top = 112
     object mnuFile: TMenuItem
       Caption = 'File'
+      object MenuItem5: TMenuItem
+        Action = acDataUpdate
+      end
+      object MenuItem6: TMenuItem
+        Caption = '-'
+      end
       object mnuFileQuit: TMenuItem
         Action = acFileExit
       end
@@ -2825,66 +1847,27 @@ object MainForm: TMainForm
       object mnuDataUpdate: TMenuItem
         Action = acDataUpdate
       end
-      object mnuDataClear: TMenuItem
-        Action = acDataClear
-      end
       object MenuItem10: TMenuItem
         Caption = '-'
       end
-      object mnuCommonStart: TMenuItem
-        Action = acDataCommonStart
+      object mnuDataMap: TMenuItem
+        Action = acDataMap
         AutoCheck = True
       end
-      object mnuMovingAverage: TMenuItem
-        Action = acDataMovingAverage
+      object mnuDataTimeSeries: TMenuItem
+        Action = acDataTimeSeries
+        AutoCheck = True
+      end
+      object mnuDataBoth: TMenuItem
+        Action = acDataBoth
         AutoCheck = True
       end
     end
-    object mnuChart: TMenuItem
-      Caption = 'Chart'
-      object MenuItem12: TMenuItem
-        Action = acChartMap
-        AutoCheck = True
-      end
-      object MenuItem9: TMenuItem
-        Action = acChartTimeSeries
-        AutoCheck = True
-      end
-      object MenuItem14: TMenuItem
-        Caption = '-'
-      end
-      object MenuItem8: TMenuItem
-        Action = acChartOverlay
-        AutoCheck = True
-      end
-      object mnuChartHighlightWeekends: TMenuItem
-        Action = acChartHighlightWeekends
-        AutoCheck = True
-      end
-      object MenuItem13: TMenuItem
-        Caption = '-'
-      end
-      object MenuItem5: TMenuItem
-        Action = acChartLinear
-        AutoCheck = True
-      end
-      object mnuChartLogarithmic: TMenuItem
-        Action = acChartLogarithmic
-        AutoCheck = True
-        Caption = 'Logarithmic'
-      end
-      object MenuItem6: TMenuItem
-        Caption = '-'
-      end
-      object MenuItem7: TMenuItem
-        Action = acChartCopyToClipboard
-      end
+    object mnuMap: TMenuItem
+      Caption = 'Map'
     end
-    object mnuTable: TMenuItem
-      Caption = 'Table'
-      object MenuItem1: TMenuItem
-        Action = acTableSave
-      end
+    object mnuTimeSeries: TMenuItem
+      Caption = 'Time-series'
     end
     object mnuConfig: TMenuItem
       Caption = 'Configuration'
@@ -2918,9 +1901,9 @@ object MainForm: TMainForm
     end
   end
   object ActionList: TActionList
-    Images = ImageList
-    Left = 560
-    Top = 24
+    Images = MainDatamodule.ImageList
+    Left = 280
+    Top = 56
     object acFileExit: TFileExit
       Category = 'File'
       Caption = 'Quit'
@@ -2942,18 +1925,12 @@ object MainForm: TMainForm
       ImageIndex = 0
       OnExecute = acAboutExecute
     end
-    object acDataClear: TAction
-      Category = 'Data'
-      Caption = 'Clear'
-      Hint = 'Clear loaded data'
-      ImageIndex = 4
-      OnExecute = acDataClearExecute
-    end
     object acConfigAutoLoad: TAction
       Category = 'Config'
       AutoCheck = True
       Caption = 'Automatic loading'
       Checked = True
+      Hint = 'Automatically load the configuration when the program starts'
       OnExecute = acConfigAutoLoadExecute
     end
     object acConfigAutoSave: TAction
@@ -2961,134 +1938,56 @@ object MainForm: TMainForm
       AutoCheck = True
       Caption = 'Automatic saving'
       Checked = True
+      Hint = 'Automatically save the configuration when the program terminates'
       OnExecute = acConfigAutoSaveExecute
     end
     object acConfigHint: TAction
       Category = 'Config'
       AutoCheck = True
-      Caption = 'Show hints'
+      Caption = 'Show popup hints'
       Checked = True
+      Hint = 'Turn off/on the popup hint windows'
       OnExecute = acConfigHintExecute
     end
-    object acTableSave: TAction
-      Category = 'Table'
-      Caption = 'Save to File...'
-      Hint = 'Save table to CSV file'
-      ImageIndex = 3
-      OnExecute = acTableSaveExecute
-    end
-    object acChartOverlay: TAction
-      Category = 'Chart'
-      AutoCheck = True
-      Caption = 'Overlay curves'
-      Hint = 'Overlay country courves'
-      ImageIndex = 8
-      OnExecute = acChartOverlayExecute
-    end
-    object acChartLogarithmic: TAction
-      Category = 'Chart'
-      AutoCheck = True
-      Caption = 'Log'
-      GroupIndex = 2220
-      Hint = 'Logarithmic y axis'
-      ImageIndex = 6
-      OnExecute = acChartLogarithmicExecute
-    end
-    object acChartLinear: TAction
-      Category = 'Chart'
-      AutoCheck = True
-      Caption = 'Linear'
-      Checked = True
-      GroupIndex = 2220
-      Hint = 'Linear y axis'
-      ImageIndex = 5
-      OnExecute = acChartLinearExecute
-    end
-    object acChartCopyToClipboard: TAction
-      Category = 'Chart'
-      Caption = 'Copy to clipboard'
-      Hint = 'copy chart to clipboard'
-      ImageIndex = 7
-      OnExecute = acChartCopyToClipboardExecute
-    end
-    object acDataCommonStart: TAction
+    object acDataMap: TAction
       Category = 'Data'
-      AutoCheck = True
-      Caption = 'Common start'
-      OnExecute = acDataCommonStartExecute
-    end
-    object acDataMovingAverage: TAction
-      Category = 'Data'
-      AutoCheck = True
-      Caption = 'Moving average'
-      OnExecute = acDataMovingAverageExecute
-    end
-    object acChartHighlightWeekends: TAction
-      Category = 'Chart'
-      AutoCheck = True
-      Caption = 'Highlight weekends'
-      OnExecute = acChartHighlightWeekendsExecute
-    end
-    object acChartMap: TAction
-      Category = 'Chart'
       AutoCheck = True
       Caption = 'Map'
-      Checked = True
+      GroupIndex = 2000
+      Hint = 'Show map alone'
       ImageIndex = 9
-      OnExecute = acChartMapExecute
+      OnExecute = acDataMapExecute
     end
-    object acChartTimeSeries: TAction
-      Category = 'Chart'
+    object acDataTimeSeries: TAction
+      Category = 'Data'
       AutoCheck = True
       Caption = 'Time series'
-      Checked = True
+      GroupIndex = 2000
+      Hint = 'Show time-series alone'
       ImageIndex = 10
-      OnExecute = acChartMapExecute
+      OnExecute = acDataMapExecute
+    end
+    object acDataBoth: TAction
+      Category = 'Data'
+      AutoCheck = True
+      Caption = 'Both'
+      Checked = True
+      GroupIndex = 2000
+      Hint = 'Show maps and time-series'
+      ImageIndex = 12
+      OnExecute = acDataMapExecute
     end
     object acInfectiousPeriod: TAction
       Category = 'Config'
       Caption = 'Infectious period...'
+      Hint = 'Days during which an infected person can infect others'
       OnExecute = acInfectiousPeriodExecute
     end
     object acSmoothingRange: TAction
       Category = 'Config'
       Caption = 'Smoothing range...'
+      Hint = 'Days to be used for smoothing the time-series plots (must be an odd number)'
       OnExecute = acSmoothingRangeExecute
     end
-  end
-  object BottomAxisTransformations: TChartAxisTransformations
-    Left = 592
-    Top = 440
-    object BottomAxisLogTransform: TLogarithmAxisTransform
-      Base = 10
-    end
-  end
-  object MapToolset: TChartToolset
-    Left = 520
-    Top = 144
-    object MapToolsetZoomDragTool: TZoomDragTool
-      Shift = [ssLeft]
-      Brush.Style = bsClear
-      RestoreExtentOn = [zreDragTopLeft, zreDragTopRight, zreDragBottomLeft, zreDifferentDrag]
-    end
-    object MapToolsetPanDragTool: TPanDragTool
-      Shift = [ssRight]
-    end
-    object MapToolsetDataPointHintTool: TDataPointHintTool
-      OnHint = MapToolsetDataPointHintToolHint
-      UseApplicationHint = True
-      UseDefaultHintText = False
-    end
-    object MapToolsetDataPointClickTool: TDataPointClickTool
-      Shift = [ssLeft, ssDouble]
-      OnPointClick = MapToolsetDataPointClickToolPointClick
-    end
-  end
-  object ResizeTimer: TTimer
-    Enabled = False
-    Interval = 50
-    OnTimer = ResizeTimerTimer
-    Left = 390
-    Top = 137
   end
 end

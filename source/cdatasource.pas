@@ -45,9 +45,12 @@ type
     function GetLastDate: TDate;
     function HasData(ACaseType: TPrimaryCaseType): Boolean;
 
+    function GetFirstIndexAboveLimit(ALimit: TCaseCount): Integer;
+
     function GetDataArray(ACaseType: TCaseType; ADataType: TDataType): TValueArray;
     function GetSmoothedDataArray(ACaseType: TCaseType; ADataType: TDataType; SmoothingInterval: Integer): TValueArray;
 
+    function CalcNewCases(AIndex: Integer; ACaseType: TCaseType): TCaseCount;
     function CalcNormalizedNewCases(AIndex: Integer; ACaseType: TCaseType): Double;
     function CalcRValue(AIndex: Integer; out R, dR: Double): Boolean; overload;
     function CalcRValue(AIndex: Integer): Double; overload;
@@ -133,10 +136,37 @@ uses
   Math,
   LazFileUtils;
 
-const
-  REFERENCE_POPULATION = 100000;
-
 { TcDataItem }
+
+function TcDataItem.CalcNewCases(AIndex: Integer; ACaseType: TCaseType): TCaseCount;
+var
+  j: Integer;
+  accum_Today, accum_Yesterday: TCaseCount;
+begin
+  Result := 0;
+
+  if Length(FRawData[pctConfirmed]) = 0 then
+    exit;
+
+  if AIndex < 0 then
+    AIndex := 0;
+  if AIndex > High(FRawData[pctConfirmed]) then
+    AIndex := High(FRawData[pctConfirmed]);
+  j := AIndex - 1;
+  if j < 0 then j := 0;
+
+  if ACaseType = ctSick then
+  begin
+    accum_Today := FRawData[pctConfirmed,AIndex] - FRawData[pctDeaths, AIndex] - FRawData[pctRecovered, AIndex];
+    accum_Yesterday := FRawData[pctConfirmed, j] - FRawData[pctDeaths, j] - FRawData[pctRecovered, j];
+  end else
+  begin
+    accum_Today := FRawData[TPrimaryCaseType(ACaseType), AIndex];
+    accum_Yesterday := FRawdata[TPrimaryCaseType(ACaseType), j];
+  end;
+
+  Result := accum_Today - accum_Yesterday;
+end;
 
 function TcDataItem.CalcNormalizedNewCases(AIndex: Integer; ACaseType: TCaseType): Double;
 var
@@ -173,7 +203,6 @@ end;
   The function result is false when R cannot be calculated (division by 0) }
 function TcDataItem.CalcRValue(AIndex: Integer; out R, dR: Double): Boolean;
 var
-  i: Integer;
   sum_now, sum_earlier: TCaseCount;
   dSum_now, dSum_earlier: Double;
 begin
@@ -198,7 +227,8 @@ begin
   // Sum of new cases one generation time earlier (--> InfectiousPeriod)
   if AIndex < InfectiousPeriod + SmoothingRange then
     exit;
-  sum_earlier := FRawData[pctConfirmed, AIndex - InfectiousPeriod] - FRawData[pctConfirmed, AIndex - InfectiousPeriod - SmoothingRange];
+  sum_earlier := FRawData[pctConfirmed, AIndex - InfectiousPeriod] -
+                 FRawData[pctConfirmed, AIndex - InfectiousPeriod - SmoothingRange];
 
   // The formula for R is sum_now / sum_earlier.
 
@@ -303,6 +333,8 @@ begin
     dtNormalizedNewCases:
       begin
         Result := GetDataArray(ACaseType, dtNewCases);
+        if Result = nil then
+          exit;
         WeeklySum(Result);
         factor := REF_POPULATION / FPopulation;
         for i := 0 to High(Result) do
@@ -394,6 +426,26 @@ begin
   Result := FFirstDate;
 end;
 
+function TcDataItem.GetFirstIndexAboveLimit(ALimit: TCaseCount): Integer;
+var
+  i: Integer;
+begin
+  if Length(FRawData[pctConfirmed]) = 0 then
+  begin
+    Result := -1;
+    exit;
+  end;
+
+  for i := 0 to High(FRawData[pctConfirmed]) do
+    if FRawData[pctConfirmed][i] >= ALimit then
+    begin
+      Result := i;
+      exit;
+    end;
+
+  Result := 0;
+end;
+
 function TcDataItem.GetLastDate: TDate;
 begin
   Result := FFirstDate + High(FRawData[pctConfirmed]);
@@ -409,7 +461,7 @@ end;
 function TcDataItem.GetSmoothedDataArray(ACaseType: TCaseType;
   ADataType: TDataType; SmoothingInterval: Integer): TValueArray;
 var
-  i, j: Integer;
+  i: Integer;
   sum: Double;
   v: Double;
   n: Integer;

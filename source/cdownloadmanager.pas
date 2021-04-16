@@ -69,9 +69,11 @@ type
   private
     FDownloads: array of TDownload;
     FFinished: Boolean;
+    FErrMsg: String;
   public
     procedure AddDownload(const AURL, AFilename: String; AStream: TStream = nil);
     procedure ShowStatus(const ALen, APos: Int64);
+    property ErrorMsg: String read FErrMsg;
   end;
 
 var
@@ -98,10 +100,17 @@ function DownloadToStream(const URL, AFileName: String; AStream: TStream): Boole
 var
   F: TDownloadForm;
 begin
+  Result := false;
   F := TDownloadForm.Create(nil);
   try
     F.AddDownload(URL, AFileName, AStream);
     F.ShowModal;
+    if F.ErrorMsg <> '' then
+    begin
+      MessageDlg(F.ErrorMsg, mtError, [mbOK], 0);
+      exit;
+    end;
+    Result := true;
   finally
     F.Free;
   end;
@@ -214,8 +223,9 @@ var
   dlThread: TDownloadThread;
   url: String;
   fn: String;
-  stream: TStream;
 begin
+  FErrMsg := '';
+
   Height := pbBytes.Top + pbBytes.Height + pbBytes.BorderSpacing.Bottom;
 
   Application.ProcessMessages;
@@ -241,7 +251,7 @@ begin
     except
       on E: Exception do
       begin
-        { #todo 1 -ogcarreno : Inform about error }
+        FErrMsg := E.Message;
         break;
       end;
     end;
@@ -271,6 +281,8 @@ procedure TDownloadForm.ShowStatus(const ALen, APos: Int64);
 var
   currentPercent: Double;
 begin
+  if ALen = 0 then
+    exit;
   currentPercent:= (APos*100)/ALen;
   pbBytes.Position:= round(currentPercent);
   lblBytes.Caption:= Format('%s of %s', [FormatBytes(APos), FormatBytes(ALen)]);

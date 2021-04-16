@@ -1,0 +1,113 @@
+object BasicFrame: TBasicFrame
+  Left = 0
+  Height = 339
+  Top = 0
+  Width = 598
+  BorderSpacing.Around = 4
+  ClientHeight = 339
+  ClientWidth = 598
+  TabOrder = 0
+  DesignLeft = 256
+  DesignTop = 127
+  object PageControl: TPageControl
+    Left = 0
+    Height = 309
+    Top = 30
+    Width = 598
+    ActivePage = pgTable
+    Align = alClient
+    BorderSpacing.Top = 4
+    TabIndex = 1
+    TabOrder = 0
+    OnChange = PageControlChange
+    object pgChart: TTabSheet
+      Caption = 'Chart'
+      ClientHeight = 285
+      ClientWidth = 590
+      object Chart: TChart
+        Left = 0
+        Height = 224
+        Top = 0
+        Width = 414
+        AxisList = <        
+          item
+            Marks.LabelBrush.Style = bsClear
+            Minors = <>
+            Title.LabelFont.Orientation = 900
+            Title.LabelBrush.Style = bsClear
+          end        
+          item
+            Alignment = calBottom
+            Marks.LabelBrush.Style = bsClear
+            Minors = <>
+            Title.LabelBrush.Style = bsClear
+          end>
+        Foot.Brush.Color = clForm
+        Foot.Font.Color = clBlue
+        Title.Brush.Color = clForm
+        Title.Font.Color = clBlue
+        Title.Text.Strings = (
+          'TAChart'
+        )
+        Color = clWindow
+        OnResize = ChartResize
+      end
+    end
+    object pgTable: TTabSheet
+      Caption = 'Table'
+      ClientHeight = 281
+      ClientWidth = 590
+      object Grid: TStringGrid
+        Left = 56
+        Height = 200
+        Top = 24
+        Width = 438
+        DefaultColWidth = 80
+        ExtendedSelect = False
+        MouseWheelOption = mwGrid
+        Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing, goThumbTracking, goSmoothScroll]
+        TabOrder = 0
+        OnPrepareCanvas = GridPrepareCanvas
+      end
+    end
+  end
+  object ToolBar: TToolBar
+    Left = 0
+    Height = 26
+    Top = 0
+    Width = 598
+    Caption = 'ToolBar'
+    Images = MainDatamodule.ImageList
+    TabOrder = 1
+    object tbSaveToFile: TToolButton
+      Left = 1
+      Top = 2
+      Action = acSaveToFile
+    end
+    object tbCopyToClipboard: TToolButton
+      Left = 24
+      Top = 2
+      Action = acCopyToClipboard
+      OnClick = tbCopyToClipboardClick
+    end
+  end
+  object SaveDialog: TSaveDialog
+    Left = 224
+    Top = 136
+  end
+  object ActionList: TActionList
+    Images = MainDatamodule.ImageList
+    Left = 360
+    Top = 136
+    object acSaveToFile: TAction
+      Caption = 'acSaveToFile'
+      ImageIndex = 3
+      OnExecute = acSaveToFileExecute
+    end
+    object acCopyToClipboard: TAction
+      Caption = 'acCopyToClipboard'
+      ImageIndex = 7
+      OnExecute = acCopyToClipboardExecute
+    end
+  end
+end

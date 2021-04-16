@@ -1,0 +1,430 @@
+inherited TimeSeriesFrame: TTimeSeriesFrame
+  Width = 959
+  ClientWidth = 959
+  DesignLeft = 392
+  DesignTop = 190
+  inherited PageControl: TPageControl
+    Height = 312
+    Top = 27
+    Width = 959
+    ActivePage = pgChart
+    TabIndex = 0
+    inherited pgChart: TTabSheet
+      ClientHeight = 284
+      ClientWidth = 951
+      inherited Chart: TChart
+        Height = 261
+        Hint = 'Zoom: '#13#10'  drag a rectangle from left-top to bottom-right corner with left mouse button down'#13#10'  or: use mouse wheel (zoom center is mouse position).'#13#10'Pan: '#13#10'  drag with the right mouse button down'#13#10'Restore view: '#13#10'  click'#13#10'Read data value: '#13#10'  move mouse over data point (no key pressed)'#13#10'Measure doubling time: '#13#10'  CTRL-drag over data points of interest with left mouse button down.'#13#10'|'
+        Width = 808
+        AxisList = <        
+          item
+            Grid.Color = clSilver
+            Grid.Style = psSolid
+            Marks.LabelBrush.Style = bsClear
+            Minors = <>
+            Title.Alignment = taCenter
+            Title.LabelFont.Height = -13
+            Title.LabelFont.Orientation = 900
+            Title.LabelFont.Style = [fsBold]
+            Title.Visible = True
+            Title.Caption = 'Cases'
+            Title.LabelBrush.Style = bsClear
+          end        
+          item
+            Grid.Color = clSilver
+            Grid.Style = psSolid
+            Alignment = calBottom
+            Marks.Format = '%2:s'
+            Marks.LabelBrush.Style = bsClear
+            Marks.Source = DateTimeIntervalChartSource
+            Marks.Style = smsLabel
+            Minors = <>
+            Title.Alignment = taCenter
+            Title.LabelFont.Height = -13
+            Title.LabelFont.Style = [fsBold]
+            Title.Visible = True
+            Title.Caption = 'Date'
+            Title.LabelBrush.Style = bsClear
+          end>
+        Frame.Color = clWindowText
+        Legend.SymbolWidth = 30
+        Toolset = ChartToolset
+        OnBeforeCustomDrawBackWall = ChartBeforeCustomDrawBackWall
+        Align = alClient
+        OnResize = ChartResize
+      end
+      object ChartListbox: TChartListbox[1]
+        Left = 817
+        Height = 253
+        Hint = 'Uncheck to remove a curve temporarily.'
+        Top = 4
+        Width = 130
+        Chart = Chart
+        OnAddSeries = ChartListboxAddSeries
+        OnCheckboxClick = ChartListboxCheckboxClick
+        Align = alRight
+        BorderSpacing.Left = 4
+        BorderSpacing.Top = 4
+        BorderSpacing.Right = 4
+        BorderSpacing.Bottom = 4
+        ItemHeight = 0
+        OnClick = ChartListboxClick
+        TabOrder = 1
+      end
+      object Splitter1: TSplitter[2]
+        Left = 808
+        Height = 261
+        Top = 0
+        Width = 5
+        Align = alRight
+        ResizeAnchor = akRight
+      end
+      object StatusBar: TStatusBar[3]
+        Left = 0
+        Height = 23
+        Top = 261
+        Width = 951
+        Panels = <>
+      end
+    end
+    inherited pgTable: TTabSheet
+      inherited Grid: TStringGrid
+        AnchorSideLeft.Control = pgTable
+        AnchorSideTop.Control = lblTableHint
+        AnchorSideTop.Side = asrBottom
+        AnchorSideRight.Control = pgTable
+        AnchorSideRight.Side = asrBottom
+        AnchorSideBottom.Control = pgTable
+        AnchorSideBottom.Side = asrBottom
+        Left = 6
+        Height = 227
+        Top = 52
+        Width = 578
+        Anchors = [akTop, akLeft, akRight, akBottom]
+        BorderSpacing.Around = 6
+      end
+      object lblTableHdr: TLabel[1]
+        AnchorSideLeft.Control = pgTable
+        AnchorSideTop.Control = pgTable
+        Left = 6
+        Height = 25
+        Top = 6
+        Width = 148
+        BorderSpacing.Left = 6
+        BorderSpacing.Top = 6
+        Caption = 'Cumulative Cases'
+        Font.Height = -19
+        ParentColor = False
+        ParentFont = False
+      end
+      object lblTableHint: TLabel[2]
+        AnchorSideLeft.Control = lblTableHdr
+        AnchorSideTop.Control = lblTableHdr
+        AnchorSideTop.Side = asrBottom
+        Left = 6
+        Height = 15
+        Top = 31
+        Width = 63
+        Caption = 'lblTableHint'
+        ParentColor = False
+      end
+    end
+  end
+  inherited ToolBar: TToolBar
+    Height = 23
+    Width = 959
+    AutoSize = True
+    EdgeBorders = []
+    List = True
+    ShowCaptions = True
+    inherited tbSaveToFile: TToolButton
+      Left = 524
+      Top = 0
+      ShowCaption = False
+    end
+    inherited tbCopyToClipboard: TToolButton
+      Left = 547
+      Top = 0
+      ShowCaption = False
+    end
+    object DataTypePanel: TPanel[2]
+      Left = 1
+      Height = 23
+      Top = 0
+      Width = 160
+      AutoSize = True
+      BevelOuter = bvNone
+      ClientHeight = 23
+      ClientWidth = 160
+      TabOrder = 0
+      object cmbDataType: TComboBox
+        AnchorSideLeft.Control = DataTypePanel
+        AnchorSideTop.Control = DataTypePanel
+        AnchorSideTop.Side = asrCenter
+        Left = 0
+        Height = 23
+        Top = 0
+        Width = 160
+        DropDownCount = 16
+        ItemHeight = 15
+        ItemIndex = 0
+        Items.Strings = (
+          'Cumulative cases'
+          'New cases'
+          'Normalized cumulative'
+          'Normalized new cases'
+          'Doubling time of cumulative cases'
+          'Doubling time of new cases'
+          'Cumulative vs. new cases'
+          'Reproduction number'
+        )
+        OnChange = cmbDataTypeChange
+        Style = csDropDownList
+        TabOrder = 0
+        Text = 'Cumulative cases'
+      end
+    end
+    object tbDivider2: TToolButton[3]
+      Left = 353
+      Height = 22
+      Top = 0
+      Caption = 'tbDivider2'
+      Style = tbsDivider
+    end
+    object tbHighlightWeekends: TToolButton[4]
+      Left = 450
+      Top = 0
+      Action = acHighlightWeekends
+      ShowCaption = False
+      Style = tbsCheck
+    end
+    object tbClear: TToolButton[5]
+      Left = 358
+      Top = 0
+      Action = acClear
+      ShowCaption = False
+    end
+    object tbDivider1: TToolButton[6]
+      Left = 161
+      Height = 22
+      Top = 0
+      Caption = 'tbDivider1'
+      Style = tbsDivider
+    end
+    object tbOverlay: TToolButton[7]
+      Left = 381
+      Top = 0
+      Action = acOverlayMode
+      ShowCaption = False
+    end
+    object ToolButton3: TToolButton[8]
+      Left = 404
+      Top = 0
+      Action = acLinear
+      ShowCaption = False
+    end
+    object ToolButton5: TToolButton[9]
+      Left = 427
+      Top = 0
+      Action = acLogarithmic
+      ShowCaption = False
+    end
+    object tbDivider3: TToolButton[10]
+      Left = 519
+      Height = 22
+      Top = 0
+      Caption = 'tbDivider3'
+      Style = tbsDivider
+    end
+    object tbInfected: TToolButton[11]
+      Left = 166
+      Top = 0
+      Action = acInfected
+    end
+    object tbDeaths: TToolButton[12]
+      Left = 217
+      Top = 0
+      Action = acDeaths
+    end
+    object tbRecovered: TToolButton[13]
+      Left = 261
+      Top = 0
+      Action = acRecovered
+    end
+    object tbSick: TToolButton[14]
+      Left = 324
+      Top = 0
+      Action = acSick
+    end
+    object ToolButton1: TToolButton[15]
+      Left = 473
+      Top = 0
+      Action = acMovingAverage
+      ShowCaption = False
+    end
+    object ToolButton2: TToolButton[16]
+      Left = 496
+      Top = 0
+      Action = acCommonStart
+      ShowCaption = False
+    end
+  end
+  inherited SaveDialog: TSaveDialog
+    Left = 456
+    Top = 72
+  end
+  inherited ActionList: TActionList
+    Left = 456
+    Top = 128
+    object acInfected: TAction[0]
+      AutoCheck = True
+      Caption = 'Infected'
+      Hint = 'Show infected cases'
+      OnExecute = acCasesExecute
+    end
+    object acDeaths: TAction[1]
+      AutoCheck = True
+      Caption = 'Deaths'
+      Hint = 'Show deaths'
+      OnExecute = acCasesExecute
+    end
+    object acRecovered: TAction[2]
+      AutoCheck = True
+      Caption = 'Recovered'
+      Hint = 'Show recovered cases'
+      OnExecute = acCasesExecute
+    end
+    object acSick: TAction[3]
+      AutoCheck = True
+      Caption = 'Sick'
+      Hint = 'Show sick cases'
+      OnExecute = acCasesExecute
+    end
+    object acHighlightWeekends: TAction[4]
+      AutoCheck = True
+      Caption = 'Highlight weekends'
+      Hint = 'Highlight weekends'
+      ImageIndex = 11
+      OnExecute = acHighlightWeekendsExecute
+    end
+    object acClear: TAction[5]
+      Caption = 'Clear'
+      Hint = 'Clear data'
+      ImageIndex = 4
+      OnExecute = acClearExecute
+    end
+    object acOverlayMode: TAction[6]
+      AutoCheck = True
+      Caption = 'Overlay'
+      Hint = 'Overlay curves'
+      ImageIndex = 8
+      OnExecute = acOverlayModeExecute
+    end
+    object acLinear: TAction[7]
+      AutoCheck = True
+      Caption = 'Linear'
+      Checked = True
+      GroupIndex = 20210325
+      Hint = 'Linear plot'
+      ImageIndex = 5
+      OnExecute = acLinearExecute
+    end
+    object acLogarithmic: TAction[8]
+      AutoCheck = True
+      Caption = 'Log'
+      GroupIndex = 20210325
+      Hint = 'Logarithmic plot'
+      ImageIndex = 6
+      OnExecute = acLogarithmicExecute
+    end
+    object acMovingAverage: TAction[9]
+      AutoCheck = True
+      Caption = 'Moving average'
+      Hint = 'Moving average'
+      ImageIndex = 13
+      OnExecute = acMovingAverageExecute
+    end
+    object acCommonStart: TAction[10]
+      AutoCheck = True
+      Caption = 'Common start'
+      Hint = 'Common start of time-series'
+      ImageIndex = 14
+      OnExecute = acCommonStartExecute
+    end
+    inherited acSaveToFile: TAction[11]
+      Caption = 'Save to file'
+    end
+    inherited acCopyToClipboard: TAction[12]
+      Caption = 'Copy to clipboard'
+    end
+    object acShowSymbols: TAction[13]
+      AutoCheck = True
+      Caption = 'Show symbols'
+      Checked = True
+      Hint = 'Show time series symbols'
+      OnExecute = acShowSymbolsExecute
+    end
+  end
+  object DateTimeIntervalChartSource: TDateTimeIntervalChartSource[4]
+    Params.MaxLength = 120
+    Params.MinLength = 30
+    Left = 336
+    Top = 240
+  end
+  object LeftAxisTransformations: TChartAxisTransformations[5]
+    Left = 112
+    Top = 88
+    object LeftAxisLogTransform: TLogarithmAxisTransform
+      Base = 10
+    end
+  end
+  object BottomAxisTransformations: TChartAxisTransformations[6]
+    Left = 160
+    Top = 240
+    object BottomAxisLogTransform: TLogarithmAxisTransform
+      Base = 10
+    end
+  end
+  object ChartToolset: TChartToolset[7]
+    Left = 248
+    Top = 168
+    object MeasurementTool: TDataPointDistanceTool
+      Shift = [ssCtrl, ssLeft]
+      OnAfterMouseUp = MeasurementToolAfterMouseUp
+      GrabRadius = 32
+      LinePen.Visible = False
+      DataPointModeEnd = dpmLock
+      DataPointModeStart = dpmLock
+      Marks.Format = '%0:.9g'
+      Marks.Frame.Visible = False
+      Marks.LabelBrush.Style = bsClear
+      Marks.LinkPen.Visible = False
+      PointerEnd.HorizSize = 8
+      PointerEnd.Style = psCircle
+      PointerEnd.VertSize = 8
+      PointerEnd.Visible = True
+      PointerStart.HorizSize = 8
+      PointerStart.Style = psCircle
+      PointerStart.VertSize = 8
+      PointerStart.Visible = True
+      OnGetDistanceText = MeasurementToolGetDistanceText
+      OnMeasure = MeasurementToolMeasure
+    end
+    object CrossHairTool: TDataPointCrosshairTool
+      GrabRadius = 32
+      OnDraw = CrossHairToolDraw
+      Size = 16
+    end
+    object ZoomDragTool: TZoomDragTool
+      Shift = [ssLeft]
+      Brush.Style = bsClear
+      EscapeCancels = True
+    end
+    object PanDragTool: TPanDragTool
+      Shift = [ssRight]
+      EscapeCancels = True
+    end
+    object WheelZoomTool: TZoomMouseWheelTool
+    end
+  end
+end
