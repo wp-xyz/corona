@@ -29,7 +29,7 @@
     <VersionInfo>
       <UseVersionInfo Value="True"/>
       <MajorVersionNr Value="1"/>
-      <MinorVersionNr Value="1"/>
+      <MinorVersionNr Value="2"/>
       <StringTable OriginalFilename="corona.exe"/>
     </VersionInfo>
     <BuildModes Count="5">
