@@ -194,7 +194,10 @@ begin
 end;
 
 procedure TMainForm.acDataMapExecute(Sender: TObject);
+var
+  oldDisplayMode: TDisplayMode;
 begin
+  oldDisplayMode := FDisplayMode;
   if acDataMap.Checked then
     SetDisplayMode(dmMap)
   else if acDataTimeSeries.Checked then
@@ -202,7 +205,7 @@ begin
   else if acDataBoth.Checked then
     SetDisplayMode(dmBoth)
   else
-    raise Exception.Create('Unknown display mode');
+    SetDisplayMode(oldDisplayMode);
 end;
 
 procedure TMainForm.acConfigAutoLoadExecute(Sender: TObject);
