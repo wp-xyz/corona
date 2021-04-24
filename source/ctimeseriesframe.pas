@@ -1265,7 +1265,7 @@ begin
       Intervals.MinLength := 10;
       Intervals.Tolerance := 0;
       Marks.Style := smsValue;
-      if GetDataType() in [dtCumulative, dtCumVsNewCases] then
+      if GetDataType() in [dtCumulative, dtNewCases, dtCumVsNewCases] then
         Marks.Format := '%0:.0n'
       else
         Marks.Format := '%0:.9g';
