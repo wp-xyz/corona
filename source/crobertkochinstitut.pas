@@ -1,6 +1,7 @@
 unit cRobertKochInstitut;
 
-{$mode objfpc}{$H+}
+{$MODE objfpc}{$H+}
+{.$DEFINE RKI_RECOVERED}     // RKI now has a field for recovered cases, however, values look wrong...
 
 interface
 
@@ -15,7 +16,7 @@ type
   TRobertKochDatasource = class(TcDataSource)
   private
     function BuildURL(const ID: String): String;
-    procedure ExtractData(AStream: TStream; out AHeader, AConfirmed, ADeaths: String);
+    procedure ExtractData(AStream: TStream; out AHeader, AConfirmed, ADeaths, ARecovered: String);
     function GetDataString(const AState, ACounty: String;
       ACaseType: TPrimaryCaseType; out AHeader, ACounts: String): Boolean;
   protected
@@ -34,11 +35,12 @@ implementation
 uses
   DateUtils,
   fpJson, JSONParser, JSONScanner,
-  cDownloadManager;
+  cDownloadManager, cUtils;
 
 const
   FILENAME_CONFIRMED = 'RKI_confirmed.csv';
   FILENAME_DEATHS = 'RKI_deaths.csv';
+  FILENAME_RECOVERED = 'RKI_recovered.csv';
 
   POPULATION_GERMANY = 83149300;  // Sept 30, 2019; wikipedia.
 
@@ -327,7 +329,7 @@ const
         '(IdLandkreis = ''%s'')'+            // IdLandkreis=''%s'' with Landkreis ID, 5 digits, leading zero; or IdBundesland=''%s'' with Bundesland ID
     '&returnGeometry=false'+
     '&spatialRel=esriSpatialRelIntersects'+
-    '&outFields=SummeFall,SummeTodesFall,Meldedatum'+
+    '&outFields=SummeFall,SummeTodesFall,'{$IFDEF RKI_RECOVERED}+'SummeGenesen,'{$ENDIF}+'Meldedatum'+
     '&orderByFields=Meldedatum asc'+
     '&resultOffset=0'+
     '&resultRecordCount=2000'+
@@ -340,7 +342,7 @@ const
       '(Meldedatum >= timestamp ''%s'') AND ' +
       '(Meldedatum < timestamp  ''%s'') AND ' +
       '(IdBundesland = ''%s'')' +
-    '&outFields=SummeFall,SummeTodesfall,Meldedatum'+
+    '&outFields=SummeFall,SummeTodesfall,'{$IFDEF RKI_RECOVERED}+'SummeGenesen,'{$ENDIF}+'Meldedatum'+
     '&returnGeometry=false'+
     '&spatialRel=esriSpatialRelIntersects'+
     '&orderByFields=Meldedatum asc'+
@@ -348,6 +350,9 @@ const
     '&outStatistics=['+
       '{"statisticType":"sum","onStatisticField":"SummeFall","outStatisticFieldName":"SummeFall"},'+
       '{"statisticType":"sum","onStatisticField":"SummeTodesfall","outStatisticFieldName":"SummeTodesfall"}'+
+      {$IFDEF RKI_RECOVERED}
+      ',{"statisticType":"sum","onStatisticField":"SummeGenesen","outStatisticFieldName":"SummeGenesen"}'+
+      {$ENDIF}
     ']';
 
   // Deutschland (RKI)-Abfrage   // query of Germany total
@@ -356,7 +361,7 @@ const
     '&where='+
       '(Meldedatum >= timestamp ''%s'') AND ' +
       '(Meldedatum < timestamp  ''%s'')' +
-    '&outFields=SummeFall,SummeTodesfall,Meldedatum'+
+    '&outFields=SummeFall,SummeTodesfall,'{$IFDEF RKI_RECOVERED}+'SummeGenesen,'{$ENDIF}+'Meldedatum'+
     '&returnGeometry=false'+
     '&spatialRel=esriSpatialRelIntersects'+
     '&orderByFields=Meldedatum asc'+
@@ -364,6 +369,9 @@ const
     '&outStatistics=['+
       '{"statisticType":"sum","onStatisticField":"SummeFall","outStatisticFieldName":"SummeFall"},'+
       '{"statisticType":"sum","onStatisticField":"SummeTodesfall","outStatisticFieldName":"SummeTodesfall"}'+
+      {$IFDEF RKI_RECOVERED}
+      ',{"statisticType":"sum","onStatisticField":"SummeGenesen","outStatisticFieldName":"SummeGenesen"}'+
+      {$ENDIF}
     ']';
 
 
@@ -423,8 +431,9 @@ end;
 procedure TRobertKochDataSource.ClearCache;
 begin
   // Delete the cache files. Cache will be rebuilt when querying data.
-  DeleteFile(FCacheDir + FILENAME_CONFIRMED);
-  DeleteFile(FCacheDir + FILENAME_DEATHS);
+  SafeDeleteFile(FCacheDir + FILENAME_CONFIRMED);
+  SafeDeleteFile(FCacheDir + FILENAME_DEATHS);
+  SafeDeleteFile(FCacheDir + FILENAME_RECOVERED);
 end;
 
 procedure TRobertKochDataSource.DownloadToCache;
@@ -434,7 +443,7 @@ begin
 end;
 
 procedure TRobertKochDataSource.ExtractData(AStream: TStream;
-  out AHeader, AConfirmed, ADeaths: String);
+  out AHeader, AConfirmed, ADeaths, ARecovered: String);
 var
   json: TJSONObject;
   p: TJSONParser;
@@ -448,6 +457,7 @@ begin
   AHeader := '';
   AConfirmed := '';
   ADeaths := '';
+  ARecovered := '';
   AStream.Position := 0;
   p := TJSONParser.Create(AStream, [joUTF8]);
   try
@@ -470,6 +480,10 @@ begin
       AConfirmed := AConfirmed + ',' + s;
       s := jData.Find('SummeTodesfall').AsString;
       ADeaths := ADeaths + ',' + s;
+      {$IFDEF RKI_RECOVERED}
+      s := jData.Find('SummeGenesen').AsString;
+      ARecovered := ARecovered + ',' + s;
+      {$ENDIF}
     end;
   finally
     p.Free;
@@ -486,7 +500,7 @@ var
   sa: TStringArray;
   fn: String;
   i: Integer;
-  sConfirmed, sDeaths: String;
+  sConfirmed, sDeaths, sRecovered: String;
 begin
   Result := false;
   AHeader := '';
@@ -495,7 +509,7 @@ begin
   case ACaseType of
     pctConfirmed: fn := FCacheDir + FILENAME_CONFIRMED;
     pctDeaths: fn := FCacheDir + FILENAME_DEATHS;
-    pctRecovered: exit;
+    pctRecovered: {$IFDEF RKI_RECOVERED}fn := FCacheDir + FILENAME_RECOVERED;{$ELSE}exit;{$ENDIF}
   end;
 
   L := TStringList.Create;
@@ -529,10 +543,13 @@ begin
       Result := DownloadToStream(url, fn, stream);
       if Result then
       begin
-        ExtractData(stream, AHeader, sConfirmed, sDeaths);
+        ExtractData(stream, AHeader, sConfirmed, sDeaths, sRecovered);
         AHeader := 'county,state,lat,long' + AHeader;
         sConfirmed := ACounty + ',' + AState + ',0,0' + sConfirmed;
         sDeaths := ACounty + ',' + AState + ',0,0' + sDeaths;
+        {$IFDEF RKI_RECOVERED}
+        sRecovered := ACounty + ',' + AState + ',0,0' + sRecovered;
+        {$ENDIF}
         if L.Count = 0 then
           L.Add(AHeader);
         case ACaseType of
@@ -546,6 +563,13 @@ begin
               ACounts := sDeaths;
               L.Add(sDeaths);
             end;
+          {$IFDEF RKI_RECOVERED}
+          pctRecovered:
+            begin
+              ACounts := sRecovered;
+              L.Add(sRecovered);
+            end;
+          {$ENDIF}
         end;
         L.SaveToFile(fn);
 
@@ -561,6 +585,15 @@ begin
             begin
               fn := FCacheDir + FILENAME_CONFIRMED;
               s := sConfirmed;
+            end;
+          pctRecovered:
+            begin
+              {$IFDEF RKI_RECOVERED}
+              fn := FCacheDir + FILENAME_RECOVERED;
+              s := sRecovered;
+              {$ELSE}
+              exit;
+              {$ENDIF}
             end;
         end;
         if FileExists(fn) then
@@ -665,6 +698,10 @@ begin
 
   for pct in TPrimaryCaseType do
   begin
+    {$IFNDEF RKI_RECOVERED}
+    if pct = pctRecovered then
+      Continue;
+    {$ENDIF}
     if GetDataString(state, county, pct, hdr, counts) then
     begin
       L := TStringList.Create;

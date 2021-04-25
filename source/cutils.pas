@@ -15,6 +15,7 @@ function GetVersionStr: String;
 
 function MinimizeName(FileName: String; Canvas: TCanvas; MaxWidth: Integer;
   APathDelim: Char): String;
+procedure SafeDeleteFile(const AFileName: STring);
 
 procedure Split(AString: String; ADest: TStrings; ADelimiter: Char = ',');
 function StripLineEndings(const AString: String): String;
@@ -164,6 +165,12 @@ begin
     TWidth := Canvas.TextWidth(ComposedName);
   until (Length(Dir) = 0) or (TWidth <= MaxWidth);
   if (TWidth <= MaxWidth) then Result := ComposedName else Result := Fn;
+end;
+
+procedure SafeDeleteFile(const AFileName: String);
+begin
+  if FileExists(AFileName) then   // Not necessary on Windows - just to make sure
+    DeleteFile(AFileName);
 end;
 
 // Splits the string at the delimiter. Does not split quoted.
