@@ -58,37 +58,41 @@ end;
   Copyright (c) 2021 Gustavo Carreno <guscarreno@gmail.com>
   MIT License }
 function FormatBytes(AValue: Int64): String;
+const
+  ONE_KB = 1024;
+  ONE_MB = 1024*1024;
+  ONE_GB = 1024*1024*1024;
+  ONE_TB = 1024*1024*1024*1024;
 var
   dSize: Double;
 begin
   Result := '';
-  dSize := 0.0;
-  if AValue < 1024 then
+  if AValue < ONE_KB then
   begin
     Result := IntToStr(AValue) + ' B';
     exit;
   end;
-  if AValue < (1024*1024) then
+  if AValue < ONE_MB then
   begin
-    dSize := AValue / 1024;
+    dSize := AValue / ONE_KB;
     Result := FormatFloat('0.##', dSize) + ' KB';
     exit;
   end;
-  if AValue < (1024*1024*1024) then
+  if AValue < ONE_GB then
   begin
-    dSize := AValue / 1024 / 1024;
+    dSize := AValue / ONE_MB;
     Result := FormatFloat('0.##', dSize) + ' MB';
     exit;
   end;
-  if AValue < (1024*1024*1024*1024) then
+  if AValue < ONE_TB then
   begin
-    dSize := AValue / 1024 / 1024 / 1024;
-    Result := FormatFloat('0.##', dSize) + 'GB';
+    dSize := AValue / ONE_GB;
+    Result := FormatFloat('0.##', dSize) + ' GB';
     exit;
   end;
-  if AValue < (1024*1024*1024*1024*1024) then
+  if AValue < (1024*ONE_TB) then
   begin
-    dSize := AValue / 1024 / 1024 / 1024 / 1024;
+    dSize := AValue / ONE_TB;
     Result := FormatFloat('0.##', dSize) + ' TB';
   end;
 end;
