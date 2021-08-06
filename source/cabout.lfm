@@ -12,7 +12,7 @@ object AboutForm: TAboutForm
   OnShow = FormShow
   Position = poMainFormCenter
   ShowHint = True
-  LCLVersion = '2.1.0.0'
+  LCLVersion = '2.3.0.0'
   object AppImage: TImage
     AnchorSideLeft.Control = Owner
     AnchorSideTop.Control = Owner
@@ -37,7 +37,6 @@ object AboutForm: TAboutForm
     Caption = 'Corona'
     Font.Height = -32
     Font.Style = [fsBold]
-    ParentColor = False
     ParentFont = False
   end
   object lblAcknowledgements: TLabel
@@ -51,7 +50,6 @@ object AboutForm: TAboutForm
     BorderSpacing.Top = 16
     Caption = 'Credits:'
     Font.Style = [fsBold]
-    ParentColor = False
     ParentFont = False
   end
   object Panel1: TPanel
@@ -87,7 +85,6 @@ object AboutForm: TAboutForm
       Anchors = [akTop, akRight]
       BorderSpacing.Top = 8
       Caption = 'Compiler:'
-      ParentColor = False
     end
     object lblFPC: TLabel
       AnchorSideLeft.Control = lblRolandHahn
@@ -100,7 +97,6 @@ object AboutForm: TAboutForm
       Width = 110
       Caption = 'Free Pascal Compiler'
       Font.Color = clBlue
-      ParentColor = False
       ParentFont = False
       OnClick = LabelClick
       OnMouseEnter = LabelMouseEnter
@@ -119,7 +115,6 @@ object AboutForm: TAboutForm
       BorderSpacing.Top = 4
       Caption = 'Lazarus'
       Font.Color = clBlue
-      ParentColor = False
       ParentFont = False
       OnClick = LabelClick
       OnMouseEnter = LabelMouseEnter
@@ -135,7 +130,6 @@ object AboutForm: TAboutForm
       Width = 20
       Anchors = [akTop, akRight]
       Caption = 'IDE:'
-      ParentColor = False
     end
     object lblIcons: TLabel
       AnchorSideTop.Control = lblIcons8
@@ -148,7 +142,6 @@ object AboutForm: TAboutForm
       Anchors = [akTop, akRight]
       BorderSpacing.Left = 24
       Caption = 'Toolbar icons:'
-      ParentColor = False
     end
     object lblIcons8: TLabel
       AnchorSideLeft.Control = lblRolandHahn
@@ -163,7 +156,6 @@ object AboutForm: TAboutForm
       BorderSpacing.Top = 4
       Caption = 'www.icons8.com'
       Font.Color = clBlue
-      ParentColor = False
       ParentFont = False
       OnClick = LabelClick
       OnMouseEnter = LabelMouseEnter
@@ -179,7 +171,6 @@ object AboutForm: TAboutForm
       Width = 70
       BorderSpacing.Left = 24
       Caption = 'Data sources:'
-      ParentColor = False
     end
     object imgJHU: TImage
       AnchorSideLeft.Control = lblFPC
@@ -474,7 +465,6 @@ object AboutForm: TAboutForm
       BorderSpacing.Bottom = 8
       Caption = 'Data site'
       Font.Color = clBlue
-      ParentColor = False
       ParentFont = False
       OnClick = LabelClick
       OnMouseEnter = LabelMouseEnter
@@ -859,7 +849,6 @@ object AboutForm: TAboutForm
       BorderSpacing.Bottom = 8
       Caption = 'Data site'
       Font.Color = clBlue
-      ParentColor = False
       ParentFont = False
       OnClick = LabelClick
       OnMouseEnter = LabelMouseEnter
@@ -875,7 +864,6 @@ object AboutForm: TAboutForm
       Width = 90
       BorderSpacing.Left = 16
       Caption = 'Application icon:'
-      ParentColor = False
     end
     object lblRolandHahn: TLabel
       AnchorSideLeft.Control = lblAppIcon
@@ -890,7 +878,6 @@ object AboutForm: TAboutForm
       BorderSpacing.Left = 16
       BorderSpacing.Top = 4
       Caption = 'Roland Hahn'
-      ParentColor = False
       ParentFont = False
       OnClick = LabelClick
     end
@@ -904,7 +891,6 @@ object AboutForm: TAboutForm
       Width = 59
       Caption = 'World map'
       Font.Color = clBlue
-      ParentColor = False
       ParentFont = False
       OnClick = LabelClick
       OnMouseEnter = LabelMouseEnter
@@ -921,7 +907,6 @@ object AboutForm: TAboutForm
       BorderSpacing.Left = 16
       Caption = 'Australia map'
       Font.Color = clBlue
-      ParentColor = False
       ParentFont = False
       OnClick = LabelClick
       OnMouseEnter = LabelMouseEnter
@@ -937,7 +922,6 @@ object AboutForm: TAboutForm
       Width = 67
       Caption = 'Canada map'
       Font.Color = clBlue
-      ParentColor = False
       ParentFont = False
       OnClick = LabelClick
       OnMouseEnter = LabelMouseEnter
@@ -954,7 +938,6 @@ object AboutForm: TAboutForm
       BorderSpacing.Left = 16
       Caption = 'China map'
       Font.Color = clBlue
-      ParentColor = False
       ParentFont = False
       OnClick = LabelClick
       OnMouseEnter = LabelMouseEnter
@@ -970,7 +953,6 @@ object AboutForm: TAboutForm
       Width = 96
       Caption = 'United States map'
       Font.Color = clBlue
-      ParentColor = False
       ParentFont = False
       OnClick = LabelClick
       OnMouseEnter = LabelMouseEnter
@@ -987,7 +969,6 @@ object AboutForm: TAboutForm
       BorderSpacing.Bottom = 8
       Caption = 'Countries and continents list'
       Font.Color = clBlue
-      ParentColor = False
       ParentFont = False
       OnClick = LabelClick
       OnMouseEnter = LabelMouseEnter
@@ -1038,7 +1019,6 @@ object AboutForm: TAboutForm
     Width = 74
     BorderSpacing.Top = 8
     Caption = 'lblGeneralInfo'
-    ParentColor = False
     WordWrap = True
   end
   object lblVersion: TLabel
@@ -1050,6 +1030,5 @@ object AboutForm: TAboutForm
     Top = 57
     Width = 51
     Caption = 'lblVersion'
-    ParentColor = False
   end
 end

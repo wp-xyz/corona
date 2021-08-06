@@ -85,7 +85,7 @@ function GetOSVersion: String;
 begin
   Result := 'Unknown';
 
- {$IFDEF WINDOWS}
+ {$IFDEF MSWINDOWS}
   case WindowsVersion of
     wv95: Result := ' 95';
     wvNT4: Result := ' NT v.4';
