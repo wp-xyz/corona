@@ -280,7 +280,7 @@ const
     '14511=Chemnitz|247237',                 '14521=Erzgebirgskreis|337696',
     '14522=Mittelsachsen|306185',            '14523=Vogtlandkreis|227796',
     '14524=Zwickau|317531',                  '14612=Dresden|554649',
-    '14625=Bautze|300880',                   '14626=Görlitz|254894',
+    '14625=Bautzen|300880',                  '14626=Görlitz|254894',
     '14627=Meißen|242165',                   '14628=Sächsische Schweiz-Osterzgebirge|245611',
     // 360..369
     '14713=Leipzig|587857',                  '14729=Leipzig (Landkreis)|257763',

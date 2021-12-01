@@ -32,15 +32,9 @@
       <MinorVersionNr Value="2"/>
       <StringTable OriginalFilename="corona.exe"/>
     </VersionInfo>
-    <MacroValues Count="1">
-      <Macro3 Name="LCLWidgetType" Value="win32"/>
-    </MacroValues>
     <BuildModes Count="5">
       <Item1 Name="Default" Default="True"/>
       <Item2 Name="Debug">
-        <MacroValues Count="1">
-          <Macro3 Name="LCLWidgetType" Value="win32"/>
-        </MacroValues>
         <CompilerOptions>
           <Version Value="11"/>
           <PathDelim Value="\"/>
@@ -86,9 +80,6 @@
         </CompilerOptions>
       </Item2>
       <Item3 Name="Debug_no_heaptrc">
-        <MacroValues Count="1">
-          <Macro3 Name="LCLWidgetType" Value="win32"/>
-        </MacroValues>
         <CompilerOptions>
           <Version Value="11"/>
           <PathDelim Value="\"/>
@@ -128,9 +119,6 @@
         </CompilerOptions>
       </Item3>
       <Item4 Name="Release">
-        <MacroValues Count="1">
-          <Macro3 Name="LCLWidgetType" Value="win32"/>
-        </MacroValues>
         <CompilerOptions>
           <Version Value="11"/>
           <PathDelim Value="\"/>
@@ -168,9 +156,6 @@
         </CompilerOptions>
       </Item4>
       <Item5 Name="Release_portable">
-        <MacroValues Count="1">
-          <Macro3 Name="LCLWidgetType" Value="win32"/>
-        </MacroValues>
         <CompilerOptions>
           <Version Value="11"/>
           <PathDelim Value="\"/>
