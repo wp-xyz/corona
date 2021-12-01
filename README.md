@@ -18,6 +18,11 @@ For Windows the OpenSSL dlls can be downloaded from
 - 32 bit: https://packages.lazarus-ide.org/openssl-1.0.2j-i386-win32.zip
 - 64 bit: https://packages.lazarus-ide.org/openssl-1.0.2j-x64_86-win64.zip
 
+## Usage
+In the normal mode, the program writes cached disease data to subfolder _CoronaData_ of the user's home directory (Windows: _c:\users\<user name>_, Linux: _~/.CoronaData_). The program's configuration data are stored in _c:\users\<user name>\AppData\Local\corona_ in Windows, and in _~/.corona_ in Linux.
+
+There is also a portable mode which is activated by starting the application with the argument _-portable_. In this mode both cached disease data as well as program settings are stored in the application folder. Simply copy this folder if you want to move the application to another computer.
+
 ## Data source
 - https://github.com/CSSEGISandData/COVID-19
 - https://npgeo-corona-npgeo-de.hub.arcgis.com/
