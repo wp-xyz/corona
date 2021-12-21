@@ -1114,6 +1114,11 @@ begin
         Continue;
 
       ser := GetSeries(ADataNode, caseType, dt);
+      {$IFDEF CORONA_DEBUG_LOG}
+      DebugLn('FOR caseType = ' + GetEnumname(TypeInfo(TCaseType), integer(caseType)));
+      DebugLn('  ser.Title = ' + ser.Title);
+      {$ENDIF}
+      
       case dt of
         dtCumVsNewCases:
           begin
@@ -1172,11 +1177,26 @@ begin
 
         else
           values := data.GetDataArray(caseType, dt);
+          {$IFDEF CORONA_DEBUG_LOG}
+          DebugLn('  Length(values) = ' + IntToStr(Length(values)));
+          if Length(values) > 0 then
+          begin
+            DebugLn('  values[0] = ' + FloatToStr(values[0]));
+            DebugLn('  values[High(values)] = ' + FloatToStr(values[High(values)]));
+          end;
+          {$ENDIF}
           ser.Source := nil;
           ser.ListSource.YCount := 1;
           ser.BeginUpdate;
           try
+            {$IFDEF CORONA_DEBUG_LOG}
+            DebugLn('  Before ser.Clear');
+            {$ENDIF}
             ser.Clear;
+            {$IFDEF CORONA_DEBUG_LOG}
+            DebugLn('  After ser.Clear');
+            DebugLn('  TimeSeriesSettings.CommonStart = ' + BoolToStr(TimeSeriesSettings.CommonStart, true));
+            {$ENDIF}
             if TimeSeriesSettings.CommonStart then
               for i := startIndex to High(values) do
                 ser.AddXY(i - startIndex, values[i])
@@ -1184,9 +1204,18 @@ begin
               for i := startIndex to High(values) do
                 ser.AddXY(firstDate + i, values[i]);
           finally
+            {$IFDEF CORONA_DEBUG_LOG}
+            DebugLn('  Before ser.EndUpdate');
+            {$ENDIF}
             ser.EndUpdate;
+            {$IFDEF CORONA_DEBUG_LOG}
+            DebugLn('  After ser.EndUpdate');
+            {$ENDIF}
             if not (dt in [dtCumulativeCasesDoublingTime, dtNewCasesDoublingTime]) then
               EnableMovingAverage(ser, TimeSeriesSettings.MovingAverage);
+            {$IFDEF CORONA_DEBUG_LOG}
+            DebugLn('  After EnableMovingAverage');
+            {$ENDIF}
           end;
       end;
     end;

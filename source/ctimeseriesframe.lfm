@@ -67,7 +67,6 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
         BorderSpacing.Top = 4
         BorderSpacing.Right = 4
         BorderSpacing.Bottom = 4
-        ItemHeight = 0
         OnClick = ChartListboxClick
         TabOrder = 1
       end
@@ -116,7 +115,6 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
         BorderSpacing.Top = 6
         Caption = 'Cumulative Cases'
         Font.Height = -19
-        ParentColor = False
         ParentFont = False
       end
       object lblTableHint: TLabel[2]
@@ -128,7 +126,6 @@ inherited TimeSeriesFrame: TTimeSeriesFrame
         Top = 31
         Width = 63
         Caption = 'lblTableHint'
-        ParentColor = False
       end
     end
   end
