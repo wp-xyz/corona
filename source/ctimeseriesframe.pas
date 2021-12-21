@@ -6,6 +6,9 @@ unit cTimeSeriesFrame;
 interface
 
 uses
+  {$IFDEF CORONA_DEBUG_LOG}
+  LazLogger,
+  {$ENDIF}
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Types, IniFiles, LCLVersion,
   StdCtrls, ExtCtrls, ComCtrls, Grids, Menus, ActnList,
   TAGraph, TACustomSeries, TASeries, TAFuncSeries, TAChartListbox, TAIntervalSources,
@@ -158,7 +161,7 @@ implementation
 {$R *.lfm}
 
 uses
-  LCLIntf, LCLType, Math, DateUtils,
+  LCLIntf, LCLType, Math, DateUtils, TypInfo,
   TAChartUtils, TATypes, TAMath, TACustomSource, TAFitLib,
   cUtils, cDataSource, cRobertKochInstitut;
 
@@ -204,16 +207,53 @@ end;
 procedure TTimeSeriesFrame.acCasesExecute(Sender: TObject);
 var
   L: TFPList;
+  {$IFDEF CORONA_DEBUG_LOG}
+  i: Integer;
+  s: String;
+  {$ENDIF}
 begin
+  {$IFDEF CORONA_DEBUG_LOG}
+  DebugLn('-------------------------------------');
+  DebugLn('ENTER TTimeseriesFrame.acCasesChecked');
+  {$ENDIF}
+
   FCheckedCases := CasesChecked();
+
+  {$IFDEF CORONA_DEBUG_LOG}
+  DebugLn('FCheckedCases = ' + SetToString(PTypeInfo(TypeInfo(TCaseTypes)), integer(FCheckedCases), True));
+  {$ENDIF}
+
   L := TFPList.Create;
   try
     StoreSeriesNodesInList(L);
+
+    {$IFDEF CORONA_DEBUG_LOG}
+    DebugLn('Stored series nodes: ');
+    for i := 0 to L.Count-1 do
+      DebugLn('  ' + IntToStr(i) + ': ' + TTreeNode(L[i]).Text);
+    if DataTree.Selected = nil then
+      DebugLn('DataTree.Selected = nil')
+    else
+      DebugLn('DataTree.Selected = ' + Datatree.Selected.Text);
+    {$ENDIF}
+
     ShowTimeSeries(DataTree.Selected);
     RestoreSeriesNodesFromlist(L);
+
+    {$IFDEF CORONA_DEBUG_LOG}
+    DebugLn('Restored series nodes: ');
+    for i := 0 to L.Count-1 do
+      DebugLn('  ' + IntToStr(i) + ': ' + TTreeNode(L[i]).Text);
+    {$ENDIF}
   finally
     L.Free;
   end;
+
+  {$IFDEF CORONA_DEBUG_LOG}
+  DebugLn('EXIT TTimeseriesFrame.acCasesChecked');
+  DebugLn('------------------------------------');
+  DebugLn('');
+  {$ENDIF}
 end;
 
 procedure TTimeSeriesFrame.acClearExecute(Sender: TObject);
@@ -1019,6 +1059,11 @@ begin
   if ADataNode = nil then
     exit;
 
+  {$IFDEF CORONA_DEBUG_LOG}
+  DebugLn('---------------------------------------------------------');
+  DebugLn('ENTER ShowTimeSeries: ADataNode.Text = ' + ADataNode.Text);
+  {$ENDIF}
+
   Screen.Cursor := crHourglass;
   try
     if not TimeSeriesSettings.OverlayMode then
@@ -1049,6 +1094,15 @@ begin
       startIndex := data.GetFirstIndexAboveLimit(START_COUNT)
     else
       startIndex := 0;
+
+    {$IFDEF CORONA_DEBUG_LOG}
+    DebugLn('dt = ' + GetEnumName(TypeInfo(TDataType), integer(dt)));
+    DebugLn('data.Name = ' + data.Name);
+    DebugLn('firstDate = ' + DateToStr(firstDate));
+    DebugLn('acRecovered.Enabled = ' + BoolToStr(acRecovered.Enabled, true));
+    DebugLn('acSick.Enabled = ' + BoolToStr(acSick.Enabled, true));
+    DebugLn('startIndex = ' + IntToStr(startIndex));
+    {$ENDIF}
 
     for caseType in TCaseType do
     begin
@@ -1137,10 +1191,18 @@ begin
       end;
     end;
 
+    {$IFDEF CORONA_DEBUG_LOG}
+    DebugLn('Series populated');
+    {$ENDIF}
+
     UpdateAffectedSeries;
     UpdateAxes;
     UpdateGrid;
     DoUpdateActions;
+
+    {$IFDEF CORONA_DEBUG_LOG}
+    DebugLn('Affected series, axes, grid, actions updated');
+    {$ENDIF}
 
     // Update DateIndicatorLine position
     if IsTimeSeries then
@@ -1149,12 +1211,24 @@ begin
       if (FCurrentDate < ext.a.x) or (FCurrentDate > ext.b.x) then
       FCurrentDate := ext.b.x;
       FDateIndicatorLine.Position := FCurrentDate;
+
+      {$IFDEF CORONA_DEBUG_LOG}
+      DebugLn('TimeSeries: Current date = ' + DateToStr(FCurrentDate));
+      {$ENDIF}
     end;
 
     LessChartSymbols;
+    {$IFDEF CORONA_DEBUG_LOG}
+    DebugLn('Less Chart symbols called.');
+    {$ENDIF}
   finally
     Screen.Cursor := crDefault;
   end;
+
+  {$IFDEF CORONA_DEBUG_LOG}
+  DebugLn('EXIT ShowTimeSeries: ADataNode.Text = ' + ADataNode.Text);
+  DebugLn('--------------------------------------------------------');
+  {$ENDIF}
 end;
 
 procedure TTimeSeriesFrame.RestoreSeriesNodesFromList(AList: TFPList);

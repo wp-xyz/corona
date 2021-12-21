@@ -6,7 +6,11 @@ uses
   {$IFDEF UNIX}
   cthreads,
   {$ENDIF}
-  Interfaces, Forms, cmain, cBasicFrame, cMapFrame, cTimeSeriesFrame, cFixes,
+  Interfaces, Forms,
+  {$IFDEF CORONA_DEBUG_LOG}
+  LazLoggerBase,
+  {$ENDIF}
+  cmain, cBasicFrame, cMapFrame, cTimeSeriesFrame, cFixes,
   cDataModule;
 
 {$R *.res}
