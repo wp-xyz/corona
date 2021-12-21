@@ -1106,9 +1106,6 @@ begin
 
     for caseType in TCaseType do
     begin
-      {$IFDEF CORONA_DEBUG_LOG}
-      DebugLn('FOR caseType = ' + GetEnumname(TypeInfo(TCaseType), integer(caseType)));
-      {$ENDIF}
       if not (caseType in FCheckedCases) then
         Continue;
 
@@ -1116,6 +1113,9 @@ begin
       if (caseType in [ctRecovered, ctSick]) and (data.Count[pctRecovered] = 0) then
         Continue;
 
+      {$IFDEF CORONA_DEBUG_LOG}
+      DebugLn('FOR caseType = ' + GetEnumname(TypeInfo(TCaseType), integer(caseType)));
+      {$ENDIF}
       ser := GetSeries(ADataNode, caseType, dt);
       {$IFDEF CORONA_DEBUG_LOG}
       DebugLn('  ser.Title = ' + ser.Title);
