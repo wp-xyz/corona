@@ -672,27 +672,72 @@ var
   ct: TCaseType;
   clr: TColor;
 begin
+  {$IFDEF CORONA_DEBUG_LOG}
+  DebugLn('  --------------------------------');
+  DebugLn('  ENTER TTimeSeriesFrame.GetSeries');
+  {$ENDIF}
+
   serTitle := Format('%s (%s)', [GetLocation(ADataNode), CASETYPE_NAMES[ACaseType]]);
+  
+  {$IFDEF CORONA_DEBUG_LOG}
+  DebugLn('    serTitle = ' + serTitle);
+  DebugLn('    Searching existing series...');
+  {$ENDIF}
 
   for i:=0 to Chart.SeriesCount-1 do
+  begin
+    {$IFDEF CORONA_DEBUG_LOG}
+    DebugLn('      series index i = ' + IntToStr(i));
+    DebugLn('      Chart.Series[i].ClassName = ' + Chart.Series[i].ClassName);
+    {$ENDIF}
+    
     if (Chart.Series[i] is TBasicPointSeries) then
     begin
+      {$IFDEF CORONA_DEBUG_LOG}
+      DebugLn('      Is TBasicChartSeries');
+      {$ENDIF}
       Result := TBasicPointSeries(Chart.Series[i]);
       if (Result <> nil) and (pos(serTitle, Result.Title) = 1) then
       begin
+        {$IFDEF CORONA_DEBUG_LOG}
+        DebugLn('      Matching title');
+        {$ENDIF}
+        
         Result.Active := true;
+    
+        {$IFDEF CORONA_DEBUG_LOG}
+        DebugLn('  EXIT TTimeSeriesFrame.GetSeries');
+        DebugLn('  --------------------------------');
+        {$ENDIF}
+        
         exit;
       end;
     end;
+  end;
 
   clr := COLORS[((Chart.SeriesCount - 1) div (ord(High(TCaseType))+1)) mod Length(COLORS)];
+  {$IFDEF CORONA_DEBUG_LOG}
+  DebugLn('    clr = ' + Format('$%.8x', [clr]));
+  {$ENDIF}
 
   // The node does not yet have associated series. Create 4 series for
   // the cases "confirmed", "deaths", "recovered" and "sick".
   // Return the one for ADatatype and hide the others.
   serTitle := GetLocation(ADataNode);
+  {$IFDEF CORONA_DEBUG_LOG}
+  DebugLn('    serTitle = ' + serTitle);
+  DebugLn('    Creating series...');
+  {$ENDIF}
   for ct in TCaseType do begin
+    {$IFDEF CORONA_DEBUG_LOG}
+    DebugLn('      FOR ct = ' + GetEnumName(TypeInfo(TCaseType), integer(ct)));
+    {$ENDIF}
+
     ser := TcLineSeries.Create(Chart);
+    
+    {$IFDEF CORONA_DEBUG_LOG}
+    DebugLn('      series created.');
+    {$ENDIF}
     with TcLineSeries(ser) do
     begin
       ShowPoints := true;
@@ -737,7 +782,15 @@ begin
     else
       ser.Active := false;
 
+    {$IFDEF CORONA_DEBUG_LOG}
+    DebugLn('      ser.Title = ' + ser.Title);
+    DebugLn('      ser.Active = ' + BoolToStr(ser.Active, true));
+    {$ENDIF}
+
     Chart.AddSeries(ser);
+    {$IFDEF CORONA_DEBUG_LOG}
+    DebugLn('      series added to chart');
+    {$ENDIF}
 
     if (ser is TcLineSeries) then
     begin
@@ -746,7 +799,16 @@ begin
     end;
   end;  // for ct
 
+  {$IFDEF CORONA_DEBUG_LOG}
+  DebugLn('    Before UpdateAffectedSeries');
+  {$ENDIF}
+  
   UpdateAffectedSeries;
+  
+  {$IFDEF CORONA_DEBUG_LOG}
+  DebugLn('  EXIT TTimeSeriesFrame.GetSeries');
+  DebugLn('  --------------------------------');
+  {$ENDIF}
 end;
 
 procedure TTimeSeriesFrame.HighlightWeekends(AEnable: Boolean);
@@ -1287,6 +1349,11 @@ var
   s: String;
   sNoFit: String;
 begin
+  {$IFDEF CORONA_DEBUG_LOG}
+  DebugLn('    -------------------------------------------');
+  DebugLn('    ENTER TTimeSeriesFrame.UpdateAffectedSeries');
+  {$ENDIF}
+  
   s := '';
   sNoFit := '';
   for i := 0 to Chart.SeriesCount-1 do
@@ -1301,9 +1368,21 @@ begin
         s := s + ',' + IntToStr(Chart.Series[i].Index);
     end;
   end;
+  
+  {$IFDEF CORONA_DEBUG_LOG}
+  DebugLn('      s = ' + s);
+  {$ENDIF}
+
   Delete(s, 1, 1);
   CrossHairTool.AffectedSeries := s + sNoFit;
   MeasurementTool.AffectedSeries := s;
+
+  {$IFDEF CORONA_DEBUG_LOG}
+  DebugLn('      CrossHairTool.AffectedSeries = ' + CrosshairTool.AffectedSeries);
+  DebugLn('      MeasurementTool.AffectedSeries = ' + MeasurementTool.AffectedSeries);
+  DebugLn('    EXIT TTimeSeriesFrame.UpdateAffectedSeries');
+  DebugLn('    ------------------------------------------');
+  {$ENDIF}
 end;
 
 procedure TTimeSeriesFrame.UpdateAxes;
