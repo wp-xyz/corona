@@ -445,11 +445,10 @@ end;
 procedure TRobertKochDataSource.ExtractData(AStream: TStream;
   out AHeader, AConfirmed, ADeaths, ARecovered: String);
 var
-  json: TJSONObject;
-  p: TJSONParser;
+  jData: TJSONData;
+  jItem: TJSONObject;
   jFeatures: TJSONArray;
   jObj: TJSONObject;
-  jData: TJSONObject;
   i: Integer;
   s: String;
   d: TDateTime;
@@ -459,34 +458,31 @@ begin
   ADeaths := '';
   ARecovered := '';
   AStream.Position := 0;
-  p := TJSONParser.Create(AStream, [joUTF8]);
+  jData := GetJSON(AStream);
+  if jData = nil then
+    exit;
   try
-    json := p.Parse as TJSONObject;
-    if json = nil then
-      exit;
-    jFeatures := json.Find('features', jtArray) as TJSONArray;
+    jFeatures := jData.FindPath('features') as TJSONArray;
     if jFeatures = nil then
       exit;
-    AHeader := '';
-    AConfirmed := '';
-    ADeaths := '';
-    for i := 0 to jFeatures.Count - 1 do begin
+    for i := 0 to jFeatures.Count-1 do
+    begin
       jObj := jFeatures.Objects[i];
-      jData := jObj.Items[0] as TJsonObject;
-      s := jData.Find('Meldedatum').AsString;
+      jItem := jObj.Items[0] as TJsonObject;
+      s := jItem.Find('Meldedatum').AsString;
       d := UnixToDateTime(StrToInt64(s) div 1000);
       AHeader := AHeader + ',' + FormatDateTime('mm"/"dd"/"yy', d);
-      s := jData.Find('SummeFall').AsString;
+      s := jItem.Find('SummeFall').AsString;
       AConfirmed := AConfirmed + ',' + s;
-      s := jData.Find('SummeTodesfall').AsString;
+      s := jItem.Find('SummeTodesfall').AsString;
       ADeaths := ADeaths + ',' + s;
       {$IFDEF RKI_RECOVERED}
-      s := jData.Find('SummeGenesen').AsString;
+      s := jItem.Find('SummeGenesen').AsString;
       ARecovered := ARecovered + ',' + s;
       {$ENDIF}
     end;
   finally
-    p.Free;
+    jData.Free;
   end;
 end;
 
