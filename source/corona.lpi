@@ -72,6 +72,11 @@
               </Win32>
             </Options>
           </Linking>
+          <Other>
+            <OtherDefines Count="1">
+              <Define0 Value="CORONA_DEBUG_LOG"/>
+            </OtherDefines>
+          </Other>
         </CompilerOptions>
       </Item2>
       <Item3 Name="Debug_no_heaptrc">
@@ -111,6 +116,11 @@
               </Win32>
             </Options>
           </Linking>
+          <Other>
+            <OtherDefines Count="1">
+              <Define0 Value="CORONA_DEBUG_LOG"/>
+            </OtherDefines>
+          </Other>
         </CompilerOptions>
       </Item3>
       <Item4 Name="Debug_log">

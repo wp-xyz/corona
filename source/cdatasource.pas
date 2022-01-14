@@ -322,6 +322,7 @@ begin
         Result := GetDataArray(ACaseType, dtCumulative);
         for i := High(Result) downto 1 do
           Result[i] := Result[i] - Result[i-1];
+        Result[0] := 0;
       end;
     dtNormalizedCumulative:
       begin
