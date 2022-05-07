@@ -1669,7 +1669,7 @@ object MainForm: TMainForm
   OnCreate = FormCreate
   OnShow = FormShow
   ShowHint = True
-  LCLVersion = '2.1.0.0'
+  LCLVersion = '2.3.0.0'
   object TreeSplitter: TSplitter
     Left = 238
     Height = 513
@@ -1725,6 +1725,7 @@ object MainForm: TMainForm
         Width = 229
         Align = alTop
         Caption = 'InfoLabel'
+        Color = clDefault
         ParentColor = False
       end
       object NameLabel: TLabel
@@ -1735,6 +1736,7 @@ object MainForm: TMainForm
         Align = alTop
         BorderSpacing.Bottom = 4
         Caption = 'NameLabel    '
+        Color = clDefault
         Font.Style = [fsBold]
         ParentColor = False
         ParentFont = False

@@ -195,7 +195,7 @@
           </Linking>
           <Other>
             <OtherDefines Count="1">
-              <Define0 Value="PORTABLE"/>
+              <Define0 Value="CORONA_DEBUG_LOG"/>
             </OtherDefines>
           </Other>
         </CompilerOptions>

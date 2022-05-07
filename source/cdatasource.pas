@@ -101,11 +101,15 @@ type
     FOnStatusMsg: TStatusbarEvent;
   protected
     FCacheDir: String;
+    procedure BackupFile(AFileName: String);
     procedure DoDownloadMsg(const AMsg1, AMsg2: String; APercentage: Integer);
     procedure DoStatusMsg(const AMsg1, AMsg2: String);
   public
     constructor Create(ACacheDir: String); virtual;
 
+    // Copies existing cache files to different extension.
+    procedure BackupFiles; virtual; abstract;
+    
     // Downloads the data files from the primary online site to a local cache.
     procedure DownloadToCache; virtual; abstract;
                              (*
@@ -134,7 +138,7 @@ implementation
 
 uses
   Math,
-  LazFileUtils;
+  FileUtil, LazFileUtils;
 
 { TcDataItem }
 
@@ -518,6 +522,25 @@ end;
 constructor TcDataSource.Create(ACacheDir: String);
 begin
   FCacheDir := AppendPathDelim(ACacheDir);
+end;
+
+procedure TcDataSource.BackupFile(AFileName: String);
+var
+  i: Integer;
+  src, dest, fn: String;
+begin
+  if not FileExists(AFileName) then
+    exit;
+  fn := ChangeFileExt(AFileName, '');
+  for i := 8 downto 1 do
+  begin
+    dest := Format('%s.csv%d', [fn, i+1]);
+    src := Format('%s.csv%d', [fn, i]);
+    if FileExists(src) then
+      CopyFile(src, dest);
+  end;
+  dest := src;
+  CopyFile(AFileName, dest);
 end;
 
 procedure TcDataSource.DoDownloadMsg(const AMsg1, AMsg2: String;

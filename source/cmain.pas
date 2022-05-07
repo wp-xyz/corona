@@ -519,6 +519,7 @@ procedure TMainForm.UpdateData;
 begin
   with TJohnsHopkinsDataSource.Create(DataDir) do
   try
+    BackupFiles;
     DownloadToCache;
   finally
     Free;
@@ -527,6 +528,7 @@ begin
   {$IFDEF RKI}
   with TRobertKochDatasource.Create(DataDir) do
   try
+    BackupFiles;
     ClearCache;
   finally
     Free;

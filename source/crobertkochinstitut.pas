@@ -20,6 +20,7 @@ type
     function GetDataString(const AState, ACounty: String;
       ACaseType: TPrimaryCaseType; out AHeader, ACounts: String): Boolean;
   protected
+    procedure BackupFiles; override;
   public
     procedure ClearCache;
     procedure DownloadToCache; override;
@@ -378,6 +379,13 @@ const
 {------------------------------------------------------------------------------}
 {                         TRobertKochDatasource                                }
 {------------------------------------------------------------------------------}
+
+procedure TRobertKochDataSource.BackupFiles;
+begin
+  BackupFile(FCacheDir + FILENAME_CONFIRMED);
+  BackupFile(FCacheDir + FILENAME_DEATHS);
+  BackupFile(FCacheDir + FILENAME_RECOVERED);
+end;
 
 function TRobertKochDataSource.BuildURL(const ID: String): String;
 var

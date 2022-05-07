@@ -17,19 +17,12 @@ type
     procedure CreateTopNodes(ATreeView: TTreeView;
       out AWorldNode, AAfricaNode, AAsiaNode, AEuropeNode, ANorthAmericaNode,
       ASouthAmericaNode, AOceaniaNode: TTreeNode);
-    (*
-    function GetDataString_Sick(const ACountry, AState, ACity: String;
-      out AHeader, ACounts: String): Boolean;
-      *)
     function InternalLoadData(ATreeView: TTreeView; ACaseType: TPrimaryCaseType;
       IsUSAFile: Boolean): Boolean;
     procedure RemoveNoDataNodes(AStartingNode: TTreeNode);
   public
+    procedure BackupFiles; override;
     procedure DownloadToCache; override;
-    (*
-    function GetDataString(const ACountry, AState, ACity: String;
-      ACaseType: TCaseType; out AHeader, ACounts: String): Boolean; override;
-      *)
     function LoadData(ATreeView: TTreeView; {%H-}ANode: TTreeNode): Boolean; override;
     function LoadLocations(ATreeView: TTreeView): Boolean; override;
   end;
@@ -68,6 +61,16 @@ end;
 {  TJohnsHopkinsDatasource                                                     }
 {------------------------------------------------------------------------------}
 
+procedure TJohnsHopkinsDatasource.BackupFiles;  
+begin
+  BackupFile(FCacheDir + FILENAME_CONFIRMED);
+  BackupFile(FCacheDir + FILENAME_DEATHS);
+  BackupFile(FCacheDir + FILENAME_RECOVERED);
+  BackupFile(FCacheDir + FILENAME_POPULATION);
+  BackupFile(FCacheDir + FILENAME_CONFIRMED_US);
+  BackupFile(FCacheDir + FILENAME_DEATHS_US);
+end;
+  
 procedure TJohnsHopkinsDatasource.CalcParentCases(ANode: TTreeNode);
 var
   child: TTreeNode;
