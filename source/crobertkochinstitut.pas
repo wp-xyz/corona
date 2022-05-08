@@ -43,6 +43,8 @@ const
   FILENAME_DEATHS = 'RKI_deaths.csv';
   FILENAME_RECOVERED = 'RKI_recovered.csv';
 
+  RKI_BACKUP_COUNT = 10;
+  
   POPULATION_GERMANY = 83149300;  // Sept 30, 2019; wikipedia.
 
   GERMANY_NODENAME = 'Germany (RKI)';
@@ -382,9 +384,9 @@ const
 
 procedure TRobertKochDataSource.BackupFiles;
 begin
-  BackupFile(FCacheDir + FILENAME_CONFIRMED);
-  BackupFile(FCacheDir + FILENAME_DEATHS);
-  BackupFile(FCacheDir + FILENAME_RECOVERED);
+  BackupFile(FCacheDir + FILENAME_CONFIRMED, RKI_BACKUP_COUNT);
+  BackupFile(FCacheDir + FILENAME_DEATHS, RKI_BACKUP_COUNT);
+  BackupFile(FCacheDir + FILENAME_RECOVERED, RKI_BACKUP_COUNT);
 end;
 
 function TRobertKochDataSource.BuildURL(const ID: String): String;

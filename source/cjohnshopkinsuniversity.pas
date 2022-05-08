@@ -46,6 +46,8 @@ const
 
   COUNTRIES_CONTINENTS_RESNAME = 'COUNTRY-AND-CONTINENT-CODES-LIST';
 
+  JHU_BACKUPCOUNT = 3;
+  
 function BeginsWithQuote(s: String): Boolean;
 begin
   Result := (s <> '') and (s[1] = '"');
@@ -61,14 +63,14 @@ end;
 {  TJohnsHopkinsDatasource                                                     }
 {------------------------------------------------------------------------------}
 
-procedure TJohnsHopkinsDatasource.BackupFiles;  
+procedure TJohnsHopkinsDatasource.BackupFiles;
 begin
-  BackupFile(FCacheDir + FILENAME_CONFIRMED);
-  BackupFile(FCacheDir + FILENAME_DEATHS);
-  BackupFile(FCacheDir + FILENAME_RECOVERED);
-  BackupFile(FCacheDir + FILENAME_POPULATION);
-  BackupFile(FCacheDir + FILENAME_CONFIRMED_US);
-  BackupFile(FCacheDir + FILENAME_DEATHS_US);
+  BackupFile(FCacheDir + FILENAME_CONFIRMED, JHU_BACKUPCOUNT);
+  BackupFile(FCacheDir + FILENAME_DEATHS, JHU_BACKUPCOUNT);
+  BackupFile(FCacheDir + FILENAME_RECOVERED, JHU_BACKUPCOUNT);
+  BackupFile(FCacheDir + FILENAME_POPULATION, JHU_BACKUPCOUNT);
+  BackupFile(FCacheDir + FILENAME_CONFIRMED_US, JHU_BACKUPCOUNT);
+  BackupFile(FCacheDir + FILENAME_DEATHS_US, JHU_BACKUPCOUNT);
 end;
   
 procedure TJohnsHopkinsDatasource.CalcParentCases(ANode: TTreeNode);

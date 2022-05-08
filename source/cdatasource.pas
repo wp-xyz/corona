@@ -101,7 +101,7 @@ type
     FOnStatusMsg: TStatusbarEvent;
   protected
     FCacheDir: String;
-    procedure BackupFile(AFileName: String);
+    procedure BackupFile(AFileName: String; ABackupCount: Integer);
     procedure DoDownloadMsg(const AMsg1, AMsg2: String; APercentage: Integer);
     procedure DoStatusMsg(const AMsg1, AMsg2: String);
   public
@@ -524,7 +524,7 @@ begin
   FCacheDir := AppendPathDelim(ACacheDir);
 end;
 
-procedure TcDataSource.BackupFile(AFileName: String);
+procedure TcDataSource.BackupFile(AFileName: String; ABackupCount: Integer);
 var
   i: Integer;
   src, dest, fn: String;
@@ -532,7 +532,7 @@ begin
   if not FileExists(AFileName) then
     exit;
   fn := ChangeFileExt(AFileName, '');
-  for i := 8 downto 1 do
+  for i := ABackupCount-1 downto 1 do
   begin
     dest := Format('%s.csv%d', [fn, i+1]);
     src := Format('%s.csv%d', [fn, i]);
