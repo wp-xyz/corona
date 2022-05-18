@@ -565,7 +565,7 @@ begin
       sa := CCList[i].Split(',', '"');
       continent := sa[0];
       country := Unquote(sa[2]);
-      if country <> 'Korea, South' then
+      if not ((country = 'Korea, South') or (country = 'Korea, North')) then
       begin
         p := pos(',', country);
         if p > 0 then country := Copy(country, 1, p-1);
