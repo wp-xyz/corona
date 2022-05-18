@@ -22,7 +22,7 @@ object BasicFrame: TBasicFrame
     OnChange = PageControlChange
     object pgChart: TTabSheet
       Caption = 'Chart'
-      ClientHeight = 285
+      ClientHeight = 281
       ClientWidth = 590
       object Chart: TChart
         Left = 0

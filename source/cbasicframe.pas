@@ -241,12 +241,14 @@ begin
     R := data.CalcRValue(dateIdx);
     if IsNaN(R) then sR := '-' else sR := FormatFloat('0.0', R);
     Result := Format(
+      'Population: %.0n' + LineEnding +
       'Total infected: %.0n' + LineEnding +
       'Total deaths: %.0n' + LineEnding +
       'New infected: %.0n' + LineEnding +
       'New deaths: %.0n' + LineEnding +
       'Incidence: %.1f' + LineEnding +
       'R value: %s', [
+      data.Population*1.0,
       data.RawData[pctConfirmed][dateIdx]*1.0,
       data.RawData[pctDeaths][dateIdx]*1.0,
       data.CalcNewCases(dateIdx, ctConfirmed)*1.0,

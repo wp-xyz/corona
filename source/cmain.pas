@@ -700,7 +700,7 @@ begin
     NameLabel.Caption := ATitle;
 
   if AInfos = '' then
-    InfoLabel.Caption := LineEnding + LineEnding + LineEnding + LineEnding + LineEnding
+    InfoLabel.Caption := LineEnding + LineEnding + LineEnding + LineEnding + LineEnding + LineEnding
   else
     InfoLabel.Caption := AInfos;
 end;
