@@ -69,6 +69,7 @@ const
   URL_FPC = 'https://www.freepascal.org/';
   URL_Lazarus = 'https://www.lazarus-ide.org/';
   URL_Icons8 = 'http://www.icons8.com';
+  URL_RolandHahn = 'https://www.rhsoft.de';
   URL_JHU = 'https://systems.jhu.edu/';
   URL_JHU_git = 'https://github.com/CSSEGISandData/COVID-19/';
   URL_RKI = 'https://www.rki.de/EN/Home/homepage_node.html';
@@ -87,21 +88,22 @@ begin
 
  {$IFDEF MSWINDOWS}
   case WindowsVersion of
-    wv95: Result := ' 95';
-    wvNT4: Result := ' NT v.4';
-    wv98: Result := ' 98';
-    wvMe: Result := ' ME';
-    wv2000: Result := ' 2000';
-    wvXP: Result := ' XP';
-    wvServer2003: Result := ' Server 2003';
-    wvVista: Result := ' Vista';
-    wv7: Result := ' 7';
-    wv8: Result := ' 8';
-    wv8_1: Result := ' 8.1';
-    wv10: Result := ' 10';
+    wv95: Result := '95';
+    wvNT4: Result := 'NT v.4';
+    wv98: Result := '98';
+    wvMe: Result := 'ME';
+    wv2000: Result := '2000';
+    wvXP: Result := 'XP';
+    wvServer2003: Result := 'Server 2003';
+    wvVista: Result := 'Vista';
+    wv7: Result := '7';
+    wv8: Result := '8';
+    wv8_1: Result := '8.1';
+    wv10: Result := '10';
+    wv11: Result := '11';
     else Result:= '';
   end;
-  Result := 'Windows' + Result;
+  Result := 'Windows ' + Result;
  {$ENDIF}
 
  {$IFDEF UNIX}
@@ -170,6 +172,7 @@ begin
   lblFPC.Hint := URL_FPC;
   lblLazarus.Hint := URL_Lazarus;
   lblIcons8.Hint := URL_Icons8;
+  lblRolandHahn.Hint := URL_RolandHahn;
   imgJHU.Hint := URL_JHU;
   lblJHUgit.Hint := URL_JHU_git;
   imgRKI.Hint := URL_RKI;
@@ -194,23 +197,6 @@ procedure TAboutForm.LabelClick(Sender: TObject);
 begin
   if Sender is TLabel then
     OpenURL(TLabel(Sender).Hint);
-  {
-  if Sender = lblFPC then
-    OpenURL(URL_FPC)
-  else if Sender = lblLazarus then
-    OpenURL(URL_Lazarus)
-  else if Sender = lblIcons8 then
-    OpenURL(URL_Icons8)
-  else if (Sender = imgJHU) then
-    OpenURL(URL_JHU)
-  else if (Sender = lblJHUgit) then
-    OpenURL(URL_JHU_git)
-  else if (Sender = imgRKI) then
-    OpenURL(URL_RKI)
-  else if (Sender = lblNPGeo) then
-    OpenURL(URL_NPGeo)
-  else if
-  }
 end;
 
 procedure TAboutForm.LabelMouseEnter(Sender: TObject);
