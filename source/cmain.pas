@@ -226,7 +226,8 @@ end;
 
 procedure TMainForm.acDataUpdateExecute(Sender: TObject);
 begin
-  UpdateData;
+  ShowMessage('The data providers have terminated their service.');
+  //UpdateData;
 end;
 
 procedure TMainForm.acInfectiousPeriodExecute(Sender: TObject);

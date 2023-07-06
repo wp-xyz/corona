@@ -4,7 +4,7 @@ object MainForm: TMainForm
   Top = 118
   Width = 900
   Caption = 'corona'
-  ClientHeight = 580
+  ClientHeight = 600
   ClientWidth = 900
   Icon.Data = {
     E8CE000000000100070000000000010020001269000076000000303000000100
@@ -1669,17 +1669,17 @@ object MainForm: TMainForm
   OnCreate = FormCreate
   OnShow = FormShow
   ShowHint = True
-  LCLVersion = '2.3.0.0'
+  LCLVersion = '3.99.0.0'
   object TreeSplitter: TSplitter
     Left = 238
-    Height = 513
+    Height = 533
     Top = 44
     Width = 5
     ResizeStyle = rsPattern
   end
   object LeftPanel: TPanel
     Left = 6
-    Height = 501
+    Height = 521
     Top = 50
     Width = 229
     Align = alLeft
@@ -1688,13 +1688,13 @@ object MainForm: TMainForm
     BorderSpacing.Right = 3
     BorderSpacing.Bottom = 6
     BevelOuter = bvNone
-    ClientHeight = 501
+    ClientHeight = 521
     ClientWidth = 229
     Constraints.MinWidth = 120
     TabOrder = 0
     object TreeView: TTreeView
       Left = 0
-      Height = 463
+      Height = 483
       Hint = 'Click on the country to display its time-series'
       Top = 0
       Width = 229
@@ -1709,7 +1709,7 @@ object MainForm: TMainForm
     object InfoPanel: TPanel
       Left = 0
       Height = 34
-      Top = 467
+      Top = 487
       Width = 229
       Align = alBottom
       AutoSize = True
@@ -1725,7 +1725,6 @@ object MainForm: TMainForm
         Width = 229
         Align = alTop
         Caption = 'InfoLabel'
-        Color = clDefault
         ParentColor = False
       end
       object NameLabel: TLabel
@@ -1736,7 +1735,6 @@ object MainForm: TMainForm
         Align = alTop
         BorderSpacing.Bottom = 4
         Caption = 'NameLabel    '
-        Color = clDefault
         Font.Style = [fsBold]
         ParentColor = False
         ParentFont = False
@@ -1805,7 +1803,7 @@ object MainForm: TMainForm
   end
   object DisplayPanel: TPanel
     Left = 246
-    Height = 507
+    Height = 527
     Top = 50
     Width = 648
     Align = alClient
@@ -1818,7 +1816,7 @@ object MainForm: TMainForm
   object StatusBar: TStatusBar
     Left = 0
     Height = 23
-    Top = 557
+    Top = 577
     Width = 900
     AutoHint = True
     Panels = <>
